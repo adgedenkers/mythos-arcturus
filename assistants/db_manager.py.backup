@@ -53,20 +53,11 @@ Important notes:
 - "Fitz" refers to "Adriaan Fitzgerald Denkers" (use known_as property or full_name CONTAINS)
 - "Ka" refers to "Ka'tuar'el" soul (use display_name)
 - "Seraphe" refers to "Seraphe Harmonia Valemira" soul (use display_name)
-- "Rebecca" refers to Rebecca Lydia Denkers person (use full_name)
-- "Adriaan" refers to Adriaan Harold Denkers person (use full_name)
 - When searching for nicknames, use: WHERE p.known_as = "Fitz" OR p.full_name CONTAINS "Fitz"
-
-When someone asks for a soul name alone (Ka, Seraphe, Ka'tuar'el):
-- Search Soul nodes: MATCH (s:Soul WHERE s.display_name CONTAINS "Seraphe") RETURN s
-
-When someone asks for a person name (Rebecca, Adriaan, Fitz):
-- Search Person nodes: MATCH (p:Person WHERE p.full_name CONTAINS "Rebecca" OR p.known_as = "Rebecca") RETURN p
 
 Example queries:
 - Count nodes: MATCH (n) RETURN labels(n) as type, count(n) as count
-- Find soul: MATCH (s:Soul WHERE s.display_name CONTAINS "Seraphe") RETURN s
-- Find person: MATCH (p:Person WHERE p.full_name CONTAINS "Fitz" OR p.known_as = "Fitz") RETURN p
+- Find by name: MATCH (p:Person WHERE p.full_name CONTAINS "Fitz" OR p.known_as = "Fitz") RETURN p
 - Find parents: MATCH (parent:Person)-[:PARENT_OF]->(child:Person WHERE child.known_as = "Fitz") RETURN parent
 - Show family: MATCH (parent:Person)-[:PARENT_OF]->(child:Person) RETURN parent, child
 """
@@ -91,28 +82,18 @@ Example queries:
         
         prompt = f"""You are a Neo4j Cypher expert. Convert this natural language query into valid Cypher.
 
-    Database Schema:
-    {self.neo4j_schema}
+Database Schema:
+{self.neo4j_schema}
 
-    Query: {natural_language_query}
+Query: {natural_language_query}
 
-    Rules:
-    - For counting: MATCH (n) RETURN labels(n) as type, count(n) as count
-    - For finding by name: Use CONTAINS for partial matching (case-insensitive search)
-    - ALWAYS return full nodes: RETURN n (NOT individual properties like n.name, n.role)
-    - When searching, use WHERE with CONTAINS (not exact equality unless specified)
-    - If multiple matches possible, return ALL of them
-    - Keep queries simple
+Rules:
+- For counting, use: MATCH (n) RETURN labels(n) as type, count(n) as count
+- For finding by name, use exact property matching
+- Always return meaningful property names, not just nodes
+- Keep queries simple and focused
 
-    Name search patterns:
-    - "Show me Ka" → MATCH (s:Soul WHERE s.display_name CONTAINS "Ka") RETURN s
-    - "Show me Seraphe" → MATCH (s:Soul WHERE s.display_name CONTAINS "Seraphe") RETURN s
-    - "Show me Rebecca" → MATCH (p:Person WHERE p.full_name CONTAINS "Rebecca") RETURN p
-    - "Show me Fitz" → MATCH (p:Person WHERE p.known_as = "Fitz" OR p.full_name CONTAINS "Fitz") RETURN p
-
-    CRITICAL: Always use RETURN n or RETURN p or RETURN s (the full node), never RETURN n.property1, n.property2
-
-    Respond with ONLY the Cypher query, no markdown, no explanations."""
+Respond with ONLY the Cypher query, no markdown, no explanations."""
 
         response = self.ollama.generate(model=self.model, prompt=prompt)
         cypher = response['response'].strip()
@@ -149,17 +130,8 @@ Example queries:
                     
                     # Show key properties only
                     props = dict(value._properties)
-
-                    # Different properties for different node types
-                    if 'Soul' in labels:
-                        important_props = ['display_name', 'primary_role', 'canonical_id']
-                    elif 'Person' in labels:
-                        important_props = ['full_name', 'known_as', 'birth_date', 'birth_location', 'current_location']
-                    elif 'Lifetime' in labels:
-                        important_props = ['title', 'role', 'time_period', 'is_current']
-                    else:
-                        important_props = ['canonical_id', 'display_name', 'full_name', 'title']
-
+                    important_props = ['display_name', 'full_name', 'known_as', 'title', 'canonical_id', 'role']
+                    
                     for prop in important_props:
                         if prop in props:
                             output += f"  • {prop}: {props[prop]}\n"
