@@ -9,8 +9,6 @@ from pydantic import BaseModel
 from typing import Optional
 import os
 import sys
-import time
-from datetime import datetime
 from dotenv import load_dotenv
 import psycopg2
 
@@ -150,9 +148,8 @@ async def process_message(
     api_key: str = Depends(verify_api_key)
 ):
     """
-    Process a message through the Mythos system with full logging.
+    Process a message through the Mythos system.
     """
-    start_time = time.time()
     
     # Look up user
     user = get_user_by_identifier(request.user_id)
@@ -160,107 +157,39 @@ async def process_message(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Generate conversation_id (date-based)
-    conversation_id = f"tg-{request.user_id}-{datetime.now().strftime('%Y%m%d')}"
-    
-    # Log incoming user message
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO chat_messages (
-                user_uuid, telegram_user_id, conversation_id,
-                role, content, mode, created_at
-            ) VALUES (%s, %s, %s, %s, %s, %s, NOW())
-        """, (
-            user['uuid'],
-            user.get('telegram_id'),
-            conversation_id,
-            'user',
-            request.message,
-            request.mode
-        ))
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        print(f"Error logging user message: {e}")
-    
     # Route to appropriate assistant
-    response_text = None
-    error_message = None
-    cypher_generated = None
-    sql_generated = None
-    
-    try:
-        if request.mode == "db" and db_manager_instance:
+    if request.mode == "db" and db_manager_instance:
+        try:
             # Set user context
             db_manager_instance.set_user(user)
             
             # Process message
             response_text = db_manager_instance.query(request.message)
             
-            # Try to extract generated query from response for logging
-            if "⚡ Cypher:" in response_text:
-                lines = response_text.split("\n")
-                for i, line in enumerate(lines):
-                    if "⚡ Cypher:" in line and i + 1 < len(lines):
-                        cypher_generated = lines[i + 1].strip()
-                        break
-            elif "⚡ SQL:" in response_text:
-                lines = response_text.split("\n")
-                for i, line in enumerate(lines):
-                    if "⚡ SQL:" in line and i + 1 < len(lines):
-                        sql_generated = lines[i + 1].strip()
-                        break
+            return MessageResponse(
+                response=response_text,
+                mode=request.mode,
+                user=user['soul_display_name']
+            )
         
-        elif request.mode == "seraphe":
-            response_text = "Seraphe's assistant is not yet connected. Coming soon!"
-        
-        else:
-            response_text = f"Mode '{request.mode}' not yet implemented. Echo: {request.message}"
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Database manager error: {str(e)}")
     
-    except Exception as e:
-        error_message = str(e)
-        response_text = f"❌ Error: {error_message}"
+    elif request.mode == "seraphe":
+        # Placeholder for Seraphe's assistant
+        return MessageResponse(
+            response="Seraphe's assistant is not yet connected. Coming soon!",
+            mode=request.mode,
+            user=user['soul_display_name']
+        )
     
-    # Calculate response time
-    response_time_ms = int((time.time() - start_time) * 1000)
-    
-    # Log assistant response
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO chat_messages (
-                user_uuid, telegram_user_id, conversation_id,
-                role, content, mode, model_used,
-                cypher_generated, sql_generated,
-                response_time_ms, error_message,
-                created_at
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
-        """, (
-            user['uuid'],
-            user.get('telegram_id'),
-            conversation_id,
-            'assistant',
-            response_text,
-            request.mode,
-            'llama3.2:3b',
-            cypher_generated,
-            sql_generated,
-            response_time_ms,
-            error_message
-        ))
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        print(f"Error logging assistant response: {e}")
-    
-    return MessageResponse(
-        response=response_text,
-        mode=request.mode,
-        user=user['soul_display_name']
-    )
+    else:
+        # Fallback echo
+        return MessageResponse(
+            response=f"Mode '{request.mode}' not yet implemented. Echo: {request.message}",
+            mode=request.mode,
+            user=user['soul_display_name']
+        )
 
 @app.get("/user/{identifier}", response_model=UserInfo)
 async def get_user(
