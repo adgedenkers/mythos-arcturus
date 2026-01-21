@@ -1,0 +1,12 @@
+# Mythos LLM Diagnostics Requirements
+
+# Ollama Python client
+ollama>=0.1.0
+
+# MCP (Model Context Protocol) - if needed for future extensions
+# mcp>=0.1.0
+
+# Already installed from Patch 0005:
+# neo4j>=5.15.0
+# psutil>=5.9.0
+# PyYAML>=6.0

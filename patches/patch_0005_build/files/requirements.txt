@@ -1,0 +1,10 @@
+# Arcturus Graph Logging Requirements
+
+# Neo4j driver
+neo4j>=5.15.0
+
+# System monitoring
+psutil>=5.9.0
+
+# Configuration parsing
+PyYAML>=6.0

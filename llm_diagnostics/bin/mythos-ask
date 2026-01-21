@@ -1,0 +1,11 @@
+#!/bin/bash
+# mythos-ask wrapper script
+# Usage: mythos-ask "your question"
+
+# Source environment
+if [ -f ~/.arcturus_development_env.sh ]; then
+    source ~/.arcturus_development_env.sh
+fi
+
+# Run Python script
+python3 /opt/mythos/llm_diagnostics/src/mythos_ask.py "$@"

@@ -1,0 +1,26 @@
+{
+  "patch_number": 6,
+  "name": "llm_diagnostics",
+  "description": "LLM diagnostics interface with Ollama integration",
+  "requires_patch": 5,
+  "creates_files": [
+    "/opt/mythos/llm_diagnostics/src/mythos_ask.py",
+    "/opt/mythos/llm_diagnostics/src/conversation_logger.py",
+    "/opt/mythos/llm_diagnostics/config/diagnostics_config.yaml",
+    "/usr/local/bin/mythos-ask",
+    "/usr/local/bin/mythos-chat"
+  ],
+  "modifies_files": [],
+  "depends_on_services": [
+    "neo4j",
+    "ollama"
+  ],
+  "required_env_vars": [
+    "NEO4J_URI",
+    "NEO4J_USER",
+    "NEO4J_PASSWORD"
+  ],
+  "python_version": ">=3.11",
+  "created_by": "Ka_tuar_el",
+  "created_date": "2025-01-14"
+}

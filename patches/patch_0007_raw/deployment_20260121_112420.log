@@ -1,0 +1,76 @@
+[0;34m════════════════════════════════════════════════════════[0m
+[0;34m  Mythos Sprint 1 Master Deployment[0m
+[0;34m  Photo Input System - Complete Installation[0m
+[0;34m════════════════════════════════════════════════════════[0m
+
+Deployment log: [1;33m/opt/mythos/patches/patch_0007_raw/deployment_20260121_112420.log[0m
+
+[1;33mThis will:[0m
+  1. Apply database migration (media_files table)
+  2. Create /opt/mythos/media directory
+  3. Patch API with media endpoints
+  4. Install photo-enabled bot
+  5. Restart services
+  6. Run verification tests
+
+[0;31mWARNING: This will modify your production system[0m
+Continue? (y/N)
+
+Starting deployment at Wed Jan 21 11:24:24 AM EST 2026
+
+
+[0;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;36mStep 0: Checking Prerequisites[0m
+[0;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+[0;32m✓ Found SQL migration[0m
+[0;32m✓ Found bot file[0m
+[0;32m✓ Found API patcher[0m
+[0;32m✓ Found bot installer[0m
+[0;32m✓ PostgreSQL client available[0m
+[0;32m✓ Python 3 available[0m
+
+
+[0;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;36mStep 1: Database Migration[0m
+[0;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+Applying media_files schema...
+psql:/opt/mythos/patches/patch_0007_raw/001_media_storage_migration.sql:49: NOTICE:  relation "media_files" already exists, skipping
+CREATE TABLE
+psql:/opt/mythos/patches/patch_0007_raw/001_media_storage_migration.sql:52: ERROR:  relation "idx_media_user" already exists
+psql:/opt/mythos/patches/patch_0007_raw/001_media_storage_migration.sql:53: ERROR:  relation "idx_media_conversation" already exists
+psql:/opt/mythos/patches/patch_0007_raw/001_media_storage_migration.sql:54: ERROR:  relation "idx_media_uploaded" already exists
+psql:/opt/mythos/patches/patch_0007_raw/001_media_storage_migration.sql:55: ERROR:  relation "idx_media_type" already exists
+psql:/opt/mythos/patches/patch_0007_raw/001_media_storage_migration.sql:56: ERROR:  relation "idx_media_unprocessed" already exists
+psql:/opt/mythos/patches/patch_0007_raw/001_media_storage_migration.sql:59: ERROR:  relation "idx_media_text_search" already exists
+psql:/opt/mythos/patches/patch_0007_raw/001_media_storage_migration.sql:62: ERROR:  relation "idx_media_auto_tags" already exists
+psql:/opt/mythos/patches/patch_0007_raw/001_media_storage_migration.sql:63: ERROR:  relation "idx_media_user_tags" already exists
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+CREATE VIEW
+COMMENT
+CREATE FUNCTION
+COMMENT
+[0;32m✓ Database migration applied[0m
+            List of relations
+ Schema |    Name     | Type  |  Owner   
+--------+-------------+-------+----------
+ public | media_files | table | postgres
+(1 row)
+
+[0;32m✓ Verified media_files table exists[0m
+
+
+[0;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;36mStep 2: Media Directory Setup[0m
+[0;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+[0;32m✓ Directory already exists[0m
+[1;33m⚠️  Directory exists but not writable[0m
+Attempting to fix permissions...
+[0;31m❌ Failed to fix permissions[0m
+[0;31m❌ Media directory setup failed[0m

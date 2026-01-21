@@ -1,0 +1,15 @@
+[Unit]
+Description=Arcturus Event Cleanup - Remove Old Graph Events
+Documentation=file:///opt/mythos/graph_logging/README.md
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/mythos/graph_logging
+ExecStart=/usr/bin/python3 /opt/mythos/graph_logging/scripts/cleanup_old_events.py
+
+# Logging
+StandardOutput=append:/opt/mythos/graph_logging/logs/cleanup.log
+StandardError=append:/opt/mythos/graph_logging/logs/cleanup.log
+
+# Load environment variables
+EnvironmentFile=%h/.config/arcturus/systemd.env

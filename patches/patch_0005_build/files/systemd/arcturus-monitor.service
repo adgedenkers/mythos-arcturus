@@ -1,0 +1,24 @@
+[Unit]
+Description=Arcturus System Monitor - Graph Event Logging
+Documentation=file:///opt/mythos/graph_logging/README.md
+After=network.target neo4j.service postgresql.service
+Wants=neo4j.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/mythos/graph_logging
+ExecStart=/usr/bin/python3 /opt/mythos/graph_logging/src/system_monitor.py
+
+# Restart on failure
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=append:/opt/mythos/graph_logging/logs/monitor.log
+StandardError=append:/opt/mythos/graph_logging/logs/monitor.log
+
+# Load environment variables
+EnvironmentFile=%h/.config/arcturus/systemd.env
+
+[Install]
+WantedBy=default.target

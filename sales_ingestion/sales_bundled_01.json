@@ -1,0 +1,53 @@
+[
+  {
+    "listing_title": "4 Pairs Women's Jeans Bundle - Old Navy Size 16/18 - $40",
+    "description": "Bundle of 4 Old Navy women's jeans in gently used condition. Sizes 16-18 Regular. Mix of dark and light washes, flare and micro-flare styles. All in great shape with plenty of life left!\n\nSold as bundle only - $40 for all 4 pairs (that's $10 each!)\n\nMaterials: Cotton, Elastane, Polyester blend\nCondition: Gently Used\n\nCash only\nPickup: Magro's Restaurant & Pizzeria, Norwich\n104 East Main Street, Norwich NY\nC/O Hannah",
+    "price": 40.00,
+    "category": "Women's Jeans",
+    "condition": "used_like_new",
+    "availability": "in_stock",
+    "item_ids": [
+      "f3c9e5f2-9f5a-4a91-b9d7-6a8b6e7e5a01",
+      "6a7f92a4-1a0c-4c6e-8b17-f3f1d0f1c403",
+      "a41e3f6e-3c7e-4c5b-b4c6-6a8b5c9e1001",
+      "b52d7a91-9d3c-4c1f-9f6e-0d0f7c2a1002"
+    ],
+    "items_included": [
+      "Old Navy Women's Jeans Size 16 Regular - Dark Blue Flare",
+      "Old Navy Women's Jeans Size 16 Regular - Dark Blue",
+      "Old Navy Women's Jeans Size 18 Regular - Dark Blue Flare/Micro-Flare",
+      "Old Navy Women's Jeans Size 18 Regular - Light Blue Micro-Flare"
+    ],
+    "pickup_location": "Magro's Restaurant & Pizzeria, 104 East Main Street, Norwich NY",
+    "pickup_contact": "Hannah",
+    "payment_method": "cash"
+  },
+  {
+    "listing_title": "Gap 1969 Women's Easy Leggings Jeans Size 34R - NEW WITH TAGS - $40",
+    "description": "Gap 1969 women's jeans in medium blue. Size 34R. NEW WITH TAGS!\n\nEasy Leggings cut provides comfortable stretch and flattering fit. Made from quality cotton blend fabric.\n\nNever worn - still has original tags attached!\n\nMaterials: Cotton Blend\nBrand: Gap 1969\nCondition: New with Tags\n\nCash only\nPickup: Magro's Restaurant & Pizzeria, Norwich\n104 East Main Street, Norwich NY\nC/O Hannah",
+    "price": 40.00,
+    "category": "Women's Jeans",
+    "condition": "new",
+    "availability": "in_stock",
+    "item_ids": [
+      "9d1cbe77-8f2a-4b4e-8c8f-61b7e4a31c02"
+    ],
+    "pickup_location": "Magro's Restaurant & Pizzeria, 104 East Main Street, Norwich NY",
+    "pickup_contact": "Hannah",
+    "payment_method": "cash"
+  },
+  {
+    "listing_title": "Gap 1969 Women's Perfect Boot Cut Jeans Size 34R - $25",
+    "description": "Gap 1969 women's Perfect Boot cut jeans in medium blue. Size 34R. Made from quality cotton blend fabric.\n\nThese classic boot cut jeans are in gently used condition and perfect for any casual occasion.\n\nGap 1969 Perfect Boot cut - quality denim at a great price!\n\nMaterials: Cotton Blend\nBrand: Gap 1969\nCondition: Gently Used\n\nCash only\nPickup: Magro's Restaurant & Pizzeria, Norwich\n104 East Main Street, Norwich NY\nC/O Hannah",
+    "price": 25.00,
+    "category": "Women's Jeans",
+    "condition": "used_like_new",
+    "availability": "in_stock",
+    "item_ids": [
+      "c9a84c33-7e9a-4c44-9c88-44a8c3101003"
+    ],
+    "pickup_location": "Magro's Restaurant & Pizzeria, 104 East Main Street, Norwich NY",
+    "pickup_contact": "Hannah",
+    "payment_method": "cash"
+  }
+]

@@ -1,0 +1,146 @@
+[
+  {
+    "id": "4ec9d8d5-821e-4b97-b24a-4dfcbeeb311c",
+    "brand": "Old Navy",
+    "garment_type": "jeans",
+    "gender_category": "womens",
+    "size_label": "16 Regular",
+    "standardized_size": "16",
+    "colors": [
+      "dark blue"
+    ],
+    "materials": [
+      "cotton",
+      "polyester",
+      "elastane"
+    ],
+    "condition": "gently_used",
+    "season": [
+      "fall",
+      "winter",
+      "spring"
+    ],
+    "country_of_manufacture": "Cambodia",
+    "original_retail_price": null,
+    "estimated_resale_price": 18.0,
+    "care_instructions": "Machine wash cold, wash inside out, tumble dry low",
+    "confidence_score": 0.92,
+    "inferred_fields": [
+      "season",
+      "estimated_resale_price"
+    ],
+    "notes": "Unit A \u2013 identical SKU stored separately.",
+    "images": [
+      {
+        "filename": "image-0000001.jpeg",
+        "original_filename": "95CDC112-074B-4E0B-98FE-0ACFCD7EDCA7.jpeg",
+        "view_type": "front"
+      },
+      {
+        "filename": "image-0000002.jpeg",
+        "original_filename": "2ACA5AA7-1D65-4101-B8BC-C2AF48D9AD3E.jpeg",
+        "view_type": "label"
+      },
+      {
+        "filename": "image-0000003.jpeg",
+        "original_filename": "2C80E50F-9155-497E-A6ED-E30C2081629F.jpeg",
+        "view_type": "tag"
+      }
+    ]
+  },
+  {
+    "id": "24a82bc1-e945-43ff-a008-d497f4089991",
+    "brand": "Old Navy",
+    "garment_type": "jeans",
+    "gender_category": "womens",
+    "size_label": "16 Regular",
+    "standardized_size": "16",
+    "colors": [
+      "dark blue"
+    ],
+    "materials": [
+      "cotton",
+      "polyester",
+      "elastane"
+    ],
+    "condition": "gently_used",
+    "season": [
+      "fall",
+      "winter",
+      "spring"
+    ],
+    "country_of_manufacture": "Cambodia",
+    "original_retail_price": null,
+    "estimated_resale_price": 18.0,
+    "care_instructions": "Machine wash cold, wash inside out, tumble dry low",
+    "confidence_score": 0.92,
+    "inferred_fields": [
+      "season",
+      "estimated_resale_price"
+    ],
+    "notes": "Unit B \u2013 identical SKU stored separately.",
+    "images": [
+      {
+        "filename": "image-0000004.jpeg",
+        "original_filename": "7E3996E6-0653-4169-A63B-6AF8EA9CD91C.jpeg",
+        "view_type": "front"
+      },
+      {
+        "filename": "image-0000005.jpeg",
+        "original_filename": "3BE8441C-DA4A-4099-B8EC-77CEE6F88FF1.jpeg",
+        "view_type": "label"
+      },
+      {
+        "filename": "image-0000006.jpeg",
+        "original_filename": "69AF8902-CE9A-46E1-AA22-3C937E2F59C4.jpeg",
+        "view_type": "tag"
+      }
+    ]
+  },
+  {
+    "id": "4744b3a7-ac4d-40d3-8232-df86f23ff5dd",
+    "brand": "Gap 1969",
+    "garment_type": "jeans",
+    "gender_category": "womens",
+    "size_label": "34R",
+    "standardized_size": "34R",
+    "colors": [
+      "medium blue"
+    ],
+    "materials": [
+      "cotton blend"
+    ],
+    "condition": "new_with_tags",
+    "season": [
+      "all-season"
+    ],
+    "country_of_manufacture": null,
+    "original_retail_price": null,
+    "estimated_resale_price": 35.0,
+    "care_instructions": null,
+    "confidence_score": 0.94,
+    "inferred_fields": [
+      "materials",
+      "season",
+      "estimated_resale_price"
+    ],
+    "notes": "New with tags.",
+    "images": [
+      {
+        "filename": "image-0000007.jpeg",
+        "original_filename": "E3A2F803-3C97-4824-8F33-D1E1D0E83B41.jpeg",
+        "view_type": "front"
+      },
+      {
+        "filename": "image-0000008.jpeg",
+        "original_filename": "C498C50C-8664-4FD4-A9FB-D76D56422357.jpeg",
+        "view_type": "label"
+      },
+      {
+        "filename": "image-0000009.jpeg",
+        "original_filename": "473D21DE-1194-4DAB-8989-8C70675B76E0.jpeg",
+        "view_type": "tag"
+      }
+    ]
+  }
+]

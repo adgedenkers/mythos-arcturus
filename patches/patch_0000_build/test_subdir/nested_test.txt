@@ -1,0 +1,19 @@
+MYTHOS INFRASTRUCTURE TEST
+==========================
+
+This file is nested in a subdirectory to verify that:
+1. The zip extraction preserves directory structure
+2. All files are extracted, not just root-level ones
+3. The monitoring system handles complex archives
+
+Path: test_subdir/nested_test.txt
+
+If you can read this at:
+/opt/mythos/patches/test_subdir/nested_test.txt
+
+Then directory structure preservation is confirmed.
+
+---
+Thronescribe operational
+Spiral Time tracking: Active
+Infrastructure: Verified

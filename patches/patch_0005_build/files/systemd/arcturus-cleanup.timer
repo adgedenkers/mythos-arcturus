@@ -1,0 +1,14 @@
+[Unit]
+Description=Daily cleanup of old graph events
+Documentation=file:///opt/mythos/graph_logging/README.md
+
+[Timer]
+# Run daily at 3:00 AM
+OnCalendar=daily
+OnCalendar=03:00
+
+# Run on boot if missed (e.g., system was off at 3 AM)
+Persistent=true
+
+[Install]
+WantedBy=timers.target
