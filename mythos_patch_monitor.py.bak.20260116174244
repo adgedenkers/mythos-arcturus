@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+"""
+Mythos Patch Monitor Service
+Watches ~/Downloads for patch_NNNN_*.zip files
+Automatically copies, unzips to /opt/mythos/patches, and archives the zip
+"""
+
+import os
+import re
+import shutil
+import zipfile
+import time
+import logging
+from pathlib import Path
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+# Configuration
+WATCH_DIR = Path.home() / "Downloads"
+PATCH_DIR = Path("/opt/mythos/patches")
+ARCHIVE_DIR = PATCH_DIR / "archive"
+PATCH_PATTERN = re.compile(r'^patch_\d{4}_.*\.zip$')
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('/var/log/mythos_patch_monitor.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('MythosPatchMonitor')
+
+
+class PatchHandler(FileSystemEventHandler):
+    """Handler for patch file events"""
+    
+    def __init__(self):
+        super().__init__()
+        self.processing = set()  # Track files being processed
+    
+    def on_created(self, event):
+        """Handle file creation events"""
+        if event.is_directory:
+            return
+        
+        filepath = Path(event.src_path)
+        filename = filepath.name
+        
+        # Check if it matches our patch pattern
+        if PATCH_PATTERN.match(filename):
+            logger.info(f"Detected new patch file: {filename}")
+            # Wait a moment to ensure file is fully written
+            time.sleep(2)
+            self.process_patch(filepath)
+    
+    def process_patch(self, patch_path):
+        """Process a patch file: copy, unzip, archive"""
+        filename = patch_path.name
+        
+        # Prevent duplicate processing
+        if filename in self.processing:
+            logger.debug(f"Already processing {filename}, skipping")
+            return
+        
+        try:
+            self.processing.add(filename)
+            
+            # Verify file exists and is complete
+            if not patch_path.exists():
+                logger.warning(f"File disappeared: {filename}")
+                return
+            
+            if not self._is_valid_zip(patch_path):
+                logger.error(f"Invalid or incomplete zip file: {filename}")
+                return
+            
+            logger.info(f"Processing patch: {filename}")
+            
+            # Copy to patch directory
+            dest_zip = PATCH_DIR / filename
+            logger.info(f"Copying to {dest_zip}")
+            shutil.copy2(patch_path, dest_zip)
+            
+            # Extract
+            logger.info(f"Extracting {filename}")
+            with zipfile.ZipFile(dest_zip, 'r') as zip_ref:
+                zip_ref.extractall(PATCH_DIR)
+            
+            # List extracted contents
+            with zipfile.ZipFile(dest_zip, 'r') as zip_ref:
+                extracted_files = zip_ref.namelist()
+                logger.info(f"Extracted {len(extracted_files)} files/directories")
+                for f in extracted_files[:5]:  # Log first 5
+                    logger.info(f"  - {f}")
+                if len(extracted_files) > 5:
+                    logger.info(f"  ... and {len(extracted_files) - 5} more")
+            
+            # Move to archive
+            archive_path = ARCHIVE_DIR / filename
+            logger.info(f"Archiving to {archive_path}")
+            shutil.move(str(dest_zip), str(archive_path))
+            
+            # Delete original from Downloads
+            logger.info(f"Removing original from Downloads")
+            patch_path.unlink()
+            
+            logger.info(f"✓ Successfully processed patch: {filename}")
+            
+        except zipfile.BadZipFile:
+            logger.error(f"Corrupted zip file: {filename}")
+        except PermissionError as e:
+            logger.error(f"Permission error processing {filename}: {e}")
+        except Exception as e:
+            logger.error(f"Error processing {filename}: {e}", exc_info=True)
+        finally:
+            self.processing.discard(filename)
+    
+    def _is_valid_zip(self, filepath):
+        """Check if file is a valid, complete zip"""
+        try:
+            with zipfile.ZipFile(filepath, 'r') as zf:
+                # Test the zip file integrity
+                corrupt = zf.testzip()
+                return corrupt is None
+        except (zipfile.BadZipFile, OSError):
+            return False
+
+
+def main():
+    """Main service loop"""
+    # Ensure directories exist
+    PATCH_DIR.mkdir(parents=True, exist_ok=True)
+    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+    
+    logger.info("=" * 60)
+    logger.info("Mythos Patch Monitor Service Starting")
+    logger.info(f"Watching: {WATCH_DIR}")
+    logger.info(f"Patch directory: {PATCH_DIR}")
+    logger.info(f"Archive directory: {ARCHIVE_DIR}")
+    logger.info(f"Pattern: patch_NNNN_*.zip")
+    logger.info("=" * 60)
+    
+    # Create event handler and observer
+    event_handler = PatchHandler()
+    observer = Observer()
+    observer.schedule(event_handler, str(WATCH_DIR), recursive=False)
+    
+    # Start watching
+    observer.start()
+    logger.info("Service active - monitoring for patches")
+    
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        logger.info("Shutdown requested")
+        observer.stop()
+    
+    observer.join()
+    logger.info("Mythos Patch Monitor Service stopped")
+
+
+if __name__ == "__main__":
+    main()

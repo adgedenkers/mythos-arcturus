@@ -1,0 +1,259 @@
+{
+  "sprint": 1,
+  "phase": "Accept Photos as Input",
+  "completed": "2026-01-21",
+  "spiral_date": "1.3",
+  "architect": "Ka'tuar'el",
+  
+  "objectives": [
+    "Store photos sent via Telegram with full metadata",
+    "Link photos to users, conversations, and messages",
+    "Provide photo listing and retrieval",
+    "Prepare for Phase 2 (conversational awareness) and Phase 3 (analysis)"
+  ],
+  
+  "deliverables": {
+    "database_migration": {
+      "file": "001_media_storage_migration.sql",
+      "tables_created": [
+        "media_files"
+      ],
+      "views_created": [
+        "recent_photos"
+      ],
+      "functions_created": [
+        "search_photos_by_tag"
+      ],
+      "indexes": [
+        "idx_media_user",
+        "idx_media_conversation",
+        "idx_media_uploaded",
+        "idx_media_type",
+        "idx_media_unprocessed",
+        "idx_media_text_search",
+        "idx_media_auto_tags",
+        "idx_media_user_tags"
+      ]
+    },
+    
+    "telegram_bot": {
+      "file": "mythos_bot_with_photos.py",
+      "new_handlers": [
+        "handle_photo",
+        "photos_command"
+      ],
+      "updated_commands": [
+        "/start - mentions photo capability",
+        "/help - includes photo commands",
+        "/photos - list recent uploads"
+      ],
+      "constants_added": [
+        "MEDIA_BASE_PATH"
+      ]
+    },
+    
+    "api_endpoints": {
+      "file": "api_media_endpoints.py",
+      "endpoints_added": [
+        "POST /media/upload",
+        "GET /media/recent",
+        "GET /media/{media_id}",
+        "GET /media/search/tag/{tag}",
+        "POST /media/tag/add"
+      ],
+      "models_added": [
+        "MediaUploadRequest",
+        "MediaUploadResponse",
+        "PhotoSummary",
+        "RecentPhotosResponse",
+        "AddTagRequest"
+      ],
+      "helper_functions": [
+        "get_recent_conversation_with_media"
+      ]
+    },
+    
+    "deployment_guide": {
+      "file": "SPRINT_1_DEPLOYMENT.md",
+      "sections": [
+        "Prerequisites",
+        "Deployment Steps",
+        "Testing",
+        "Verification Checklist",
+        "Troubleshooting",
+        "Rollback Procedure"
+      ]
+    }
+  },
+  
+  "design_principles_followed": {
+    "right_tool_for_job": {
+      "postgresql": "Structured metadata, transactional integrity, searchable",
+      "filesystem": "Actual image files - efficient, no blob overhead",
+      "jsonb": "Flexible analysis_data schema that can evolve",
+      "text_arrays": "Simple tagging without junction table complexity"
+    },
+    "start_simple": {
+      "tags": "Arrays first, junction table commented out (add if needed)",
+      "entity_links": "Stored in JSONB first, dedicated table available if complex queries needed",
+      "analysis": "Background processing queued but not implemented (Phase 3)"
+    },
+    "analyze_without_assumptions": {
+      "no_premature_optimization": "GIN indexes only where search needed",
+      "flexible_schema": "JSONB for analysis allows any vision model output",
+      "optional_linking": "conversation_id, message_id nullable - photos standalone or in context"
+    }
+  },
+  
+  "data_flow": {
+    "upload_flow": [
+      "1. User sends photo to Telegram bot",
+      "2. Bot downloads to /opt/mythos/media/{user_prefix}/{filename}",
+      "3. Bot POSTs metadata to /media/upload API",
+      "4. API stores record in media_files table",
+      "5. If caption exists, creates chat_messages entry and links",
+      "6. Bot acknowledges receipt with metadata",
+      "7. (Phase 3) Background analysis queued"
+    ],
+    
+    "retrieval_flow": [
+      "1. User sends /photos command",
+      "2. Bot GETs from /media/recent API",
+      "3. API queries media_files table",
+      "4. Returns list with metadata and processing status",
+      "5. Bot formats and displays"
+    ],
+    
+    "search_flow": [
+      "1. User searches by tag (future)",
+      "2. API queries using GIN index on tag arrays",
+      "3. Returns matching photos",
+      "4. Enables 'show me photos with spirals'"
+    ]
+  },
+  
+  "database_schema": {
+    "media_files": {
+      "purpose": "Core metadata for all uploaded media",
+      "key_columns": {
+        "id": "UUID primary key",
+        "user_uuid": "Links to users table",
+        "conversation_id": "Optional link to conversation context",
+        "message_id": "Optional link to chat message (for captions)",
+        "file_path": "Absolute path on filesystem",
+        "telegram_file_id": "Telegram's file identifier",
+        "width_height": "Image dimensions for display",
+        "processed": "Analysis complete flag",
+        "analysis_data": "JSONB - vision model output",
+        "extracted_text": "OCR results, full-text searchable",
+        "auto_tags": "TEXT[] - tags from vision model",
+        "user_tags": "TEXT[] - user-provided tags"
+      },
+      "indexes": {
+        "user": "Fast user-specific queries",
+        "conversation": "Photos in conversation context",
+        "uploaded": "Recent photos DESC",
+        "type": "Filter by photo/video/audio",
+        "unprocessed": "Find photos needing analysis",
+        "text_search": "Full-text search on extracted text",
+        "tag_arrays": "GIN indexes for tag searches"
+      }
+    }
+  },
+  
+  "filesystem_structure": {
+    "base_path": "/opt/mythos/media",
+    "user_directories": "{user_uuid[:8]}/",
+    "filename_pattern": "{timestamp}_{telegram_file_unique_id[:16]}.jpg",
+    "example": "/opt/mythos/media/a1b2c3d4/20260121_150530_xyz123abc456.jpg",
+    "permissions": "755 on directories, 644 on files",
+    "owner": "mythos:mythos"
+  },
+  
+  "api_authentication": {
+    "header": "X-API-Key",
+    "keys": {
+      "telegram_bot": "API_KEY_TELEGRAM_BOT from .env",
+      "ka": "API_KEY_KA from .env",
+      "seraphe": "API_KEY_SERAPHE from .env"
+    }
+  },
+  
+  "testing_checklist": [
+    "Send photo via Telegram - receives acknowledgment",
+    "Photo stored in correct filesystem path",
+    "Database record created in media_files",
+    "Photo dimensions captured correctly",
+    "Send photo with caption - chat_message created and linked",
+    "Start /convo, send photo - conversation_id linked",
+    "/photos command lists uploaded photos",
+    "API /media/recent returns photos",
+    "API /media/{id} returns full details",
+    "Filesystem permissions correct (755 dirs, 644 files)"
+  ],
+  
+  "next_sprint_prep": {
+    "sprint_2_ready": [
+      "get_recent_conversation_with_media() already implemented",
+      "Photo metadata available in conversation context",
+      "Can reference 'that photo you sent' in responses",
+      "Search by tag infrastructure ready"
+    ],
+    "sprint_3_ready": [
+      "Background task framework in place",
+      "JSONB analysis_data schema ready",
+      "auto_tags array ready for vision model output",
+      "processed flag for tracking analysis state"
+    ]
+  },
+  
+  "file_manifest": {
+    "sql": [
+      "001_media_storage_migration.sql - Database schema for media storage"
+    ],
+    "python": [
+      "mythos_bot_with_photos.py - Updated Telegram bot with photo handling",
+      "api_media_endpoints.py - FastAPI endpoints for media operations"
+    ],
+    "documentation": [
+      "SPRINT_1_DEPLOYMENT.md - Step-by-step deployment guide",
+      "mythos_system_analysis.md - Full system analysis and roadmap",
+      "sprint_1_summary.json - This file"
+    ]
+  },
+  
+  "estimated_deployment_time": {
+    "database_migration": "5 minutes",
+    "create_directories": "2 minutes",
+    "update_api": "10 minutes",
+    "update_bot": "5 minutes",
+    "testing": "15 minutes",
+    "total": "~40 minutes"
+  },
+  
+  "risk_assessment": {
+    "low_risk": [
+      "Database migration is additive (no existing data modified)",
+      "Telegram bot changes are isolated to new handlers",
+      "API endpoints are new (no existing endpoints modified)",
+      "Backups recommended but rollback straightforward"
+    ],
+    "medium_risk": [
+      "Filesystem permissions - test on non-production first",
+      "Telegram bot handler order - PHOTO must come before TEXT"
+    ],
+    "mitigation": [
+      "All changes are isolated additions",
+      "Original files backed up with timestamps",
+      "Rollback procedure documented",
+      "Test with single user before full deployment"
+    ]
+  },
+  
+  "sovereignty_notes": {
+    "local_storage": "All photos stored on your infrastructure, never uploaded to external services",
+    "no_api_dependencies": "No external APIs called for basic photo storage (Phase 3 vision models also local)",
+    "data_ownership": "Complete control - database records, filesystem files, can export/backup anytime",
+    "privacy": "User photos linked to soul_uuid, searchable only within your system"
+  }
+}

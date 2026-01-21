@@ -1,0 +1,30 @@
+{
+  "patch_number": 5,
+  "name": "graph_logging",
+  "description": "AI-native event logging system with Neo4j graph storage",
+  "requires_patch": 0,
+  "creates_files": [
+    "/opt/mythos/graph_logging/src/system_monitor.py",
+    "/opt/mythos/graph_logging/src/event_logger.py",
+    "/opt/mythos/graph_logging/src/diagnostics.py",
+    "/opt/mythos/graph_logging/src/__init__.py",
+    "/opt/mythos/graph_logging/config/monitoring_config.yaml",
+    "/opt/mythos/graph_logging/scripts/cleanup_old_events.py",
+    "~/.config/systemd/user/arcturus-monitor.service",
+    "~/.config/systemd/user/arcturus-cleanup.service",
+    "~/.config/systemd/user/arcturus-cleanup.timer"
+  ],
+  "modifies_files": [],
+  "depends_on_services": [
+    "neo4j",
+    "postgresql"
+  ],
+  "required_env_vars": [
+    "NEO4J_URI",
+    "NEO4J_USER",
+    "NEO4J_PASSWORD"
+  ],
+  "python_version": ">=3.11",
+  "created_by": "Ka_tuar_el",
+  "created_date": "2025-01-14"
+}

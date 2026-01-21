@@ -1,0 +1,54 @@
+# Mythos LLM Diagnostics Configuration
+
+ollama:
+  # Ollama server URL
+  base_url: "http://localhost:11434"
+  
+  # Model to use for diagnostics
+  # Recommended: llama3.2:3b (fast, efficient) or llama3.2:1b (even faster)
+  model: "llama3.2:3b"
+  
+  # Temperature for responses (0.0-1.0)
+  # Lower = more consistent/deterministic
+  # Higher = more creative/varied
+  temperature: 0.1
+  
+  # Max tokens for response
+  max_tokens: 2000
+
+mcp_server:
+  # MCP server configuration (if using MCP instead of direct Ollama)
+  enabled: false
+  host: "localhost"
+  port: 8765
+
+logging:
+  # Log all conversations to Neo4j
+  log_conversations: true
+  
+  # Log tool calls (for debugging)
+  log_tool_calls: true
+  
+  # Log file location
+  file: "/opt/mythos/llm_diagnostics/logs/diagnostics.log"
+  
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
+
+neo4j:
+  # Neo4j connection (uses environment variables)
+  # NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD from ~/.config/arcturus/systemd.env
+  uri: "${NEO4J_URI}"
+  user: "${NEO4J_USER}"
+  password: "${NEO4J_PASSWORD}"
+
+diagnostics:
+  # Default time window for recent events
+  default_lookback_minutes: 60
+  
+  # Thresholds for "high resource" queries
+  high_memory_threshold: 10.0  # percent
+  high_cpu_threshold: 50.0     # percent
+  
+  # Failure prediction lookback
+  prediction_lookback_days: 30

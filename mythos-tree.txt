@@ -1,0 +1,32 @@
+.
+├── api
+│   ├── __init__.py
+│   ├── main.py
+│   ├── main.py.backup
+│   └── __pycache__
+│       ├── __init__.cpython-312.pyc
+│       └── main.cpython-312.pyc
+├── assistants
+│   ├── db_manager.py
+│   ├── db_manager.py.backup
+│   └── __pycache__
+│       └── db_manager.cpython-312.pyc
+├── backups
+│   ├── api_main_20251229_153033.py.backup
+│   ├── mythos_bot_20251229_153033.py.backup
+│   ├── mythos_bot_20251229_153142.py.backup
+│   ├── mythos_bot_20251229_153449.py.backup
+│   └── mythos_bot_20251229_153644.py.backup
+├── cloudflared-linux-amd64.deb
+├── mythos-tree.txt
+├── prompts
+│   └── seraphe_system_prompt.txt
+├── telegram_bot
+│   └── mythos_bot.py
+├── test_seraphe_prompt.py
+└── updates
+    ├── apply_patch.sh
+    ├── apply_update.sh
+    └── patch_code.py
+
+9 directories, 21 files

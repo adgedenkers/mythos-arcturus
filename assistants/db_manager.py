@@ -36,39 +36,25 @@ class DatabaseManager:
         # Current user context
         self.current_user = None
         
-        # Database schema for Ollama context
-        self.neo4j_schema = """
-Available Node Types:
-- Soul (properties: canonical_id, display_name, primary_role, description)
-- Person (properties: canonical_id, full_name, known_as, birth_date, birth_location, current_location)
-- Lifetime (properties: canonical_id, title, role, time_period, is_current)
+        # Load system prompt from file
+        prompt_path = os.path.expanduser('~/main-vault/systems/arcturus/prompts/db_mode_prompt.md')
+        try:
+            with open(prompt_path, 'r') as f:
+                self.system_prompt = f.read()
+            print(f"✅ Loaded system prompt from {prompt_path}")
+        except FileNotFoundError:
+            print(f"⚠️  Warning: Could not find prompt file at {prompt_path}")
+            print("    Using fallback minimal prompt")
+            self.system_prompt = """
+You are a Neo4j Cypher expert. Generate valid Cypher queries.
 
-Available Relationships:
-- (Soul)-[:INCARNATED_AS]->(Lifetime)
-- (Lifetime)-[:EMBODIED_BY]->(Person)
-- (Person)-[:PARENT_OF]->(Person)
-- (Person)-[:SPOUSE_OF]->(Person)
+Key relationships:
+- (parent:Person)-[:PARENT_OF]->(child:Person)
+- (Person)-[:SPOUSE_OF]-(Person)
+- (Soul)-[:CURRENTLY_EMBODIED_AS]->(Person)
+- (Soul)-[:INCARNATED_AS]->(Incarnation)
 
-Important notes:
-- "Fitz" refers to "Adriaan Fitzgerald Denkers" (use known_as property or full_name CONTAINS)
-- "Ka" refers to "Ka'tuar'el" soul (use display_name)
-- "Seraphe" refers to "Seraphe Harmonia Valemira" soul (use display_name)
-- "Rebecca" refers to Rebecca Lydia Denkers person (use full_name)
-- "Adriaan" refers to Adriaan Harold Denkers person (use full_name)
-- When searching for nicknames, use: WHERE p.known_as = "Fitz" OR p.full_name CONTAINS "Fitz"
-
-When someone asks for a soul name alone (Ka, Seraphe, Ka'tuar'el):
-- Search Soul nodes: MATCH (s:Soul WHERE s.display_name CONTAINS "Seraphe") RETURN s
-
-When someone asks for a person name (Rebecca, Adriaan, Fitz):
-- Search Person nodes: MATCH (p:Person WHERE p.full_name CONTAINS "Rebecca" OR p.known_as = "Rebecca") RETURN p
-
-Example queries:
-- Count nodes: MATCH (n) RETURN labels(n) as type, count(n) as count
-- Find soul: MATCH (s:Soul WHERE s.display_name CONTAINS "Seraphe") RETURN s
-- Find person: MATCH (p:Person WHERE p.full_name CONTAINS "Fitz" OR p.known_as = "Fitz") RETURN p
-- Find parents: MATCH (parent:Person)-[:PARENT_OF]->(child:Person WHERE child.known_as = "Fitz") RETURN parent
-- Show family: MATCH (parent:Person)-[:PARENT_OF]->(child:Person) RETURN parent, child
+Always return full nodes: RETURN n, not RETURN n.property
 """
     
     def set_user(self, user_info):
@@ -86,33 +72,37 @@ Example queries:
         
         return 'neo4j'
     
-    def generate_cypher(self, natural_language_query):
-        """Generate Cypher query from natural language"""
+    def generate_cypher(self, natural_language_query, recent_context=None, historical_context=None):
+        """Generate Cypher query from natural language with conversation context"""
         
-        prompt = f"""You are a Neo4j Cypher expert. Convert this natural language query into valid Cypher.
+        context_str = ""
+        
+        if recent_context:
+            context_str += f"""
 
-    Database Schema:
-    {self.neo4j_schema}
+RECENT CONTEXT (last few messages):
+{recent_context}
 
-    Query: {natural_language_query}
+Use this to resolve pronouns like "their", "them", "he", "she", "it", "those".
+"""
+        
+        if historical_context:
+            context_str += f"""
 
-    Rules:
-    - For counting: MATCH (n) RETURN labels(n) as type, count(n) as count
-    - For finding by name: Use CONTAINS for partial matching (case-insensitive search)
-    - ALWAYS return full nodes: RETURN n (NOT individual properties like n.name, n.role)
-    - When searching, use WHERE with CONTAINS (not exact equality unless specified)
-    - If multiple matches possible, return ALL of them
-    - Keep queries simple
+HISTORICAL CONTEXT (past discussions on this topic):
+{historical_context}
 
-    Name search patterns:
-    - "Show me Ka" → MATCH (s:Soul WHERE s.display_name CONTAINS "Ka") RETURN s
-    - "Show me Seraphe" → MATCH (s:Soul WHERE s.display_name CONTAINS "Seraphe") RETURN s
-    - "Show me Rebecca" → MATCH (p:Person WHERE p.full_name CONTAINS "Rebecca") RETURN p
-    - "Show me Fitz" → MATCH (p:Person WHERE p.known_as = "Fitz" OR p.full_name CONTAINS "Fitz") RETURN p
+If relevant, acknowledge: "We discussed this before on [date]..."
+Otherwise, proceed with a fresh answer.
+"""
+        
+        prompt = f"""{self.system_prompt}
 
-    CRITICAL: Always use RETURN n or RETURN p or RETURN s (the full node), never RETURN n.property1, n.property2
+{context_str}
 
-    Respond with ONLY the Cypher query, no markdown, no explanations."""
+Query: {natural_language_query}
+
+Respond with ONLY the Cypher query, no markdown, no explanations."""
 
         response = self.ollama.generate(model=self.model, prompt=prompt)
         cypher = response['response'].strip()
@@ -135,47 +125,56 @@ Example queries:
                 output += f"• {node_type}: {count}\n"
             return output
         
-        # If returning full nodes, extract key properties
+        # If returning full nodes, extract key info
         output = ""
-        for i, record in enumerate(result[:5], 1):  # Limit to first 5 results
-            output += f"\n━━━ Result {i} ━━━\n"
+        for i, record in enumerate(result[:10], 1):
             
             for key, value in record.items():
                 # Handle node objects
                 if hasattr(value, 'labels') and hasattr(value, '_properties'):
-                    # It's a Neo4j node
                     labels = ', '.join(value.labels)
-                    output += f"\n🏷️ {labels} Node:\n"
-                    
-                    # Show key properties only
                     props = dict(value._properties)
-
-                    # Different properties for different node types
-                    if 'Soul' in labels:
-                        important_props = ['display_name', 'primary_role', 'canonical_id']
-                    elif 'Person' in labels:
-                        important_props = ['full_name', 'known_as', 'birth_date', 'birth_location', 'current_location']
-                    elif 'Lifetime' in labels:
-                        important_props = ['title', 'role', 'time_period', 'is_current']
+                    
+                    if 'Person' in labels:
+                        name = props.get('full_name', props.get('known_as', 'Unknown'))
+                        birth_date = props.get('birth_date', '')
+                        
+                        if birth_date:
+                            output += f"• {name} (born {birth_date})\n"
+                        else:
+                            output += f"• {name}\n"
+                    
+                    elif 'Soul' in labels:
+                        name = props.get('display_name', 'Unknown')
+                        role = props.get('primary_role', '')
+                        
+                        if role and len(role) < 60:
+                            output += f"• {name} - {role}\n"
+                        else:
+                            output += f"• {name}\n"
+                    
+                    elif 'Incarnation' in labels:
+                        descriptor = props.get('descriptor', 'Unknown')
+                        time_period = props.get('time_period', '')
+                        location = props.get('location', '')
+                        
+                        output += f"• {descriptor}"
+                        if time_period:
+                            output += f" ({time_period})"
+                        if location:
+                            output += f" - {location}"
+                        output += "\n"
+                    
                     else:
-                        important_props = ['canonical_id', 'display_name', 'full_name', 'title']
-
-                    for prop in important_props:
-                        if prop in props:
-                            output += f"  • {prop}: {props[prop]}\n"
+                        output += f"• {labels}: {props.get('canonical_id', props.get('display_name', 'Unknown'))}\n"
                 
-                # Handle relationships
-                elif hasattr(value, 'type'):
-                    output += f"  → Relationship: {value.type}\n"
-                
-                # Handle simple values
-                else:
-                    output += f"{key}: {value}\n"
+                elif isinstance(value, (str, int, float, bool)):
+                    output += f"• {key}: {value}\n"
         
-        if len(result) > 5:
-            output += f"\n... and {len(result) - 5} more results"
+        if len(result) > 10:
+            output += f"\n... and {len(result) - 10} more results"
         
-        return output
+        return output.strip()
     
     def execute_neo4j(self, cypher_query):
         """Execute Cypher query against Neo4j"""
@@ -196,34 +195,30 @@ Example queries:
             self.pg_conn.commit()
             return {"status": "success", "rows_affected": cursor.rowcount}
     
-    def query(self, natural_language_query):
-        """
-        Main query interface - returns formatted string for Telegram
-        """
+    def query(self, natural_language_query, recent_context=None, historical_context=None):
+        """Main query interface with conversation context"""
         
-        # Route to appropriate database
         db_type = self.route_query(natural_language_query)
         
         try:
             if db_type == 'neo4j':
-                cypher = self.generate_cypher(natural_language_query)
+                cypher = self.generate_cypher(natural_language_query, recent_context, historical_context)
                 results = self.execute_neo4j(cypher)
                 
-                # Format for display
                 formatted = self.format_neo4j_result(results, cypher)
                 
                 response = f"🔍 Query: {natural_language_query}\n\n"
-                response += f"⚡ Cypher: {cypher}\n\n"
+                response += f"⚡️ Cypher: {cypher}\n\n"
                 response += formatted
                 
                 return response
             
-            else:  # postgres
-                sql = self.generate_sql(natural_language_query)
+            else:
+                sql = self.generate_sql(natural_language_query, recent_context, historical_context)
                 results = self.execute_postgres(sql)
                 
                 response = f"🔍 Query: {natural_language_query}\n\n"
-                response += f"⚡ SQL: {sql}\n\n"
+                response += f"⚡️ SQL: {sql}\n\n"
                 response += f"✅ Results:\n{json.dumps(results, indent=2, default=str)}"
                 
                 return response
@@ -231,12 +226,22 @@ Example queries:
         except Exception as e:
             return f"❌ Error: {str(e)}\n\nQuery: {natural_language_query}"
     
-    def generate_sql(self, natural_language_query):
-        """Generate SQL query from natural language"""
+    def generate_sql(self, natural_language_query, recent_context=None, historical_context=None):
+        """Generate SQL query from natural language with context"""
+        
+        context_str = ""
+        
+        if recent_context:
+            context_str += f"\nRecent context:\n{recent_context}\n"
+        
+        if historical_context:
+            context_str += f"\nHistorical context:\n{historical_context}\n"
         
         prompt = f"""You are a PostgreSQL expert. Convert this query to SQL for mythos_db.
 
 Available tables: users, chat_messages
+
+{context_str}
 
 Query: {natural_language_query}
 

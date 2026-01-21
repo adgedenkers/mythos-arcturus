@@ -1,0 +1,285 @@
+#!/usr/bin/env python3
+"""
+Mythos API - FastAPI service with real assistant integration
+"""
+
+from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional
+import os
+import sys
+import time
+from datetime import datetime
+from dotenv import load_dotenv
+import psycopg2
+
+# Add assistants to path
+sys.path.insert(0, '/opt/mythos/assistants')
+
+# Import assistants
+try:
+    from db_manager import DatabaseManager
+    DB_MANAGER_AVAILABLE = True
+    print("✅ db_manager imported successfully")
+except ImportError as e:
+    DB_MANAGER_AVAILABLE = False
+    print(f"⚠️  Warning: db_manager not available - {e}")
+
+# Load environment variables
+load_dotenv('/opt/mythos/.env')
+
+app = FastAPI(
+    title="Mythos API",
+    description="Secure API for Mythos System",
+    version="1.0.0"
+)
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# API key authentication
+API_KEYS = {
+    os.getenv('API_KEY_TELEGRAM_BOT'): "telegram_bot",
+    os.getenv('API_KEY_KA'): "ka",
+    os.getenv('API_KEY_SERAPHE'): "seraphe"
+}
+
+# Request/Response Models
+class MessageRequest(BaseModel):
+    user_id: str
+    message: str
+    mode: str = "db"
+    model_preference: str = "auto"  # auto, fast, deep
+
+class MessageResponse(BaseModel):
+    response: str
+    mode: str
+    user: Optional[str] = None
+
+class UserInfo(BaseModel):
+    telegram_id: Optional[int] = None
+    username: str
+    soul_name: str
+    uuid: str
+
+# Authentication
+async def verify_api_key(x_api_key: str = Header(...)):
+    if x_api_key not in API_KEYS:
+        raise HTTPException(status_code=403, detail="Invalid API key")
+    return API_KEYS[x_api_key]
+
+# Helper functions
+def get_db_connection():
+    return psycopg2.connect(
+        host=os.getenv('POSTGRES_HOST'),
+        database=os.getenv('POSTGRES_DB'),
+        user=os.getenv('POSTGRES_USER'),
+        password=os.getenv('POSTGRES_PASSWORD')
+    )
+
+def get_user_by_identifier(identifier: str):
+    """Look up user by Telegram ID or username"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        telegram_id = int(identifier)
+        cursor.execute("""
+            SELECT user_uuid, username, soul_canonical_id, soul_display_name, telegram_id
+            FROM users
+            WHERE telegram_id = %s
+        """, (telegram_id,))
+    except ValueError:
+        cursor.execute("""
+            SELECT user_uuid, username, soul_canonical_id, soul_display_name, telegram_id
+            FROM users
+            WHERE username = %s
+        """, (identifier,))
+    
+    result = cursor.fetchone()
+    conn.close()
+    
+    if result:
+        return {
+            "uuid": str(result[0]),
+            "username": result[1],
+            "soul_canonical_id": result[2],
+            "soul_display_name": result[3],
+            "telegram_id": result[4]
+        }
+    
+    return None
+
+# Initialize assistants (singleton pattern)
+db_manager_instance = None
+if DB_MANAGER_AVAILABLE:
+    try:
+        db_manager_instance = DatabaseManager()
+        print("✅ Database Manager initialized")
+    except Exception as e:
+        print(f"❌ Error initializing Database Manager: {e}")
+
+# Routes
+@app.get("/")
+async def root():
+    return {
+        "service": "Mythos API",
+        "status": "running",
+        "version": "1.0.0",
+        "assistants": {
+            "db_manager": DB_MANAGER_AVAILABLE and db_manager_instance is not None,
+            "seraphe_assistant": False,
+            "genealogy_assistant": False
+        }
+    }
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy"}
+
+@app.post("/message", response_model=MessageResponse)
+async def process_message(
+    request: MessageRequest,
+    api_key: str = Depends(verify_api_key)
+):
+    """
+    Process a message through the Mythos system with full logging.
+    """
+    start_time = time.time()
+    
+    # Look up user
+    user = get_user_by_identifier(request.user_id)
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Generate conversation_id (date-based)
+    conversation_id = f"tg-{request.user_id}-{datetime.now().strftime('%Y%m%d')}"
+    
+    # Log incoming user message
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO chat_messages (
+                user_uuid, telegram_user_id, conversation_id,
+                role, content, mode, created_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, NOW())
+        """, (
+            user['uuid'],
+            user.get('telegram_id'),
+            conversation_id,
+            'user',
+            request.message,
+            request.mode
+        ))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error logging user message: {e}")
+    
+    # Route to appropriate assistant
+    response_text = None
+    error_message = None
+    cypher_generated = None
+    sql_generated = None
+    
+    try:
+        if request.mode == "db" and db_manager_instance:
+            # Set user context
+            db_manager_instance.set_user(user)
+            
+            # Process message
+            response_text = db_manager_instance.query(request.message)
+            
+            # Try to extract generated query from response for logging
+            if "⚡ Cypher:" in response_text:
+                lines = response_text.split("\n")
+                for i, line in enumerate(lines):
+                    if "⚡ Cypher:" in line and i + 1 < len(lines):
+                        cypher_generated = lines[i + 1].strip()
+                        break
+            elif "⚡ SQL:" in response_text:
+                lines = response_text.split("\n")
+                for i, line in enumerate(lines):
+                    if "⚡ SQL:" in line and i + 1 < len(lines):
+                        sql_generated = lines[i + 1].strip()
+                        break
+        
+        elif request.mode == "seraphe":
+            response_text = "Seraphe's assistant is not yet connected. Coming soon!"
+        
+        else:
+            response_text = f"Mode '{request.mode}' not yet implemented. Echo: {request.message}"
+    
+    except Exception as e:
+        error_message = str(e)
+        response_text = f"❌ Error: {error_message}"
+    
+    # Calculate response time
+    response_time_ms = int((time.time() - start_time) * 1000)
+    
+    # Log assistant response
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO chat_messages (
+                user_uuid, telegram_user_id, conversation_id,
+                role, content, mode, model_used,
+                cypher_generated, sql_generated,
+                response_time_ms, error_message,
+                created_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        """, (
+            user['uuid'],
+            user.get('telegram_id'),
+            conversation_id,
+            'assistant',
+            response_text,
+            request.mode,
+            'llama3.2:3b',
+            cypher_generated,
+            sql_generated,
+            response_time_ms,
+            error_message
+        ))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error logging assistant response: {e}")
+    
+    return MessageResponse(
+        response=response_text,
+        mode=request.mode,
+        user=user['soul_display_name']
+    )
+
+@app.get("/user/{identifier}", response_model=UserInfo)
+async def get_user(
+    identifier: str,
+    api_key: str = Depends(verify_api_key)
+):
+    """
+    Get user information by Telegram ID or username.
+    """
+    
+    user = get_user_by_identifier(identifier)
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return UserInfo(
+        telegram_id=user.get('telegram_id'),
+        username=user['username'],
+        soul_name=user['soul_display_name'],
+        uuid=user['uuid']
+    )

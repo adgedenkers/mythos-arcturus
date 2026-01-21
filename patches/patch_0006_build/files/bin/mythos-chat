@@ -1,0 +1,62 @@
+#!/bin/bash
+# mythos-chat - Interactive chat mode
+# Usage: mythos-chat [--model model_name]
+
+# Source environment
+if [ -f ~/.arcturus_development_env.sh ]; then
+    source ~/.arcturus_development_env.sh
+fi
+
+MODEL="llama3.2:3b"
+CONVERSATION_ID=$(uuidgen)
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --model)
+            MODEL="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Usage: mythos-chat [--model model_name]"
+            exit 1
+            ;;
+    esac
+done
+
+echo "=========================================="
+echo "Mythos Interactive Diagnostics"
+echo "=========================================="
+echo "Model: $MODEL"
+echo "Conversation ID: $CONVERSATION_ID"
+echo ""
+echo "Ask questions about your system."
+echo "Type 'exit' or 'quit' to end the session."
+echo "=========================================="
+echo ""
+
+while true; do
+    # Prompt
+    echo -n "You: "
+    read -r question
+    
+    # Check for exit
+    if [ "$question" = "exit" ] || [ "$question" = "quit" ]; then
+        echo "Goodbye!"
+        break
+    fi
+    
+    # Skip empty input
+    if [ -z "$question" ]; then
+        continue
+    fi
+    
+    # Ask the question
+    echo -n "LLM: "
+    python3 /opt/mythos/llm_diagnostics/src/mythos_ask.py \
+        --model "$MODEL" \
+        --conversation-id "$CONVERSATION_ID" \
+        "$question"
+    echo ""
+done
