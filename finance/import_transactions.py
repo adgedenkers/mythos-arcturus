@@ -6,12 +6,11 @@ Mythos Finance - Transaction Importer
 Import bank CSV files into PostgreSQL with deduplication and auto-categorization.
 
 Usage:
-    python import_transactions.py <csv_file> --account-id <id> [--parser <name>] [--dry-run]
+    python import_transactions.py <csv_file> --account-id <id> [--parser <n>] [--dry-run]
 
 Examples:
     python import_transactions.py accounts/usaa_2026_01.csv --account-id 2
     python import_transactions.py accounts/sunmark_2026_01.csv --account-id 1 --dry-run
-    python import_transactions.py accounts/download.csv --parser usaa --account-id 2
 """
 
 import argparse
@@ -19,7 +18,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
 import psycopg2
 from psycopg2.extras import execute_values
@@ -133,8 +132,10 @@ class TransactionImporter:
         if self.dry_run:
             print(f"\n[DRY RUN] Would import {len(new_transactions)} transactions")
             print(f"[DRY RUN] Would skip {skipped} duplicates")
+            print("\nSample transactions:")
             for t in new_transactions[:10]:
-                print(f"  {t.transaction_date.date()} | {t.amount:>10.2f} | {t.description[:50]}")
+                cat = t.category_primary or 'Uncategorized'
+                print(f"  {t.transaction_date.date()} | {t.amount:>10.2f} | {cat:<20} | {t.description[:40]}")
             if len(new_transactions) > 10:
                 print(f"  ... and {len(new_transactions) - 10} more")
             return len(new_transactions), skipped, 0
@@ -142,12 +143,13 @@ class TransactionImporter:
         if not new_transactions:
             return 0, skipped, 0
         
-        # Prepare data for bulk insert
+        # Prepare data for bulk insert - matches clean schema.sql
         values = []
         for t in new_transactions:
             values.append((
                 account_id,
                 t.transaction_date.date(),
+                t.transaction_date.date(),  # post_date
                 t.description,
                 t.original_description,
                 t.merchant_name,
@@ -157,10 +159,11 @@ class TransactionImporter:
                 t.category_secondary,
                 t.transaction_type,
                 t.is_pending,
+                False,  # is_recurring
                 t.bank_transaction_id,
                 t.hash_id,
                 source_file,
-                imported_by
+                imported_by,
             ))
         
         # Bulk insert
@@ -169,10 +172,12 @@ class TransactionImporter:
                 self.cursor,
                 """
                 INSERT INTO transactions (
-                    account_id, transaction_date, description, original_description,
-                    merchant_name, amount, balance, category_primary, category_secondary,
-                    transaction_type, is_pending, bank_transaction_id, hash_id,
-                    source_file, imported_by
+                    account_id, transaction_date, post_date,
+                    description, original_description, merchant_name,
+                    amount, balance,
+                    category_primary, category_secondary,
+                    transaction_type, is_pending, is_recurring,
+                    bank_transaction_id, hash_id, source_file, imported_by
                 ) VALUES %s
                 ON CONFLICT (hash_id) DO NOTHING
                 """,
@@ -182,9 +187,9 @@ class TransactionImporter:
             imported = self.cursor.rowcount
             return imported, skipped, 0
             
-        except Exception as e:
+        except psycopg2.Error as e:
             self.conn.rollback()
-            print(f"Error during import: {e}")
+            print(f"Database error during import: {e}")
             return 0, skipped, len(new_transactions)
     
     def log_import(
@@ -231,7 +236,10 @@ def main():
 Examples:
     %(prog)s accounts/usaa_2026_01.csv --account-id 2
     %(prog)s accounts/sunmark_2026_01.csv --account-id 1 --dry-run
-    %(prog)s download.csv --parser usaa --account-id 2
+
+Account IDs:
+    1 = Sunmark Primary Checking
+    2 = USAA Simple Checking
         """
     )
     parser.add_argument('csv_file', type=Path, help='Path to CSV file')
@@ -256,7 +264,7 @@ Examples:
     if not parser_type:
         parser_type = detect_parser(file_path)
         if not parser_type:
-            print("Error: Could not auto-detect bank format. Please specify --parser")
+            print("Error: Could not auto-detect bank format. Please specify --parser usaa or --parser sunmark")
             sys.exit(1)
         print(f"Auto-detected parser: {parser_type}")
     
@@ -314,6 +322,10 @@ Examples:
         print(f"  Imported: {imported}")
         print(f"  Skipped (duplicates): {skipped}")
         print(f"  Errors: {errors}")
+        
+        if not args.dry_run and imported > 0:
+            print(f"\nView results:")
+            print(f"  python reports.py summary")
         
     finally:
         importer.close()
