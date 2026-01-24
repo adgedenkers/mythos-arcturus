@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Mythos Telegram Bot
-Provides mobile access to Mythos system via Telegram
+Mythos Telegram Bot - WITH SELL MODE
+Updated to include item selling via photo analysis
 """
 
 import os
@@ -29,10 +29,25 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Import sell mode handlers
+from handlers import (
+    listed_command,
+    sold_command,
+    enter_sell_mode,
+    handle_sell_photos,
+    sell_done_command,
+    sell_status_command,
+    sell_undo_command,
+    is_sell_mode,
+    export_command,
+    inventory_command
+)
+
 # Configuration
 API_URL = "https://mythos-api.denkers.co"
 API_KEY = os.getenv('API_KEY_TELEGRAM_BOT')
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+MEDIA_BASE_PATH = "/opt/mythos/media"
 
 # In-memory session store
 SESSIONS = {}
@@ -40,7 +55,6 @@ SESSIONS = {}
 def get_or_create_session(telegram_id):
     """Get or create session for this Telegram user"""
     if telegram_id not in SESSIONS:
-        # Verify user is registered
         try:
             response = requests.get(
                 f"{API_URL}/user/{telegram_id}",
@@ -53,8 +67,9 @@ def get_or_create_session(telegram_id):
                     "user": user,
                     "current_mode": "db",
                     "current_model": "auto",
-                    "conversation_id": None,  # For /convo mode
-                    "last_activity": datetime.now()
+                    "conversation_id": None,
+                    "last_activity": datetime.now(),
+                    "sell_session": None  # Added for sell mode
                 }
             else:
                 return None
@@ -63,16 +78,13 @@ def get_or_create_session(telegram_id):
             logger.error(f"Error fetching user: {e}")
             return None
     
-    # Update last activity
     SESSIONS[telegram_id]["last_activity"] = datetime.now()
-    
     return SESSIONS[telegram_id]
 
-# Command handlers
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command"""
     telegram_id = update.effective_user.id
-    
     session = get_or_create_session(telegram_id)
     
     if not session:
@@ -91,10 +103,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Available commands:\n"
         "/mode - Switch modes\n"
         "/convo - Start a tracked conversation\n"
+        "/photos - View recent photos\n"
+        "/inventory - View items for sale\n"
+        "/export - Generate marketplace listings\n"
         "/help - Show help\n"
         "/status - Show current status\n\n"
-        "Just send a message to interact with the current mode."
+        "Just send a message or photo to interact."
     )
+
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /help command"""
@@ -106,29 +122,41 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
   /mode seraphe   - Seraphe's Cosmology Assistant
   /mode genealogy - Genealogy Assistant
   /mode chat      - Natural conversation
+  /mode sell      - Sell items (photo analysis)
+
+📦 Selling:
+  /mode sell  - Enter sell mode
+  /done       - Exit sell mode
+  /status     - Items in current session
+  /undo       - Remove last item
+  /inventory  - View all items for sale
+  /export     - Generate marketplace listings
 
 💬 Conversation:
-  /convo          - Start tracked conversation (builds context graph)
-  /endconvo       - End tracked conversation
+  /convo      - Start tracked conversation
+  /endconvo   - End tracked conversation
 
 🤖 AI Models:
-  /model auto     - Smart routing (recommended)
-  /model fast     - Quick responses (~10 sec)
-  /model deep     - Best quality (~60 sec)
+  /model auto - Smart routing
+  /model fast - Quick responses
+  /model deep - Best quality
+
+📸 Media:
+  /photos     - View recent photos
 
 ℹ️ Info:
-  /status - Show current mode and user
-  /help   - Show this help message
+  /status - Show current mode/user
+  /help   - Show this message
 
-💬 Usage:
-Just send a message to interact with the current mode.
-
-Examples:
-  "Create a Soul node for Sophia"
-  "Show me all Person nodes"
+💡 Selling Flow:
+  1. /mode sell
+  2. Send 3 photos per item
+  3. Wait for analysis
+  4. Repeat or /done
+  5. /export for listings
 """
-    
     await update.message.reply_text(help_text)
+
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /status command"""
@@ -137,6 +165,11 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if not session:
         await update.message.reply_text("❌ Session not found. Use /start to begin.")
+        return
+    
+    # Check if in sell mode
+    if is_sell_mode(session):
+        await sell_status_command(update, context, session)
         return
     
     user = session["user"]
@@ -149,16 +182,18 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 📊 Current Status
 
 👤 User: {user['soul_name']} (@{user['username']})
-🎯 Mode: {session['current_mode']}
-🤖 Model: {session.get('current_model', 'auto')}
+🔮 Soul: {user['soul_name']}
+🔧 Mode: {session['current_mode']}
+🤖 Model: {session['current_model']}
 💬 Conversation: {convo_status}
-📅 Last Activity: {session['last_activity'].strftime('%Y-%m-%d %H:%M:%S')}
+
+Use /help to see available commands.
 """
-    
     await update.message.reply_text(status_text)
 
+
 async def mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /mode command"""
+    """Handle /mode command to switch modes"""
     telegram_id = update.effective_user.id
     session = get_or_create_session(telegram_id)
     
@@ -166,18 +201,28 @@ async def mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Session not found. Use /start to begin.")
         return
     
-    # Check if user specified a mode
     if context.args:
         new_mode = context.args[0].lower()
         
-        if new_mode in ["db", "seraphe", "genealogy", "chat"]:
+        valid_modes = ["db", "seraphe", "genealogy", "chat", "sell"]
+        
+        if new_mode in valid_modes:
+            # Handle sell mode specially
+            if new_mode == "sell":
+                await enter_sell_mode(update, session)
+                return
+            
+            # Exit sell mode if switching away
+            if is_sell_mode(session):
+                session["sell_session"] = None
+            
             session["current_mode"] = new_mode
             
             mode_descriptions = {
-                "db": "Database Manager - queries Neo4j/PostgreSQL",
-                "seraphe": "Seraphe's Cosmology Assistant",
-                "genealogy": "Genealogy Assistant",
-                "chat": "Chat - natural conversation with Ollama"
+                "db": "Database Manager - Query souls, persons, and lineages",
+                "seraphe": "Seraphe's Cosmology Assistant - Spiritual guidance and symbolism",
+                "genealogy": "Genealogy Assistant - Trace bloodlines and ancestors",
+                "chat": "Natural conversation - General purpose assistant"
             }
             
             await update.message.reply_text(
@@ -187,21 +232,53 @@ async def mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text(
                 f"❌ Unknown mode: {new_mode}\n\n"
-                "Available modes: db, seraphe, genealogy, chat"
+                "Available modes: db, seraphe, genealogy, chat, sell"
             )
     else:
-        # Show current mode and available modes
+        current = session.get("current_mode", "db")
         await update.message.reply_text(
-            f"Current mode: {session['current_mode']}\n\n"
+            f"Current mode: **{current}**\n\n"
             "Available modes:\n"
             "  /mode db        - Database Manager\n"
-            "  /mode seraphe   - Cosmology Assistant\n"
-            "  /mode genealogy - Genealogy Assistant\n"
-            "  /mode chat      - Natural conversation"
+            "  /mode seraphe   - Seraphe's Cosmology\n"
+            "  /mode genealogy - Genealogy Research\n"
+            "  /mode chat      - Natural conversation\n"
+            "  /mode sell      - Sell items (photo analysis)"
         )
 
+
+async def done_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle /done command"""
+    telegram_id = update.effective_user.id
+    session = get_or_create_session(telegram_id)
+    
+    if not session:
+        await update.message.reply_text("❌ Session not found.")
+        return
+    
+    if is_sell_mode(session):
+        await sell_done_command(update, context, session)
+    else:
+        await update.message.reply_text("Nothing to finish. Not in sell mode.")
+
+
+async def undo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle /undo command"""
+    telegram_id = update.effective_user.id
+    session = get_or_create_session(telegram_id)
+    
+    if not session:
+        await update.message.reply_text("❌ Session not found.")
+        return
+    
+    if is_sell_mode(session):
+        await sell_undo_command(update, context, session)
+    else:
+        await update.message.reply_text("Nothing to undo. Not in sell mode.")
+
+
 async def convo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /convo command - start a tracked conversation"""
+    """Handle /convo command"""
     telegram_id = update.effective_user.id
     session = get_or_create_session(telegram_id)
     
@@ -209,197 +286,92 @@ async def convo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Session not found. Use /start to begin.")
         return
     
-    # Check if already in a conversation
     if session.get("conversation_id"):
         await update.message.reply_text(
-            f"⚠️ You're already in a conversation.\n\n"
-            f"ID: {session['conversation_id'][:8]}...\n\n"
-            "Use /endconvo to end it first, or just continue chatting."
+            f"⚠️ Already in conversation mode\n"
+            f"Current: {session['conversation_id'][:8]}...\n\n"
+            "Use /endconvo to end first."
         )
         return
     
-    # Check for optional title argument
-    title = " ".join(context.args) if context.args else None
-    
-    # Generate new conversation ID
-    conversation_id = f"convo-{uuid.uuid4()}"
+    conversation_id = str(uuid.uuid4())
     session["conversation_id"] = conversation_id
-    session["conversation_started"] = datetime.now()
     
-    # Call API to create conversation node
     try:
         response = requests.post(
             f"{API_URL}/conversation/start",
+            headers={"X-API-Key": API_KEY},
             json={
                 "user_id": str(telegram_id),
                 "conversation_id": conversation_id,
-                "title": title
+                "title": f"Conversation {datetime.now().strftime('%Y-%m-%d %H:%M')}"
             },
-            headers={"X-API-Key": API_KEY},
             timeout=10
         )
         
         if response.status_code == 200:
-            title_msg = f"\nTitle: {title}" if title else ""
             await update.message.reply_text(
-                f"🎙️ Conversation started!{title_msg}\n\n"
+                f"🗣️ Conversation started\n"
                 f"ID: {conversation_id[:8]}...\n\n"
-                "Everything you discuss will be tracked in the knowledge graph.\n"
+                "All messages will be tracked.\n"
                 "Use /endconvo when finished."
             )
         else:
-            # Still allow conversation locally even if API fails
-            logger.warning(f"API conversation start failed: {response.status_code}")
             await update.message.reply_text(
-                f"🎙️ Conversation started (local only)\n\n"
-                f"ID: {conversation_id[:8]}...\n\n"
-                "⚠️ Graph tracking unavailable - API returned error.\n"
-                "Use /endconvo when finished."
+                f"⚠️ Local conversation started\n"
+                f"ID: {conversation_id[:8]}...\n"
+                "(API notification failed)"
             )
-    
     except Exception as e:
         logger.error(f"Error starting conversation: {e}")
         await update.message.reply_text(
-            f"🎙️ Conversation started (local only)\n\n"
-            f"ID: {conversation_id[:8]}...\n\n"
-            "⚠️ Graph tracking unavailable - could not reach API.\n"
-            "Use /endconvo when finished."
+            f"⚠️ Conversation started locally\n"
+            f"ID: {conversation_id[:8]}..."
         )
 
+
 async def endconvo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /endconvo command - end a tracked conversation"""
+    """Handle /endconvo command"""
     telegram_id = update.effective_user.id
     session = get_or_create_session(telegram_id)
     
     if not session:
-        await update.message.reply_text("❌ Session not found. Use /start to begin.")
+        await update.message.reply_text("❌ Session not found.")
         return
     
     if not session.get("conversation_id"):
-        await update.message.reply_text(
-            "ℹ️ No active conversation to end.\n\n"
-            "Use /convo to start one."
-        )
+        await update.message.reply_text("No active conversation.")
         return
     
     conversation_id = session["conversation_id"]
-    started = session.get("conversation_started", datetime.now())
-    duration = datetime.now() - started
+    session["conversation_id"] = None
     
-    # Call API to close conversation
     try:
-        response = requests.post(
+        requests.post(
             f"{API_URL}/conversation/end",
+            headers={"X-API-Key": API_KEY},
             json={
                 "user_id": str(telegram_id),
                 "conversation_id": conversation_id
             },
-            headers={"X-API-Key": API_KEY},
             timeout=10
         )
-        
-        if response.status_code == 200:
-            data = response.json()
-            exchange_count = data.get("exchange_count", "?")
-            await update.message.reply_text(
-                f"✅ Conversation ended.\n\n"
-                f"Duration: {duration.seconds // 60} minutes\n"
-                f"Exchanges: {exchange_count}\n\n"
-                "Knowledge has been captured in the graph."
-            )
-        else:
-            await update.message.reply_text(
-                f"✅ Conversation ended (local).\n\n"
-                f"Duration: {duration.seconds // 60} minutes\n\n"
-                "⚠️ Could not update graph - API error."
-            )
+    except:
+        pass
     
-    except Exception as e:
-        logger.error(f"Error ending conversation: {e}")
-        await update.message.reply_text(
-            f"✅ Conversation ended (local).\n\n"
-            f"Duration: {duration.seconds // 60} minutes\n\n"
-            "⚠️ Could not update graph - API unreachable."
-        )
-    
-    # Clear conversation from session
-    session["conversation_id"] = None
-    session["conversation_started"] = None
+    await update.message.reply_text(
+        f"✅ Conversation ended\n"
+        f"ID: {conversation_id[:8]}..."
+    )
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle regular text messages"""
-    telegram_id = update.effective_user.id
-    user_message = update.message.text
-    
-    session = get_or_create_session(telegram_id)
-    
-    if not session:
-        await update.message.reply_text(
-            "❌ You are not registered. Use /start to begin."
-        )
-        return
-    
-    current_mode = session["current_mode"]
-    conversation_id = session.get("conversation_id")
-    
-    # Show typing indicator
-    await update.message.chat.send_action(action="typing")
-    
-    try:
-        # Build request payload
-        payload = {
-            "user_id": str(telegram_id),
-            "message": user_message,
-            "mode": current_mode,
-            "model_preference": session.get("current_model", "auto")
-        }
-        
-        # Add conversation_id if in convo mode
-        if conversation_id:
-            payload["conversation_id"] = conversation_id
-        
-        # Call the API
-        response = requests.post(
-            f"{API_URL}/message",
-            json=payload,
-            headers={"X-API-Key": API_KEY},
-            timeout=120  # Increased timeout for convo mode with extraction
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            reply_text = data["response"]
-            
-            # Split if too long for Telegram (4096 char limit)
-            if len(reply_text) > 4096:
-                chunks = [reply_text[i:i+4096] for i in range(0, len(reply_text), 4096)]
-                for chunk in chunks:
-                    await update.message.reply_text(chunk)
-            else:
-                await update.message.reply_text(reply_text)
-        
-        else:
-            await update.message.reply_text(
-                f"❌ API Error: {response.status_code}\n{response.text}"
-            )
-    
-    except Exception as e:
-        logger.error(f"Error processing message: {e}")
-        await update.message.reply_text(
-            f"❌ Error communicating with Mythos API:\n{str(e)}"
-        )
-
-async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle errors"""
-    logger.error(f"Update {update} caused error {context.error}")
 
 async def model_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /model command to switch AI models"""
+    """Handle /model command"""
     telegram_id = update.effective_user.id
     session = get_or_create_session(telegram_id)
     
     if not session:
-        await update.message.reply_text("❌ Session not found. Use /start to begin.")
+        await update.message.reply_text("❌ Session not found.")
         return
     
     if context.args:
@@ -408,47 +380,232 @@ async def model_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if new_model in ["auto", "fast", "deep"]:
             session["current_model"] = new_model
             
-            model_descriptions = {
-                "auto": "Automatic (smart routing based on query complexity)",
-                "fast": "Qwen 32B (fast responses, ~10 seconds)",
-                "deep": "DeepSeek 236B (deep reasoning, ~60 seconds)"
+            descriptions = {
+                "auto": "Automatic (smart routing)",
+                "fast": "Qwen 32B (fast, ~10s)",
+                "deep": "DeepSeek 236B (best, ~60s)"
             }
             
             await update.message.reply_text(
-                f"✅ Switched to {new_model} model\n\n"
-                f"📝 {model_descriptions[new_model]}"
+                f"✅ Model: {new_model}\n{descriptions[new_model]}"
             )
         else:
             await update.message.reply_text(
-                f"❌ Unknown model: {new_model}\n\n"
-                "Available models: auto, fast, deep"
+                f"❌ Unknown model: {new_model}\n"
+                "Available: auto, fast, deep"
             )
     else:
         current = session.get("current_model", "auto")
         await update.message.reply_text(
-            f"Current model: **{current}**\n\n"
-            "Available models:\n"
-            "  /model auto  - Smart routing (recommended)\n"
-            "  /model fast  - Quick responses (Qwen 32B)\n"
-            "  /model deep  - Best quality (DeepSeek 236B)"
+            f"Current model: {current}\n\n"
+            "/model auto - Smart routing\n"
+            "/model fast - Quick (Qwen 32B)\n"
+            "/model deep - Best (DeepSeek 236B)"
         )
+
+
+async def photos_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle /photos command"""
+    telegram_id = update.effective_user.id
+    session = get_or_create_session(telegram_id)
+    
+    if not session:
+        await update.message.reply_text("❌ Session not found.")
+        return
+    
+    try:
+        response = requests.get(
+            f"{API_URL}/media/recent/{telegram_id}",
+            headers={"X-API-Key": API_KEY},
+            params={"limit": 10},
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            photos = data.get('photos', [])
+            
+            if not photos:
+                await update.message.reply_text("No photos yet.")
+                return
+            
+            lines = [f"📸 Recent Photos ({len(photos)})\n"]
+            for i, photo in enumerate(photos, 1):
+                processed = "✅" if photo.get('processed') else "⏳"
+                lines.append(f"{i}. {processed} {photo.get('filename', 'unknown')}")
+            
+            await update.message.reply_text("\n".join(lines))
+        else:
+            await update.message.reply_text("❌ Failed to get photos.")
+    except Exception as e:
+        await update.message.reply_text(f"❌ Error: {e}")
+
+
+async def inventory_wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Wrapper for inventory command"""
+    await inventory_command(update, context)
+
+
+async def export_wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Wrapper for export command"""
+    await export_command(update, context)
+
+
+async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle photo messages - routes to sell mode or general handling"""
+    telegram_id = update.effective_user.id
+    session = get_or_create_session(telegram_id)
+    
+    if not session:
+        await update.message.reply_text("❌ Not registered. Use /start")
+        return
+    
+    # Route to sell mode if active
+    if is_sell_mode(session):
+        # Handle both photos and image documents
+        if update.message.photo:
+            await handle_sell_photos(update, context, session)
+        elif update.message.document and update.message.document.mime_type.startswith('image/'):
+            # Convert document to photo-like structure for sell mode
+            await handle_sell_photos(update, context, session)
+        return
+    
+    # Otherwise, standard photo handling (not in sell mode)
+    if not update.message.photo:
+        return
+    
+    photo = update.message.photo[-1]
+    caption = update.message.caption or ""
+    user_uuid = session['user']['uuid']
+    conversation_id = session.get('conversation_id')
+    
+    try:
+        file = await context.bot.get_file(photo.file_id)
+        
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        user_prefix = user_uuid[:8]
+        filename = f"{timestamp}_{photo.file_unique_id[:16]}.jpg"
+        
+        storage_dir = os.path.join(MEDIA_BASE_PATH, user_prefix)
+        os.makedirs(storage_dir, exist_ok=True)
+        
+        storage_path = os.path.join(storage_dir, filename)
+        await file.download_to_drive(storage_path)
+        
+        file_size = os.path.getsize(storage_path)
+        
+        response = requests.post(
+            f"{API_URL}/media/upload",
+            headers={"X-API-Key": API_KEY},
+            json={
+                "user_id": str(telegram_id),
+                "conversation_id": conversation_id,
+                "filename": filename,
+                "file_path": storage_path,
+                "file_size": file_size,
+                "width": photo.width,
+                "height": photo.height,
+                "telegram_file_id": photo.file_id,
+                "telegram_file_unique_id": photo.file_unique_id,
+                "caption": caption,
+                "mime_type": "image/jpeg"
+            },
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            await update.message.reply_text(
+                f"📸 Photo received\n"
+                f"🆔 {data['media_id'][:8]}...\n"
+                f"💾 {file_size // 1024}KB"
+            )
+        else:
+            await update.message.reply_text("⚠️ Photo saved locally.")
+            
+    except Exception as e:
+        logger.error(f"Photo error: {e}", exc_info=True)
+        await update.message.reply_text(f"❌ Error: {e}")
+
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle text messages"""
+    telegram_id = update.effective_user.id
+    session = get_or_create_session(telegram_id)
+    
+    if not session:
+        await update.message.reply_text("❌ Session not found. Use /start")
+        return
+    
+    # In sell mode, text is ignored (photos only)
+    if is_sell_mode(session):
+        await update.message.reply_text(
+            "📦 In sell mode - send photos only.\n"
+            "Use /done to exit or /status to check progress."
+        )
+        return
+    
+    user_message = update.message.text
+    user = session["user"]
+    mode = session["current_mode"]
+    model = session["current_model"]
+    conversation_id = session.get("conversation_id")
+    
+    await update.message.chat.send_action("typing")
+    
+    try:
+        response = requests.post(
+            f"{API_URL}/message",
+            headers={"X-API-Key": API_KEY},
+            json={
+                "user_id": str(telegram_id),
+                "message": user_message,
+                "mode": mode,
+                "model_preference": model,
+                "conversation_id": conversation_id
+            },
+            timeout=120
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            bot_response = data["response"]
+            
+            if len(bot_response) > 4000:
+                chunks = [bot_response[i:i+4000] for i in range(0, len(bot_response), 4000)]
+                for chunk in chunks:
+                    await update.message.reply_text(chunk)
+            else:
+                await update.message.reply_text(bot_response)
+        else:
+            await update.message.reply_text(f"❌ API Error: {response.status_code}")
+    
+    except requests.Timeout:
+        await update.message.reply_text("⏱️ Request timed out.")
+    except Exception as e:
+        await update.message.reply_text(f"❌ Error: {e}")
+
+
+async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle errors"""
+    logger.error(f"Error: {context.error}")
+    if update and update.effective_message:
+        await update.effective_message.reply_text("❌ An error occurred.")
 
 
 def main():
     """Start the bot"""
-    
     if not BOT_TOKEN:
-        print("❌ Error: TELEGRAM_BOT_TOKEN not found in .env file")
+        print("❌ TELEGRAM_BOT_TOKEN not found")
         return
     
     if not API_KEY:
-        print("❌ Error: API_KEY_TELEGRAM_BOT not found in .env file")
+        print("❌ API_KEY_TELEGRAM_BOT not found")
         return
     
-    # Create application
     application = Application.builder().token(BOT_TOKEN).build()
     
-    # Register handlers
+    # Command handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("status", status_command))
@@ -456,16 +613,32 @@ def main():
     application.add_handler(CommandHandler("model", model_command))
     application.add_handler(CommandHandler("convo", convo_command))
     application.add_handler(CommandHandler("endconvo", endconvo_command))
+    application.add_handler(CommandHandler("photos", photos_command))
+    
+    # Sell mode commands
+    application.add_handler(CommandHandler("done", done_command))
+    application.add_handler(CommandHandler("undo", undo_command))
+    application.add_handler(CommandHandler("inventory", inventory_wrapper))
+    application.add_handler(CommandHandler("export", export_wrapper))
+    application.add_handler(CommandHandler("listed", listed_command))
+    application.add_handler(CommandHandler("sold", sold_command))
+    
+    # Message handlers
+    application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+    application.add_handler(MessageHandler(filters.Document.IMAGE, handle_photo))
+    application.add_handler(MessageHandler(filters.Document.IMAGE, handle_photo))  # Also handle images sent as documents
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    # Register error handler
+    # Error handler
     application.add_error_handler(error_handler)
     
-    # Start the bot
     print("🤖 Mythos Telegram Bot starting...")
+    print("📦 Sell mode enabled")
+    print("📸 Photo analysis via Ollama")
     print("   Press Ctrl+C to stop")
     
     application.run_polling(allowed_updates=Update.ALL_TYPES)
+
 
 if __name__ == '__main__':
     main()

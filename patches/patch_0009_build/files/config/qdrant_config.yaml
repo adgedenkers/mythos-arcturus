@@ -1,0 +1,101 @@
+# Mythos Qdrant Configuration
+# Created by Patch 0009
+
+# Connection settings
+connection:
+  host: localhost
+  port: 6333
+  timeout: 30
+  # grpc_port: 6334  # Uncomment for gRPC connections
+
+# Collection definitions
+collections:
+  messages:
+    name: mythos_messages
+    description: Semantic search of conversation content
+    vector_size: 384
+    distance: Cosine
+    # Model: sentence-transformers/all-MiniLM-L6-v2
+    payload_indexes:
+      - field: message_id
+        type: integer
+      - field: user_uuid
+        type: keyword
+      - field: room_id
+        type: keyword
+      - field: conversation_id
+        type: keyword
+      - field: role
+        type: keyword
+      - field: timestamp
+        type: datetime
+      - field: spiral_day
+        type: float
+
+  photos:
+    name: mythos_photos
+    description: Visual similarity search of images
+    vector_size: 512
+    distance: Cosine
+    # Model: CLIP or similar vision encoder
+    payload_indexes:
+      - field: photo_id
+        type: keyword
+      - field: user_uuid
+        type: keyword
+      - field: room_id
+        type: keyword
+      - field: timestamp
+        type: datetime
+
+  entities:
+    name: mythos_entities
+    description: Semantic entity matching and deduplication
+    vector_size: 384
+    distance: Cosine
+    # Model: sentence-transformers/all-MiniLM-L6-v2
+    payload_indexes:
+      - field: entity_id
+        type: keyword
+      - field: canonical_id
+        type: keyword
+      - field: name
+        type: text
+      - field: entity_type
+        type: keyword
+      - field: first_seen
+        type: datetime
+
+# Search defaults
+search:
+  default_limit: 10
+  max_limit: 100
+  min_score: 0.5  # Minimum similarity threshold
+  
+# Performance tuning
+performance:
+  # HNSW index parameters (for collections > 10K vectors)
+  hnsw_ef_construct: 100
+  hnsw_m: 16
+  
+  # Quantization (enable for large collections to save memory)
+  quantization:
+    enabled: false
+    type: scalar  # scalar or product
+    
+# Maintenance
+maintenance:
+  # Optimize collections periodically
+  optimize_threshold: 10000  # Optimize after this many points
+  
+# Embedding models reference (for workers)
+models:
+  text:
+    name: all-MiniLM-L6-v2
+    dimensions: 384
+    description: Fast, good quality text embeddings
+    
+  vision:
+    name: clip-ViT-B-32
+    dimensions: 512
+    description: CLIP vision encoder for images

@@ -1,0 +1,4 @@
+Date,Description,Category,Amount,Type,Balance,Notes
+2026-01-01,Direct Deposit,Income,3500.0,Credit,12000.0,Paycheck
+2026-01-02,Starlink Internet,Utilities,-120.0,Debit,11880.0,Autopay
+2026-01-03,YouTube Premium,Subscription,-22.99,Debit,11857.01,Recurring

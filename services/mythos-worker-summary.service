@@ -1,0 +1,15 @@
+[Unit]
+Description=Mythos Summary Worker
+After=network.target redis.service postgresql.service
+
+[Service]
+Type=simple
+User=adge
+WorkingDirectory=/opt/mythos
+Environment="PATH=/opt/mythos/.venv/bin:/usr/local/bin:/usr/bin"
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/workers/worker.py summary
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

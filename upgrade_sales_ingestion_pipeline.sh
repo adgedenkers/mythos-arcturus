@@ -1,3 +1,142 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "============================================================"
+echo "UPGRADE: Mythos downloads monitor + Sales/Shoe ingestion"
+echo "============================================================"
+
+# ---- Settings ----
+MYTHOS_ROOT="/opt/mythos"
+VENV_PY="${MYTHOS_ROOT}/.venv/bin/python"
+MONITOR_PY="${MYTHOS_ROOT}/mythos_patch_monitor.py"
+INGESTOR_PY="${MYTHOS_ROOT}/sales_ingestion/ingest_sales_zip.py"
+BACKUP_DIR="${MYTHOS_ROOT}/_upgrade_backups/$(date +%Y%m%d_%H%M%S)"
+
+SALES_DIR="${MYTHOS_ROOT}/sales_ingestion"
+SHOE_DIR="${MYTHOS_ROOT}/shoe_ingestion"
+
+# Default DB to 'mythos' (matches how you already run psql mythos)
+: "${MYTHOS_DB:=mythos}"
+
+# ---- Preflight ----
+echo "[1/7] Preflight checks..."
+if [[ ! -x "${VENV_PY}" ]]; then
+  echo "❌ Missing venv python: ${VENV_PY}"
+  exit 1
+fi
+if [[ ! -f "${MONITOR_PY}" ]]; then
+  echo "❌ Missing monitor script: ${MONITOR_PY}"
+  exit 1
+fi
+if ! command -v psql >/dev/null 2>&1; then
+  echo "❌ psql not found in PATH"
+  exit 1
+fi
+
+# ---- Backups ----
+echo "[2/7] Backing up current files to ${BACKUP_DIR} ..."
+mkdir -p "${BACKUP_DIR}"
+cp -a "${MONITOR_PY}" "${BACKUP_DIR}/mythos_patch_monitor.py.bak"
+cp -a /etc/systemd/system/mythos-patch-monitor.service "${BACKUP_DIR}/mythos-patch-monitor.service.bak" || true
+
+# ---- Ensure directories ----
+echo "[3/7] Ensuring ingestion directories exist..."
+mkdir -p "${SALES_DIR}/archive"
+mkdir -p "${SHOE_DIR}/archive"
+
+# ---- Install ingestor ----
+echo "[4/7] Installing ingestion runner: ${INGESTOR_PY} ..."
+cat > "${INGESTOR_PY}" <<'PY'
+#!/usr/bin/env python3
+"""
+Sales/Shoe ingestion runner.
+
+Called by mythos_patch_monitor after staging + extracting zips.
+
+Behavior:
+- If an extracted folder contains *.sql (items.sql / shoes.sql), execute it via psql against MYTHOS_DB.
+- If SQL is missing, log and leave staged (no destructive behavior).
+
+This intentionally uses the psql CLI (already present) rather than assuming a Python DB driver exists in the venv.
+"""
+
+import os
+import subprocess
+import logging
+from pathlib import Path
+
+LOG_PATH = "/var/log/mythos_patch_monitor.log"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler(LOG_PATH), logging.StreamHandler()],
+)
+logger = logging.getLogger("MythosSalesIngestor")
+
+def run_psql_file(sql_file: Path, dbname: str) -> None:
+    logger.info(f"Executing SQL file against db '{dbname}': {sql_file}")
+    # Use ON_ERROR_STOP so partial failures halt; your SQL can manage transactions if needed.
+    cmd = ["psql", dbname, "-v", "ON_ERROR_STOP=1", "-f", str(sql_file)]
+    subprocess.run(cmd, check=True)
+
+def find_sql(extract_dir: Path) -> Path | None:
+    # Prefer items.sql, then shoes.sql, then any single *.sql
+    preferred = ["items.sql", "shoes.sql"]
+    for name in preferred:
+        p = extract_dir / name
+        if p.exists() and p.is_file():
+            return p
+    sql_files = sorted(extract_dir.glob("*.sql"))
+    if len(sql_files) == 1:
+        return sql_files[0]
+    if len(sql_files) > 1:
+        # If multiple, pick the most likely by name
+        for cand in sql_files:
+            if "item" in cand.name.lower():
+                return cand
+        return sql_files[0]
+    return None
+
+def ingest_extracted_dir(extract_dir: Path, artifact_type: str) -> None:
+    dbname = os.environ.get("MYTHOS_DB", "mythos")
+
+    if not extract_dir.exists():
+        raise FileNotFoundError(f"Extract dir does not exist: {extract_dir}")
+
+    sql_file = find_sql(extract_dir)
+    if not sql_file:
+        logger.warning(
+            f"No SQL file found in {extract_dir}. "
+            f"Artifact staged only (type={artifact_type})."
+        )
+        return
+
+    try:
+        run_psql_file(sql_file, dbname)
+        logger.info(f"✓ Ingestion complete for: {extract_dir.name} (type={artifact_type})")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"✗ SQL ingestion failed for {extract_dir.name}: {e}", exc_info=True)
+        raise
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--type", required=True, choices=["sales", "shoes"])
+    ap.add_argument("--extract-dir", required=True)
+    args = ap.parse_args()
+
+    ingest_extracted_dir(Path(args.extract_dir), args.type)
+
+if __name__ == "__main__":
+    main()
+PY
+chmod +x "${INGESTOR_PY}"
+
+# ---- Upgrade monitor script ----
+echo "[5/7] Upgrading ${MONITOR_PY} (adds DB ingestion + shoe support)..."
+
+cat > "${MONITOR_PY}" <<'PY'
 #!/usr/bin/env python3
 """
 Mythos Downloads Monitor Service
@@ -261,3 +400,35 @@ def main():
 
 if __name__ == "__main__":
     main()
+PY
+chmod +x "${MONITOR_PY}"
+
+# ---- Systemd: add MYTHOS_DB env (optional but nice) ----
+echo "[6/7] Updating systemd service env (adds MYTHOS_DB=${MYTHOS_DB})..."
+# Keep your service structure, just ensure MYTHOS_DB is available.
+# If it's already present, we won't duplicate.
+if ! grep -q 'Environment="MYTHOS_DB=' /etc/systemd/system/mythos-patch-monitor.service; then
+  sudo bash -c "awk '
+    {print}
+    \$0 ~ /^Environment=\"PYTHONUNBUFFERED=1\"/ {
+      print \"Environment=\\\"MYTHOS_DB=${MYTHOS_DB}\\\"\"
+    }
+  ' /etc/systemd/system/mythos-patch-monitor.service > /etc/systemd/system/mythos-patch-monitor.service.tmp && mv /etc/systemd/system/mythos-patch-monitor.service.tmp /etc/systemd/system/mythos-patch-monitor.service"
+else
+  echo "Service already defines MYTHOS_DB; leaving as-is."
+fi
+
+# ---- Restart service ----
+echo "[7/7] Reloading systemd + restarting mythos-patch-monitor..."
+sudo systemctl daemon-reload
+sudo systemctl restart mythos-patch-monitor.service
+
+echo ""
+echo "============================================================"
+echo "✅ Upgrade complete."
+echo "Backups stored at: ${BACKUP_DIR}"
+echo "Service restarted: mythos-patch-monitor.service"
+echo ""
+echo "Tip: watch logs with:"
+echo "  tail -f /var/log/mythos_patch_monitor.log"
+echo "============================================================"
