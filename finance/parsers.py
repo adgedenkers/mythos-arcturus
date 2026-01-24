@@ -24,7 +24,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from abc import ABC, abstractmethod
 
 
@@ -166,6 +166,27 @@ class SunmarkParser(BaseParser):
     - Has transaction numbers for deduplication
     """
     
+    # Transaction type prefixes and their abbreviations
+    TRANSACTION_PREFIXES = [
+        ('Point Of Sale Withdrawal', 'POS'),
+        ('Point Of Sale Deposit', 'POS DEP'),
+        ('External Withdrawal', 'EXT'),
+        ('External Deposit', 'DEP'),
+        ('ATM Withdrawal', 'ATM'),
+        ('Overdraft Fee', 'OD FEE'),
+        ('Overdraft Protection Deposit', 'OD PROT'),
+        ('Withdrawal', 'WD'),
+    ]
+    
+    # State abbreviations for cleanup
+    US_STATES = {
+        'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+        'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+        'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+        'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+        'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC'
+    }
+    
     def detect(self, file_path: Path) -> bool:
         """Detect Sunmark format by looking for account header"""
         try:
@@ -217,13 +238,15 @@ class SunmarkParser(BaseParser):
                 else:
                     continue  # Skip if no amount
                 
-                # Get description
+                # Get description and memo
                 description = row.get('Description', '').strip()
                 memo = row.get('Memo', '').strip()
+                
+                # Combine for original (used for categorization matching)
                 original_desc = f"{description} {memo}".strip() if memo else description
                 
-                # Clean up description for display
-                clean_desc = self._clean_description(description)
+                # Clean up description for display - use memo for merchant info
+                clean_desc, extracted_merchant = self._clean_description(description, memo)
                 
                 # Get balance if available
                 balance_str = row.get('Balance', '').strip()
@@ -251,7 +274,7 @@ class SunmarkParser(BaseParser):
                     balance=balance,
                     category_primary=None,  # Will be set by categorizer
                     category_secondary=None,
-                    merchant_name=self._extract_merchant(description),
+                    merchant_name=extracted_merchant,
                     transaction_type=trans_type,
                     is_pending=False,
                     bank_transaction_id=bank_trans_id,
@@ -264,26 +287,131 @@ class SunmarkParser(BaseParser):
         
         return transactions
     
-    def _clean_description(self, desc: str) -> str:
-        """Clean up Sunmark description for display"""
-        # Remove location codes and extra whitespace
-        desc = re.sub(r'\s{2,}', ' ', desc)
-        # Remove state codes at end
-        desc = re.sub(r'\s+[A-Z]{2}US$', '', desc)
-        return desc.strip()
+    def _clean_description(self, description: str, memo: str) -> Tuple[str, Optional[str]]:
+        """
+        Clean up Sunmark description for display.
+        
+        Transforms ugly bank descriptions like:
+            "Point Of Sale Withdrawal STEWART'S SHOP 40 N CANAL ST OXFORD NYUS"
+        Into clean display text like:
+            "Stewart's Shop - Oxford NY (POS)"
+        
+        Returns:
+            Tuple of (clean_description, merchant_name)
+        """
+        # Combine description and memo
+        full_text = f"{description} {memo}".strip() if memo else description
+        
+        # Detect and strip transaction type prefix
+        trans_type_abbrev = None
+        merchant_part = full_text
+        
+        for prefix, abbrev in self.TRANSACTION_PREFIXES:
+            if full_text.upper().startswith(prefix.upper()):
+                trans_type_abbrev = abbrev
+                merchant_part = full_text[len(prefix):].strip()
+                break
+        
+        # If no prefix matched and it's just a generic withdrawal
+        if not trans_type_abbrev and description.startswith('Withdrawal'):
+            trans_type_abbrev = 'WD'
+            # Try to extract amount or description after "Withdrawal"
+            merchant_part = description[len('Withdrawal'):].strip()
+        
+        # Clean up the merchant part
+        merchant_name, location = self._parse_merchant_location(merchant_part)
+        
+        # Build the clean description
+        if merchant_name:
+            if location:
+                clean_desc = f"{merchant_name} - {location}"
+            else:
+                clean_desc = merchant_name
+            
+            if trans_type_abbrev:
+                clean_desc = f"{clean_desc} ({trans_type_abbrev})"
+        else:
+            # Fallback to original if we couldn't parse
+            clean_desc = description
+            merchant_name = None
+        
+        return clean_desc, merchant_name
     
-    def _extract_merchant(self, desc: str) -> Optional[str]:
-        """Try to extract merchant name from description"""
-        # Common patterns
-        patterns = [
-            r'^(?:Point Of Sale Withdrawal|External Withdrawal)\s+(.+?)(?:\s+[A-Z]{2}US)?$',
-            r'^(.+?)\s+#\d+',
-        ]
-        for pattern in patterns:
-            match = re.match(pattern, desc, re.IGNORECASE)
-            if match:
-                return match.group(1).strip()
-        return None
+    def _parse_merchant_location(self, text: str) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Parse merchant name and location from transaction text.
+        
+        Input: "STEWART'S SHOP 40 N CANAL ST OXFORD NYUS"
+        Output: ("Stewart's Shop", "Oxford NY")
+        
+        Returns:
+            Tuple of (merchant_name, location)
+        """
+        if not text:
+            return None, None
+        
+        # Remove trailing country code (US, USUS, etc.)
+        text = re.sub(r'\s*(US)+\s*$', '', text, flags=re.IGNORECASE)
+        
+        # Try to find state code at the end
+        location = None
+        merchant_text = text
+        
+        # Pattern: ... CITY STATECODE (e.g., "OXFORD NY" or "SAN FRANCISCO CA")
+        state_match = re.search(r'\s+([A-Za-z\s]+?)\s+([A-Z]{2})\s*$', text)
+        if state_match:
+            potential_city = state_match.group(1).strip()
+            potential_state = state_match.group(2).upper()
+            
+            if potential_state in self.US_STATES:
+                location = f"{potential_city.title()} {potential_state}"
+                merchant_text = text[:state_match.start()].strip()
+        
+        # Clean up merchant name
+        if merchant_text:
+            # Remove store numbers (e.g., "#6366", "T-1056", "9909")
+            merchant_text = re.sub(r'\s*[#T-]*\d{3,}\s*', ' ', merchant_text)
+            # Remove address fragments (numbers followed by words)
+            merchant_text = re.sub(r'\s+\d+\s+[A-Za-z]+(\s+[A-Za-z]+)*\s*$', '', merchant_text)
+            # Clean up extra whitespace
+            merchant_text = re.sub(r'\s{2,}', ' ', merchant_text).strip()
+            
+            # Title case the merchant name
+            merchant_name = self._smart_title_case(merchant_text)
+        else:
+            merchant_name = None
+        
+        return merchant_name, location
+    
+    def _smart_title_case(self, text: str) -> str:
+        """
+        Smart title case that handles special cases.
+        
+        - Preserves apostrophes properly (Stewart's not Stewart'S)
+        - Handles common abbreviations
+        """
+        if not text:
+            return text
+        
+        # Special cases that should stay uppercase
+        uppercase_words = {'ACH', 'ATM', 'LLC', 'INC', 'USA', 'US', 'NY', 'CA', 'TX'}
+        
+        words = text.split()
+        result = []
+        
+        for word in words:
+            upper = word.upper()
+            if upper in uppercase_words:
+                result.append(upper)
+            elif "'" in word:
+                # Handle apostrophes: "STEWART'S" -> "Stewart's"
+                parts = word.split("'")
+                titled = "'".join(p.capitalize() for p in parts)
+                result.append(titled)
+            else:
+                result.append(word.capitalize())
+        
+        return ' '.join(result)
 
 
 # Parser registry
