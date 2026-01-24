@@ -30,7 +30,6 @@ PATCH_LOGS = PATCH_DIR / "logs"
 # Authorized users (from .env: TELEGRAM_ID_KA, TELEGRAM_ID_SERAPHE)
 AUTHORIZED_IDS = set()
 
-
 def _load_authorized_ids():
     """Load authorized Telegram IDs from environment"""
     global AUTHORIZED_IDS
@@ -43,14 +42,11 @@ def _load_authorized_ids():
                 pass
     logger.info(f"Authorized patch users: {AUTHORIZED_IDS}")
 
-
 _load_authorized_ids()
-
 
 def _is_authorized(user_id: int) -> bool:
     """Check if user is authorized for patch operations"""
     return user_id in AUTHORIZED_IDS
-
 
 def _run_git(*args) -> tuple[bool, str]:
     """Run a git command and return (success, output)"""
@@ -66,14 +62,12 @@ def _run_git(*args) -> tuple[bool, str]:
     except Exception as e:
         return False, str(e)
 
-
 def _get_current_version() -> str:
     """Get current git version tag"""
     success, output = _run_git("tag", "-l", "v*", "--sort=-v:refname")
     if success and output.strip():
         return output.strip().split('\n')[0]
     return "v0.0.0"
-
 
 def _get_recent_tags(limit: int = 5) -> list[dict]:
     """Get recent tags with dates"""
@@ -89,7 +83,6 @@ def _get_recent_tags(limit: int = 5) -> list[dict]:
                 })
     return tags
 
-
 def _get_pending_patches() -> list[str]:
     """Get list of patch directories that haven't been applied"""
     patches = []
@@ -100,7 +93,6 @@ def _get_pending_patches() -> list[str]:
                 has_install = (d / "install.sh").exists()
                 patches.append(f"{d.name}" + (" ✓" if has_install else ""))
     return patches
-
 
 def _get_recent_logs(limit: int = 5) -> list[dict]:
     """Get recent patch application logs"""
@@ -132,27 +124,29 @@ async def patch_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     version = _get_current_version()
     
-    help_text = f"""🔧 <b>Mythos Patch System</b>
+    help_text = f"""
+🔧 **Mythos Patch System**
 
-<b>Current Version:</b> <code>{version}</code>
+**Current Version:** `{version}`
 
-<b>Commands:</b>
-• /patch_status - Version info &amp; recent activity
-• /patch_list - Available patches to apply
-• /patch_apply &lt;name&gt; - Apply a specific patch
-• /patch_rollback - Show rollback options
-• /patch_rollback &lt;tag&gt; - Rollback to specific tag
+**Commands:**
+• `/patch_status` - Version info & recent activity
+• `/patch_list` - Available patches to apply
+• `/patch_apply <name>` - Apply a specific patch
+• `/patch_rollback` - Show rollback options
+• `/patch_rollback <tag>` - Rollback to specific tag
 
-<b>Auto-Processing:</b>
-Patch zips dropped in ~/Downloads are automatically:
-1. Extracted to /opt/mythos/patches/
-2. Git-tagged before &amp; after
+**Auto-Processing:**
+Patch zips dropped in `~/Downloads` are automatically:
+1. Extracted to `/opt/mythos/patches/`
+2. Git-tagged before & after
 3. Pushed to GitHub
 
-<b>Naming Convention:</b>
-<code>patch_NNNN_description.zip</code>"""
+**Naming Convention:**
+`patch_NNNN_description.zip`
+"""
     
-    await update.message.reply_text(help_text, parse_mode='HTML')
+    await update.message.reply_text(help_text, parse_mode=None)
 
 
 async def patch_status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -172,22 +166,22 @@ async def patch_status_command(update: Update, context: ContextTypes.DEFAULT_TYP
     # Check git remote
     has_remote, remote_url = _run_git("remote", "get-url", "origin")
     
-    msg = f"📊 <b>Patch Status</b>\n\n"
-    msg += f"<b>Current Version:</b> <code>{version}</code>\n"
-    msg += f"<b>GitHub:</b> {'✓ Connected' if has_remote else '✗ Not configured'}\n\n"
+    msg = f"📊 **Patch Status**\n\n"
+    msg += f"**Current Version:** `{version}`\n"
+    msg += f"**GitHub:** {'✓ Connected' if has_remote else '✗ Not configured'}\n\n"
     
-    msg += "<b>Recent Tags:</b>\n"
+    msg += "**Recent Tags:**\n"
     for t in tags[:5]:
-        msg += f"• <code>{t['tag']}</code> ({t['date'][:10]})\n"
+        msg += f"• `{t['tag']}` ({t['date'][:10]})\n"
     
     if logs:
-        msg += "\n<b>Recent Activity:</b>\n"
+        msg += "\n**Recent Activity:**\n"
         for log in logs[:3]:
             status = "✓" if log.get('status') == 'success' else "✗"
             patch_name = log.get('patch', log.get('target_tag', 'unknown'))
             msg += f"• {status} {patch_name}\n"
     
-    await update.message.reply_text(msg, parse_mode='HTML')
+    await update.message.reply_text(msg, parse_mode=None)
 
 
 async def patch_list_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -203,16 +197,16 @@ async def patch_list_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
     patches = _get_pending_patches()
     
     if not patches:
-        await update.message.reply_text("📦 No patches in <code>/opt/mythos/patches/</code>", parse_mode='HTML')
+        await update.message.reply_text("📦 No patches in `/opt/mythos/patches/`", parse_mode=None)
         return
     
-    msg = "📦 <b>Available Patches:</b>\n\n"
+    msg = "📦 **Available Patches:**\n\n"
     for p in patches:
-        msg += f"• <code>{p}</code>\n"
+        msg += f"• `{p}`\n"
     
-    msg += "\nUse /patch_apply &lt;name&gt; to apply."
+    msg += "\nUse `/patch_apply <name>` to apply."
     
-    await update.message.reply_text(msg, parse_mode='HTML')
+    await update.message.reply_text(msg, parse_mode=None)
 
 
 async def patch_apply_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -227,9 +221,9 @@ async def patch_apply_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     
     if not context.args:
         await update.message.reply_text(
-            "Usage: /patch_apply &lt;patch_name&gt;\n\n"
-            "Use /patch_list to see available patches.",
-            parse_mode='HTML'
+            "Usage: `/patch_apply <patch_name>`\n\n"
+            "Use `/patch_list` to see available patches.",
+            parse_mode=None
         )
         return
     
@@ -237,10 +231,10 @@ async def patch_apply_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     patch_path = PATCH_DIR / patch_name
     
     if not patch_path.exists():
-        await update.message.reply_text(f"❌ Patch not found: <code>{patch_name}</code>", parse_mode='HTML')
+        await update.message.reply_text(f"❌ Patch not found: `{patch_name}`", parse_mode=None)
         return
     
-    await update.message.reply_text(f"⏳ Applying patch: <code>{patch_name}</code>...", parse_mode='HTML')
+    await update.message.reply_text(f"⏳ Applying patch: `{patch_name}`...", parse_mode=None)
     
     try:
         script = PATCH_SCRIPTS / "patch_apply.sh"
@@ -259,14 +253,14 @@ async def patch_apply_command(update: Update, context: ContextTypes.DEFAULT_TYPE
             new_version = _get_current_version()
             await update.message.reply_text(
                 f"✅ Patch applied successfully!\n\n"
-                f"<b>New version:</b> <code>{new_version}</code>",
-                parse_mode='HTML'
+                f"**New version:** `{new_version}`",
+                parse_mode=None
             )
         else:
             error_msg = result.stderr[-500:] if result.stderr else "Unknown error"
             await update.message.reply_text(
-                f"❌ Patch failed!\n\n<pre>{error_msg}</pre>",
-                parse_mode='HTML'
+                f"❌ Patch failed!\n\n```\n{error_msg}\n```",
+                parse_mode=None
             )
     
     except subprocess.TimeoutExpired:
@@ -292,21 +286,21 @@ async def patch_rollback_command(update: Update, context: ContextTypes.DEFAULT_T
         pre_tags = [t for t in tags if t['tag'].startswith('pre-')]
         version_tags = [t for t in tags if t['tag'].startswith('v')]
         
-        msg = "🔄 <b>Rollback Options</b>\n\n"
+        msg = "🔄 **Rollback Options**\n\n"
         
         if pre_tags:
-            msg += "<b>Pre-patch snapshots:</b>\n"
+            msg += "**Pre-patch snapshots:**\n"
             for t in pre_tags[:5]:
-                msg += f"• <code>{t['tag']}</code>\n"
+                msg += f"• `{t['tag']}`\n"
         
         if version_tags:
-            msg += "\n<b>Version tags:</b>\n"
+            msg += "\n**Version tags:**\n"
             for t in version_tags[:5]:
-                msg += f"• <code>{t['tag']}</code> ({t['date'][:10]})\n"
+                msg += f"• `{t['tag']}` ({t['date'][:10]})\n"
         
-        msg += "\nUse /patch_rollback &lt;tag&gt; to rollback."
+        msg += "\nUse `/patch_rollback <tag>` to rollback."
         
-        await update.message.reply_text(msg, parse_mode='HTML')
+        await update.message.reply_text(msg, parse_mode=None)
         return
     
     # Rollback to specific tag
@@ -315,14 +309,14 @@ async def patch_rollback_command(update: Update, context: ContextTypes.DEFAULT_T
     # Verify tag exists
     success, _ = _run_git("rev-parse", target_tag)
     if not success:
-        await update.message.reply_text(f"❌ Tag not found: <code>{target_tag}</code>", parse_mode='HTML')
+        await update.message.reply_text(f"❌ Tag not found: `{target_tag}`", parse_mode=None)
         return
     
     await update.message.reply_text(
-        f"⚠️ <b>Confirm Rollback</b>\n\n"
-        f"Rolling back to: <code>{target_tag}</code>\n\n"
-        f"Reply with /patch_rollback_confirm {target_tag} to proceed.",
-        parse_mode='HTML'
+        f"⚠️ **Confirm Rollback**\n\n"
+        f"Rolling back to: `{target_tag}`\n\n"
+        f"Reply with `/patch_rollback_confirm {target_tag}` to proceed.",
+        parse_mode=None
     )
 
 
@@ -337,12 +331,12 @@ async def patch_rollback_confirm_command(update: Update, context: ContextTypes.D
         return
     
     if not context.args:
-        await update.message.reply_text("Usage: /patch_rollback_confirm &lt;tag&gt;", parse_mode='HTML')
+        await update.message.reply_text("Usage: `/patch_rollback_confirm <tag>`", parse_mode=None)
         return
     
     target_tag = context.args[0]
     
-    await update.message.reply_text(f"⏳ Rolling back to <code>{target_tag}</code>...", parse_mode='HTML')
+    await update.message.reply_text(f"⏳ Rolling back to `{target_tag}`...", parse_mode=None)
     
     try:
         # Use the rollback script with auto-confirm via stdin
@@ -364,7 +358,7 @@ async def patch_rollback_confirm_command(update: Update, context: ContextTypes.D
         # Checkout target state
         success, output = _run_git("checkout", target_tag, "--", ".")
         if not success:
-            await update.message.reply_text(f"❌ Rollback failed:\n<pre>{output}</pre>", parse_mode='HTML')
+            await update.message.reply_text(f"❌ Rollback failed:\n```\n{output}\n```", parse_mode=None)
             return
         
         # Commit rollback
@@ -379,9 +373,9 @@ async def patch_rollback_confirm_command(update: Update, context: ContextTypes.D
         
         await update.message.reply_text(
             f"✅ Rollback complete!\n\n"
-            f"<b>Rolled back to:</b> <code>{target_tag}</code>\n"
-            f"<b>Previous state saved as:</b> <code>{pre_rollback_tag}</code>",
-            parse_mode='HTML'
+            f"**Rolled back to:** `{target_tag}`\n"
+            f"**Previous state saved as:** `{pre_rollback_tag}`",
+            parse_mode=None
         )
     
     except Exception as e:
