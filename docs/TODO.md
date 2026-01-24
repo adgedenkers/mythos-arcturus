@@ -1,6 +1,6 @@
 # Mythos Project TODO & Roadmap
 
-> **Last Updated:** 2026-01-24 08:45 EST
+> **Last Updated:** 2026-01-24 09:00 EST
 > **Current Focus:** Finance System + Patch Infrastructure
 
 ---
@@ -24,8 +24,14 @@
 
 ## 🔥 Active Work
 
+### Finance System - Sunmark Parser Improvement (patch_0018)
+- **Status:** Deployed, pending verification
+- **Files:** `/opt/mythos/finance/parsers.py`, `/opt/mythos/finance/update_sunmark_descriptions.py`
+- **What:** Clean up Sunmark descriptions - strip "Point Of Sale Withdrawal" prefix, extract merchant names, add transaction type tags like (POS), (ATM), (EXT)
+- **Next:** Run update script to fix existing transactions, verify reports look cleaner
+
 ### Finance System (patch_0015)
-- **Status:** Patch installed, testing in progress
+- **Status:** Live with 682 transactions imported
 - **Files:** `/opt/mythos/finance/`
 - **What:** Bank CSV import system (USAA + Sunmark), category mapping, reports CLI
 - **Next:** Test imports, verify category mappings, add Telegram commands
@@ -35,13 +41,6 @@
 - **Files:** `/opt/mythos/telegram_bot/handlers/patch_handlers.py`
 - **What:** `/patch_status` was failing due to underscore characters breaking Markdown parsing
 - **Resolution:** Changed all `parse_mode='Markdown'` to `parse_mode='HTML'`, converted `**bold**` to `<b>bold</b>`, converted `` `code` `` to `<code>code</code>`
-- **Next:** Verify all patch commands work with HTML formatting
-
-### Project Documentation (patch_0016)
-- **Status:** In progress
-- **Files:** `/opt/mythos/docs/TODO.md`, `/opt/mythos/docs/ARCHITECTURE.md`
-- **What:** Persistent project tracking that travels with git
-- **Next:** Deploy patch, verify docs are committed to GitHub
 
 ---
 
@@ -83,6 +82,8 @@
 ## ✅ Completed
 
 ### 2026-01-24
+- [x] Sunmark parser improvement - clean descriptions with (POS)/(ATM)/(EXT) tags (patch_0018)
+- [x] Added patch history tracking to TODO.md (patch_0019)
 - [x] Diagnosed `/patch_status` Markdown parsing failure
 - [x] Root cause: underscores in filenames interpreted as italic markers
 - [x] Fix: Switched all patch handlers to HTML parse mode
@@ -138,18 +139,6 @@ cat "$D" | xclip -selection clipboard && echo "✓ Copied to clipboard"
 - Final line copies to clipboard for easy paste back to Claude
 - User can also `cat ~/diag.txt` or open in VS Code if preferred
 
-**Example diagnostic block:**
-```bash
-D=~/diag.txt; > "$D"
-echo "=== SERVICE STATUS ===" >> "$D"
-sudo systemctl status mythos-bot.service >> "$D" 2>&1
-echo -e "\n\n=== RECENT LOGS ===" >> "$D"
-journalctl -u mythos-bot.service -n 50 --no-pager >> "$D" 2>&1
-echo -e "\n\n=== PROCESS CHECK ===" >> "$D"
-pgrep -af mythos >> "$D" 2>&1
-cat "$D" | xclip -selection clipboard && echo "✓ Copied to clipboard"
-```
-
 ### Patch Deployment Pattern
 
 1. Claude creates patch files in `/home/claude/patch_NNNN_description/`
@@ -192,6 +181,27 @@ When starting a new Claude conversation about Mythos:
 - Finance CSVs go in: `/opt/mythos/finance/accounts/`
 - Diagnostic file: `~/diag.txt` (overwritten each diagnostic run)
 - Never delete TODO items - mark completed or move to "Dropped" section
+
+---
+
+## 📦 Patch History
+
+> **Next Patch Number: 0020**
+
+| Patch | Date | Description |
+|-------|------|-------------|
+| 0019 | 2026-01-24 | Added patch history to TODO.md |
+| 0018 | 2026-01-24 | Sunmark description cleanup - (POS)/(ATM)/(EXT) tags |
+| 0017 | 2026-01-24 | Project docs updated |
+| 0016 | 2026-01-24 | Project documentation system (TODO.md, ARCHITECTURE.md) |
+| 0015 | 2026-01-24 | Finance system complete - imports, categories, reports |
+| 0014 | 2026-01-23 | Finance migration |
+| 0013 | 2026-01-23 | Finance system initial |
+| 0012 | 2026-01-23 | Telegram autoexec |
+| 0011 | 2026-01-23 | Test patch |
+| 0010 | 2026-01-23 | GitHub patch system |
+
+*When creating a new patch, increment the number and add a row here.*
 
 ---
 
