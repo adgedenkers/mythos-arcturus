@@ -6,6 +6,25 @@
 
 ---
 
+## 📖 About This Document
+
+**ARCHITECTURE.md is the stable system reference.** It documents what actually exists and works.
+
+| Document | Purpose | Update Frequency |
+|----------|---------|------------------|
+| `TODO.md` | What we're trying to do | Every work session |
+| `ARCHITECTURE.md` | What actually exists and works | Only at stable milestones |
+
+**Rules:**
+- Only update this document when a feature is stable and deployed
+- Reflects the actual current state of the system
+- Add new services, tables, directories, commands once they're working
+- Update diagrams when architecture actually changes
+
+**For work-in-progress, see TODO.md**
+
+---
+
 ## System Overview
 
 ```

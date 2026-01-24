@@ -5,6 +5,23 @@
 
 ---
 
+## 📖 About This Document
+
+**TODO.md is the living work journal.** It is updated constantly during work sessions.
+
+| Document | Purpose | Update Frequency |
+|----------|---------|------------------|
+| `TODO.md` | What we're trying to do | Every work session |
+| `ARCHITECTURE.md` | What actually exists and works | Only at stable milestones |
+
+**Rules:**
+- Update Active Work section as status changes
+- Move items to Completed when done (never delete)
+- Add new ideas to Backlog or Ideas section
+- Only update ARCHITECTURE.md when a feature is stable and deployed
+
+---
+
 ## 🔥 Active Work
 
 ### Finance System (patch_0015)
