@@ -30,3 +30,12 @@ __all__ = [
     'listed_command',
     'sold_command'
 ]
+
+# Patch management handlers
+from .patch_handlers import (
+    patch_command,
+    patch_status_command,
+    patch_apply_command,
+    patch_rollback_command,
+    patch_list_command
+)
