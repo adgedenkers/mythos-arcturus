@@ -65,9 +65,6 @@ ARTIFACT_PATTERNS = {
 GIT_ENABLED = True
 GITHUB_PUSH_ENABLED = True
 
-# Auto-execute install.sh after extraction
-AUTO_EXECUTE_INSTALL = True
-
 # ------------------------------------------------------------
 # Logging
 # ------------------------------------------------------------
@@ -346,32 +343,6 @@ class DownloadsHandler(FileSystemEventHandler):
                 "status": "success"
             }
             self._write_patch_log(log_entry)
-
-
-            # ---- AUTO-EXECUTE install.sh if present ----
-            if AUTO_EXECUTE_INSTALL and extract_dir:
-                install_script = extract_dir / "install.sh"
-                if install_script.exists():
-                    logger.info(f"Running install.sh from {extract_dir}")
-                    try:
-                        # Make executable
-                        install_script.chmod(0o755)
-                        # Run it
-                        result = subprocess.run(
-                            [str(install_script)],
-                            cwd=str(extract_dir),
-                            capture_output=True,
-                            text=True,
-                            timeout=300
-                        )
-                        if result.returncode == 0:
-                            logger.info(f"✓ install.sh completed successfully")
-                        else:
-                            logger.error(f"install.sh failed: {result.stderr}")
-                    except subprocess.TimeoutExpired:
-                        logger.error("install.sh timed out (5 min limit)")
-                    except Exception as e:
-                        logger.error(f"install.sh error: {e}")
 
             logger.info(f"✓ Patch processed: {name}")
 
