@@ -43,16 +43,6 @@ from handlers import (
     inventory_command
 )
 
-# Patch management handlers
-from handlers.patch_handlers import (
-    patch_command,
-    patch_status_command,
-    patch_list_command,
-    patch_apply_command,
-    patch_rollback_command,
-    patch_rollback_confirm_command
-)
-
 # Configuration
 API_URL = "https://mythos-api.denkers.co"
 API_KEY = os.getenv('API_KEY_TELEGRAM_BOT')
@@ -632,14 +622,6 @@ def main():
     application.add_handler(CommandHandler("export", export_wrapper))
     application.add_handler(CommandHandler("listed", listed_command))
     application.add_handler(CommandHandler("sold", sold_command))
-    
-    # Patch management commands
-    application.add_handler(CommandHandler("patch", patch_command))
-    application.add_handler(CommandHandler("patch_status", patch_status_command))
-    application.add_handler(CommandHandler("patch_list", patch_list_command))
-    application.add_handler(CommandHandler("patch_apply", patch_apply_command))
-    application.add_handler(CommandHandler("patch_rollback", patch_rollback_command))
-    application.add_handler(CommandHandler("patch_rollback_confirm", patch_rollback_confirm_command))
     
     # Message handlers
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
