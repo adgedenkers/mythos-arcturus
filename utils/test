@@ -1,0 +1,4 @@
+#!/bin/bash
+cd /opt/mythos
+source .venv/bin/activate
+python3 /opt/mythos/utils/test_pipeline.py "$@"

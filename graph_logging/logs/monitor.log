@@ -96,3 +96,13 @@
 2026-01-16 21:03:30,103 - SystemMonitor - WARNING - High memory process: java (PID 30506) using 25.5%
 2026-01-16 21:03:30,105 - SystemMonitor - ERROR - Error checking processes: {neo4j_code: Neo.ClientError.Statement.TypeError} {message: Property values can only be of primitive types or arrays thereof. Encountered: Map{name -> String("java"), pid -> Long(30506), memory_percent -> Double(2.554483e+01), cpu_percent -> Double(3.086000e+02)}.} {gql_status: 22G03} {gql_status_description: error: data exception - invalid value type}
 2026-01-16 21:03:30,105 - SystemMonitor - ERROR - Error checking processes: {neo4j_code: Neo.ClientError.Statement.TypeError} {message: Property values can only be of primitive types or arrays thereof. Encountered: Map{name -> String("java"), pid -> Long(30506), memory_percent -> Double(2.554483e+01), cpu_percent -> Double(3.086000e+02)}.} {gql_status: 22G03} {gql_status_description: error: data exception - invalid value type}
+2026-01-23 18:30:37,225 - SystemMonitor - INFO - Received signal 15, shutting down...
+2026-01-23 18:30:37,225 - SystemMonitor - INFO - Received signal 15, shutting down...
+2026-01-23 19:08:40,617 - SystemMonitor - INFO - Starting Arcturus System Monitor
+2026-01-23 19:08:40,617 - SystemMonitor - INFO - Starting Arcturus System Monitor
+2026-01-23 19:08:40,618 - SystemMonitor - INFO - Configuration: /opt/mythos/graph_logging/config/monitoring_config.yaml
+2026-01-23 19:08:40,618 - SystemMonitor - INFO - Configuration: /opt/mythos/graph_logging/config/monitoring_config.yaml
+2026-01-23 19:08:41,129 - SystemMonitor - INFO - Connected to Neo4j
+2026-01-23 19:08:41,129 - SystemMonitor - INFO - Connected to Neo4j
+2026-01-23 19:08:41,129 - SystemMonitor - INFO - Monitoring started (interval: 60s)
+2026-01-23 19:08:41,129 - SystemMonitor - INFO - Monitoring started (interval: 60s)

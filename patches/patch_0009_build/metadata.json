@@ -1,0 +1,19 @@
+{
+  "patch_number": 9,
+  "name": "qdrant_collections",
+  "description": "Create Qdrant vector collections for semantic search",
+  "requires_patch": 8,
+  "creates_files": [
+    "/opt/mythos/qdrant/collections.py",
+    "/opt/mythos/qdrant/__init__.py",
+    "/opt/mythos/config/qdrant_config.yaml"
+  ],
+  "modifies_files": [],
+  "depends_on_services": [
+    "docker"
+  ],
+  "required_env_vars": [],
+  "python_version": ">=3.11",
+  "created_by": "Ka_tuar_el",
+  "created_date": "2026-01-21"
+}

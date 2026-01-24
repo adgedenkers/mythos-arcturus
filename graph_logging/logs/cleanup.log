@@ -58,3 +58,19 @@
 2026-01-21 03:00:04,981 - INFO - Starting event cleanup (retention: 10 days)
 2026-01-21 03:00:04,985 - INFO - No events older than 10 days found
 2026-01-21 03:00:04,985 - INFO - No events older than 10 days found
+2026-01-22 00:00:04,988 - INFO - Starting event cleanup (retention: 10 days)
+2026-01-22 00:00:04,988 - INFO - Starting event cleanup (retention: 10 days)
+2026-01-22 00:00:05,005 - INFO - No events older than 10 days found
+2026-01-22 00:00:05,005 - INFO - No events older than 10 days found
+2026-01-22 03:00:04,981 - INFO - Starting event cleanup (retention: 10 days)
+2026-01-22 03:00:04,981 - INFO - Starting event cleanup (retention: 10 days)
+2026-01-22 03:00:04,985 - INFO - No events older than 10 days found
+2026-01-22 03:00:04,985 - INFO - No events older than 10 days found
+2026-01-23 00:00:04,996 - INFO - Starting event cleanup (retention: 10 days)
+2026-01-23 00:00:04,996 - INFO - Starting event cleanup (retention: 10 days)
+2026-01-23 00:00:05,016 - INFO - No events older than 10 days found
+2026-01-23 00:00:05,016 - INFO - No events older than 10 days found
+2026-01-23 03:00:04,980 - INFO - Starting event cleanup (retention: 10 days)
+2026-01-23 03:00:04,980 - INFO - Starting event cleanup (retention: 10 days)
+2026-01-23 03:00:04,984 - INFO - No events older than 10 days found
+2026-01-23 03:00:04,984 - INFO - No events older than 10 days found
