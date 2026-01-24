@@ -1,353 +1,329 @@
-Date,Description,Original Description,Category,Amount,Status
-2026-01-15,"WMT PLUS Jan 2026                011526","WMT PLUS Jan 2026                011526",Category Pending,-13.99,Pending
-2026-01-15,"Wansor-Moses Chiropr             011526","Wansor-Moses Chiropr             011526",Category Pending,-75.52,Pending
-2026-01-16,"SSA  TREAS 310   XXSOC SEC  *********** SSA","SSA  TREAS 310   XXSOC SEC  *********** SSA",Category Pending,3097.00,Pending
-2026-01-15,"Starlink","Starlink                 www.starlink.CA",Internet,-120.00,Posted
-2026-01-15,"Amazon","AMZN Digital*AJ4LS4FM3   888-802-3080 WA",Entertainment,-59.99,Posted
-2026-01-15,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-29.54,Posted
-2026-01-15,"Google One","Google One               650-2530000  CA",Electronics & Software,-21.59,Posted
-2026-01-14,"Interest Paid","INTEREST PAID",Interest Income,0.01,Posted
-2026-01-14,"AT&T","ATT              PAYMENT    ***********PAYW",Bills & Utilities,-256.70,Posted
-2026-01-14,"Defense Finance and Accounting Service","DFAS-CLEVELAND   ALLOTMENT  ***********2248",Paycheck,500.00,Posted
-2026-01-13,"Amazon","AMAZON MKTPL*2G9A223R3   Amzn.com/billWA",Shopping,-119.08,Posted
-2026-01-13,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-43.16,Posted
-2026-01-13,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-39.96,Posted
-2026-01-13,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-10.35,Posted
-2026-01-13,"Burger King","BURGER KING #2019  Q07   NORWICH      NY",Fast Food,-2.47,Posted
-2026-01-12,"Nintendo","PAYPAL *NINTENDOAME      402-935-7733 WA",Electronics & Software,-75.59,Posted
-2026-01-12,"Price Chopper","PRICE CHOPPER #161       NORWICH      NY",Groceries,-45.41,Posted
-2026-01-12,"Spiedie and Rib Pit","SPIEDIE AND RIB PIT      BINGHAMTON   NY",Restaurants,-40.20,Posted
-2026-01-12,"Amazon","AMAZON MKTPL*PY0E979T3   Amzn.com/billWA",Shopping,-20.28,Posted
-2026-01-12,"Wendy's","WENDY'S FRONT ST.        BINGHAMTON   NY",Fast Food,-14.35,Posted
-2026-01-12,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-10.35,Posted
-2026-01-12,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-10.35,Posted
-2026-01-12,"Burger King","BURGER KING #1416        https://prod.NY",Fast Food,-3.62,Posted
-2026-01-12,"Regal","REGAL BINGHAMTON  1732   BINGHAMTON   NY",Movies & Dvds,-0.98,Posted
-2026-01-09,"American Express Credit Card","AMEX EPAYMENT    ACH PMT    ***********9492",Credit Card Payment,-300.00,Posted
-2026-01-09,"Jersey Mike's Subs","JERSEY MIKES ONLINE UC   https://prod.NJ",Fast Food,-19.25,Posted
-2026-01-09,"Sonic","SONIC DRIVE IN #6120     817-428-2077 NY",Fast Food,-13.30,Posted
-2026-01-07,"Amazon","AMAZON PRIME*HR0PJ8LT3   amzn.com/billWA",Shopping,-2.99,Posted
-2026-01-07,"Mobile Deposit","DEPOSIT@MOBILE",Income,400.00,Posted
-2026-01-07,"Mobile Deposit","DEPOSIT@MOBILE",Income,100.00,Posted
-2026-01-06,"OpenAI","OPENAI *CHATGPT SUBSCR   OPENAI.COM   CA",Business Services,-64.80,Posted
-2026-01-05,"Auchinachie Services","AUCHINACHIE SERVICES     607-7227234  NY",Home Improvement,-659.15,Posted
-2026-01-05,"Auchinachie Services","AUCHINACHIE SERVICES     607-7227234  NY",Home Improvement,-574.56,Posted
-2026-01-05,"Pizza Hut","PIZZA HUT 041764         https://ipchaNY",Fast Food,-46.42,Posted
-2026-01-05,"Five Guys","FIVE GUYS NY 1820 ECOM   407-952-2524 NY",Fast Food,-43.23,Posted
-2026-01-05,"YouTube Premium","Google YouTubePremium    650-2530000  CA",Entertainment,-22.99,Posted
-2026-01-05,"USAA Transfer","USAA FUNDS TRANSFER CR",Transfer,644.00,Posted
-2026-01-02,"Check #995003","CHECK # 0000995003",Check,-37.50,Posted
-2026-01-02,"Check #995002","CHECK # 0000995002",Check,-37.50,Posted
-2026-01-02,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-21.23,Posted
-2026-01-02,"Huggingface Cny","HUGGINGFACE              HUGGINGFACE.CNY",Electronics & Software,-6.07,Posted
-2026-01-02,"Nintendo","Nintendo CD1536602751    800-2553700  WA",Electronics & Software,-4.31,Posted
-2026-01-02,"Sam's Club","SAMS CLUB #6366          607-770-6200 NY",Shopping,-0.96,Posted
-2026-01-02,"Walmart","WM SUPERCENTER #2120     NORWICH      NY",Shopping,34.96,Posted
-2025-12-31,"Sam's Club","SAMS CLUB #6366          VESTAL       NY",Shopping,-565.66,Posted
-2025-12-31,"Loft","LOFT 1615 SHOPPES@PI     VESTAL       NY",Clothing,-207.73,Posted
-2025-12-31,"Barnes & Noble","BARNESNOBLE 2443 Vestal  Vestal       NY",Books,-182.02,Posted
-2025-12-31,"Regal Cinemas","REGAL CINEMAS INC        877-835-5734 TN",Movies & Dvds,-1.50,Posted
-2025-12-30,"discovery+","discovery+               012-3456789  TN",Television,-9.99,Posted
-2025-12-30,"Defense Finance and Accounting Service","DFAS-CLEVELAND   ALLOTMENT  ***********2248",Paycheck,500.00,Posted
-2025-12-29,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-33.00,Posted
-2025-12-29,"NYSLRS Pension","NYSLRS           PENSION PR ***********6948",Income,644.97,Posted
-2025-12-26,"Ikeanortham Ike","PAYPAL *IKEANORTHAM IKE  888-888-4532 PA",Furnishings,-279.63,Posted
-2025-12-26,"Five Guys","FIVE GUYS NY 1820 QSR    ONEONTA      NY",Fast Food,-39.91,Posted
-2025-12-26,"Netflix","Netflix.com              netflix.com  CA",Television,-26.99,Posted
-2025-12-26,"Pizza Hut","PIZZA HUT 041764         https://ipchaNY",Fast Food,-21.60,Posted
-2025-12-26,"Burger King","BURGER KING #11695       https://prod.NY",Fast Food,-13.51,Posted
-2025-12-26,"Groupon","PAYPAL *GROUPON INC      888-664-4482 KY",Shopping,-8.99,Posted
-2025-12-24,"Walmart","WM SUPERCENTER #2262     ONEONTA      NY",Shopping,-278.86,Posted
-2025-12-23,"Wendy's","WENDY'S FRONT ST.        BINGHAMTON   NY",Fast Food,-32.37,Posted
-2025-12-22,"Amazon Prime Membership","AMAZON PRIME*UZ9RI28N3   Amzn.com/billWA",Shopping,-150.12,Posted
-2025-12-22,"Jersey Mike's Subs","JERSEY MIKES ONLINE UC   https://prod.NJ",Fast Food,-38.31,Posted
-2025-12-22,"Wikipedia","PAYPAL *WIKIPEDIA WIKIM  415-839-6885 CA",Charity,-15.00,Posted
-2025-12-22,"Regal Cinemas","REGAL CINEMAS INC        877-835-5734 TN",Movies & Dvds,-1.50,Posted
-2025-12-22,"Regal Cinemas","REGAL CINEMAS INC        877-835-5734 TN",Movies & Dvds,-1.50,Posted
-2025-12-19,"Burger King","BURGER KING #140         https://prod.MA",Fast Food,-29.10,Posted
-2025-12-19,"Wendy's","WENDY'S ROTTERDAM        HASBROUCK HEINJ",Fast Food,-25.77,Posted
-2025-12-19,"Mobile Deposit","DEPOSIT@MOBILE",Income,51.00,Posted
-2025-12-18,"Magros","MAGROS NORWICH           NORWICH      NY",Restaurants,-43.80,Posted
-2025-12-17,"Expedia","PAYPAL *EXPEDIA.COM      877-903-0071 WA",Travel,-379.62,Posted
-2025-12-17,"Mirabito","MIRABITO16 RT 23 NORWICH NORWICH      NY",Gas,-41.20,Posted
-2025-12-17,"Regal Cinemas","REGALCINEMASUNLIMITED    877-835-5734 TN",Movies & Dvds,-24.49,Posted
-2025-12-17,"Regal Cinemas","REGALCINEMASUNLIMITED    877-835-5734 TN",Movies & Dvds,-24.49,Posted
-2025-12-17,"Khanda Food Mart","KHANDA FOOD MART         ROTTERDAM    NY",Gas,-13.23,Posted
-2025-12-17,"Khanda Food Mart","KHANDA FOOD MART         ROTTERDAM    NY",Food & Dining,-7.97,Posted
-2025-12-17,"Sam's Club","SAMS CLUB #6366          VESTAL       NY",Shopping,58.95,Posted
-2025-12-17,"Defense Finance and Accounting Service","DFAS-CLEVELAND   ALLOTMENT  ***********2248",Paycheck,500.00,Posted
-2025-12-16,"Sam's Club","SAMSCLUB #6366           VESTAL       NY",Shopping,-355.04,Posted
-2025-12-16,"Spiedie and Rib Pit","SPIEDIE AND RIB PIT      BINGHAMTON   NY",Restaurants,-25.36,Posted
-2025-12-16,"Walmart+","WMT PLUS Dec 2025        800-966-6546 AR",Shopping,-13.99,Posted
-2025-12-16,"Sam's Club","SAMSCLUB #6366           VESTAL       NY",Shopping,32.88,Posted
-2025-12-15,"ICPayment","ICPAYMENT",Transfer,-543.88,Posted
-2025-12-15,"AT&T","ATT              PAYMENT    ***********PAYR",Bills & Utilities,-258.14,Posted
-2025-12-15,"Starlink","Starlink                 www.starlink.CA",Internet,-120.00,Posted
-2025-12-15,"Pizza Hut","PIZZA HUT 041769         https://ipchaNY",Fast Food,-28.07,Posted
-2025-12-15,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-24.76,Posted
-2025-12-15,"Google One","Google One               650-2530000  CA",Electronics & Software,-21.59,Posted
-2025-12-15,"Jersey Mike's Subs","JERSEY MIKES ONLINE UC   https://prod.NJ",Fast Food,-21.25,Posted
-2025-12-15,"Dollar General","DOLLAR GENERAL #11151    OXFORD       NY",Shopping,-15.24,Posted
-2025-12-15,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-8.21,Posted
-2025-12-15,"Social Security","SSA  TREAS 310   XXSOC SEC  *********** SSA",Income,3025.00,Posted
-2025-12-12,"Interest Paid","INTEREST PAID",Interest Income,0.02,Posted
-2025-12-12,"Walmart","WM SUPERCENTER #2120     NORWICH      NY",Shopping,-85.94,Posted
-2025-12-10,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-33.09,Posted
-2025-12-10,"Nintendo","Nintendo CC1516653723    800-2553700  WA",Electronics & Software,-32.39,Posted
-2025-12-10,"Dollar General","DOLLAR GENERAL #11151    OXFORD       NY",Shopping,-23.23,Posted
-2025-12-09,"Lowe's","LOWE'S #23               NORWICH      NY",Home Improvement,-217.00,Posted
-2025-12-09,"Pizza Hut","PIZZA HUT 041769         https://ipchaNY",Fast Food,-25.46,Posted
-2025-12-09,"Stewart's Shops","STEWART'S SHOP # 476     OXFORD       NY",Gas,-16.76,Posted
-2025-12-08,"Price Chopper","PRICE CHOPPER #161       NORWICH      NY",Groceries,-184.46,Posted
-2025-12-08,"Bartles Pharmacy","BARTLES PHARMACY         OXFORD       NY",Pharmacy,-171.76,Posted
-2025-12-08,"OpenAI","OPENAI *CHATGPT SUBSCR   OPENAI.COM   CA",Business Services,-64.80,Posted
-2025-12-08,"Jersey Mike's Subs","JERSEY MIKES ONLINE UC   https://prod.NJ",Fast Food,-19.25,Posted
-2025-12-08,"Amazon","AMAZON PRIME*BI9AS0BH0   amzn.com/billWA",Shopping,-2.99,Posted
-2025-12-08,"Regal Cinemas","REGAL CINEMAS INC        877-835-5734 TN",Movies & Dvds,-1.00,Posted
-2025-12-05,"Tractor Supply","TRACTOR SUPPLY #720      NORWICH      NY",Shopping,-359.93,Posted
-2025-12-05,"Regal","REGAL BINGHAMTON  1732   BINGHAMTON   NY",Movies & Dvds,-9.73,Posted
-2025-12-04,"Tractor Supply","TRACTOR SUPPLY #720      NORWICH      NY",Shopping,-55.00,Posted
-2025-12-04,"Huggingface Cny","HUGGINGFACE              HUGGINGFACE.CNY",Electronics & Software,-9.00,Posted
-2025-12-04,"Stewart's Shops","STEWART'S SHOP # 476     OXFORD       NY",Gas,-7.68,Posted
-2025-12-03,"Expedia","EXPEDIA 72068855823936   EXPEDIA.COM  WA",Travel,-248.70,Posted
-2025-12-03,"Stewart's Shops","STEWART'S SHOP # 40 N C  OXFORD       NY",Gas,-43.80,Posted
-2025-12-03,"YouTube Premium","Google YouTubePremium    650-2530000  CA",Entertainment,-22.99,Posted
-2025-12-03,"Defense Finance and Accounting Service","DFAS-CLEVELAND   ALLOTMENT  ***********2248",Paycheck,500.00,Posted
-2025-12-02,"Wikimedia Foundation","Wikimedia                San FranciscoCA",Charity,-11.55,Posted
-2025-12-02,"Nintendo","Nintendo CD1512180632    800-2553700  WA",Electronics & Software,-4.31,Posted
-2025-12-01,"Vestal Nails & Spa","VESTAL NAILS & SPA       VESTAL       NY",Personal Care,-125.00,Posted
-2025-12-01,"Texas Roadhouse","TEXAS ROADHOUSE #2163    VESTAL       NY",Restaurants,-55.79,Posted
-2025-12-01,"Walmart","WAL-MART #2120           NORWICH      NY",Shopping,-53.97,Posted
-2025-12-01,"Bloom Designs","BLOOM DESIGNS J          ONEONTA      NY",Cash,-53.50,Posted
-2025-12-01,"Amazon","AMAZON MKTPL*BB2TN3QW2   Amzn.com/billWA",Shopping,-41.01,Posted
-2025-12-01,"Amazon","AMAZON MKTPL*BB2LT5ID2   Amzn.com/billWA",Shopping,-34.55,Posted
-2025-12-01,"Aerolite","PAYPAL *AEROLITE         520-742-3333 AZ",Furnishings,-30.02,Posted
-2025-12-01,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-15.44,Posted
-2025-12-01,"discovery+","discovery+               012-3456789  TN",Television,-9.99,Posted
-2025-11-28,"Sam's Club","SAMSCLUB.COM             888-746-7726 AR",Shopping,-410.02,Posted
-2025-11-28,"Price Chopper","PRICE CHOPPER #161       NORWICH      NY",Groceries,-153.53,Posted
-2025-11-28,"Ocooch Hardwoods","OCOOCH HARDWOODS         608-4666470  WI",Home,-74.49,Posted
-2025-11-28,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-36.31,Posted
-2025-11-28,"Dollar Tree","DOLLAR TREE              NORWICH      NY",Shopping,-19.98,Posted
-2025-11-26,"Marshalls","MARSHALLS #1488          NORWICH      NY",Shopping,-467.67,Posted
-2025-11-26,"Spiedie and Rib Pit","SPIEDIE AND RIB PIT      BINGHAMTON   NY",Restaurants,-33.26,Posted
-2025-11-25,"Stewart's Shops","STEWART'S SHOP # 40 N C  OXFORD       NY",Gas,-46.22,Posted
-2025-11-25,"Netflix","Netflix.com              netflix.com  CA",Television,-26.99,Posted
-2025-11-25,"NYSLRS Pension","NYSLRS           PENSION PR ***********6390",Income,644.97,Posted
-2025-11-24,"Check #1307","CHECK # 0000001307",Check,-1800.00,Posted
-2025-11-24,"American Express Credit Card","AMEX EPAYMENT    ACH PMT    ***********6396",Credit Card Payment,-49.76,Posted
-2025-11-24,"American Express Credit Card","AMEX EPAYMENT    ACH PMT    ***********5976",Credit Card Payment,-4.53,Posted
-2025-11-24,"Ticketmaster","TM *TICKETMASTER         800-653-8000 CA",Entertainment,-517.50,Posted
-2025-11-24,"Bloomingdale's","BLOOMINGDALES  .COM      800-289-6229 OH",Shopping,-162.00,Posted
-2025-11-24,"Walmart","WM SUPERCENTER #2120     NORWICH      NY",Shopping,-92.45,Posted
-2025-11-24,"Walmart","WM SUPERCENTER #2120     NORWICH      NY",Shopping,-91.37,Posted
-2025-11-24,"Wansor Moses Chiropract","WANSOR-MOSES CHIROPRACT  NORWICH      NY",Doctor,-36.40,Posted
-2025-11-24,"Pizza Hut","PIZZA HUT 041769         https://ipchaNY",Fast Food,-30.23,Posted
-2025-11-24,"Amazon","AMAZON MKTPL*B24OO5ZV0   Amzn.com/billWA",Shopping,-15.47,Posted
-2025-11-24,"Stewart's Shops","STEWART'S SHOP # 476     OXFORD       NY",Gas,-5.88,Posted
-2025-11-21,"Amazon","AMAZON MKTPL*B071J2852   Amzn.com/billWA",Shopping,-38.83,Posted
-2025-11-20,"Amazon","AMAZON MKTPL*B028M45F2   Amzn.com/billWA",Shopping,-283.85,Posted
-2025-11-20,"Amazon","AMAZON MKTPL*B09P635H2   Amzn.com/billWA",Shopping,-26.99,Posted
-2025-11-20,"Amazon","AMAZON MKTPL*B09K01PT2   Amzn.com/billWA",Shopping,-17.26,Posted
-2025-11-19,"Walmart","WAL-MART #1835           VESTAL       NY",Shopping,-267.59,Posted
-2025-11-19,"Revival of Wisdom Newcastle Und","SP REVIVAL OF WISDOM     NEWCASTLE UND",Entertainment,-61.60,Posted
-2025-11-19,"Defense Finance and Accounting Service","DFAS-CLEVELAND   ALLOTMENT  ***********2248",Paycheck,500.00,Posted
-2025-11-18,"Amazon","AMAZON MKTPL*B00AD6Z72   Amzn.com/billWA",Shopping,-301.74,Posted
-2025-11-18,"Barnes & Noble","BARNESNOBLE 2443 Vestal  Vestal       NY",Books,-229.90,Posted
-2025-11-18,"Bloom Designs","BLOOM DESIGNS J          ONEONTA      NY",Cash,-118.50,Posted
-2025-11-18,"Bambulabusa","PAYPAL *BAMBULABUSA      512-915-9986 TX",Business Services,-72.32,Posted
-2025-11-18,"Binghamton Mobi","BINGHAMTON MOBI          BINGHAMTON   NY",Cash,-68.50,Posted
-2025-11-18,"Speedway","SPEEDWAY 21186           BINGHAMTON   NY",Gas,-41.88,Posted
-2025-11-18,"Canal Street Hardware","CANAL STREET HARDWARE    OXFORD       NY",Home Improvement,-14.06,Posted
-2025-11-18,"ATM Fee Rebate","ATM REBATE",Atm Fee,3.50,Posted
-2025-11-18,"ATM Fee Rebate","ATM REBATE",Atm Fee,3.00,Posted
-2025-11-17,"Barnes & Noble","BARNESNOBLE 2443 Vestal  Vestal       NY",Books,-377.77,Posted
-2025-11-17,"Boot Barn","Boot Barn #468           Vestal       NY",Clothing,-331.84,Posted
-2025-11-17,"Walmart","WAL-MART #2120           NORWICH      NY",Shopping,-306.77,Posted
-2025-11-17,"Walmart","Walmart.com              Bentonville  AR",Shopping,-288.85,Posted
-2025-11-17,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-195.05,Posted
-2025-11-17,"Amazon","AMAZON MKTPL*B85N89PY2   Amzn.com/billWA",Shopping,-135.45,Posted
-2025-11-17,"Amazon","AMAZON MKTPL*B86M217E0   Amzn.com/billWA",Shopping,-134.90,Posted
-2025-11-17,"Starlink","Starlink                 www.starlink.CA",Internet,-120.00,Posted
-2025-11-17,"Sacred Pyramid","SACRED PYRAMID           ONEONTA      NY",Cash,-63.50,Posted
-2025-11-17,"Amazon","AMAZON MKTPL*B82VX4KU2   Amzn.com/billWA",Shopping,-36.71,Posted
-2025-11-17,"Spiedie and Rib Pit","SPIEDIE AND RIB PIT      BINGHAMTON   NY",Restaurants,-34.03,Posted
-2025-11-17,"Amazon","AMAZON MKTPL*B88690RU1   Amzn.com/billWA",Shopping,-32.39,Posted
-2025-11-17,"Amazon","AMAZON MKTPL*B88959DD0   Amzn.com/billWA",Shopping,-29.15,Posted
-2025-11-17,"Regal Cinemas","REGALCINEMASUNLIMITED    877-835-5734 TN",Movies & Dvds,-24.49,Posted
-2025-11-17,"Regal Cinemas","REGALCINEMASUNLIMITED    877-835-5734 TN",Movies & Dvds,-24.49,Posted
-2025-11-17,"Amazon","AMAZON MKTPL*B88B54QS2   Amzn.com/billWA",Shopping,-23.02,Posted
-2025-11-17,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-22.56,Posted
-2025-11-17,"Google One","Google One               650-2530000  CA",Electronics & Software,-21.59,Posted
-2025-11-17,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-17.28,Posted
-2025-11-17,"Amazon","AMAZON MKTPL*B86C40231   Amzn.com/billWA",Shopping,-17.27,Posted
-2025-11-17,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-16.31,Posted
-2025-11-17,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-16.09,Posted
-2025-11-17,"Walmart+","WMT PLUS Nov 2025        800-966-6546 AR",Shopping,-13.99,Posted
-2025-11-17,"Amazon","AMAZON MKTPL*B88NN2SS2   Amzn.com/billWA",Shopping,-10.79,Posted
-2025-11-17,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-9.40,Posted
-2025-11-17,"Amazon","AMAZON MKTPL*B888M87J2   Amzn.com/billWA",Shopping,-8.51,Posted
-2025-11-17,"Dick's Warehouse","Dicks Warehouse Sale     Vestal       NY",Sporting Goods,41.59,Posted
-2025-11-17,"ATM Fee Rebate","ATM REBATE",Atm Fee,3.50,Posted
-2025-11-17,"Social Security","SSA  TREAS 310   XXSOC SEC  *********** SSA",Income,3025.00,Posted
-2025-11-14,"Interest Paid","INTEREST PAID",Interest Income,0.10,Posted
-2025-11-14,"AT&T","ATT              PAYMENT    ***********PAYN",Bills & Utilities,-242.94,Posted
-2025-11-14,"Walmart","Walmart.com              Bentonville  AR",Shopping,-229.35,Posted
-2025-11-14,"Loft","LOFT.COM #612            WWW.LOFT.COM NY",Clothing,-209.39,Posted
-2025-11-14,"Aerolite","PAYPAL *AEROLITE         520-742-3333 AZ",Furnishings,-153.00,Posted
-2025-11-14,"Stewart's Shops","STEWART'S SHOP # 40 N C  OXFORD       NY",Gas,-46.77,Posted
-2025-11-14,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-30.75,Posted
-2025-11-14,"Stewart's Shops","STEWART'S SHOP # 476     OXFORD       NY",Gas,-14.47,Posted
-2025-11-14,"Loft","LOFT.COM #612            WWW.LOFT.COM NY",Clothing,-6.00,Posted
-2025-11-13,"ICPayment","ICPAYMENT",Transfer,-543.88,Posted
-2025-11-13,"Blueox Corp","Blueox Corp              607-843-2583 NY",Gas,-313.38,Posted
-2025-11-12,"PlayStation","PLAYSTATION DIRECT       800-308-7669 CA",Electronics & Software,-21.59,Posted
-2025-11-12,"Pizza Hut","PIZZA HUT 041764         https://ipchaNY",Fast Food,-15.11,Posted
-2025-11-12,"Microsoft Store","MICROSOFT*STORE          MSBILL.INFO  WA",Entertainment,-15.00,Posted
-2025-11-10,"Tractor Supply","TRACTOR SUPPLY   ONLINE PMT ***********9720",Shopping,-4677.01,Posted
-2025-11-10,"Barclaycard","BARCLAYCARD US   CREDITCARD ***********6353",Credit Card Payment,-4357.50,Posted
-2025-11-10,"L.L.Bean MasterCard Payment","LLBEANMASTERCARD ONLINE PMT ***********5965",Credit Card Payment,-2222.00,Posted
-2025-11-10,"TJX Rewards Credit Card","TJX Rew MstrCRD  SYF PAYMNT ***********1748",Credit Card Payment,-1812.53,Posted
-2025-11-10,"USAA Funds Transfer DB","USAA FUNDS TRANSFER DB",Transfer,-788.00,Posted
-2025-11-10,"Sam's Club","SAMS CLUB #6366          VESTAL       NY",Shopping,-534.81,Posted
-2025-11-10,"Barnes & Noble","BARNESNOBLE 2443 Vestal  Vestal       NY",Books,-225.46,Posted
-2025-11-10,"TJ Maxx","T J MAXX #1164           ONEONTA      NY",Shopping,-220.62,Posted
-2025-11-10,"Price Chopper","PRICE CHOPPER #161       NORWICH      NY",Groceries,-155.98,Posted
-2025-11-10,"Tractor Supply","TRACTOR SUPPLY #720      NORWICH      NY",Shopping,-110.30,Posted
-2025-11-10,"Binghamton Mobi","BINGHAMTON MOBI          BINGHAMTON   NY",Cash,-68.50,Posted
-2025-11-10,"Stewart's Shops","STEWART'S SHOP # 40 N C  OXFORD       NY",Gas,-46.95,Posted
-2025-11-10,"Amazon","AMAZON MKTPL*BT0417OF2   Amzn.com/billWA",Shopping,-35.59,Posted
-2025-11-10,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-13.38,Posted
-2025-11-10,"Sam's Club","SAMSCLUB #6366           VESTAL       NY",Shopping,-1.92,Posted
-2025-11-07,"Barnes & Noble","BARNESNOBLE 2443 Vestal  Vestal       NY",Books,-384.16,Posted
-2025-11-07,"Amazon","AMAZON.COM               SEATTLE      WA",Shopping,-68.03,Posted
-2025-11-07,"Dollar General","DOLLAR GENERAL #11151    OXFORD       NY",Shopping,-7.67,Posted
-2025-11-07,"Barnes & Noble","BARNESNOBLE 2443 Vestal  Vestal       NY",Books,-3.73,Posted
-2025-11-06,"Bartles Pharmacy","BARTLES PHARMACY         OXFORD       NY",Pharmacy,-166.60,Posted
-2025-11-06,"OpenAI","OPENAI *CHATGPT SUBSCR   OPENAI.COM   CA",Business Services,-64.80,Posted
-2025-11-06,"Albanyvitalstats","VCN*ALBANYVITALSTATS     866-255-1857 NY",Uncategorized,-38.50,Posted
-2025-11-06,"NYSLRS Pension","NYSLRS           PENSION PR ***********4473",Income,15603.33,Posted
-2025-11-05,"Ticketmaster","TM *BRANDI CARLILE       800-653-8000 CA",Entertainment,-766.35,Posted
-2025-11-05,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-6.22,Posted
-2025-11-05,"Sam's Club","SAMS CLUB #6366          VESTAL       NY",Shopping,64.78,Posted
-2025-11-03,"Check #1284","CHECK # 0000001284",Check,-200.00,Posted
-2025-11-03,"USAA Funds Transfer DB","USAA FUNDS TRANSFER DB",Transfer,-500.00,Posted
-2025-11-03,"Binghamton Mobi","BINGHAMTON MOBI          BINGHAMTON   NY",Cash,-143.50,Posted
-2025-11-03,"Sam's Club","SAMS CLUB #6366          VESTAL       NY",Shopping,-128.10,Posted
-2025-11-03,"Dick's Warehouse","Dicks Warehouse Sale     Vestal       NY",Sporting Goods,-115.38,Posted
-2025-11-03,"Barnes & Noble","BARNESNOBLE 2443 Vestal  Vestal       NY",Books,-114.32,Posted
-2025-11-03,"HomeGoods","HOMEGOODS #214           VESTAL       NY",Furnishings,-102.92,Posted
-2025-11-03,"Stewart's Shops","STEWART'S SHOP # 40 N C  OXFORD       NY",Gas,-49.10,Posted
-2025-11-03,"Stewart's Shops","STEWART'S SHOP # 40 N C  OXFORD       NY",Gas,-30.90,Posted
-2025-11-03,"YouTube Premium","Google YouTubePremium    650-2530000  CA",Entertainment,-22.99,Posted
-2025-11-03,"Red Lobster","RED LOBSTER 0180         607-754-3787 NY",Restaurants,-22.67,Posted
-2025-11-03,"Burger King","BURGER KING #1416        https://prod.NY",Fast Food,-18.15,Posted
-2025-11-03,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-17.95,Posted
-2025-11-03,"Nintendo","Nintendo CD1494483399    800-2553700  WA",Electronics & Software,-4.31,Posted
-2025-11-03,"Regal Cinemas","REGAL CINEMAS INC        877-835-5734 TN",Movies & Dvds,-1.00,Posted
-2025-11-03,"Regal Cinemas","REGAL CINEMAS INC        877-835-5734 TN",Movies & Dvds,-1.00,Posted
-2025-10-31,"Walmart","WM SUPERCENTER #2120     NORWICH      NY",Shopping,-235.57,Posted
-2025-10-30,"Lowe's","LOWE'S #23               NORWICH      NY",Home Improvement,-333.00,Posted
-2025-10-30,"Sam's Club","SAMSCLUBCONTACTS         844-223-1930 FL",Shopping,-223.52,Posted
-2025-10-30,"Jersey Mike's Subs","JERSEY MIKES ONLINE UC   https://prod.NJ",Fast Food,-18.25,Posted
-2025-10-30,"discovery+","discovery+               012-3456789  TN",Television,-9.99,Posted
-2025-10-29,"Pizza Hut","PIZZA HUT 041764         https://ipchaNY",Fast Food,-19.44,Posted
-2025-10-29,"Regal Cinemas","REGAL CINEMAS INC        877-835-5734 TN",Movies & Dvds,-1.00,Posted
-2025-10-29,"NYSLRS Pension","NYSLRS           PENSION PR ***********7101",Income,644.97,Posted
-2025-10-27,"HomeGoods","HOMEGOODS #214           VESTAL       NY",Furnishings,-342.63,Posted
-2025-10-27,"Marshalls","MARSHALLS #1488          NORWICH      NY",Shopping,-162.60,Posted
-2025-10-27,"Price Chopper","PRICE CHOPPER #234       BINGHAMTON   NY",Groceries,-94.13,Posted
-2025-10-27,"Walmart","WAL-MART #2120           NORWICH      NY",Shopping,-84.96,Posted
-2025-10-27,"Netflix","Netflix.com              408-5403700  CA",Television,-26.99,Posted
-2025-10-24,"Texas Roadhouse","TEXAS ROADHOUSE #2163    VESTAL       NY",Restaurants,-60.29,Posted
-2025-10-24,"Sonic","SONIC DRIVE IN #6120     817-428-2077 NY",Fast Food,-17.79,Posted
-2025-10-23,"Bloom Designs","BLOOM DESIGNS J          ONEONTA      NY",Cash,-158.50,Posted
-2025-10-23,"Walmart","WAL-MART #2120           NORWICH      NY",Shopping,-154.67,Posted
-2025-10-23,"Barnes & Noble","BARNESNOBLE 2443 Vestal  Vestal       NY",Books,-33.42,Posted
-2025-10-23,"Stewart's Shops","STEWART'S SHOP # 40 N C  OXFORD       NY",Gas,-30.00,Posted
-2025-10-23,"Pizza Hut","PIZZA HUT 041769         https://ipchaNY",Fast Food,-26.98,Posted
-2025-10-23,"Nintendo","Nintendo CC1488693599    800-2553700  WA",Electronics & Software,-10.79,Posted
-2025-10-23,"ATM Fee Rebate","ATM REBATE",Atm Fee,3.00,Posted
-2025-10-22,"Walmart","WAL-MART #2120           NORWICH      NY",Shopping,-538.92,Posted
-2025-10-22,"Loft","LOFT 1615 SHOPPES@PIERC  VESTAL       NY",Clothing,-374.71,Posted
-2025-10-22,"Spiedie and Rib Pit","SPIEDIE AND RIB PIT      BINGHAMTON   NY",Restaurants,-40.88,Posted
-2025-10-22,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-37.39,Posted
-2025-10-22,"Stewart's Shops","STEWART'S SHOP # 476     OXFORD       NY",Gas,-37.10,Posted
-2025-10-21,"Bloom Designs","BLOOM DESIGNS J          ONEONTA      NY",Cash,-108.50,Posted
-2025-10-21,"Barnes & Noble","BARNESNOBLE 2443 Vestal  Vestal       NY",Books,-101.48,Posted
-2025-10-21,"Bloom Designs","BLOOM DESIGNS J          ONEONTA      NY",Cash,-18.50,Posted
-2025-10-21,"ATM Fee Rebate","ATM REBATE",Atm Fee,3.50,Posted
-2025-10-21,"ATM Fee Rebate","ATM REBATE",Atm Fee,3.50,Posted
-2025-10-20,"New York State Electric & Gas","NYSEG            WEB_PAY    ***********1725",Utilities,-440.07,Posted
-2025-10-20,"Sam's Club","SAMSCLUB #6366           VESTAL       NY",Shopping,-487.22,Posted
-2025-10-20,"Barnes & Noble","BARNESNOBLE 2443 Vestal  Vestal       NY",Books,-262.15,Posted
-2025-10-20,"Notion Labs Inc","NOTION LABS  INC.        NOTION.SO    CA",Business Services,-129.60,Posted
-2025-10-20,"Chili's","CHILIS VESTAL            VESTAL       NY",Restaurants,-69.66,Posted
-2025-10-20,"Lowe's","LOWE'S #23               NORWICH      NY",Home Improvement,-67.00,Posted
-2025-10-20,"Burger King","BURGER KING #2019  Q07   NORWICH      NY",Fast Food,-27.52,Posted
-2025-10-20,"Dollar General","DOLLAR GENERAL #11151    OXFORD       NY",Shopping,-8.92,Posted
-2025-10-17,"Regal Cinemas","REGALCINEMASUNLIMITED    877-835-5734 TN",Movies & Dvds,-24.49,Posted
-2025-10-17,"Regal Cinemas","REGALCINEMASUNLIMITED    877-835-5734 TN",Movies & Dvds,-24.49,Posted
-2025-10-17,"Burger King","BURGER KING #1416        https://prod.NY",Fast Food,-16.16,Posted
-2025-10-16,"Walmart+","WMT PLUS Oct 2025        800-966-6546 AR",Shopping,-13.99,Posted
-2025-10-15,"TJ Maxx","T J MAXX #1164           ONEONTA      NY",Shopping,-421.95,Posted
-2025-10-14,"Interest Paid","INTEREST PAID",Interest Income,0.14,Posted
-2025-10-14,"L.L.Bean MasterCard Payment","LLBEANMASTERCARD ONLINE PMT ***********8251",Credit Card Payment,-850.00,Posted
-2025-10-14,"ICPayment","ICPAYMENT",Transfer,-543.88,Posted
-2025-10-14,"American Express Credit Card","AMEX EPAYMENT    ACH PMT    ***********0176",Credit Card Payment,-500.00,Posted
-2025-10-14,"Barclaycard","BARCLAYCARD US   CREDITCARD ***********6504",Credit Card Payment,-300.00,Posted
-2025-10-14,"Tractor Supply","TRACTOR SUPPLY   ONLINE PMT ***********4544",Shopping,-250.00,Posted
-2025-10-14,"ATT              PAYMENT    ***********PAYI","ATT              PAYMENT    ***********PAYI",Category Pending,-242.70,Posted
-2025-10-14,"TJX Rewards Credit Card","TJX Rew MstrCRD  SYF PAYMNT ***********1748",Credit Card Payment,-100.00,Posted
-2025-10-14,"Bank Na","NBT BANK NA              OXFORD       NY",Cash,-303.75,Posted
-2025-10-14,"Bella Bags","SQ *BELLA BAGS           Cortland     NY",Clothing,-301.32,Posted
-2025-10-14,"Joseph Davis","SQ *JOSEPH DAVIS         Cortland     NY",Shopping,-271.08,Posted
-2025-10-14,"Beauty Nails Spa","BEAUTY NAILS SPA         ONEONTA      NY",Personal Care,-85.00,Posted
-2025-10-14,"Burger King","BURGER KING #1416        https://prod.NY",Fast Food,-9.81,Posted
-2025-10-10,"Sacred Bloom","SACRED BLOOM             VESTAL       NY",Cash,-118.50,Posted
-2025-10-10,"Speedway","SPEEDWAY 21186           BINGHAMTON   NY",Gas,-35.52,Posted
-2025-10-10,"Regal","REGAL BINGHAMTON  1732   BINGHAMTON   NY",Movies & Dvds,-9.45,Posted
-2025-10-10,"Regal Cinemas","REGAL CINEMAS INC        877-835-5734 TN",Movies & Dvds,-1.00,Posted
-2025-10-10,"Social Security","SSA  TREAS 310   XXSOC SEC  *********** SSA",Income,3025.00,Posted
-2025-10-09,"Sam's Club","SAMSCLUB #6366           VESTAL       NY",Shopping,-303.71,Posted
-2025-10-09,"Burger King","BURGER KING #17398       https://prod.NY",Fast Food,-12.55,Posted
-2025-10-08,"Sacred Bloom","SACRED BLOOM             VESTAL       NY",Cash,-273.50,Posted
-2025-10-08,"Oxford","L639320                  OXFORD       NY",Cash,-62.95,Posted
-2025-10-08,"Stewart's Shops","STEWART'S SHOP # 40 N C  OXFORD       NY",Gas,-30.02,Posted
-2025-10-08,"Defense Finance and Accounting Service","DFAS-CLEVELAND   ALLOTMENT  ***********2248",Paycheck,500.00,Posted
-2025-10-07,"Walmart","WM SUPERCENTER #2120     607-334-5553 NY",Shopping,-222.41,Posted
-2025-10-07,"Bartles Pharmacy","BARTLES PHARMACY         OXFORD       NY",Pharmacy,-126.44,Posted
-2025-10-07,"Pizza Hut","PIZZA HUT 041769         https://ipchaNY",Fast Food,-32.37,Posted
-2025-10-06,"Traler Park Inc","SQ *TRALER PARK INC      Nashville    TN",Entertainment,-120.00,Posted
-2025-10-03,"Regal Cinemas","REGAL CINEMAS INC        877-835-5734 TN",Movies & Dvds,-1.00,Posted
-2025-10-02,"Walmart","WM SUPERCENTER #2120     607-334-5553 NY",Shopping,-216.28,Posted
-2025-09-30,"discovery+","discovery+               012-3456789  TN",Television,-9.99,Posted
-2025-09-29,"SeatGeek","SeatGeek_Tickets         188-85064101 NY",Entertainment,-319.12,Posted
-2025-09-29,"Walmart","WM SUPERCENTER #2120     607-334-5553 NY",Shopping,-129.17,Posted
-2025-09-29,"Burger King","BURGER KING #17398       https://prod.NY",Fast Food,-18.28,Posted
-2025-09-26,"NYSLRS Pension","NYSLRS           PENSION PR ***********8601",Income,644.97,Posted
-2025-09-25,"Regal Cinemas","REGAL CINEMAS INC        877-835-5734 TN",Movies & Dvds,-1.00,Posted
-2025-09-24,"Jostens","JOSTENS INC.             800-854-7464 MN",Shopping,-67.63,Posted
-2025-09-24,"Mirabito","MIRABITO #112- GREENE    GREENE       NY",Gas,-45.00,Posted
-2025-09-24,"Defense Finance and Accounting Service","DFAS-CLEVELAND   ALLOTMENT  ***********2248",Paycheck,500.00,Posted
-2025-09-23,"Sacred Bloom","SACRED BLOOM             VESTAL       NY",Cash,-128.50,Posted
-2025-09-22,"Tractor Supply","TRACTOR SUPPLY   PAYMENT    ***********2098",Shopping,-2000.00,Posted
-2025-09-22,"Capital One Credit Card","CAPITAL ONE      ONLINE PMT ***********2C37",Credit Card Payment,-327.65,Posted
-2025-09-22,"Shoe Carnival","SHOE CARNIVAL #584       VESTAL       NY",Clothing,-237.00,Posted
-2025-09-22,"Walmart","WAL-MART #2120           NORWICH      NY",Shopping,-142.17,Posted
-2025-09-22,"Binghamton Mobi","BINGHAMTON MOBI          BINGHAMTON   NY",Cash,-118.50,Posted
-2025-09-22,"Chili's","CHILIS VESTAL            VESTAL       NY",Restaurants,-63.45,Posted
-2025-09-22,"CITGO","CITGO JAYNEIL CO         GREENE       NY",Gas,-36.37,Posted
-2025-09-22,"Walmart","WALMART.COM 8009256278   BENTONVILLE  AR",Shopping,-30.30,Posted
-2025-09-22,"Dollar General","DOLLAR GENERAL #11151    OXFORD       NY",Shopping,-25.00,Posted
-2025-09-22,"Spiedie and Rib Pit","SPIEDIE AND RIB PIT      BINGHAMTON   NY",Restaurants,-20.26,Posted
-2025-09-22,"Burger King","BURGER KING #1416        https://prod.NY",Fast Food,-15.04,Posted
-2025-09-22,"Regal Cinemas","REGAL CINEMAS INC        877-835-5734 TN",Movies & Dvds,-1.00,Posted
-2025-09-22,"ATM Fee Rebate","ATM REBATE",Atm Fee,3.00,Posted
-2025-09-18,"Burger King","BURGER KING #2019        https://prod.NY",Fast Food,-19.31,Posted
-2025-09-17,"Walmart","WAL-MART #2120           NORWICH      NY",Shopping,-179.65,Posted
-2025-09-17,"Sacred Bloom","SACRED BLOOM             VESTAL       NY",Cash,-143.50,Posted
-2025-09-17,"Regal Cinemas","REGALCINEMASUNLIMITED    877-835-5734 TN",Movies & Dvds,-24.49,Posted
-2025-09-17,"Regal Cinemas","REGALCINEMASUNLIMITED    877-835-5734 TN",Movies & Dvds,-24.49,Posted
-2025-09-17,"ATM Fee Rebate","ATM REBATE",Atm Fee,3.50,Posted
-2025-09-17,"Mobile Deposit","DEPOSIT@MOBILE",Income,8095.00,Posted
+Account Name : Simple Checking
+Account Number : 139512K12489001395123
+Date Range : 09/16/2025-01/23/2026
+Transaction Number,Date,Description,Memo,Amount Debit,Amount Credit,Balance,Check Number
+"844",01/23/2026,"Point Of Sale Withdrawal","STEWART'S SHOP 40 N CANAL ST OXFORD NYUS",-50.07,,963.71,
+"843",01/23/2026,"ATM Withdrawal BLOOM DESIGNS J","348 S ONEONTA NYUS",-163.50,,1013.78,
+"842",01/23/2026,"Point Of Sale Withdrawal","NORWICH FAMILY 68-70 NORTH BROAD SNORWICH NYUS",-95.00,,1177.28,
+"841",01/21/2026,"Point Of Sale Withdrawal","CLAUDE.AI SUBSC 548 Market Street PSAN FRANCISCO CAUS",-93.19,,1272.28,
+"840",01/20/2026,"Point Of Sale Withdrawal","APPLEBEES 9909 1149 UPPER FRONT STBINGHAMTON NYUS",-70.11,,1365.47,
+"839",01/20/2026,"External Withdrawal AMEX","EPAYMENT AM - ACH PMT",-60.00,,1435.58,
+"838",01/19/2026,"Point Of Sale Withdrawal SAMS","CLUB #6366 SAM'S Club Vestal NYUS",-22.60,,1495.58,
+"837",01/19/2026,"Point Of Sale Withdrawal SAMS","CLUB #6366 SAM'S Club Vestal NYUS",-395.05,,1518.18,
+"836",01/19/2026,"Point Of Sale Withdrawal TARGET","T-1056 3112 Vestal Pkwy E Vestal NYUS",-127.55,,1913.23,
+"835",01/19/2026,"Point Of Sale Withdrawal NNT","REGAL BINGH 900 FRONT ST BINGHAMTON NYUS",-18.93,,2040.78,
+"834",01/19/2026,"Point Of Sale Withdrawal","MIRABITO #112- GREENE GREENE NYUS",-45.62,,2059.71,
+"833",01/19/2026,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-25.91,,2105.33,
+"832",01/17/2026,"Point Of Sale Withdrawal PIZZA","HUT 04176 2 MANG DRIVE SIDNEY NYUS",-31.31,,2131.24,
+"831",01/17/2026,"Point Of Sale Withdrawal","McDonalds 5385 141 DELAWARE AVE SIDNEY NYUS",-1.50,,2162.55,
+"830",01/17/2026,"Point Of Sale Withdrawal T J","MAXX #1164 5006 STATE HIGHWAY ONEONTA NYUS",-352.51,,2164.05,
+"829",01/16/2026,"Point Of Sale Withdrawal","McDonalds 3266 165 S BROAD ST NORWICH NYUS",-20.00,,2516.56,
+"828",01/16/2026,"External Withdrawal Rocket","Money - Premium ST-X4N1Q4X2M9M3",-7.56,,2536.56,
+"827",01/15/2026,"Point Of Sale Withdrawal PRICE","CHOPPER # NORWICH NORWICH NYUS",-168.21,,2544.12,
+"826",01/15/2026,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-71.27,,2712.33,
+"825",01/15/2026,"External Deposit SSA TREAS 310","- XXSOC SEC N1*GD*REBECCA DENKERS FOR \N1*BE*ADRIAAN DENKERS *34******9604\",,1650.00,2783.60,
+"824",01/15/2026,"ATM Withdrawal NBT BANK NA 52 S","BROAD ST/DRIVENORWICH NYUS",-143.75,,1133.60,
+"823",01/15/2026,"Point Of Sale Withdrawal","ANC*ANCESTRY.CO 1300 W Traverse ParLEHI UTUS",-43.19,,1277.35,
+"822",01/14/2026,"External Deposit DFAS-CLEVELAND","ZPV381600NET PAY - FED SALARY",,1431.31,1320.54,
+"821",01/12/2026,"Overdraft Fee AMAZON.COM","SEATTLE WAUS",-30.00,,-110.77,
+"820",01/12/2026,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-31.42,,-80.77,
+"819",01/12/2026,"Point Of Sale Withdrawal PAYPAL","*PEACOCK 7700 EASTPORT PARKW4029357733 NYUS",-16.99,,-49.35,
+"818",01/12/2026,"Overdraft Fee CLAUDE.AI SUBSC","548 Market Street PSAN FRANCISCO CAUS",-30.00,,-32.36,
+"817",01/12/2026,"Point Of Sale Withdrawal","CLAUDE.AI SUBSC 548 Market Street PSAN FRANCISCO CAUS",-21.60,,-2.36,
+"816",01/11/2026,"Point Of Sale Deposit PAYPAL","*BR OUTL 7700 EASTPORT PARKW4029357733 NMUS",,288.59,19.24,
+"815",01/10/2026,"Point Of Sale Withdrawal PAYPAL","*GODADDY 7700 EASTPORT PARKW4029357733 AZUS",-155.26,,-269.35,
+"814",01/09/2026,"Overdraft Fee PROGRESSIVE INS","6300 Wilson Mills RMAYFIELD VILL OHUS",-30.00,,-114.09,
+"813",01/09/2026,"Point Of Sale Withdrawal","PROGRESSIVE INS 6300 Wilson Mills RMAYFIELD VILL OHUS",-271.83,,-84.09,
+"812",01/09/2026,"Point Of Sale Withdrawal SONIC","DRIVE IN 1103 UPPER FRONT STBINGHAMTON NYUS",-6.19,,187.74,
+"811",01/08/2026,"Point Of Sale Withdrawal","BARNESNOBLE 2443 Vestal ParkwayVestal NYUS",-142.44,,193.93,
+"810",01/08/2026,"ATM Withdrawal BINGHAMTON MOBI","1123 UPPER FRONT STBINGHAMTON NYUS",-68.50,,336.37,
+"809",01/08/2026,"ATM Withdrawal BINGHAMTON MOBI","1123 UPPER FRONT STBINGHAMTON NYUS",-118.50,,404.87,
+"808",01/08/2026,"Point Of Sale Withdrawal ETSY,","INC. ETSY WWW.ETSY.COM/ BROOKLYN NYUS",-30.32,,523.37,
+"807",01/07/2026,"Point Of Sale Withdrawal PAYPAL","*IKEANOR 7700 EASTPORT PARKW8888884532 PAUS",-99.34,,553.69,
+"806",01/07/2026,"Point Of Sale Withdrawal DOLLAR","GENERAL DG 111511 N WASHINGOXFORD NYUS",-39.92,,653.03,
+"805",01/07/2026,"Point Of Sale Withdrawal","STEWART'S SHOP 40 N CANAL ST OXFORD NYUS",-42.97,,692.95,
+"804",01/06/2026,"Point Of Sale Withdrawal AMAZON","PRIME*N6 440 Terry Ave N SEATTLE WAUS",-2.99,,735.92,
+"803",01/06/2026,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-26.45,,738.91,
+"802",01/05/2026,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-17.27,,765.36,
+"801",01/04/2026,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-20.47,,782.63,
+"800",01/04/2026,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-26.95,,803.10,
+"799",01/04/2026,"Point Of Sale Withdrawal","BARTLES PHARMAC 10 LAFAYETTE PARK OXFORD NYUS",-167.53,,830.05,
+"798",01/03/2026,"Point Of Sale Withdrawal WIWI","III NAILS 739 STATE HWY 28 STONEONTA NYUS",-29.69,,997.58,
+"797",01/03/2026,"Point Of Sale Withdrawal PAYPAL","*DISNEY 7700 EASTPORT PARKW4029357733 CAUS",-32.99,,1027.27,
+"796",01/03/2026,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-16.19,,1060.26,
+"795",01/02/2026,"Point Of Sale Withdrawal ALDI","65065 763 STATE HWY 28 ONEONTA NYUS",-88.56,,1076.45,
+"794",01/02/2026,"Point Of Sale Withdrawal SALLY","BEAUTY 10 739 ROUTE 28 ONEONTA NYUS",-128.06,,1165.01,
+"793",01/02/2026,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-111.34,,1293.07,
+"792",01/02/2026,"Point Of Sale Withdrawal DOLLAR","TREE 739 STATE HIGHWAY 2ONEONTA NYUS",-69.30,,1404.41,
+"791",01/02/2026,"Point Of Sale Withdrawal AMAZON","MKTPL*IU 440 Terry Ave N SEATTLE WAUS",-68.83,,1473.71,
+"790",01/01/2026,"Point Of Sale Withdrawal Amazon","web serv 440 Terry Ave N SEATTLE WAUS",-63.44,,1542.54,
+"789",12/31/2025,"Point Of Sale Withdrawal","SPEEDWAY 21186 1454 STATE ROUTE 12BINGHAMTON NYUS",-44.40,,1605.98,
+"788",12/31/2025,"ATM Withdrawal BLOOM DESIGNS J","348 S ONEONTA NYUS",-168.50,,1650.38,
+"787",12/31/2025,"Point Of Sale Withdrawal","McDonalds 3266 165 S BROAD ST NORWICH NYUS",-2.00,,1818.88,
+"786",12/30/2025,"Point Of Sale Withdrawal","WWW.HILLSTOHOME 141 Longwater DriveNORWELL MAUS",-45.59,,1820.88,
+"785",12/30/2025,"External Deposit DFAS-CLEVELAND","ZPV381600NET PAY - FED SALARY",,1362.13,1866.47,
+"784",12/30/2025,"Point Of Sale Deposit","AMAZON.COM SEATTLE WAUS",,26.95,504.34,
+"783",12/29/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-28.76,,477.39,
+"782",12/29/2025,"External Withdrawal Blueox","Corporati 2644166455322 - 6078432583",-416.15,,506.15,
+"781",12/28/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*CY 440 Terry Ave N SEATTLE WAUS",-30.77,,922.30,
+"780",12/27/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-10.99,,953.07,
+"779",12/27/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-19.43,,964.06,
+"778",12/27/2025,"Point Of Sale Withdrawal TST*","ROMA PIZZA 2 MAIN ST OXFORD NYUS",-23.76,,983.49,
+"777",12/27/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*MU 440 Terry Ave N SEATTLE WAUS",-21.59,,1007.25,
+"776",12/27/2025,"Point Of Sale Withdrawal BERT","ADAMS DISP 521 MAIN ST CHENANGO BRID NYUS",-96.79,,1028.84,
+"775",12/25/2025,"Point Of Sale Withdrawal SQ","*ZEN'D 5006 Ny-23 Oneonta NYUS",-201.96,,1125.63,
+"774",12/24/2025,"Point Of Sale Withdrawal","WWW.HILLSTOHOME 141 Longwater DriveNORWELL MAUS",-92.14,,1327.59,
+"773",12/24/2025,"Point Of Sale Withdrawal","TRACTOR SUPPLY 174 DELAWARE AVE SIDNEY NYUS",-134.66,,1419.73,
+"772",12/24/2025,"Point Of Sale Withdrawal NST","THE HOME DE 659 ONEONTA ONEONTA NYUS",-512.74,,1554.39,
+"771",12/24/2025,"Point Of Sale Withdrawal","SPEEDWAY 44951 117 STATE HIGHWAY 7BAINBRIDGE NYUS",-45.90,,2067.13,
+"770",12/23/2025,"Point Of Sale Withdrawal","NORWICH FAMILY 68-70 NORTH BROAD SNORWICH NYUS",-95.00,,2113.03,
+"769",12/23/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-157.87,,2208.03,
+"768",12/23/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-189.52,,2365.90,
+"767",12/22/2025,"Point Of Sale Withdrawal","SPEEDWAY 45109 2972 NY ROUTE 11 WHITNEY POINT NYUS",-8.62,,2555.42,
+"766",12/22/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-34.01,,2564.04,
+"765",12/22/2025,"Point Of Sale Withdrawal IKEA","SYRACUSE 1 DESTINY USA DR SYRACUSE NYUS",-243.87,,2598.05,
+"764",12/22/2025,"Point Of Sale Withdrawal DOLLAR","GENERAL DG 111511 N WASHINGOXFORD NYUS",-43.31,,2841.92,
+"763",12/22/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-17.27,,2885.23,
+"762",12/22/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-16.19,,2902.50,
+"761",12/22/2025,"Point Of Sale Withdrawal PAYPAL","*WIKIMED 7700 EASTPORT PARKW4158396885 CAUS",-34.00,,2918.69,
+"760",12/22/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-18.79,,2952.69,
+"759",12/21/2025,"Point Of Sale Withdrawal DOLLAR","TREE 2437 VESTAL PKWY E VESTAL NYUS",-56.97,,2971.48,
+"758",12/21/2025,"Point Of Sale Withdrawal","BARNESNOBLE 2443 Vestal ParkwayVestal NYUS",-464.40,,3028.45,
+"757",12/21/2025,"Withdrawal 341.45","",-157.25,,3492.85,
+"756",12/21/2025,"Point Of Sale Withdrawal NNT","REGAL BINGH 900 FRONT ST BINGHAMTON NYUS",-29.56,,3650.10,
+"755",12/21/2025,"Point Of Sale Withdrawal USA","Gas Minimar Greene Greene NYUS",-44.00,,3679.66,
+"754",12/21/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-31.74,,3723.66,
+"753",12/21/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-17.45,,3755.40,
+"752",12/21/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-34.01,,3772.85,
+"751",12/21/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-476.82,,3806.86,
+"750",12/20/2025,"Point Of Sale Withdrawal","DOUBLETREE STE 400 SOLDIERS FIELD BOSTON MAUS",-94.00,,4283.68,
+"749",12/20/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*3Y 440 Terry Ave N SEATTLE WAUS",-226.79,,4377.68,
+"748",12/20/2025,"Point Of Sale Withdrawal ROAD","RUNNER SPO 5549 COPLEY DR SAN DIEGO CAUS",-151.19,,4604.47,
+"747",12/20/2025,"Point Of Sale Withdrawal","WWW.PETSTREETST 6159 County Road 32NORWICH NYUS",-288.52,,4755.66,
+"746",12/19/2025,"Point Of Sale Withdrawal","TST*THE BLACK R 160 State Street Boston MAUS",-136.63,,5044.18,
+"745",12/19/2025,"Point Of Sale Withdrawal 75","STATE ST BOSTON MAUS",-18.00,,5180.81,
+"744",12/19/2025,"Point Of Sale Withdrawal","DOUBLETREE GUES 400 SOLDIERS FIELD BOSTON MAUS",-47.00,,5198.81,
+"743",12/19/2025,"Point Of Sale Withdrawal 1018","CAFFE NERO 375 ASSEMBLY ROW SOMERVILLE MAUS",-13.86,,5245.81,
+"742",12/19/2025,"External Withdrawal AMEX","EPAYMENT ER AM - ACH PMT",-500.00,,5259.67,
+"741",12/18/2025,"Point Of Sale Withdrawal Mass","General Br 55 Fruit Street Boston MAUS",-10.00,,5759.67,
+"740",12/18/2025,"Point Of Sale Withdrawal MICRO","ELECTRONI 730 Memorial Drive Cambridge MAUS",-745.68,,5769.67,
+"739",12/18/2025,"Point Of Sale Withdrawal SEVEN","STARS CAMBRIDGE CAMBRIDGE MAUS",-243.20,,6515.35,
+"738",12/18/2025,"Point Of Sale Withdrawal DUNKIN","#349404 808 MEMORIAL DR CAMBRIDGE MAUS",-10.39,,6758.55,
+"737",12/18/2025,"External Withdrawal NYSEG -","WEB_PAY",-763.07,,6768.94,
+"736",12/18/2025,"External Withdrawal AMEX","EPAYMENT AM - ACH PMT",-60.00,,7532.01,
+"735",12/17/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*RT 440 Terry Ave N SEATTLE WAUS",-134.95,,7592.01,
+"734",12/17/2025,"Point Of Sale Withdrawal MICRO","ELECTRONI 730 Memorial Drive Cambridge MAUS",-163.10,,7726.96,
+"733",12/17/2025,"External Deposit DFAS-CLEVELAND","ZPV381600NET PAY - FED SALARY",,2137.66,7890.06,
+"732",12/16/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*YQ 440 Terry Ave N SEATTLE WAUS",-13.99,,5752.40,
+"731",12/16/2025,"External Withdrawal SACRED","BLOOM - PURCHASE",-336.49,,5766.39,
+"730",12/16/2025,"External Withdrawal TJX Rew","MstrCRD - SYF PAYMNT",-41.61,,6102.88,
+"729",12/16/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*8O 440 Terry Ave N SEATTLE WAUS",-306.43,,6144.49,
+"728",12/16/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*TN 440 Terry Ave N SEATTLE WAUS",-45.67,,6450.92,
+"727",12/16/2025,"Point Of Sale Withdrawal","McDonalds 3266 165 S BROAD ST NORWICH NYUS",-17.69,,6496.59,
+"726",12/15/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*AS 440 Terry Ave N SEATTLE WAUS",-15.97,,6514.28,
+"725",12/15/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*YB 440 Terry Ave N SEATTLE WAUS",-834.60,,6530.25,
+"724",12/15/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-48.59,,7364.85,
+"723",12/15/2025,"External Withdrawal BARCLAYCARD","US - CREDITCARD",-123.62,,7413.44,
+"722",12/15/2025,"External Withdrawal","LLBEANMASTERCARD - ONLINE PMT",-1500.00,,7537.06,
+"721",12/15/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*AS 440 Terry Ave N SEATTLE WAUS",-106.91,,9037.06,
+"720",12/14/2025,"Point Of Sale Withdrawal","ANC*ANCESTRY.CO 1300 W Traverse ParLEHI UTUS",-43.19,,9143.97,
+"719",12/13/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-75.60,,9187.16,
+"718",12/12/2025,"Point Of Sale Withdrawal LOWE'S","#2399 5411 STATE HIGHWAY NORWICH NYUS",-156.56,,9262.76,
+"717",12/12/2025,"Point Of Sale Withdrawal LOWE'S","#2399 5411 STATE HIGHWAY NORWICH NYUS",-270.91,,9419.32,
+"716",12/12/2025,"External Deposit SSA TREAS 310","- XXSOC SEC N1*GD*REBECCA DENKERS FOR \N1*BE*ADRIAAN DENKERS *34******9604\",,1605.00,9690.23,
+"715",12/12/2025,"Point Of Sale Withdrawal PAYPAL","*PEACOCK 7700 EASTPORT PARKW4029357733 NYUS",-16.99,,8085.23,
+"714",12/12/2025,"External Withdrawal Rocket","Money - Premium ST-J5X0Z6S7G8G3",-7.56,,8102.22,
+"713",12/12/2025,"Point Of Sale Withdrawal","CLAUDE.AI SUBSC 548 Market Street PSAN FRANCISCO CAUS",-21.60,,8109.78,
+"712",12/11/2025,"Point Of Sale Withdrawal DOLLAR","GENERAL DG 111511 N WASHINGOXFORD NYUS",-39.16,,8131.38,
+"711",12/11/2025,"Point Of Sale Withdrawal","STEWART'S SHOP 40 N CANAL ST OXFORD NYUS",-49.25,,8170.54,
+"710",12/11/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-166.52,,8219.79,
+"709",12/11/2025,"Point Of Sale Withdrawal BERT","ADAMS DISP 521 MAIN ST CHENANGO BRID NYUS",-37.80,,8386.31,
+"708",12/09/2025,"Point Of Sale Withdrawal","PROGRESSIVE INS 6300 Wilson Mills RMAYFIELD VILL OHUS",-271.83,,8424.11,
+"707",12/09/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*UU 440 Terry Ave N SEATTLE WAUS",-23.75,,8695.94,
+"706",12/09/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*GT 440 Terry Ave N SEATTLE WAUS",-24.83,,8719.69,
+"705",12/08/2025,"Point Of Sale Withdrawal PAYPAL","*BR OUTL 7700 EASTPORT PARKW4029357733 NMUS",-777.35,,8744.52,
+"704",12/08/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*20 440 Terry Ave N SEATTLE WAUS",-23.55,,9521.87,
+"703",12/08/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*TZ 440 Terry Ave N SEATTLE WAUS",-32.39,,9545.42,
+"702",12/08/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*7M 440 Terry Ave N SEATTLE WAUS",-31.51,,9577.81,
+"701",12/08/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-13.69,,9609.32,
+"700",12/08/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-17.26,,9623.01,
+"699",12/08/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-12.94,,9640.27,
+"698",12/08/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*MX 440 Terry Ave N SEATTLE WAUS",-48.59,,9653.21,
+"697",12/08/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-6.25,,9701.80,
+"696",12/08/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-6.25,,9708.05,
+"695",12/08/2025,"External Withdrawal SACRED","BLOOM - PURCHASE",-156.50,,9714.30,
+"694",12/07/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-26.37,,9870.80,
+"693",12/07/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-26.37,,9897.17,
+"692",12/06/2025,"Point Of Sale Withdrawal AMAZON","PRIME*BI 440 Terry Ave N SEATTLE WAUS",-2.99,,9923.54,
+"691",12/06/2025,"Point Of Sale Withdrawal BURGER","KING #14 1250 FRONT ST BINGHAMTON NYUS",-13.51,,9926.53,
+"690",12/05/2025,"Point Of Sale Withdrawal BERT","ADAMS DISP 521 MAIN ST CHENANGO BRID NYUS",-37.80,,9940.04,
+"689",12/04/2025,"Point Of Sale Withdrawal","EXPEDIA 7206888 1111 Expedia Group SEATTLE WAUS",-856.65,,9977.84,
+"688",12/04/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-9.12,,10834.49,
+"687",12/03/2025,"External Deposit DFAS-CLEVELAND","ZPV381600NET PAY - FED SALARY",,2152.12,10843.61,
+"686",12/03/2025,"Point Of Sale Withdrawal PAYPAL","*BJSWHOL 7700 EASTPORT PARKW4029357733 MAUS",-64.80,,8691.49,
+"685",12/03/2025,"Point Of Sale Withdrawal PAYPAL","*DISNEY 7700 EASTPORT PARKW4029357733 CAUS",-32.99,,8756.29,
+"684",12/02/2025,"Point Of Sale Withdrawal PAYPAL","*JETBRAI 7700 EASTPORT PARKW4029357733 CAUS",-70.20,,8789.28,
+"683",12/02/2025,"Point Of Sale Withdrawal SP","OVCIO 1593 Alviso Street SANTA CLARA CAUS",-97.30,,8859.48,
+"682",12/02/2025,"Point Of Sale Withdrawal Amazon","web serv 440 Terry Ave N SEATTLE WAUS",-61.49,,8956.78,
+"681",12/02/2025,"Point Of Sale Withdrawal SP","OVCIO 1593 Alviso Street SANTA CLARA CAUS",-457.46,,9018.27,
+"680",11/29/2025,"Point Of Sale Withdrawal BERT","ADAMS DISP 521 MAIN ST CHENANGO BRID NYUS",-37.80,,9475.73,
+"679",11/29/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*BB 440 Terry Ave N SEATTLE WAUS",-86.38,,9513.53,
+"678",11/29/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*B2 440 Terry Ave N SEATTLE WAUS",-41.57,,9599.91,
+"677",11/28/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-17.27,,9641.48,
+"676",11/28/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-10.79,,9658.75,
+"675",11/28/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-86.38,,9669.54,
+"674",11/26/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-12.95,,9755.92,
+"673",11/26/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-49.22,,9768.87,
+"672",11/26/2025,"External Withdrawal SACRED","BLOOM - PURCHASE",-51.50,,9818.09,
+"671",11/26/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-12.95,,9869.59,
+"670",11/24/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*B2 440 Terry Ave N SEATTLE WAUS",-77.75,,9882.54,
+"669",11/24/2025,"External Withdrawal AMEX","EPAYMENT ER AM - ACH PMT",-43.89,,9960.29,
+"668",11/24/2025,"Point Of Sale Withdrawal","McDonalds 3266 165 S BROAD ST NORWICH NYUS",-6.00,,10004.18,
+"667",11/23/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*B2 440 Terry Ave N SEATTLE WAUS",-36.90,,10010.18,
+"666",11/23/2025,"Point Of Sale Withdrawal","NORWICH FAMILY 68-70 NORTH BROAD SNORWICH NYUS",-95.00,,10047.08,
+"665",11/21/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-17.72,,10142.08,
+"664",11/21/2025,"Point Of Sale Withdrawal AMAZON","MKTPL*B0 440 Terry Ave N SEATTLE WAUS",-86.39,,10159.80,
+"663",11/21/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-252.35,,10246.19,
+"662",11/21/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-75.59,,10498.54,
+"661",11/21/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-70.19,,10574.13,
+"660",11/21/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-11.28,,10644.32,
+"659",11/21/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-128.66,,10655.60,
+"658",11/21/2025,"External Withdrawal AMEX","EPAYMENT ER AM - ACH PMT",-627.03,,10784.26,
+"657",11/21/2025,"Point Of Sale Withdrawal BERT","ADAMS DISP 521 MAIN ST CHENANGO BRID NYUS",-37.80,,11411.29,
+"656",11/19/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-19.61,,11449.09,
+"655",11/19/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-132.02,,11468.70,
+"654",11/19/2025,"External Deposit DFAS-CLEVELAND","ZPV381600NET PAY - FED SALARY",,3484.49,11600.72,
+"653",11/19/2025,"Point Of Sale Withdrawal BURGER","KING #17 3100 ASH ROAD VESTAL NYUS",-25.11,,8116.23,
+"652",11/19/2025,"Point Of Sale Withdrawal Prime","Video *B0 440 Terry Ave N SEATTLE WAUS",-3.79,,8141.34,
+"651",11/18/2025,"External Withdrawal AMEX","EPAYMENT AM - ACH PMT",-60.00,,8145.13,
+"650",11/17/2025,"Point Of Sale Withdrawal","WWW.HILLSTOHOME 141 Longwater DriveNORWELL MAUS",-45.59,,8205.13,
+"649",11/17/2025,"Point Of Sale Withdrawal BURGER","KING #20 5616 STATE HIGHWAY NORWICH NYUS",-10.67,,8250.72,
+"648",11/17/2025,"External Deposit DFAS-CLEVELAND","DO SYMBOL 8522 - DCPS SPCLS",,6373.16,8261.39,
+"647",11/16/2025,"Point Of Sale Withdrawal","McDonalds 17555 3136 VESTAL PKY E VESTAL NYUS",-3.00,,1888.23,
+"646",11/16/2025,"Point Of Sale Deposit TARGET","0 3112 VESTAL PKWY EAVESTAL NYUS",,36.40,1891.23,
+"645",11/15/2025,"Withdrawal Internet Transfer to","*1221 CNS",-450.00,,1854.83,
+"644",11/14/2025,"External Deposit SSA TREAS 310","- XXSOC SEC N1*GD*REBECCA DENKERS FOR \N1*BE*ADRIAAN DENKERS *34******9604\",,1605.00,2304.83,
+"643",11/14/2025,"Point Of Sale Withdrawal BERT","ADAMS DISP 521 MAIN ST CHENANGO BRID NYUS",-37.80,,699.83,
+"642",11/13/2025,"Point Of Sale Withdrawal PINE","RIDGE GROC 4086 STATE HIGHWAY BAINBRIDGE NYUS",-43.04,,737.63,
+"641",11/13/2025,"External Withdrawal Rocket","Money - Premium ST-K5Y4X3R6E3I4",-7.56,,780.67,
+"640",11/12/2025,"Point Of Sale Withdrawal PAYPAL","*PEACOCK 7700 EASTPORT PARKW4029357733 NYUS",-16.99,,788.23,
+"639",11/10/2025,"External Deposit R Denkers ACH","- TRANSFER",,788.00,805.22,
+"638",11/10/2025,"Point Of Sale Withdrawal BURGER","KING #20 5616 STATE HIGHWAY NORWICH NYUS",-22.57,,17.22,
+"637",11/09/2025,"Point Of Sale Withdrawal","PROGRESSIVE INS 6300 Wilson Mills RMAYFIELD VILL OHUS",-286.89,,39.79,
+"636",11/08/2025,"Point Of Sale Withdrawal BURGER","KING #17 3100 ASH ROAD VESTAL NYUS",-20.60,,326.68,
+"635",11/07/2025,"Point Of Sale Withdrawal BERT","ADAMS DISP 521 MAIN ST CHENANGO BRID NYUS",-37.80,,347.28,
+"634",11/06/2025,"Point Of Sale Withdrawal AMAZON","PRIME*NK 440 Terry Ave N SEATTLE WAUS",-2.99,,385.08,
+"633",11/06/2025,"Point Of Sale Withdrawal AMZN","Digital*NK 440 Terry Ave N SEATTLE WAUS",-59.99,,388.07,
+"632",11/05/2025,"Point Of Sale Withdrawal","McDonalds 3266 165 S BROAD ST NORWICH NYUS",-6.88,,448.06,
+"631",11/04/2025,"External Deposit R Denkers ACH","- TRANSFER",,500.00,454.94,
+"630",11/03/2025,"Overdraft Fee PAYPAL *DISNEY","7700 EASTPORT PARKW4029357733 CAUS",-30.00,,-45.06,
+"629",11/03/2025,"Overdraft Protection Deposit","",,2.00,-15.06,
+"628",11/03/2025,"Point Of Sale Withdrawal PAYPAL","*DISNEY 7700 EASTPORT PARKW4029357733 CAUS",-32.99,,-17.06,
+"627",11/02/2025,"Point Of Sale Withdrawal Amazon","web serv 440 Terry Ave N SEATTLE WAUS",-63.38,,15.93,
+"626",10/31/2025,"Point Of Sale Withdrawal BERT","ADAMS DISP 521 MAIN ST CHENANGO BRID NYUS",-10.80,,79.31,
+"625",10/28/2025,"Point Of Sale Withdrawal","McDonalds 3266 165 S BROAD ST NORWICH NYUS",-12.61,,90.11,
+"624",10/23/2025,"Point Of Sale Withdrawal","NORWICH FAMILY 68-70 NORTH BROAD SNORWICH NYUS",-95.00,,102.72,
+"623",10/22/2025,"Point Of Sale Withdrawal Prime","Video *NU 440 Terry Ave N SEATTLE WAUS",-19.79,,197.72,
+"622",10/22/2025,"Point Of Sale Withdrawal Prime","Video *NU 440 Terry Ave N SEATTLE WAUS",-19.79,,217.51,
+"621",10/20/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-29.80,,237.30,
+"620",10/20/2025,"Point Of Sale Withdrawal","MIRABITO #112- RTE 12 & 94 GENESSEGREENE NYUS",-33.85,,267.10,
+"619",10/20/2025,"Point Of Sale Withdrawal","MIRABITO #112- RTE 12 & 94 GENESSEGREENE NYUS",-27.64,,300.95,
+"618",10/20/2025,"External Withdrawal AMEX","EPAYMENT AM - ACH PMT",-60.00,,328.59,
+"617",10/20/2025,"Point Of Sale Withdrawal Prime","Video *NM 440 Terry Ave N SEATTLE WAUS",-14.99,,388.59,
+"616",10/19/2025,"Point Of Sale Withdrawal TARGET","0 3112 VESTAL PKWY EAVESTAL NYUS",-143.93,,403.58,
+"615",10/19/2025,"Point Of Sale Withdrawal THE","NEW 5&10 VA 72 GENESEE ST GREENE NYUS",-96.03,,547.51,
+"614",10/19/2025,"Point Of Sale Withdrawal SAMS","CLUB #6366 2441 VESTAL PKYWY. VESTAL NYUS",-3.00,,643.54,
+"613",10/18/2025,"Point Of Sale Withdrawal","Nintendo CA1486 4600 150th Ave NE 8002553700 WAUS",-64.79,,646.54,
+"612",10/18/2025,"Point Of Sale Withdrawal PAYPAL","*DISNEY 7700 EASTPORT PARKW4029357733 CAUS",-4.81,,711.33,
+"611",10/18/2025,"Point Of Sale Withdrawal","BARNESNOBLE 2443 Vestal ParkwayVestal NYUS",-3.73,,716.14,
+"610",10/18/2025,"Point Of Sale Withdrawal RED","LOBSTER 018 1200 E VESTAL PKWY VESTAL NYUS",-104.92,,719.87,
+"609",10/17/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-15.11,,824.79,
+"608",10/17/2025,"External Withdrawal SACRED","BLOOM - PURCHASE",-231.49,,839.90,
+"607",10/17/2025,"Point Of Sale Withdrawal","STARLINK INTERN 1 ROCKET RD STARLINK.COM CAUS",-120.00,,1071.39,
+"606",10/16/2025,"Point Of Sale Withdrawal","STEWART'S SHOP 40 N CANAL ST OXFORD NYUS",-50.02,,1191.39,
+"605",10/16/2025,"Point Of Sale Withdrawal","STEWART'S SHOP 40 N CANAL ST OXFORD NYUS",-26.75,,1241.41,
+"604",10/15/2025,"Point Of Sale Withdrawal","WWW.HILLSTOHOME 141 Longwater DriveNORWELL MAUS",-92.14,,1268.16,
+"603",10/15/2025,"External Withdrawal Rocket","Money - Premium ST-I6J0S6Q3H6U1",-7.56,,1360.30,
+"602",10/15/2025,"Point Of Sale Withdrawal BERT","ADAMS DISP 122 COMBES LN NORWICH NYUS",-450.00,,1367.86,
+"601",10/14/2025,"Point Of Sale Withdrawal PRICE","CHOPPER # NORWICH NORWICH NYUS",-23.19,,1817.86,
+"600",10/14/2025,"External Withdrawal DAVIS","TRUCKING MONEYLINE EXPRESS - BILL PAYMT",-37.50,,1841.05,
+"599",10/13/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-17.90,,1878.55,
+"598",10/13/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-24.74,,1896.45,
+"597",10/13/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-23.53,,1921.19,
+"596",10/13/2025,"Point Of Sale Withdrawal","McDonalds 23622 2972 NEW YORK RT 11WHITNEY POINT NYUS",-16.31,,1944.72,
+"595",10/12/2025,"Point Of Sale Withdrawal PRICE","CHOPPER # NORWICH NORWICH NYUS",-183.28,,1961.03,
+"594",10/12/2025,"Point Of Sale Withdrawal Harbor","Freight 5640 State Highway Norwich NYUS",-76.57,,2144.31,
+"593",10/12/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-24.40,,2220.88,
+"592",10/12/2025,"Point Of Sale Withdrawal PAYPAL","*PEACOCK 7700 EASTPORT PARKW4029357733 NYUS",-16.99,,2245.28,
+"591",10/11/2025,"Point Of Sale Withdrawal DOLLAR","GENERAL DG 111511 N WASHINGOXFORD NYUS",-31.08,,2262.27,
+"590",10/11/2025,"Point Of Sale Withdrawal TEXAS","ROADHOUSE 4399 VESTAL PARKWAYVESTAL NYUS",-71.32,,2293.35,
+"589",10/11/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-30.23,,2364.67,
+"588",10/09/2025,"External Deposit SSA TREAS 310","- XXSOC SEC N1*GD*REBECCA DENKERS FOR \N1*BE*ADRIAAN DENKERS *34******9604\",,1605.00,2394.90,
+"587",10/09/2025,"Point Of Sale Withdrawal","PROGRESSIVE INS 6300 Wilson Mills R800-776-4737 OHUS",-271.79,,789.90,
+"586",10/09/2025,"Point Of Sale Withdrawal","SAMSCLUB #6366 2441 VESTAL PKWY EAVESTAL NYUS",-7.83,,1061.69,
+"585",10/08/2025,"External Deposit DFAS-CLEVELAND","ZPV381600NET PAY - FED SALARY",,755.57,1069.52,
+"584",10/08/2025,"Withdrawal Internet Transfer to","*1200 SAV",-2.00,,313.95,
+"583",10/07/2025,"Point Of Sale Withdrawal","WWW.HILLSTOHOME 141 Longwater DriveNORWELL MAUS",-45.59,,315.95,
+"582",10/06/2025,"Withdrawal Internet Transfer to","*1221 CNS",-157.25,,361.54,
+"581",10/06/2025,"Point Of Sale Withdrawal AMAZON","PRIME*NV 440 Terry Ave N amzn.com/bill WAUS",-2.99,,518.79,
+"580",10/06/2025,"Point Of Sale Withdrawal OPENAI","*CHATGPT 548 Market Street PSAN FRANCISCO CAUS",-64.80,,521.78,
+"579",10/06/2025,"Point Of Sale Withdrawal BURGER","KING #18 208 GENESEE ST RT 5ONEIDA NYUS",-9.12,,586.58,
+"578",10/05/2025,"Point Of Sale Withdrawal","STEWARTS SHOP 4 9 N MAIN ST SHERBURNE NYUS",-41.16,,595.70,
+"577",10/05/2025,"Point Of Sale Withdrawal TST*","AIELLO'S R 2677 MAIN ST WHITNEY POINT NYUS",-105.27,,636.86,
+"576",10/05/2025,"Point Of Sale Withdrawal TST*","AIELLO'S R 2677 MAIN ST WHITNEY POINT NYUS",-41.81,,742.13,
+"575",10/04/2025,"Point Of Sale Withdrawal","McDonalds 3266 165 S BROAD ST NORWICH NYUS",-1.50,,783.94,
+"574",10/04/2025,"Point Of Sale Withdrawal CHILIS","VESTAL 2553 VESTAL PKWY E VESTAL NYUS",-74.89,,785.44,
+"573",10/04/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-60.51,,860.33,
+"572",10/04/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-99.90,,920.84,
+"571",10/04/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-10.76,,1020.74,
+"570",10/04/2025,"Point Of Sale Withdrawal","STEWART'S SHOP 40 N CANAL ST OXFORD NYUS",-29.53,,1031.50,
+"569",10/03/2025,"Point Of Sale Withdrawal","SPIEDIE AND RIB 1268 UPPER FRONT STBINGHAMTON NYUS",-25.02,,1061.03,
+"568",10/03/2025,"ATM Withdrawal BINGHAMTON MOBI","1123 UPPER FRONT STBINGHAMTON NYUS",-63.50,,1086.05,
+"567",10/03/2025,"Point Of Sale Withdrawal GOOGLE","*YOUTUBEPREMMOUNTAIN VIEW CAUS",-22.99,,1149.55,
+"566",10/03/2025,"Point Of Sale Withdrawal","SPEEDWAY 44952 5644 STATE HIGHWAY NORWICH NYUS",-37.50,,1172.54,
+"565",10/03/2025,"Point Of Sale Withdrawal WM","SUPERCENTER 5396 STATE HIGHWAY NORWICH NYUS",-153.31,,1210.04,
+"564",10/03/2025,"Point Of Sale Withdrawal","TRACTOR SUPPLY 5640 STATE HWY 12 NORWICH NYUS",-106.94,,1363.35,
+"563",10/03/2025,"Point Of Sale Withdrawal BURGER","KING #14 1250 FRONT ST BINGHAMTON NYUS",-6.22,,1470.29,
+"562",10/03/2025,"Point Of Sale Withdrawal PAYPAL","*DISNEY 7700 EASTPORT PARKW4029357733 CAUS",-19.99,,1476.51,
+"561",10/02/2025,"ATM Withdrawal BINGHAMTON MOBI","1123 UPPER FRONT STBINGHAMTON NYUS",-73.50,,1496.50,
+"560",10/02/2025,"Point Of Sale Withdrawal NNT","REGAL BINGH 900 FRONT ST BINGHAMTON NYUS",-4.86,,1570.00,
+"559",10/02/2025,"Point Of Sale Withdrawal DOLLAR","GENERAL DG 111511 N WASHINGOXFORD NYUS",-19.86,,1574.86,
+"558",10/02/2025,"Point Of Sale Withdrawal Amazon","web serv 440 Terry Ave N aws.amazon.co WAUS",-60.23,,1594.72,
+"557",10/02/2025,"Point Of Sale Withdrawal BURGER","KING #20 5616 STATE HIGHWAY NORWICH NYUS",-27.77,,1654.95,
+"556",10/01/2025,"Point Of Sale Withdrawal","APPLEBEES 9748 5006 STATE HWY 23 ONEONTA NYUS",-50.73,,1682.72,
+"555",10/01/2025,"Point Of Sale Withdrawal","STEWART'S SHOP 40 N CANAL ST OXFORD NYUS",-6.23,,1733.45,
+"554",10/01/2025,"Point Of Sale Withdrawal T J","MAXX #1164 5006 STATE HIGHWAY ONEONTA NYUS",-204.71,,1739.68,
+"553",09/30/2025,"Point Of Sale Withdrawal","ZAP*ZAPPOS.COM 400 E STEWART AVE 800-927-7671 NVUS",-104.95,,1944.39,
+"552",09/30/2025,"Point Of Sale Withdrawal BEAUTY","NAILS SP 4987 STATE HIGHWAY ONEONTA NYUS",-93.60,,2049.34,
+"551",09/29/2025,"Point Of Sale Withdrawal","ZAP*ZAPPOS.COM 400 E STEWART AVE 800-927-7671 NVUS",-79.99,,2142.94,
+"550",09/29/2025,"Point Of Sale Withdrawal DOLLAR","GENERAL DG 111511 N WASHINGOXFORD NYUS",-18.00,,2222.93,
+"549",09/28/2025,"Point Of Sale Withdrawal","FASTRAC 0280 17 CANPORT CRANE NYUS",-41.00,,2240.93,
+"548",09/28/2025,"ATM Withdrawal SACRED BLOOM","1308 VESTAL PKWY VESTAL NYUS",-298.50,,2281.93,
+"547",09/28/2025,"Point Of Sale Withdrawal","McDonalds 3266 165 S BROAD ST NORWICH NYUS",-7.31,,2580.43,
+"546",09/27/2025,"Point Of Sale Withdrawal BURGER","KING #20 5616 STATE HIGHWAY NORWICH NYUS",-6.46,,2587.74,
+"545",09/27/2025,"Point Of Sale Withdrawal","SPIEDIE AND RIB 1268 UPPER FRONT STBINGHAMTON NYUS",-23.12,,2594.20,
+"544",09/26/2025,"Point Of Sale Withdrawal WM","SUPERCENTER 5396 STATE HIGHWAY NORWICH NYUS",-306.96,,2617.32,
+"543",09/26/2025,"Point Of Sale Withdrawal","STEWART'S SHOP 40 N CANAL ST OXFORD NYUS",-15.74,,2924.28,
+"542",09/25/2025,"ATM Withdrawal BINGHAMTON MOBI","1123 UPPER FRONT STBINGHAMTON NYUS",-93.50,,2940.02,
+"541",09/25/2025,"Point Of Sale Withdrawal CITGO","JAYNEIL C 2536 STATE HIGHWAY GREENE NYUS",-47.48,,3033.52,
+"540",09/25/2025,"Point Of Sale Withdrawal","NETFLIX.COM LOS GATOS CAUS",-26.99,,3081.00,
+"539",09/24/2025,"External Deposit DFAS-CLEVELAND","ZPV381600NET PAY - FED SALARY",,1409.48,3107.99,
+"538",09/23/2025,"Point Of Sale Withdrawal","BARTLES PHARMAC 10 LAFAYETTE PARK OXFORD NYUS",-41.09,,1698.51,
+"537",09/23/2025,"Point Of Sale Withdrawal","NORWICH FAMILY 68-70 NORTH BROAD SNORWICH NYUS",-95.00,,1739.60,
+"536",09/23/2025,"Point Of Sale Withdrawal","WANSOR-MOSES CH 6578 STATE HIGHWAY NORWICH NYUS",-36.40,,1834.60,
+"535",09/21/2025,"Point Of Sale Withdrawal BURGER","KING #17 3100 ASH ROAD VESTAL NYUS",-4.83,,1871.00,
+"534",09/21/2025,"Point Of Sale Withdrawal BURGER","KING #20 5616 STATE HIGHWAY NORWICH NYUS",-6.89,,1875.83,
+"533",09/20/2025,"Point Of Sale Withdrawal TEXAS","ROADHOUSE 4511 COMMERCIAL DRINEW HARTFORD NYUS",-80.00,,1882.72,
+"532",09/20/2025,"Point Of Sale Withdrawal DUNKIN","#365068 10 N CANAL ST OXFORD NYUS",-8.39,,1962.72,
+"531",09/19/2025,"External Withdrawal NYSEG -","WEB_PAY",-788.16,,1971.11,
+"530",09/19/2025,"Point Of Sale Withdrawal","NORWICH BUFFETT 6142 STATE HIGHWAY NORWICH NYUS",-40.80,,2759.27,
+"529",09/18/2025,"Point Of Sale Withdrawal BYRNE","DAIRY 77 69 E MAIN ST NORWICH NYUS",-36.46,,2800.07,
+"528",09/18/2025,"Point Of Sale Withdrawal FIVE","GUYS NY 21 601 HARRY L DRIVE OJOHNSON CITY NYUS",-32.78,,2836.53,
+"527",09/18/2025,"Point Of Sale Withdrawal","STEWART'S SHOP 40 N CANAL ST OXFORD NYUS",-12.00,,2869.31,
+"526",09/18/2025,"External Withdrawal AMEX","EPAYMENT ER AM - ACH PMT",-400.00,,2881.31,
+"525",09/18/2025,"External Withdrawal AMEX","EPAYMENT AM - ACH PMT",-60.00,,3281.31,
+"524",09/18/2025,"Point Of Sale Deposit American","Eagle 223 Reynolds Road Johnson City NYUS",,62.78,3341.31,
+"523",09/17/2025,"Withdrawal 250","",-54.50,,3278.53,
+"522",09/17/2025,"Point Of Sale Withdrawal WM","SUPERCENTER 5396 STATE HIGHWAY NORWICH NYUS",-38.45,,3333.03,
+"521",09/16/2025,"Point Of Sale Withdrawal PINE","RIDGE GROC 4086 STATE HIGHWAY BAINBRIDGE NYUS",-119.87,,3371.48,
+"520",09/16/2025,"Point Of Sale Withdrawal","AMAZON.COM SEATTLE WAUS",-14.03,,3491.35,
