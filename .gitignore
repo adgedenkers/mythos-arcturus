@@ -1,4 +1,49 @@
-.venv/*
-/__pycache__/*
-.env
+# Data directories (runtime state, not code)
+data/
+logs/
+*.log
 
+# Redis
+data/redis/
+
+# Qdrant
+data/qdrant/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Environment files (contain secrets)
+.env
+*.env
+.env.*
+
+# Backups (too large, contain secrets)
+_backups/
+_upgrade_backups/
+backups/
+
+# Archives
+patches/archive/
+sales_ingestion/archive/
+shoe_ingestion/archive/
+
+# Media uploads
+media/
+
+# Patch logs (keep scripts, ignore logs)
+patches/logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
