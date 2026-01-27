@@ -25,18 +25,22 @@ except ImportError as e:
     DB_MANAGER_AVAILABLE = False
     print(f"⚠️  Warning: db_manager not available - {e}")
 
+try:
+    from chat_assistant import ChatAssistant
+    CHAT_ASSISTANT_AVAILABLE = True
+    print("✅ chat_assistant imported successfully")
+except ImportError as e:
+    CHAT_ASSISTANT_AVAILABLE = False
+    print(f"⚠️  Warning: chat_assistant not available - {e}")
+
 # Load environment variables
 load_dotenv('/opt/mythos/.env')
 
 app = FastAPI(
     title="Mythos API",
     description="Secure API for Mythos System",
-    version="1.0.0"
+    version="1.1.0"
 )
-
-# Include sales router
-app.include_router(sales_router)
-
 
 # Include sales router
 app.include_router(sales_router)
@@ -61,7 +65,9 @@ API_KEYS = {
 class MessageRequest(BaseModel):
     user_id: str
     message: str
-    mode: str = "db"
+    mode: str = "chat"  # Default to chat mode now
+    model_preference: str = "auto"  # Add model preference
+    conversation_id: Optional[str] = None
 
 class MessageResponse(BaseModel):
     response: str
@@ -131,14 +137,23 @@ if DB_MANAGER_AVAILABLE:
     except Exception as e:
         print(f"❌ Error initializing Database Manager: {e}")
 
+chat_assistant_instance = None
+if CHAT_ASSISTANT_AVAILABLE:
+    try:
+        chat_assistant_instance = ChatAssistant()
+        print("✅ Chat Assistant initialized")
+    except Exception as e:
+        print(f"❌ Error initializing Chat Assistant: {e}")
+
 # Routes
 @app.get("/")
 async def root():
     return {
         "service": "Mythos API",
         "status": "running",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "assistants": {
+            "chat_assistant": CHAT_ASSISTANT_AVAILABLE and chat_assistant_instance is not None,
             "db_manager": DB_MANAGER_AVAILABLE and db_manager_instance is not None,
             "seraphe_assistant": False,
             "genealogy_assistant": False
@@ -157,6 +172,12 @@ async def process_message(
 ):
     """
     Process a message through the Mythos system.
+    
+    Modes:
+    - chat: General conversation with Ollama (default)
+    - db: Database queries via natural language
+    - seraphe: Cosmology assistant (coming soon)
+    - genealogy: Bloodline research (coming soon)
     """
     
     # Look up user
@@ -165,8 +186,31 @@ async def process_message(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Route to appropriate assistant
-    if request.mode == "db" and db_manager_instance:
+    # Route to appropriate assistant based on mode
+    
+    # CHAT MODE - General conversation
+    if request.mode == "chat" and chat_assistant_instance:
+        try:
+            # Set user context
+            chat_assistant_instance.set_user(user)
+            
+            # Process message with model preference
+            response_text = chat_assistant_instance.query(
+                request.message,
+                model_preference=request.model_preference
+            )
+            
+            return MessageResponse(
+                response=response_text,
+                mode=request.mode,
+                user=user['soul_display_name']
+            )
+        
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Chat assistant error: {str(e)}")
+    
+    # DB MODE - Database queries
+    elif request.mode == "db" and db_manager_instance:
         try:
             # Set user context
             db_manager_instance.set_user(user)
@@ -183,6 +227,7 @@ async def process_message(
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Database manager error: {str(e)}")
     
+    # SERAPHE MODE - Cosmology assistant
     elif request.mode == "seraphe":
         # Placeholder for Seraphe's assistant
         return MessageResponse(
@@ -191,10 +236,33 @@ async def process_message(
             user=user['soul_display_name']
         )
     
-    else:
-        # Fallback echo
+    # GENEALOGY MODE - Bloodline research
+    elif request.mode == "genealogy":
         return MessageResponse(
-            response=f"Mode '{request.mode}' not yet implemented. Echo: {request.message}",
+            response="Genealogy assistant is not yet connected. Coming soon!",
+            mode=request.mode,
+            user=user['soul_display_name']
+        )
+    
+    # Fallback for unavailable modes
+    else:
+        # Check if the mode exists but assistant isn't available
+        if request.mode == "chat" and not chat_assistant_instance:
+            return MessageResponse(
+                response="Chat assistant is not available. Check server logs.",
+                mode=request.mode,
+                user=user['soul_display_name']
+            )
+        elif request.mode == "db" and not db_manager_instance:
+            return MessageResponse(
+                response="Database manager is not available. Check server logs.",
+                mode=request.mode,
+                user=user['soul_display_name']
+            )
+        
+        # Unknown mode
+        return MessageResponse(
+            response=f"Mode '{request.mode}' is not recognized. Available modes: chat, db, seraphe, genealogy",
             mode=request.mode,
             user=user['soul_display_name']
         )
@@ -219,3 +287,37 @@ async def get_user(
         soul_name=user['soul_display_name'],
         uuid=user['uuid']
     )
+
+@app.post("/chat/clear/{user_id}")
+async def clear_chat_context(
+    user_id: str,
+    api_key: str = Depends(verify_api_key)
+):
+    """Clear chat context for a user"""
+    if not chat_assistant_instance:
+        raise HTTPException(status_code=503, detail="Chat assistant not available")
+    
+    user = get_user_by_identifier(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    chat_assistant_instance.clear_context(user['uuid'])
+    
+    return {"status": "ok", "message": "Chat context cleared"}
+
+@app.get("/chat/stats/{user_id}")
+async def get_chat_stats(
+    user_id: str,
+    api_key: str = Depends(verify_api_key)
+):
+    """Get chat context statistics for a user"""
+    if not chat_assistant_instance:
+        raise HTTPException(status_code=503, detail="Chat assistant not available")
+    
+    user = get_user_by_identifier(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    stats = chat_assistant_instance.get_context_stats(user['uuid'])
+    
+    return {"status": "ok", "stats": stats}
