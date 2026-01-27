@@ -22,8 +22,12 @@ import json
 import time
 import signal
 import logging
+import importlib
 from datetime import datetime
 from pathlib import Path
+
+# Add /opt/mythos to Python path for imports
+sys.path.insert(0, '/opt/mythos')
 
 import redis
 from dotenv import load_dotenv
@@ -108,6 +112,10 @@ class Worker:
         # Shutdown flag
         self.running = True
         
+        # Stats
+        self.assignments_processed = 0
+        self.errors = 0
+        
         # Load the appropriate handler
         self._load_handler()
     
@@ -117,17 +125,17 @@ class Worker:
         function_name = self.config["function"]
         
         try:
-            # Dynamic import
-            import importlib
+            # Dynamic import from workers package
             module = importlib.import_module(f"workers.{module_name}")
             self.handler = getattr(module, function_name)
-            self.logger.info(f"Loaded handler: {module_name}.{function_name}")
+            self.logger.info(f"Loaded handler: workers.{module_name}.{function_name}")
             
         except ImportError as e:
-            self.logger.warning(f"Handler module not found, using placeholder: {e}")
+            self.logger.error(f"Failed to import handler module 'workers.{module_name}': {e}")
+            self.logger.info("Falling back to placeholder handler")
             self.handler = self._placeholder_handler
         except AttributeError as e:
-            self.logger.warning(f"Handler function not found, using placeholder: {e}")
+            self.logger.error(f"Handler function '{function_name}' not found in module: {e}")
             self.handler = self._placeholder_handler
     
     def _placeholder_handler(self, payload: dict) -> dict:
@@ -163,9 +171,6 @@ class Worker:
                 raise
         
         # Main loop
-        assignments_processed = 0
-        errors = 0
-        
         while self.running:
             try:
                 # Read from stream
@@ -185,21 +190,21 @@ class Worker:
                     for message_id, data in stream_messages:
                         success = self._process_message(stream_name, message_id, data)
                         if success:
-                            assignments_processed += 1
+                            self.assignments_processed += 1
                         else:
-                            errors += 1
+                            self.errors += 1
                 
             except redis.ConnectionError as e:
                 self.logger.error(f"Redis connection error: {e}")
                 time.sleep(5)
             except Exception as e:
                 self.logger.exception(f"Error in worker loop: {e}")
-                errors += 1
+                self.errors += 1
                 time.sleep(1)
         
         self.logger.info(f"Worker shutdown complete")
-        self.logger.info(f"  Processed: {assignments_processed}")
-        self.logger.info(f"  Errors: {errors}")
+        self.logger.info(f"  Processed: {self.assignments_processed}")
+        self.logger.info(f"  Errors: {self.errors}")
     
     def _process_message(self, stream: str, message_id: str, data: dict) -> bool:
         """Process a single message. Returns True on success."""
@@ -211,7 +216,7 @@ class Worker:
             payload = json.loads(raw_data) if isinstance(raw_data, str) else raw_data
             assignment_id = payload.get("id", message_id)
             
-            self.logger.info(f"Processing assignment: {assignment_id}")
+            self.logger.info(f"Processing assignment: {assignment_id[:8] if len(assignment_id) > 8 else assignment_id}...")
             
             # Extract the actual payload (may be nested)
             work_payload = payload.get("payload", payload)
@@ -224,7 +229,7 @@ class Worker:
             
             # Log success
             status = result.get("status", "unknown") if isinstance(result, dict) else "complete"
-            self.logger.info(f"Completed {assignment_id} in {processing_time}ms (status: {status})")
+            self.logger.info(f"Completed {assignment_id[:8]}... in {processing_time}ms (status: {status})")
             
             # Update stats
             self.redis.hincrby("mythos:stats:workers", "total_processed", 1)
