@@ -90,13 +90,13 @@ def get_or_create_session(telegram_id):
                 user = response.json()
                 SESSIONS[telegram_id] = {
                     "user": user,
-                    "current_mode": DEFAULT_MODE,  # Now defaults to chat
+                    "current_mode": DEFAULT_MODE,
                     "current_model": "auto",
                     "conversation_id": None,
                     "last_activity": datetime.now(),
                     "sell_session": None,
-                    "chat_context": None,  # For chat mode conversation history
-                    "activity_log": []  # Track recent activity for /status
+                    "chat_context": None,
+                    "activity_log": []
                 }
             else:
                 return None
@@ -117,7 +117,6 @@ def log_activity(session: dict, activity_type: str, details: str):
         "type": activity_type,
         "details": details
     })
-    # Keep only last 10 activities
     session["activity_log"] = activity_log[-10:]
 
 
@@ -137,7 +136,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = session["user"]
     log_activity(session, "start", "Session started")
     
-    # Initialize chat context for new sessions
     if session.get("chat_context") is None:
         clear_chat_context(session)
     
@@ -226,10 +224,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     mode = session.get("current_mode", "chat")
     model = session.get("current_model", "auto")
     
-    # Build status message
-    lines = [f"📊 **Status for {user['soul_name']}**", ""]
-    
-    # Current mode
+    # Build status message - cleaner format
     mode_emoji = {
         "chat": "💬",
         "db": "🗄️",
@@ -237,50 +232,44 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "seraphe": "🔮",
         "genealogy": "🌳"
     }
-    lines.append(f"{mode_emoji.get(mode, '🔧')} **Mode:** {mode}")
-    lines.append(f"🤖 **Model:** {model}")
+    
+    lines = [
+        f"📊 **{user['soul_name']}**",
+        "",
+        f"{mode_emoji.get(mode, '🔧')} Mode: **{mode}**",
+        f"🤖 Model: **{model}**",
+    ]
     
     # Tracked conversation status
     if session.get("conversation_id"):
-        lines.append(f"📝 **Tracked Convo:** Active ({session['conversation_id'][:8]}...)")
+        lines.append(f"📝 Tracked: `{session['conversation_id'][:8]}...`")
     
     # Chat mode specific info
     if mode == "chat":
         stats = get_chat_stats(session)
-        lines.append("")
-        lines.append("━━━━━━━━━━━━━━━━━━━━━━━━")
-        lines.append("**💬 Chat Context**")
-        lines.append(f"Messages this session: {stats['message_count']}")
-        
-        # Get recent topics/summary
-        topics = get_recent_topics(session)
-        if topics:
-            lines.append("")
-            lines.append("**Recent topics:**")
-            for topic in topics[:5]:
-                lines.append(f"• {topic}")
-        
         if stats['message_count'] > 0:
             lines.append("")
-            lines.append("_Use /clear to reset conversation_")
+            lines.append("━━━━━━━━━━━━━━━━━━━━━━━━")
+            lines.append(f"💬 **Chat** ({stats['message_count']} messages)")
+            
+            # Get recent topics/summary
+            topics = get_recent_topics(session)
+            if topics:
+                for topic in topics[:3]:
+                    lines.append(f"• {topic}")
+            
+            lines.append("")
+            lines.append("_/clear to reset_")
     
     # Recent activity log
     activity_log = session.get("activity_log", [])
     if activity_log:
         lines.append("")
         lines.append("━━━━━━━━━━━━━━━━━━━━━━━━")
-        lines.append("**📋 Recent Activity**")
-        for activity in activity_log[-5:]:
-            time_str = activity['time'][11:16]  # Extract HH:MM
-            lines.append(f"• {time_str} - {activity['details']}")
-    
-    # Footer with tips
-    lines.append("")
-    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━")
-    if mode == "chat":
-        lines.append("_Just type to continue chatting_")
-    elif mode == "db":
-        lines.append("_Ask questions about souls, persons, lineages_")
+        lines.append("**📋 Recent**")
+        for activity in activity_log[-3:]:
+            time_str = activity['time'][11:16]
+            lines.append(f"• {time_str} {activity['details'][:40]}")
     
     await update.message.reply_text("\n".join(lines), parse_mode='Markdown')
 
@@ -302,51 +291,46 @@ async def mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if new_mode in valid_modes:
             old_mode = session.get("current_mode", "chat")
             
-            # Handle sell mode specially
             if new_mode == "sell":
                 log_activity(session, "mode_change", f"Entered sell mode")
                 await enter_sell_mode(update, session)
                 return
             
-            # Exit sell mode if switching away
             if is_sell_mode(session):
                 session["sell_session"] = None
             
-            # Initialize chat context when entering chat mode
             if new_mode == "chat":
                 if session.get("chat_context") is None:
                     clear_chat_context(session)
             
             session["current_mode"] = new_mode
-            log_activity(session, "mode_change", f"Switched to {new_mode} mode")
+            log_activity(session, "mode_change", f"→ {new_mode}")
             
             mode_descriptions = {
-                "db": "Database Manager - Query souls, persons, and lineages via natural language",
-                "seraphe": "Seraphe's Cosmology Assistant - Spiritual guidance and symbolism",
-                "genealogy": "Genealogy Assistant - Trace bloodlines and ancestors",
-                "chat": "Chat Mode - Direct conversation with local Ollama LLM\n\nJust type to chat! Context is maintained across messages.\nUse /clear to reset conversation."
+                "db": "Database queries - ask about souls, persons, lineages",
+                "seraphe": "Cosmology assistant (coming soon)",
+                "genealogy": "Bloodline research (coming soon)",
+                "chat": "Chat with AI - context maintained"
             }
             
             await update.message.reply_text(
-                f"✅ Switched to **{new_mode}** mode\n\n"
-                f"📝 {mode_descriptions[new_mode]}",
+                f"✅ **{new_mode}** mode\n\n{mode_descriptions[new_mode]}",
                 parse_mode='Markdown'
             )
         else:
             await update.message.reply_text(
                 f"❌ Unknown mode: {new_mode}\n\n"
-                "Available modes: db, seraphe, genealogy, chat, sell"
+                "Available: chat, db, sell, seraphe, genealogy"
             )
     else:
         current = session.get("current_mode", "chat")
         await update.message.reply_text(
-            f"Current mode: **{current}**\n\n"
-            "Available modes:\n"
-            "  `/mode chat`      - Talk with AI (default)\n"
-            "  `/mode db`        - Database queries\n"
-            "  `/mode sell`      - Sell items\n"
-            "  `/mode seraphe`   - Cosmology\n"
-            "  `/mode genealogy` - Bloodlines",
+            f"Current: **{current}**\n\n"
+            "`/mode chat` - AI conversation\n"
+            "`/mode db` - Database queries\n"
+            "`/mode sell` - Sell items\n"
+            "`/mode seraphe` - Cosmology\n"
+            "`/mode genealogy` - Bloodlines",
             parse_mode='Markdown'
         )
 
@@ -362,7 +346,7 @@ async def clear_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     clear_chat_context(session)
     log_activity(session, "clear", "Chat context cleared")
-    await update.message.reply_text("🔄 Chat context cleared. Starting fresh conversation.")
+    await update.message.reply_text("🔄 Context cleared")
 
 
 async def done_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -378,7 +362,7 @@ async def done_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await sell_done_command(update, context, session)
         log_activity(session, "sell", "Exited sell mode")
     else:
-        await update.message.reply_text("Nothing to finish. Not in sell mode.")
+        await update.message.reply_text("Not in sell mode.")
 
 
 async def undo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -393,7 +377,7 @@ async def undo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if is_sell_mode(session):
         await sell_undo_command(update, context, session)
     else:
-        await update.message.reply_text("Nothing to undo. Not in sell mode.")
+        await update.message.reply_text("Not in sell mode.")
 
 
 async def convo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -407,15 +391,15 @@ async def convo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if session.get("conversation_id"):
         await update.message.reply_text(
-            f"⚠️ Already in conversation mode\n"
-            f"Current: {session['conversation_id'][:8]}...\n\n"
-            "Use /endconvo to end first."
+            f"⚠️ Already tracking: `{session['conversation_id'][:8]}...`\n\n"
+            "Use /endconvo to end first.",
+            parse_mode='Markdown'
         )
         return
     
     conversation_id = str(uuid.uuid4())
     session["conversation_id"] = conversation_id
-    log_activity(session, "convo", f"Started tracked conversation")
+    log_activity(session, "convo", "Started tracking")
     
     try:
         response = requests.post(
@@ -429,24 +413,15 @@ async def convo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             timeout=10
         )
         
-        if response.status_code == 200:
-            await update.message.reply_text(
-                f"🗣️ Conversation started\n"
-                f"ID: {conversation_id[:8]}...\n\n"
-                "All messages will be tracked.\n"
-                "Use /endconvo when finished."
-            )
-        else:
-            await update.message.reply_text(
-                f"⚠️ Local conversation started\n"
-                f"ID: {conversation_id[:8]}...\n"
-                "(API notification failed)"
-            )
+        await update.message.reply_text(
+            f"🗣️ Tracking started\nID: `{conversation_id[:8]}...`",
+            parse_mode='Markdown'
+        )
     except Exception as e:
         logger.error(f"Error starting conversation: {e}")
         await update.message.reply_text(
-            f"⚠️ Conversation started locally\n"
-            f"ID: {conversation_id[:8]}..."
+            f"⚠️ Tracking locally\nID: `{conversation_id[:8]}...`",
+            parse_mode='Markdown'
         )
 
 
@@ -460,12 +435,12 @@ async def endconvo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     if not session.get("conversation_id"):
-        await update.message.reply_text("No active conversation.")
+        await update.message.reply_text("No active tracking.")
         return
     
     conversation_id = session["conversation_id"]
     session["conversation_id"] = None
-    log_activity(session, "convo", "Ended tracked conversation")
+    log_activity(session, "convo", "Ended tracking")
     
     try:
         requests.post(
@@ -480,10 +455,7 @@ async def endconvo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except:
         pass
     
-    await update.message.reply_text(
-        f"✅ Conversation ended\n"
-        f"ID: {conversation_id[:8]}..."
-    )
+    await update.message.reply_text(f"✅ Tracking ended")
 
 
 async def model_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -500,30 +472,30 @@ async def model_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         if new_model in ["auto", "fast", "deep"]:
             session["current_model"] = new_model
-            log_activity(session, "model", f"Switched to {new_model} model")
+            log_activity(session, "model", f"→ {new_model}")
             
             descriptions = {
-                "auto": "Automatic (qwen2.5:32b)",
-                "fast": "Fast (llama3.2:3b, ~5s)",
-                "deep": "Best quality (qwen2.5:32b, ~30s)"
+                "auto": "qwen2.5:32b",
+                "fast": "llama3.2:3b (~5s)",
+                "deep": "qwen2.5:32b (~30s)"
             }
             
             await update.message.reply_text(
-                f"✅ Model: **{new_model}**\n{descriptions[new_model]}",
+                f"✅ Model: **{new_model}** ({descriptions[new_model]})",
                 parse_mode='Markdown'
             )
         else:
             await update.message.reply_text(
-                f"❌ Unknown model: {new_model}\n"
-                "Available: auto, fast, deep"
+                f"❌ Unknown: {new_model}\n"
+                "Use: auto, fast, deep"
             )
     else:
         current = session.get("current_model", "auto")
         await update.message.reply_text(
-            f"Current model: **{current}**\n\n"
-            "`/model auto` - Smart routing (qwen2.5:32b)\n"
-            "`/model fast` - Quick (llama3.2:3b)\n"
-            "`/model deep` - Best (qwen2.5:32b)",
+            f"Current: **{current}**\n\n"
+            "`/model auto` - qwen2.5:32b\n"
+            "`/model fast` - llama3.2:3b\n"
+            "`/model deep` - qwen2.5:32b",
             parse_mode='Markdown'
         )
 
@@ -553,7 +525,7 @@ async def photos_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text("No photos yet.")
                 return
             
-            lines = [f"📸 Recent Photos ({len(photos)})\n"]
+            lines = [f"📸 Recent ({len(photos)})\n"]
             for i, photo in enumerate(photos, 1):
                 processed = "✅" if photo.get('processed') else "⏳"
                 lines.append(f"{i}. {processed} {photo.get('filename', 'unknown')}")
@@ -584,17 +556,13 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Not registered. Use /start")
         return
     
-    # Route to sell mode if active
     if is_sell_mode(session):
-        # Handle both photos and image documents
         if update.message.photo:
             await handle_sell_photos(update, context, session)
         elif update.message.document and update.message.document.mime_type.startswith('image/'):
-            # Convert document to photo-like structure for sell mode
             await handle_sell_photos(update, context, session)
         return
     
-    # Otherwise, standard photo handling (not in sell mode)
     if not update.message.photo:
         return
     
@@ -640,12 +608,10 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if response.status_code == 200:
             data = response.json()
             await update.message.reply_text(
-                f"📸 Photo received\n"
-                f"🆔 {data['media_id'][:8]}...\n"
-                f"💾 {file_size // 1024}KB"
+                f"📸 Saved ({file_size // 1024}KB)"
             )
         else:
-            await update.message.reply_text("⚠️ Photo saved locally.")
+            await update.message.reply_text("⚠️ Saved locally")
             
     except Exception as e:
         logger.error(f"Photo error: {e}", exc_info=True)
@@ -661,46 +627,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Session not found. Use /start")
         return
     
-    # In sell mode, text is ignored (photos only)
     if is_sell_mode(session):
         await update.message.reply_text(
-            "📦 In sell mode - send photos only.\n"
-            "Use /done to exit or /status to check progress."
+            "📦 Sell mode - send photos only.\n"
+            "/done to exit"
         )
         return
     
     user_message = update.message.text
-    user = session["user"]
     mode = session["current_mode"]
     model = session["current_model"]
     conversation_id = session.get("conversation_id")
     
     await update.message.chat.send_action("typing")
     
-    # Route to chat mode handler if in chat mode
-    if mode == "chat":
-        try:
-            response_text = await handle_chat_message(user_message, session, model)
-            
-            # Log activity with truncated message
-            preview = user_message[:50] + "..." if len(user_message) > 50 else user_message
-            log_activity(session, "chat", f"Asked: {preview}")
-            
-            # Handle long responses
-            if len(response_text) > 4000:
-                chunks = [response_text[i:i+4000] for i in range(0, len(response_text), 4000)]
-                for chunk in chunks:
-                    await update.message.reply_text(chunk)
-            else:
-                await update.message.reply_text(response_text)
-            return
-            
-        except Exception as e:
-            logger.error(f"Chat mode error: {e}", exc_info=True)
-            await update.message.reply_text(f"❌ Chat error: {e}")
-            return
+    # Log activity
+    preview = user_message[:30] + "..." if len(user_message) > 30 else user_message
+    log_activity(session, mode, preview)
     
-    # For other modes, use the API
     try:
         response = requests.post(
             f"{API_URL}/message",
@@ -719,10 +663,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             data = response.json()
             bot_response = data["response"]
             
-            # Log activity
-            preview = user_message[:50] + "..." if len(user_message) > 50 else user_message
-            log_activity(session, mode, f"Query: {preview}")
-            
             if len(bot_response) > 4000:
                 chunks = [bot_response[i:i+4000] for i in range(0, len(bot_response), 4000)]
                 for chunk in chunks:
@@ -733,7 +673,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"❌ API Error: {response.status_code}")
     
     except requests.Timeout:
-        await update.message.reply_text("⏱️ Request timed out.")
+        await update.message.reply_text("⏱️ Timed out")
     except Exception as e:
         await update.message.reply_text(f"❌ Error: {e}")
 
@@ -792,11 +732,8 @@ def main():
     # Error handler
     application.add_error_handler(error_handler)
     
-    print("🤖 Mythos Telegram Bot starting...")
+    print("🤖 Mythos Bot starting...")
     print(f"💬 Default mode: {DEFAULT_MODE}")
-    print("📦 Sell mode enabled")
-    print("📸 Photo analysis via Ollama")
-    print("   Press Ctrl+C to stop")
     
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
