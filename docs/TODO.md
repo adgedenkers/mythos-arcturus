@@ -1,115 +1,190 @@
 # Mythos Project TODO & Roadmap
 
-> **Last Updated:** 2026-01-24 09:00 EST
-> **Current Focus:** Finance System + Patch Infrastructure
+> **Last Updated:** 2026-01-24 10:00 EST
+> **Current Focus:** System Documentation + Finance Polish
 
 ---
 
 ## 📖 About This Document
 
-**TODO.md is the living work journal.** It is updated constantly during work sessions.
+**TODO.md is the living work journal.** Update constantly during work sessions.
 
 | Document | Purpose | Update Frequency |
 |----------|---------|------------------|
 | `TODO.md` | What we're trying to do | Every work session |
 | `ARCHITECTURE.md` | What actually exists and works | Only at stable milestones |
 
-**Rules:**
-- Update Active Work section as status changes
-- Move items to Completed when done (never delete)
-- Add new ideas to Backlog or Ideas section
-- Only update ARCHITECTURE.md when a feature is stable and deployed
-
 ---
 
 ## 🔥 Active Work
 
-### Finance System - Sunmark Parser Improvement (patch_0018)
-- **Status:** Deployed, pending verification
-- **Files:** `/opt/mythos/finance/parsers.py`, `/opt/mythos/finance/update_sunmark_descriptions.py`
-- **What:** Clean up Sunmark descriptions - strip "Point Of Sale Withdrawal" prefix, extract merchant names, add transaction type tags like (POS), (ATM), (EXT)
-- **Next:** Run update script to fix existing transactions, verify reports look cleaner
+### Comprehensive Documentation (patch_0020)
+- **Status:** In progress
+- **What:** Full system audit and documentation update
+- **Files:** `ARCHITECTURE.md`, `TODO.md`
 
-### Finance System (patch_0015)
-- **Status:** Live with 682 transactions imported
-- **Files:** `/opt/mythos/finance/`
-- **What:** Bank CSV import system (USAA + Sunmark), category mapping, reports CLI
-- **Next:** Test imports, verify category mappings, add Telegram commands
-
-### Patch System Telegram Commands
-- **Status:** Fixed - switched from Markdown to HTML formatting
-- **Files:** `/opt/mythos/telegram_bot/handlers/patch_handlers.py`
-- **What:** `/patch_status` was failing due to underscore characters breaking Markdown parsing
-- **Resolution:** Changed all `parse_mode='Markdown'` to `parse_mode='HTML'`, converted `**bold**` to `<b>bold</b>`, converted `` `code` `` to `<code>code</code>`
+### Finance System - Sunmark Parser (patch_0018)
+- **Status:** Deployed, needs verification
+- **What:** Clean descriptions with (POS)/(ATM)/(EXT) tags
+- **Next:** Run `update_sunmark_descriptions.py` to fix existing transactions
 
 ---
 
-## 📋 Backlog (Not Started)
+## 🚧 Gaps to Fill (High Priority)
 
-### Finance - Telegram Integration
-- Add `/finance` command group to bot
-- `/finance summary` - quick balance overview
-- `/finance recent` - last 10 transactions
-- `/finance search <term>` - find transactions
+These are missing pieces needed for a complete, production-ready system.
 
-### Finance - Recurring Detection
-- Auto-detect recurring transactions (subscriptions, bills)
-- Flag new recurring patterns
-- Monthly recurring summary
+### 1. Local LLM Conversational Interface
+- **Problem:** Can't have multi-turn conversations with local Ollama without external interface
+- **Solution Options:**
+  - Open WebUI (Docker container)
+  - Extend Telegram bot with `/chat` mode that maintains context
+  - Build simple web interface
+- **Priority:** HIGH - blocks sovereign AI workflow
 
-### Finance - Budget Alerts
-- Set category budgets
-- Alert when approaching/exceeding limits
-- Weekly spending digest
+### 2. Finance - Telegram Integration
+- **Problem:** Finance data only accessible via CLI
+- **Solution:** Add `/finance` command group to bot
+  - `/finance summary` - Account balances
+  - `/finance recent [n]` - Last N transactions
+  - `/finance search <term>` - Find transactions
+  - `/finance category <term>` - Spending by category
+  - `/finance uncategorized` - List uncategorized for review
+- **Priority:** HIGH - daily use feature
 
-### Sales Intake System
-- Photo analysis via Ollama for item identification
-- Marketplace listing generation
-- Inventory tracking
+### 3. Seraphe Mode Implementation
+- **Problem:** `/mode seraphe` returns placeholder
+- **Solution:** Create `seraphe_assistant.py` with:
+  - Cosmology/symbolism knowledge base
+  - Dream interpretation
+  - Spiritual guidance prompts
+  - Integration with Neo4j spiritual entities
+- **Priority:** MEDIUM - core spiritual functionality
 
-### Improved Error Reporting
-- Global error handler should capture full stack traces
-- Log errors to file with context
-- `/error_log` command to view recent errors
+### 4. Genealogy Mode Implementation
+- **Problem:** `/mode genealogy` not implemented
+- **Solution:** Create `genealogy_assistant.py` with:
+  - Family tree traversal queries
+  - Bloodline tracing
+  - Integration with genealogy data sources
+  - GEDCOM import support
+- **Priority:** MEDIUM - supports lineage work
 
-### Bot Service Logging
-- Redirect stdout/stderr to log file
-- Add log rotation
-- `/bot_log` command for recent logs
+### 5. Worker Health Monitoring
+- **Problem:** Workers run but no visibility into their health/throughput
+- **Solution:**
+  - Add `/worker_status` Telegram command
+  - Track processing times and error rates
+  - Alert on worker failures
+- **Priority:** MEDIUM - operational visibility
+
+### 6. Conversation Context for Local LLM
+- **Problem:** `db_manager.py` doesn't persist conversation context well
+- **Solution:**
+  - Implement sliding window context
+  - Store recent exchanges in session
+  - Use summary worker for long conversations
+- **Priority:** MEDIUM - improves LLM interaction quality
+
+### 7. System Monitor Service
+- **Problem:** `graph_logging/system_monitor.py` exists but not running as service
+- **Solution:**
+  - Create `mythos-monitor.service`
+  - Configure collection intervals
+  - Verify Neo4j event storage
+- **Priority:** LOW - nice-to-have for diagnostics
+
+### 8. Qdrant Collection Setup
+- **Problem:** Embedding worker references Qdrant but collection may not exist
+- **Solution:**
+  - Verify/create `text_embeddings` collection
+  - Add collection initialization to worker startup
+  - Document Qdrant setup
+- **Priority:** LOW - embeddings not actively used yet
+
+---
+
+## 📋 Backlog (Planned Features)
+
+### Finance Enhancements
+- [ ] Recurring transaction detection
+- [ ] Budget alerts per category
+- [ ] Weekly spending digest via Telegram
+- [ ] Plaid API integration (real-time bank sync)
+- [ ] Receipt photo matching to transactions
+
+### Sales System Enhancements
+- [ ] Batch photo upload (more than 3 at a time)
+- [ ] Price suggestion based on sold history
+- [ ] Auto-post to multiple marketplaces
+- [ ] Inventory aging alerts
+- [ ] Sales analytics dashboard
+
+### Conversation System
+- [ ] Implement Tier 1/Tier 2 summary system
+- [ ] Semantic search across past conversations
+- [ ] Topic extraction and tracking
+- [ ] Emotional state timeline
+
+### Graph Database
+- [ ] Lineage visualization web UI
+- [ ] Incarnation timeline view
+- [ ] Entity relationship explorer
+- [ ] Automated fact extraction from conversations
+
+### Infrastructure
+- [ ] Backup automation (PostgreSQL + Neo4j)
+- [ ] Log rotation for all services
+- [ ] Health check endpoint aggregator
+- [ ] Prometheus/Grafana metrics (optional)
+
+### AI/LLM
+- [ ] Fine-tune local model on Mythos data
+- [ ] Tool calling for db_manager (vs prompt-based Cypher)
+- [ ] RAG pipeline for knowledge retrieval
+- [ ] Voice input via Telegram voice messages
 
 ---
 
 ## ✅ Completed
 
 ### 2026-01-24
-- [x] Sunmark parser improvement - clean descriptions with (POS)/(ATM)/(EXT) tags (patch_0018)
-- [x] Added patch history tracking to TODO.md (patch_0019)
-- [x] Diagnosed `/patch_status` Markdown parsing failure
-- [x] Root cause: underscores in filenames interpreted as italic markers
-- [x] Fix: Switched all patch handlers to HTML parse mode
-- [x] Created project documentation system (TODO.md, ARCHITECTURE.md)
-- [x] Documented diagnostic workflow pattern
+- [x] Comprehensive system audit
+- [x] ARCHITECTURE.md rewrite (v2.0.0)
+- [x] TODO.md overhaul with gaps analysis
+- [x] Patch history tracking added
+- [x] Sunmark description cleanup (patch_0018)
 
 ### 2026-01-23
-- [x] Patch system installed (patch_0010 through patch_0015)
-- [x] Auto-detect and install patches from ~/Downloads
-- [x] Git versioning with pre/post tags
-- [x] GitHub push on each patch
-- [x] Telegram commands for patch management
-- [x] Finance system schema with 100+ category mappings
+- [x] Patch system with auto-deploy (patch_0010-0017)
+- [x] Finance system - imports, categories, reports (patch_0015)
 - [x] USAA and Sunmark CSV parsers
-- [x] Import script with duplicate detection
+- [x] 682 transactions imported
+- [x] 199 category mappings
+
+### Earlier
+- [x] Telegram bot with multi-mode support
+- [x] FastAPI gateway with orchestrator
+- [x] 6 async workers (vision, embedding, grid, entity, temporal, summary)
+- [x] Sales intake pipeline (photo → vision → DB → export)
+- [x] Neo4j graph schema for souls, persons, conversations
+- [x] Graph logging with causal event tracking
+- [x] `mythos-ask` LLM diagnostic CLI
+- [x] Vision module with llava integration
 
 ---
 
 ## 💡 Ideas (Unplanned)
 
-- Web dashboard for finance data
-- Scheduled reports via Telegram
-- Integration with actual bank APIs (Plaid?)
-- Receipt photo scanning and matching to transactions
-- Voice commands via Telegram voice messages
-- Local LLM for transaction categorization suggestions
+- Web dashboard for all Mythos data
+- Mobile app (React Native)
+- Integration with Obsidian vault
+- Astrological event correlation
+- Dream journal with pattern detection
+- Automated spiritual practice reminders
+- Integration with calendar (Google/Apple)
+- Genealogy GEDCOM export
+- Public API for trusted partners
 
 ---
 
@@ -117,12 +192,6 @@
 
 ### Diagnostic Dump Pattern
 
-When Claude needs information from Arcturus, it provides a single copy-paste command block that:
-1. Clears `~/diag.txt`
-2. Runs diagnostic commands, appending output with headers
-3. Copies result to clipboard via `xclip`
-
-**Standard format:**
 ```bash
 D=~/diag.txt; > "$D"
 echo "=== SECTION HEADER ===" >> "$D"
@@ -132,64 +201,30 @@ echo -e "\n\n=== NEXT SECTION ===" >> "$D"
 cat "$D" | xclip -selection clipboard && echo "✓ Copied to clipboard"
 ```
 
-**Key points:**
-- `D=~/diag.txt; > "$D"` - Sets variable and truncates file (creates if doesn't exist)
-- Each section has a clear header
-- `2>&1` captures both stdout and stderr
-- Final line copies to clipboard for easy paste back to Claude
-- User can also `cat ~/diag.txt` or open in VS Code if preferred
-
 ### Patch Deployment Pattern
 
-1. Claude creates patch files in `/home/claude/patch_NNNN_description/`
-2. Claude zips and copies to `/mnt/user-data/outputs/`
-3. User downloads zip to local machine
-4. User copies zip to `~/Downloads` on Arcturus
-5. Patch monitor auto-detects, extracts, versions, installs, pushes to GitHub
-6. User verifies via `/patch_status` in Telegram
+1. Claude creates `patch_NNNN_description/` with files and `install.sh`
+2. Claude zips and provides download
+3. User downloads → copies to `~/Downloads` on Arcturus
+4. Patch monitor auto-detects → git tag → extract → commit → version → push → install
+5. Verify via `/patch_status`
 
-### Manual File Deployment (Non-Patch)
+### Session Start Pattern
 
-For quick fixes that don't need full patch versioning:
-```bash
-# Download file from Claude to local machine
-# Copy to Arcturus
-scp ~/Downloads/file.py arcturus:/opt/mythos/path/
-
-# Or if already on Arcturus
-cp ~/Downloads/file.py /opt/mythos/path/
-
-# Restart relevant service
-sudo systemctl restart mythos-bot.service
-```
-
-### Conversation Continuity Pattern
-
-When starting a new Claude conversation about Mythos:
-1. Claude should check for `/opt/mythos/docs/TODO.md` to see current state
-2. Claude should check for `/opt/mythos/docs/ARCHITECTURE.md` to understand system
-3. User provides context: "continuing work on [topic]" or "let's pick up where we left off"
-4. Claude can request diagnostic dump if needed to verify current state
-
----
-
-## 📝 Notes
-
-- Bot runs as systemd service: `mythos-bot.service`
-- Patch monitor runs as systemd service: `mythos-patch-monitor.service`
-- All patches should be named: `patch_NNNN_description.zip`
-- Finance CSVs go in: `/opt/mythos/finance/accounts/`
-- Diagnostic file: `~/diag.txt` (overwritten each diagnostic run)
-- Never delete TODO items - mark completed or move to "Dropped" section
+When starting a new Claude conversation:
+1. Provide handoff prompt or "continuing Mythos work on [topic]"
+2. Claude requests diagnostic dump for TODO.md and ARCHITECTURE.md
+3. Claude reviews current state before proceeding
 
 ---
 
 ## 📦 Patch History
 
-> **Next Patch Number: 0020**
+> **Next Patch Number: 0021**
 
 | Patch | Date | Description |
 |-------|------|-------------|
+| 0020 | 2026-01-24 | Comprehensive documentation overhaul |
 | 0019 | 2026-01-24 | Added patch history to TODO.md |
 | 0018 | 2026-01-24 | Sunmark description cleanup - (POS)/(ATM)/(EXT) tags |
 | 0017 | 2026-01-24 | Project docs updated |
@@ -201,14 +236,14 @@ When starting a new Claude conversation about Mythos:
 | 0011 | 2026-01-23 | Test patch |
 | 0010 | 2026-01-23 | GitHub patch system |
 
-*When creating a new patch, increment the number and add a row here.*
+*Increment patch number and add row when creating new patches.*
 
 ---
 
 ## ❌ Dropped (Abandoned Ideas)
 
-*Nothing dropped yet - this section holds ideas we explicitly decided not to pursue*
+*Nothing dropped yet - this section holds ideas we explicitly decided not to pursue.*
 
 ---
 
-*This file is auto-committed with each patch. Never delete items - mark as completed or move to Dropped section if abandoned.*
+*This file is auto-committed with each patch. Never delete items - mark as completed or move to Dropped.*
