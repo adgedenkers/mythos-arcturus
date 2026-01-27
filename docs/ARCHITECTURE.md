@@ -1,7 +1,7 @@
 # Mythos System Architecture
 
-> **Version:** 2.0.0
-> **Last Updated:** 2026-01-24
+> **Version:** 2.1.0
+> **Last Updated:** 2026-01-27
 > **Host:** arcturus (Ubuntu 24.04)
 
 ---
@@ -17,6 +17,36 @@
 
 ---
 
+## 🚨 Core Design Principles
+
+### Principle 1: Everything Goes Through the API Gateway
+
+**This is non-negotiable.** All message processing, regardless of mode, MUST flow through the FastAPI gateway (`/message` endpoint). Never bypass the API to call Ollama or other services directly from the Telegram bot.
+
+```
+✅ CORRECT:
+Telegram Bot → API Gateway (/message) → Assistant → Ollama/Neo4j/etc.
+
+❌ WRONG:
+Telegram Bot → Ollama directly (bypasses logging, context, future features)
+```
+
+**Why this matters:**
+- **Logging & Auditing:** All interactions recorded in one place
+- **Context Management:** Conversation history, user state, session tracking
+- **Future Extensibility:** RAG, tool use, memory retrieval, guardrails
+- **Consistency:** Same code path for all clients (Telegram, web, API consumers)
+
+### Principle 2: Assistants Are Stateless Classes
+
+Each assistant (ChatAssistant, DatabaseManager, etc.) is instantiated once at API startup. User context is passed per-request via `set_user()`. Conversation context is maintained in-memory keyed by user UUID.
+
+### Principle 3: Workers Handle Async/Heavy Tasks
+
+Long-running or background tasks (vision analysis, embeddings, summaries) go through Redis streams to workers. The API dispatches and returns immediately.
+
+---
+
 ## System Overview
 
 ```
@@ -25,51 +55,106 @@
 │                             (Ubuntu 24.04 / x86_64)                                 │
 ├─────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                      │
-│   ┌──────────────┐      ┌──────────────┐      ┌──────────────┐                      │
-│   │   Telegram   │      │    FastAPI   │      │    Patch     │                      │
-│   │     Bot      │─────▶│   Gateway    │      │   Monitor    │                      │
-│   │              │      │   :8000      │      │              │                      │
-│   └──────┬───────┘      └──────┬───────┘      └──────────────┘                      │
-│          │                     │                                                     │
-│          │    ┌────────────────┴────────────────┐                                   │
-│          │    │          ORCHESTRATOR           │                                   │
-│          │    │     (Redis Stream Dispatch)     │                                   │
-│          │    └────────────────┬────────────────┘                                   │
-│          │                     │                                                     │
-│          │    ┌────────────────┼────────────────┐                                   │
-│          │    │                │                │                                    │
-│          ▼    ▼                ▼                ▼                                    │
-│   ┌────────────────────────────────────────────────────────────────┐                │
-│   │                      WORKER POOL (6 workers)                   │                │
-│   │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐  │                │
-│   │  │ Vision  │ │Embedding│ │  Grid   │ │ Entity  │ │Temporal │  │                │
-│   │  │ Worker  │ │ Worker  │ │ Worker  │ │ Worker  │ │ Worker  │  │                │
-│   │  │ (llava) │ │(MiniLM) │ │ (qwen)  │ │         │ │         │  │                │
-│   │  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘  │                │
-│   │       │           │           │           │           │       │                │
-│   └───────┼───────────┼───────────┼───────────┼───────────┼───────┘                │
-│           │           │           │           │           │                         │
-│           └───────────┴─────┬─────┴───────────┴───────────┘                         │
-│                             │                                                        │
-│   ┌─────────────────────────┼─────────────────────────────────┐                     │
-│   │                    DATA LAYER                              │                     │
-│   │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │                     │
-│   │  │PostgreSQL│  │  Neo4j   │  │  Redis   │  │  Qdrant  │   │                     │
-│   │  │ :5432    │  │  :7687   │  │  :6379   │  │  :6333   │   │                     │
-│   │  │ mythos   │  │  mythos  │  │ streams  │  │embeddings│   │                     │
-│   │  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │                     │
-│   └────────────────────────────────────────────────────────────┘                     │
+│   ┌──────────────┐                                                                  │
+│   │   Telegram   │                                                                  │
+│   │     Bot      │─────────┐                                                        │
+│   │              │         │                                                        │
+│   └──────────────┘         │                                                        │
+│                            ▼                                                        │
+│   ┌──────────────┐   ┌─────────────────────────────────────────────┐               │
+│   │  Future Web  │   │              API GATEWAY                    │               │
+│   │   Clients    │──▶│           FastAPI :8000                     │               │
+│   └──────────────┘   │                                             │               │
+│                      │  /message ──▶ Routes to Assistants          │               │
+│   ┌──────────────┐   │  /user    ──▶ User lookup                   │               │
+│   │  API Users   │──▶│  /sales   ──▶ Sales endpoints               │               │
+│   └──────────────┘   │  /chat/*  ──▶ Chat context management       │               │
+│                      └───────────────────┬─────────────────────────┘               │
+│                                          │                                          │
+│            ┌─────────────────────────────┼─────────────────────────┐               │
+│            │                             │                         │                │
+│            ▼                             ▼                         ▼                │
+│   ┌─────────────────┐   ┌─────────────────────┐   ┌─────────────────────┐          │
+│   │ ChatAssistant   │   │  DatabaseManager    │   │  (Future Assistants)│          │
+│   │                 │   │                     │   │                     │          │
+│   │ • General chat  │   │ • NL → Cypher/SQL   │   │ • SerapheAssistant  │          │
+│   │ • Context mgmt  │   │ • Query execution   │   │ • GenealogyAssistant│          │
+│   │ • Model routing │   │ • Result formatting │   │ • etc.              │          │
+│   └────────┬────────┘   └──────────┬──────────┘   └─────────────────────┘          │
+│            │                       │                                                │
+│            └───────────┬───────────┘                                                │
+│                        ▼                                                            │
+│            ┌───────────────────────┐                                               │
+│            │    OLLAMA (LLM)       │                                               │
+│            │    localhost:11434    │                                               │
+│            └───────────────────────┘                                               │
 │                                                                                      │
-│   ┌──────────────────────────────────────────┐                                      │
-│   │              OLLAMA (Local LLM)          │                                      │
-│   │  • qwen2.5:32b    (text, 19GB)           │                                      │
-│   │  • llava:34b      (vision, 20GB)         │                                      │
-│   │  • deepseek-coder-v2:16b (code, 8.9GB)   │                                      │
-│   │  • llama3.2:3b    (fast, 2GB)            │                                      │
-│   └──────────────────────────────────────────┘                                      │
+│   ┌─────────────────────────────────────────────────────────────────────┐          │
+│   │                     ORCHESTRATOR (Redis Streams)                     │          │
+│   │                                                                      │          │
+│   │   For async/heavy tasks only:                                       │          │
+│   │   • Vision analysis (photos)                                        │          │
+│   │   • Embedding generation                                            │          │
+│   │   • Summary rebuilds                                                │          │
+│   │   • Entity resolution                                               │          │
+│   └─────────────────────────────────────────────────────────────────────┘          │
 │                                                                                      │
-└─────────────────────────────────────────────────────────────────────────────────────┘
+│   ┌─────────────────────────────────────────────────────────────────────┐          │
+│   │                           DATA LAYER                                 │          │
+│   │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │          │
+│   │  │PostgreSQL│  │  Neo4j   │  │  Redis   │  │  Qdrant  │            │          │
+│   │  │ :5432    │  │  :7687   │  │  :6379   │  │  :6333   │            │          │
+│   │  └──────────┘  └──────────┘  └──────────┘  └──────────┘            │          │
+│   └─────────────────────────────────────────────────────────────────────┘          │
+│                                                                                      │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Message Flow (Critical Path)
+
+Every user message follows this exact path:
+
+```
+1. User sends message via Telegram
+                │
+                ▼
+2. Bot receives message (mythos_bot.py)
+   - Validates user session
+   - Determines mode (chat/db/sell/etc.)
+   - Does NOT process LLM requests directly
+                │
+                ▼
+3. Bot calls API Gateway
+   POST /message
+   {
+     "user_id": "123456",
+     "message": "why is the sky blue?",
+     "mode": "chat",
+     "model_preference": "auto"
+   }
+                │
+                ▼
+4. API Gateway routes to Assistant
+   - chat → ChatAssistant.query()
+   - db   → DatabaseManager.query()
+   - etc.
+                │
+                ▼
+5. Assistant processes request
+   - Builds context (conversation history)
+   - Calls Ollama
+   - Returns response
+                │
+                ▼
+6. API returns response to Bot
+                │
+                ▼
+7. Bot sends response to user via Telegram
+```
+
+**The bot is a thin client.** It handles Telegram-specific concerns (photos, commands, session state) but delegates all LLM processing to the API.
 
 ---
 
@@ -77,24 +162,23 @@
 
 ### 1. Telegram Bot (`mythos-bot.service`)
 
-Multi-mode conversational interface with photo handling.
+**Role:** Thin client / interface layer. Handles Telegram protocol, routes to API.
 
 **Modes:**
-| Mode | Description | Handler |
-|------|-------------|---------|
-| `db` | Natural language database queries | `db_manager.py` → Ollama → Neo4j/Postgres |
-| `seraphe` | Cosmology assistant | Planned |
-| `genealogy` | Bloodline research | Planned |
-| `chat` | General conversation | Ollama direct |
-| `sell` | Item intake via photos | `sell_mode.py` → Vision → DB |
+| Mode | Description | API Route |
+|------|-------------|-----------|
+| `chat` | General conversation (default) | `/message` → ChatAssistant |
+| `db` | Natural language database queries | `/message` → DatabaseManager |
+| `sell` | Item intake via photos | Local + Vision Worker |
+| `seraphe` | Cosmology assistant | `/message` → (planned) |
+| `genealogy` | Bloodline research | `/message` → (planned) |
 
 **Key Commands:**
 - `/mode <mode>` - Switch modes
 - `/model auto|fast|deep` - Select LLM routing
-- `/convo` / `/endconvo` - Tracked conversations
-- `/inventory` - View items for sale
-- `/export` - Generate FB Marketplace listings
-- `/patch_status` - System patch status
+- `/status` - Current mode, context, activity
+- `/clear` - Reset chat context
+- `/help` - Command reference
 
 **Files:**
 - `/opt/mythos/telegram_bot/mythos_bot.py` - Main entry point
@@ -102,57 +186,73 @@ Multi-mode conversational interface with photo handling.
 
 ---
 
-### 2. FastAPI Gateway (`mythos-api.service`)
+### 2. API Gateway (`mythos-api.service`)
 
-REST API for internal service communication.
+**Role:** Central routing layer. ALL message processing goes through here.
 
 **Endpoints:**
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/` | GET | Service status |
+| `/` | GET | Service status, assistant availability |
 | `/health` | GET | Health check |
-| `/message` | POST | Process message through assistant |
-| `/user/{id}` | GET | Get user info |
-| `/media/upload` | POST | Register uploaded media |
+| `/message` | POST | **Primary endpoint** - routes to assistants |
+| `/user/{id}` | GET | User lookup |
+| `/chat/clear/{id}` | POST | Clear chat context |
+| `/chat/stats/{id}` | GET | Chat context statistics |
 | `/sales/*` | Various | Sales intake API |
 
 **Authentication:** API key via `X-API-Key` header
 
 **Files:**
-- `/opt/mythos/api/main.py` - FastAPI app
+- `/opt/mythos/api/main.py` - FastAPI app + routing logic
 - `/opt/mythos/api/orchestrator.py` - Redis stream dispatcher
 - `/opt/mythos/api/routes/sales.py` - Sales endpoints
 
 ---
 
-### 3. Worker System
+### 3. Assistants (`/opt/mythos/assistants/`)
 
-Async processing via Redis streams with dedicated systemd services.
+**Role:** Mode-specific processing logic. Called by API gateway.
 
-**Architecture:**
+| Assistant | File | Purpose |
+|-----------|------|---------|
+| `ChatAssistant` | `chat_assistant.py` | General conversation, context management |
+| `DatabaseManager` | `db_manager.py` | NL → Cypher/SQL, query execution |
+| `SerapheAssistant` | (planned) | Cosmology, symbolism, spiritual guidance |
+| `GenealogyAssistant` | (planned) | Bloodline tracing, family trees |
+
+**Pattern:**
+```python
+class SomeAssistant:
+    def __init__(self):
+        # Initialize connections, load prompts
+        
+    def set_user(self, user_info: dict):
+        # Set current user context
+        
+    def query(self, message: str, **kwargs) -> str:
+        # Process message, return response
 ```
-Orchestrator.dispatch(type, payload)
-        │
-        ▼
-Redis Stream (mythos:assignments:<type>)
-        │
-        ▼
-Worker (mythos-worker-<type>.service)
-        │
-        ▼
-Result → PostgreSQL/Neo4j/Qdrant
-```
+
+---
+
+### 4. Worker System (Async Tasks)
+
+**Role:** Handle long-running or background tasks via Redis streams.
+
+**When to use workers vs. direct calls:**
+- **Workers:** Vision analysis, embeddings, summaries (seconds to minutes)
+- **Direct:** Chat, DB queries (sub-second to seconds)
 
 **Workers:**
-
-| Worker | Stream | Function | Output |
-|--------|--------|----------|--------|
-| `vision` | `mythos:assignments:vision` | Analyze photos via llava | PostgreSQL `media_files` |
-| `embedding` | `mythos:assignments:embedding` | Text → vector (MiniLM-L6-v2) | Qdrant `text_embeddings` |
-| `grid` | `mythos:assignments:grid_analysis` | 9-node consciousness analysis | PostgreSQL timeseries |
-| `entity` | `mythos:assignments:entity` | Entity resolution to canonical | Neo4j nodes |
-| `temporal` | `mythos:assignments:temporal` | Date/time extraction | PostgreSQL + astro links |
-| `summary` | `mythos:assignments:summary_rebuild` | Conversation summarization | PostgreSQL |
+| Worker | Stream | Function |
+|--------|--------|----------|
+| `vision` | `mythos:assignments:vision` | Photo analysis via llava |
+| `embedding` | `mythos:assignments:embedding` | Text → vector |
+| `grid` | `mythos:assignments:grid_analysis` | 9-node consciousness |
+| `entity` | `mythos:assignments:entity` | Entity resolution |
+| `temporal` | `mythos:assignments:temporal` | Date/time extraction |
+| `summary` | `mythos:assignments:summary_rebuild` | Conversation summaries |
 
 **Files:**
 - `/opt/mythos/workers/worker.py` - Worker framework
@@ -161,7 +261,7 @@ Result → PostgreSQL/Neo4j/Qdrant
 
 ---
 
-### 4. Vision System
+### 5. Vision System
 
 Photo analysis using Ollama vision models.
 
@@ -170,177 +270,47 @@ Photo analysis using Ollama vision models.
 Photo → Base64 encode → Ollama llava:34b → JSON extraction → Database
 ```
 
-**Capabilities:**
-- Sales item analysis (brand, size, condition, price estimation)
-- General image description
-- Symbol/sacred geometry detection
-- Text extraction (OCR-like)
-
-**Configuration:**
-```python
-# /opt/mythos/vision/config.py
-VisionConfig:
-    ollama_host: "http://localhost:11434"
-    ollama_model: "llava:34b"
-    timeout: 120  # seconds
-```
-
-**Prompts:** `/opt/mythos/vision/prompts/`
-- `sales.py` - Item analysis for marketplace
-- `symbols.py` - Sacred geometry detection
-- `documents.py` - Document analysis
-- `journal.py` - Journal entry analysis
-
 **Files:**
-- `/opt/mythos/vision/core.py` - `analyze_image()` and `analyze_image_async()`
+- `/opt/mythos/vision/core.py` - `analyze_image()`
 - `/opt/mythos/vision/config.py` - Configuration
-- `/opt/mythos/vision/prompts/` - Prompt templates
+- `/opt/mythos/vision/prompts/` - LLM prompts
 
 ---
 
-### 5. Sales Intake System
+### 6. Sales Intake System
 
 Photo-to-marketplace pipeline for reselling items.
 
 **Flow:**
 ```
-Telegram Photo (x3)
-        │
-        ▼
-/opt/mythos/intake/pending/<uuid>/
-        │
-        ▼
-Vision Analysis (llava:34b + sales.ITEM_ANALYSIS prompt)
-        │
-        ▼
-PostgreSQL: items_for_sale + item_images
-        │
-        ▼
-/opt/mythos/assets/images/<sha256-shard>/<sha256>.jpeg
-        │
-        ▼
-/export → FB Marketplace formatted listing
+Telegram Photo (x3) → Vision Worker → PostgreSQL → /export → FB Marketplace
 ```
-
-**Database Tables:**
-- `items_for_sale` - Item metadata, pricing, status
-- `item_images` - Photo records with SHA256 asset paths
-
-**Statuses:** `available` → `listed` → `sold`
 
 **Files:**
 - `/opt/mythos/telegram_bot/handlers/sell_mode.py` - Telegram sell mode
 - `/opt/mythos/telegram_bot/handlers/export_handler.py` - Marketplace export
-- `/opt/mythos/vision/prompts/sales.py` - Analysis prompts
 
 ---
 
-### 6. Finance System
+### 7. Finance System
 
 Bank transaction import and categorization.
-
-**Supported Banks:**
-- USAA (CSV with categories)
-- Sunmark Credit Union (CSV with memo field)
-
-**Flow:**
-```
-Bank CSV → Parser → Category Mapping → PostgreSQL transactions
-```
-
-**Features:**
-- Auto-detection of bank format
-- Duplicate detection via hash
-- Pattern-based auto-categorization (199+ mappings)
-- CLI reports
 
 **Files:**
 - `/opt/mythos/finance/parsers.py` - Bank-specific parsers
 - `/opt/mythos/finance/import_transactions.py` - Import CLI
 - `/opt/mythos/finance/reports.py` - Report generation
 
-**Usage:**
-```bash
-cd /opt/mythos/finance
-python import_transactions.py accounts/usaa_2026_01.csv --account-id 2 --dry-run
-python reports.py summary
-```
-
 ---
 
-### 7. Graph Logging & Diagnostics
-
-System monitoring with causal event tracking in Neo4j.
-
-**Components:**
-- `EventLogger` - Writes events to Neo4j with auto-causality linking
-- `Diagnostics` - Query interface for AI-powered troubleshooting
-- `system_monitor.py` - Collects metrics (CPU, memory, disk, processes)
-
-**Event Types:**
-- `high_cpu`, `high_memory`, `low_disk`
-- `service_failure`, `service_stopped`
-- `connection_error`, `backup_failed`
-
-**LLM Interface:**
-```bash
-mythos-ask "why did neo4j backup fail?"
-mythos-ask "what's using memory?"
-```
-
-**Files:**
-- `/opt/mythos/graph_logging/src/event_logger.py` - Event logging
-- `/opt/mythos/graph_logging/src/diagnostics.py` - Query interface
-- `/opt/mythos/llm_diagnostics/src/mythos_ask.py` - CLI tool
-
----
-
-### 8. Database Manager (db mode)
-
-Natural language → Cypher/SQL query generation.
-
-**Flow:**
-```
-User question → Ollama (qwen2.5:32b) → Cypher query → Neo4j → Formatted response
-```
-
-**Capabilities:**
-- Query souls, persons, incarnations, lineages
-- Genealogy traversal (PARENT_OF, SPOUSE_OF)
-- Context-aware pronoun resolution
-
-**Files:**
-- `/opt/mythos/assistants/db_manager.py` - Main class
-- System prompt loaded from `~/main-vault/systems/arcturus/prompts/db_mode_prompt.md`
-
----
-
-### 9. Patch System
+### 8. Patch System
 
 Automated deployment with Git versioning.
 
 **Flow:**
 ```
-Claude creates patch_NNNN_description.zip
-        │
-        ▼
-User downloads → copies to ~/Downloads on Arcturus
-        │
-        ▼
-mythos-patch-monitor.service detects file
-        │
-        ▼
-Git tag (pre-patch) → Extract → Commit → Version tag → Push → install.sh
-        │
-        ▼
-Archive to /opt/mythos/patches/archive/
+Claude creates patch.zip → User downloads → ~/Downloads → Auto-detect → Git tag → Install
 ```
-
-**Commands:**
-- `/patch_status` - Current version and recent activity
-- `/patch_list` - Available patches
-- `/patch_apply <name>` - Manual apply
-- `/patch_rollback` - Rollback options
 
 **Files:**
 - `/opt/mythos/mythos_patch_monitor.py` - File watcher daemon
@@ -360,90 +330,45 @@ Archive to /opt/mythos/patches/archive/
 │   ├── TODO.md                   # Living work journal
 │   └── ARCHITECTURE.md           # This file
 │
-├── telegram_bot/                 # Telegram bot
-│   ├── mythos_bot.py             # Main entry point
-│   └── handlers/                 # Command handlers
-│       ├── sell_mode.py          # Photo intake for sales
-│       ├── export_handler.py     # Marketplace export
-│       └── patch_handlers.py     # Patch management
-│
-├── api/                          # FastAPI service
-│   ├── main.py                   # App entry point
+├── api/                          # FastAPI service (CENTRAL HUB)
+│   ├── main.py                   # App entry + routing
 │   ├── orchestrator.py           # Redis dispatcher
 │   └── routes/                   # API routes
 │
+├── assistants/                   # LLM assistants (called by API)
+│   ├── chat_assistant.py         # General chat
+│   └── db_manager.py             # Database queries
+│
+├── telegram_bot/                 # Telegram bot (thin client)
+│   ├── mythos_bot.py             # Main entry point
+│   └── handlers/                 # Command handlers
+│
 ├── workers/                      # Async workers
 │   ├── worker.py                 # Framework
-│   ├── vision_worker.py          # Photo analysis
-│   ├── embedding_worker.py       # Text embeddings
-│   ├── grid_worker.py            # 9-node analysis
-│   ├── entity_worker.py          # Entity resolution
-│   ├── temporal_worker.py        # Date extraction
-│   └── summary_worker.py         # Summarization
+│   └── *_worker.py               # Individual workers
 │
 ├── vision/                       # Vision module
-│   ├── core.py                   # analyze_image()
-│   ├── config.py                 # Configuration
-│   └── prompts/                  # LLM prompts
-│       ├── sales.py              # Item analysis
-│       ├── symbols.py            # Sacred geometry
-│       └── ...
-│
 ├── finance/                      # Finance system
-│   ├── parsers.py                # Bank CSV parsers
-│   ├── import_transactions.py    # Import CLI
-│   ├── reports.py                # Reports CLI
-│   └── accounts/                 # CSV files (gitignored)
-│
-├── assistants/                   # LLM assistants
-│   └── db_manager.py             # Database query assistant
-│
 ├── graph_logging/                # Neo4j event logging
-│   ├── src/
-│   │   ├── event_logger.py       # Event writer
-│   │   ├── diagnostics.py        # Query interface
-│   │   └── system_monitor.py     # Metrics collector
-│   └── config/
-│
-├── llm_diagnostics/              # LLM diagnostic tools
-│   └── src/
-│       └── mythos_ask.py         # CLI tool
-│
 ├── intake/                       # Sales intake staging
-│   ├── pending/                  # Photos awaiting processing
-│   └── processed/                # Completed intakes
-│
 ├── assets/                       # Permanent asset storage
-│   └── images/                   # SHA256-sharded images
-│
-├── patches/                      # Patch system
-│   ├── archive/                  # Processed zips
-│   └── logs/                     # Application logs
-│
-├── media/                        # User media uploads
-│
-└── mythos_patch_monitor.py       # Patch watcher daemon
+└── patches/                      # Patch system
 ```
 
 ---
 
 ## Services
 
-| Service | Port | Description | Restart |
-|---------|------|-------------|---------|
-| `mythos-bot.service` | - | Telegram bot (polling) | always |
-| `mythos-api.service` | 8000 | FastAPI gateway | always |
-| `mythos-patch-monitor.service` | - | Patch file watcher | always |
-| `mythos-worker-vision.service` | - | Vision analysis | always |
-| `mythos-worker-embedding.service` | - | Text embeddings | always |
-| `mythos-worker-grid.service` | - | Grid analysis | always |
-| `mythos-worker-entity.service` | - | Entity resolution | always |
-| `mythos-worker-temporal.service` | - | Temporal extraction | always |
-| `mythos-worker-summary.service` | - | Summarization | always |
-| `postgresql` | 5432 | Primary database | system |
-| `neo4j` | 7474/7687 | Graph database | system |
-| `redis` | 6379 | Job queues | system |
-| `ollama` | 11434 | Local LLM | system |
+| Service | Port | Description |
+|---------|------|-------------|
+| `mythos-api.service` | 8000 | **API Gateway** (central hub) |
+| `mythos-bot.service` | - | Telegram bot |
+| `mythos-patch-monitor.service` | - | Patch file watcher |
+| `mythos-worker-*.service` | - | Async workers (6 total) |
+| `postgresql` | 5432 | Primary database |
+| `neo4j` | 7474/7687 | Graph database |
+| `redis` | 6379 | Job queues |
+| `ollama` | 11434 | Local LLM |
 
 ---
 
@@ -451,93 +376,18 @@ Archive to /opt/mythos/patches/archive/
 
 ### PostgreSQL: `mythos`
 
-**Core Tables:**
-| Table | Description |
-|-------|-------------|
-| `users` | System users with Telegram IDs |
-| `chat_messages` | Conversation messages |
-| `media_files` | Uploaded media metadata |
-
-**Finance Tables:**
-| Table | Description |
-|-------|-------------|
-| `accounts` | Bank accounts |
-| `transactions` | All transactions |
-| `categories` | Category definitions |
-| `category_mappings` | Auto-categorization patterns |
-| `import_logs` | Import history |
-
-**Sales Tables:**
-| Table | Description |
-|-------|-------------|
-| `items_for_sale` | Item metadata and pricing |
-| `item_images` | Photo records |
-| `sales` | Completed sales |
-
-**Timeseries Tables:**
-| Table | Description |
-|-------|-------------|
-| `grid_activation_timeseries` | 9-node analysis results |
-| `emotional_state_timeseries` | Emotional tracking |
-| `entity_mention_timeseries` | Entity mentions over time |
+**Core Tables:** `users`, `chat_messages`, `media_files`
+**Finance Tables:** `accounts`, `transactions`, `categories`, `category_mappings`
+**Sales Tables:** `items_for_sale`, `item_images`, `sales`
 
 ### Neo4j: `mythos`
 
-**Node Labels:**
-| Label | Description |
-|-------|-------------|
-| `Soul` | Spiritual entities |
-| `Person` | Physical people |
-| `Incarnation` | Soul manifestations |
-| `Lifetime` | Life spans |
-| `Alias` | Alternative names |
-| `Conversation` | Chat sessions |
-| `Exchange` | Message pairs |
-| `Topic` | Discussion topics |
-| `Concept` | Abstract concepts |
-| `Fact` | Extracted facts |
-| `System` | Monitored systems |
-| `Service` | Systemd services |
-| `Process` | Running processes |
-| `Event` | System events |
-| `Metric` | System metrics |
-| `File` | Filesystem files |
-| `Directory` | Filesystem directories |
-| `Function` | Code functions |
-| `GitRepo` | Git repositories |
-
-**Key Relationships:**
-| Relationship | Description |
-|--------------|-------------|
-| `CURRENTLY_EMBODIED_AS` | Soul → Person (active) |
-| `INCARNATED_AS` | Soul → Incarnation |
-| `MANIFESTED_AS` | Soul → Lifetime |
-| `PARENT_OF` | Person → Person |
-| `SPOUSE_OF` | Person ↔ Person |
-| `KNOWN_AS` | Person/Soul → Alias |
-| `HAD_CONVERSATION` | Person → Conversation |
-| `CONTAINS` | Conversation → Exchange |
-| `MENTIONED` | Exchange → Entity |
-| `MAY_HAVE_CAUSED` | Event → Event |
-| `RUNS_SERVICE` | System → Service |
-| `RUNS` | System → Process |
+**Node Labels:** `Soul`, `Person`, `Incarnation`, `Conversation`, `Exchange`, etc.
+**Key Relationships:** `CURRENTLY_EMBODIED_AS`, `PARENT_OF`, `SPOUSE_OF`, etc.
 
 ### Redis Streams
 
-| Stream | Purpose |
-|--------|---------|
-| `mythos:assignments:vision` | Photo analysis jobs |
-| `mythos:assignments:embedding` | Embedding generation jobs |
-| `mythos:assignments:grid_analysis` | Grid analysis jobs |
-| `mythos:assignments:entity` | Entity resolution jobs |
-| `mythos:assignments:temporal` | Temporal extraction jobs |
-| `mythos:assignments:summary_rebuild` | Summary rebuild jobs |
-
-### Qdrant Collections
-
-| Collection | Dimensions | Purpose |
-|------------|------------|---------|
-| `text_embeddings` | 384 | MiniLM-L6-v2 text vectors |
+Job queues for async workers: `mythos:assignments:<type>`
 
 ---
 
@@ -545,49 +395,10 @@ Archive to /opt/mythos/patches/archive/
 
 | Model | Size | Purpose |
 |-------|------|---------|
-| `qwen2.5:32b` | 19GB | Primary text (db mode, grid analysis) |
+| `qwen2.5:32b` | 19GB | Primary text (chat, db mode) |
 | `llava:34b` | 20GB | Vision analysis |
-| `llava-llama3` | 5.5GB | Fast vision |
+| `llama3.2:3b` | 2GB | Fast responses |
 | `deepseek-coder-v2:16b` | 8.9GB | Code generation |
-| `llama3.2:3b` | 2GB | Fast responses, diagnostics |
-
----
-
-## Environment Variables
-
-```bash
-# /opt/mythos/.env
-
-# Neo4j
-NEO4J_URI=bolt://localhost:7687
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=<secret>
-
-# PostgreSQL
-POSTGRES_HOST=/var/run/postgresql
-POSTGRES_DB=mythos
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=<secret>
-
-# Ollama
-OLLAMA_HOST=http://localhost:11434
-OLLAMA_MODEL=qwen2.5:32b
-OLLAMA_VISION_MODEL=llava:34b
-
-# Telegram
-TELEGRAM_BOT_TOKEN=<secret>
-TELEGRAM_ID_KA=<id>
-TELEGRAM_ID_SERAPHE=<id>
-
-# API Keys
-API_KEY_TELEGRAM_BOT=<secret>
-API_KEY_KA=<secret>
-API_KEY_SERAPHE=<secret>
-
-# Plaid (finance)
-PLAID_CLIENT_ID=<id>
-PLAID_ENV=development
-```
 
 ---
 
@@ -595,63 +406,56 @@ PLAID_ENV=development
 
 ```bash
 # Services
-sudo systemctl status mythos-bot.service
+sudo systemctl status mythos-api.service
+sudo systemctl restart mythos-api.service
 sudo systemctl restart mythos-bot.service
-journalctl -u mythos-bot.service -f
+journalctl -u mythos-api.service -f
 
-# All Mythos services
-systemctl list-units --type=service | grep mythos
+# Test API
+curl http://localhost:8000/
+curl http://localhost:8000/health
 
-# Finance
-cd /opt/mythos/finance
-/opt/mythos/.venv/bin/python import_transactions.py accounts/file.csv --account-id 1 --dry-run
-/opt/mythos/.venv/bin/python reports.py summary
-
-# Database
+# Databases
 sudo -u postgres psql -d mythos
 cypher-shell -u neo4j
 
 # Ollama
 ollama list
-ollama run qwen2.5:32b
-
-# Redis
-redis-cli KEYS "mythos:*"
-redis-cli XLEN mythos:assignments:vision
-
-# Git
-cd /opt/mythos && git log --oneline -10
-cd /opt/mythos && git tag -l --sort=-v:refname | head -10
-
-# LLM Diagnostics
-/opt/mythos/.venv/bin/python /opt/mythos/llm_diagnostics/src/mythos_ask.py "system health"
+curl http://localhost:11434/api/tags
 ```
 
 ---
 
-## Diagnostic Workflow
+## Adding a New Assistant
 
-When troubleshooting with Claude, use the **diagnostic dump pattern**:
-
-```bash
-D=~/diag.txt; > "$D"
-echo "=== SECTION 1 ===" >> "$D"
-<command1> >> "$D" 2>&1
-echo -e "\n\n=== SECTION 2 ===" >> "$D"
-<command2> >> "$D" 2>&1
-cat "$D" | xclip -selection clipboard && echo "✓ Copied to clipboard"
+1. Create `/opt/mythos/assistants/my_assistant.py`:
+```python
+class MyAssistant:
+    def __init__(self):
+        self.ollama = Client(host=os.getenv('OLLAMA_HOST'))
+        
+    def set_user(self, user_info):
+        self.current_user = user_info
+        
+    def query(self, message: str) -> str:
+        # Process and return response
 ```
 
-**Standard Session Start:**
-```bash
-D=~/diag.txt; > "$D"
-echo "=== TODO ===" >> "$D"
-cat /opt/mythos/docs/TODO.md >> "$D" 2>&1
-echo -e "\n\n=== ARCHITECTURE ===" >> "$D"
-cat /opt/mythos/docs/ARCHITECTURE.md >> "$D" 2>&1
-cat "$D" | xclip -selection clipboard && echo "✓ Copied to clipboard"
+2. Import and initialize in `/opt/mythos/api/main.py`:
+```python
+from my_assistant import MyAssistant
+my_assistant_instance = MyAssistant()
 ```
+
+3. Add routing in `/message` endpoint:
+```python
+elif request.mode == "mymode" and my_assistant_instance:
+    my_assistant_instance.set_user(user)
+    response_text = my_assistant_instance.query(request.message)
+```
+
+4. Add mode to bot's valid modes list in `mythos_bot.py`
 
 ---
 
-*This document reflects the actual deployed state of the Mythos system as of 2026-01-24.*
+*This document reflects the actual deployed state of the Mythos system as of 2026-01-27.*
