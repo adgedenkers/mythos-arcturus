@@ -106,3 +106,13 @@
 2026-01-23 19:08:41,129 - SystemMonitor - INFO - Connected to Neo4j
 2026-01-23 19:08:41,129 - SystemMonitor - INFO - Monitoring started (interval: 60s)
 2026-01-23 19:08:41,129 - SystemMonitor - INFO - Monitoring started (interval: 60s)
+2026-01-27 09:04:25,494 - SystemMonitor - INFO - Received signal 15, shutting down...
+2026-01-27 09:04:25,494 - SystemMonitor - INFO - Received signal 15, shutting down...
+2026-01-27 13:48:32,315 - SystemMonitor - INFO - Starting Arcturus System Monitor
+2026-01-27 13:48:32,315 - SystemMonitor - INFO - Starting Arcturus System Monitor
+2026-01-27 13:48:32,315 - SystemMonitor - INFO - Configuration: /opt/mythos/graph_logging/config/monitoring_config.yaml
+2026-01-27 13:48:32,315 - SystemMonitor - INFO - Configuration: /opt/mythos/graph_logging/config/monitoring_config.yaml
+2026-01-27 13:48:32,327 - SystemMonitor - INFO - Connected to Neo4j
+2026-01-27 13:48:32,327 - SystemMonitor - INFO - Connected to Neo4j
+2026-01-27 13:48:32,327 - SystemMonitor - INFO - Monitoring started (interval: 60s)
+2026-01-27 13:48:32,327 - SystemMonitor - INFO - Monitoring started (interval: 60s)
