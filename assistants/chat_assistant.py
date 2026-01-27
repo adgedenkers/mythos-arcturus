@@ -3,19 +3,30 @@
 Chat Assistant - General conversation interface via Ollama
 
 Provides multi-turn conversation with context maintained per user session.
-Designed to be extended with RAG, tool use, and other capabilities.
+Integrates with Grid Analysis for consciousness mapping.
 """
 
 import os
+import uuid
+import json
 import logging
 from datetime import datetime
 from typing import Optional, Dict, List, Any
 from dotenv import load_dotenv
 from ollama import Client
+import redis
 
 load_dotenv('/opt/mythos/.env')
 
 logger = logging.getLogger(__name__)
+
+# Redis configuration for dispatching to workers
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+REDIS_DB = int(os.getenv("REDIS_DB", 0))
+
+# Grid analysis stream
+GRID_STREAM = "mythos:assignments:grid_analysis"
 
 
 class ChatAssistant:
@@ -23,6 +34,7 @@ class ChatAssistant:
     General-purpose chat assistant using local Ollama.
     
     Maintains conversation context per user for multi-turn dialogue.
+    Dispatches exchanges to grid analysis worker for consciousness mapping.
     """
     
     def __init__(self):
@@ -42,6 +54,22 @@ class ChatAssistant:
         
         # Context settings
         self.max_context_messages = 20  # Keep last N message pairs
+        
+        # Redis for dispatching to workers
+        try:
+            self.redis = redis.Redis(
+                host=REDIS_HOST,
+                port=REDIS_PORT,
+                db=REDIS_DB,
+                decode_responses=True
+            )
+            self.redis.ping()
+            self.grid_enabled = True
+            logger.info("ChatAssistant: Redis connected, grid analysis enabled")
+        except Exception as e:
+            self.redis = None
+            self.grid_enabled = False
+            logger.warning(f"ChatAssistant: Redis not available, grid analysis disabled: {e}")
         
         # System prompt
         self.system_prompt_template = """You are a helpful AI assistant in the Mythos system, speaking with {soul_name}.
@@ -65,7 +93,8 @@ Current time: {current_time}
             self.contexts[user_uuid] = {
                 'messages': [],
                 'started_at': datetime.now().isoformat(),
-                'message_count': 0
+                'message_count': 0,
+                'conversation_id': f"chat-{user_uuid[:8]}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
             }
         return self.contexts[user_uuid]
     
@@ -103,6 +132,51 @@ Current time: {current_time}
         
         return messages
     
+    def _dispatch_grid_analysis(
+        self,
+        user_uuid: str,
+        conversation_id: str,
+        user_message: str,
+        assistant_response: str,
+        model_used: str
+    ) -> Optional[str]:
+        """
+        Dispatch exchange to grid analysis worker.
+        
+        Returns assignment_id if dispatched, None if failed/disabled.
+        """
+        if not self.grid_enabled or not self.redis:
+            return None
+        
+        try:
+            exchange_id = str(uuid.uuid4())
+            
+            payload = {
+                "id": exchange_id,
+                "type": "grid_analysis",
+                "payload": {
+                    "exchange_id": exchange_id,
+                    "user_uuid": user_uuid,
+                    "conversation_id": conversation_id,
+                    "user_message": user_message,
+                    "assistant_response": assistant_response,
+                    "combined_content": f"USER: {user_message}\n\nASSISTANT: {assistant_response}",
+                    "model_used": model_used,
+                    "timestamp": datetime.now().isoformat()
+                },
+                "dispatched_at": datetime.now().isoformat()
+            }
+            
+            # Add to Redis stream
+            self.redis.xadd(GRID_STREAM, {"data": json.dumps(payload)})
+            
+            logger.info(f"Dispatched grid analysis for exchange {exchange_id[:8]}")
+            return exchange_id
+            
+        except Exception as e:
+            logger.error(f"Failed to dispatch grid analysis: {e}")
+            return None
+    
     def query(self, message: str, model_preference: str = 'auto') -> str:
         """
         Process a chat message and return the response.
@@ -122,6 +196,10 @@ Current time: {current_time}
         
         # Get model
         model = self.model_map.get(model_preference, self.default_model)
+        
+        # Get conversation context
+        context = self._get_context(user_uuid)
+        conversation_id = context['conversation_id']
         
         try:
             # Build messages with context
@@ -147,6 +225,15 @@ Current time: {current_time}
             
             logger.info(f"Chat: Got response ({len(assistant_message)} chars)")
             
+            # Dispatch to grid analysis (async, fire-and-forget)
+            self._dispatch_grid_analysis(
+                user_uuid=user_uuid,
+                conversation_id=conversation_id,
+                user_message=message,
+                assistant_response=assistant_message,
+                model_used=model
+            )
+            
             return assistant_message
             
         except Exception as e:
@@ -165,5 +252,6 @@ Current time: {current_time}
         return {
             'message_count': context['message_count'],
             'context_messages': len(context['messages']),
+            'conversation_id': context.get('conversation_id'),
             'started_at': context.get('started_at', 'unknown')
         }
