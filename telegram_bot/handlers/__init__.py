@@ -18,17 +18,29 @@ from .export_handler import (
     sold_command
 )
 
+from .chat_mode import (
+    handle_chat_message,
+    clear_chat_context,
+    get_chat_stats
+)
+
 __all__ = [
+    # Sell mode
     'enter_sell_mode',
     'handle_sell_photos',
     'sell_done_command',
     'sell_status_command',
     'sell_undo_command',
     'is_sell_mode',
+    # Export
     'export_command',
     'inventory_command',
     'listed_command',
-    'sold_command'
+    'sold_command',
+    # Chat mode
+    'handle_chat_message',
+    'clear_chat_context',
+    'get_chat_stats',
 ]
 
 # Patch management handlers

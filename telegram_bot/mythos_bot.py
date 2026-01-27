@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-Mythos Telegram Bot - WITH SELL MODE
-Updated to include item selling via photo analysis
+Mythos Telegram Bot - WITH SELL MODE + CHAT MODE
+Updated to include:
+- Item selling via photo analysis
+- Direct Ollama chat with conversation context
 """
 
 import os
@@ -43,6 +45,13 @@ from handlers import (
     inventory_command
 )
 
+# Import chat mode handler
+from handlers.chat_mode import (
+    handle_chat_message,
+    clear_chat_context,
+    get_chat_stats
+)
+
 # Patch management handlers
 from handlers.patch_handlers import (
     patch_command,
@@ -79,7 +88,8 @@ def get_or_create_session(telegram_id):
                     "current_model": "auto",
                     "conversation_id": None,
                     "last_activity": datetime.now(),
-                    "sell_session": None  # Added for sell mode
+                    "sell_session": None,
+                    "chat_context": None  # For chat mode conversation history
                 }
             else:
                 return None
@@ -110,62 +120,66 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         f"🔮 Welcome to the Mythos System, {user['soul_name']}!\n\n"
         f"Current mode: {session['current_mode']}\n\n"
-        "Available commands:\n"
-        "/mode - Switch modes\n"
-        "/convo - Start a tracked conversation\n"
-        "/photos - View recent photos\n"
-        "/inventory - View items for sale\n"
-        "/export - Generate marketplace listings\n"
-        "/help - Show help\n"
-        "/status - Show current status\n\n"
-        "Just send a message or photo to interact."
+        "Quick start:\n"
+        "/mode chat - Talk with AI\n"
+        "/mode db   - Query databases\n"
+        "/mode sell - Sell items\n\n"
+        "/help - Full command list"
     )
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /help command"""
-    help_text = """
-🔮 Mythos System Commands
+    help_text = """🔮 **Mythos System Help**
 
-📋 Modes:
-  /mode db        - Database Manager
-  /mode seraphe   - Seraphe's Cosmology Assistant
-  /mode genealogy - Genealogy Assistant
-  /mode chat      - Natural conversation
-  /mode sell      - Sell items (photo analysis)
+━━━━━━━━━━━━━━━━━━━━━━━━
+**QUICK START - MODES**
+━━━━━━━━━━━━━━━━━━━━━━━━
 
-📦 Selling:
-  /mode sell  - Enter sell mode
-  /done       - Exit sell mode
-  /status     - Items in current session
-  /undo       - Remove last item
-  /inventory  - View all items for sale
-  /export     - Generate marketplace listings
+`/mode chat` - Talk with local AI (Ollama)
+`/mode db` - Query Neo4j/Postgres databases
+`/mode sell` - Sell items via photo analysis
+`/mode seraphe` - Cosmology assistant
+`/mode genealogy` - Bloodline research
 
-💬 Conversation:
-  /convo      - Start tracked conversation
-  /endconvo   - End tracked conversation
+━━━━━━━━━━━━━━━━━━━━━━━━
+**CHAT MODE**
+━━━━━━━━━━━━━━━━━━━━━━━━
 
-🤖 AI Models:
-  /model auto - Smart routing
-  /model fast - Quick responses
-  /model deep - Best quality
+Just type to chat! Context is maintained.
+`/clear` - Reset conversation context
+`/model fast` - Use faster model
+`/model deep` - Use best quality model
 
-📸 Media:
-  /photos     - View recent photos
+━━━━━━━━━━━━━━━━━━━━━━━━
+**SELL MODE**
+━━━━━━━━━━━━━━━━━━━━━━━━
 
-ℹ️ Info:
-  /status - Show current mode/user
-  /help   - Show this message
+`/mode sell` - Enter sell mode
+Send 3 photos → Auto-analyzed → Added to inventory
+`/done` - Exit sell mode
+`/undo` - Remove last item
+`/inventory` - View all items
+`/export` - Generate FB listings
+`/listed <id>` - Mark as listed
+`/sold <id>` - Mark as sold
 
-💡 Selling Flow:
-  1. /mode sell
-  2. Send 3 photos per item
-  3. Wait for analysis
-  4. Repeat or /done
-  5. /export for listings
+━━━━━━━━━━━━━━━━━━━━━━━━
+**CONVERSATIONS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+`/convo` - Start tracked conversation
+`/endconvo` - End tracked conversation
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**SYSTEM**
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+`/status` - Current mode & user info
+`/patch_status` - System version
+`/photos` - View recent photos
 """
-    await update.message.reply_text(help_text)
+    await update.message.reply_text(help_text, parse_mode='Markdown')
 
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -188,14 +202,20 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if session.get("conversation_id"):
         convo_status = f"Active ({session['conversation_id'][:8]}...)"
     
+    # Add chat context info if in chat mode
+    chat_info = ""
+    if session.get("current_mode") == "chat":
+        stats = get_chat_stats(session)
+        chat_info = f"\n💬 Chat messages: {stats['message_count']}"
+    
     status_text = f"""
 📊 Current Status
 
 👤 User: {user['soul_name']} (@{user['username']})
 🔮 Soul: {user['soul_name']}
 🔧 Mode: {session['current_mode']}
-🤖 Model: {session['current_model']}
-💬 Conversation: {convo_status}
+🤖 Model: {session['current_model']}{chat_info}
+💬 Tracked Convo: {convo_status}
 
 Use /help to see available commands.
 """
@@ -226,18 +246,24 @@ async def mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if is_sell_mode(session):
                 session["sell_session"] = None
             
+            # Initialize chat context when entering chat mode
+            if new_mode == "chat":
+                if session.get("chat_context") is None:
+                    clear_chat_context(session)
+            
             session["current_mode"] = new_mode
             
             mode_descriptions = {
-                "db": "Database Manager - Query souls, persons, and lineages",
+                "db": "Database Manager - Query souls, persons, and lineages via natural language",
                 "seraphe": "Seraphe's Cosmology Assistant - Spiritual guidance and symbolism",
                 "genealogy": "Genealogy Assistant - Trace bloodlines and ancestors",
-                "chat": "Natural conversation - General purpose assistant"
+                "chat": "Chat Mode - Direct conversation with local Ollama LLM\n\nJust type to chat! Context is maintained across messages.\nUse /clear to reset conversation."
             }
             
             await update.message.reply_text(
-                f"✅ Switched to {new_mode} mode\n\n"
-                f"📝 {mode_descriptions[new_mode]}"
+                f"✅ Switched to **{new_mode}** mode\n\n"
+                f"📝 {mode_descriptions[new_mode]}",
+                parse_mode='Markdown'
             )
         else:
             await update.message.reply_text(
@@ -249,12 +275,26 @@ async def mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             f"Current mode: **{current}**\n\n"
             "Available modes:\n"
-            "  /mode db        - Database Manager\n"
-            "  /mode seraphe   - Seraphe's Cosmology\n"
-            "  /mode genealogy - Genealogy Research\n"
-            "  /mode chat      - Natural conversation\n"
-            "  /mode sell      - Sell items (photo analysis)"
+            "  `/mode chat`      - Talk with AI\n"
+            "  `/mode db`        - Database queries\n"
+            "  `/mode sell`      - Sell items\n"
+            "  `/mode seraphe`   - Cosmology\n"
+            "  `/mode genealogy` - Bloodlines",
+            parse_mode='Markdown'
         )
+
+
+async def clear_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle /clear command - reset chat context"""
+    telegram_id = update.effective_user.id
+    session = get_or_create_session(telegram_id)
+    
+    if not session:
+        await update.message.reply_text("❌ Session not found.")
+        return
+    
+    clear_chat_context(session)
+    await update.message.reply_text("🔄 Chat context cleared. Starting fresh conversation.")
 
 
 async def done_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -391,13 +431,14 @@ async def model_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             session["current_model"] = new_model
             
             descriptions = {
-                "auto": "Automatic (smart routing)",
-                "fast": "Qwen 32B (fast, ~10s)",
-                "deep": "DeepSeek 236B (best, ~60s)"
+                "auto": "Automatic (qwen2.5:32b)",
+                "fast": "Fast (llama3.2:3b, ~5s)",
+                "deep": "Best quality (qwen2.5:32b, ~30s)"
             }
             
             await update.message.reply_text(
-                f"✅ Model: {new_model}\n{descriptions[new_model]}"
+                f"✅ Model: **{new_model}**\n{descriptions[new_model]}",
+                parse_mode='Markdown'
             )
         else:
             await update.message.reply_text(
@@ -407,10 +448,11 @@ async def model_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         current = session.get("current_model", "auto")
         await update.message.reply_text(
-            f"Current model: {current}\n\n"
-            "/model auto - Smart routing\n"
-            "/model fast - Quick (Qwen 32B)\n"
-            "/model deep - Best (DeepSeek 236B)"
+            f"Current model: **{current}**\n\n"
+            "`/model auto` - Smart routing (qwen2.5:32b)\n"
+            "`/model fast` - Quick (llama3.2:3b)\n"
+            "`/model deep` - Best (qwen2.5:32b)",
+            parse_mode='Markdown'
         )
 
 
@@ -563,6 +605,26 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await update.message.chat.send_action("typing")
     
+    # Route to chat mode handler if in chat mode
+    if mode == "chat":
+        try:
+            response_text = await handle_chat_message(user_message, session, model)
+            
+            # Handle long responses
+            if len(response_text) > 4000:
+                chunks = [response_text[i:i+4000] for i in range(0, len(response_text), 4000)]
+                for chunk in chunks:
+                    await update.message.reply_text(chunk)
+            else:
+                await update.message.reply_text(response_text)
+            return
+            
+        except Exception as e:
+            logger.error(f"Chat mode error: {e}", exc_info=True)
+            await update.message.reply_text(f"❌ Chat error: {e}")
+            return
+    
+    # For other modes, use the API
     try:
         response = requests.post(
             f"{API_URL}/message",
@@ -624,6 +686,7 @@ def main():
     application.add_handler(CommandHandler("convo", convo_command))
     application.add_handler(CommandHandler("endconvo", endconvo_command))
     application.add_handler(CommandHandler("photos", photos_command))
+    application.add_handler(CommandHandler("clear", clear_command))  # New: clear chat context
     
     # Sell mode commands
     application.add_handler(CommandHandler("done", done_command))
@@ -644,7 +707,6 @@ def main():
     # Message handlers
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     application.add_handler(MessageHandler(filters.Document.IMAGE, handle_photo))
-    application.add_handler(MessageHandler(filters.Document.IMAGE, handle_photo))  # Also handle images sent as documents
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     # Error handler
@@ -652,6 +714,7 @@ def main():
     
     print("🤖 Mythos Telegram Bot starting...")
     print("📦 Sell mode enabled")
+    print("💬 Chat mode enabled (Ollama)")
     print("📸 Photo analysis via Ollama")
     print("   Press Ctrl+C to stop")
     
