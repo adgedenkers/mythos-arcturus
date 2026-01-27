@@ -6,9 +6,10 @@ Maintains conversation context within a session for multi-turn dialogue.
 """
 
 import os
+import re
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from ollama import Client
 
 logger = logging.getLogger(__name__)
@@ -44,7 +45,8 @@ def init_chat_context(session: dict) -> None:
     session['chat_context'] = {
         'messages': [],
         'started_at': datetime.now().isoformat(),
-        'message_count': 0
+        'message_count': 0,
+        'topics': []  # Track discussed topics for /status
     }
 
 
@@ -65,10 +67,53 @@ def add_to_context(session: dict, role: str, content: str) -> None:
     })
     context['message_count'] += 1
     
+    # Extract topics from user messages
+    if role == 'user':
+        topics = extract_topics(content)
+        for topic in topics:
+            if topic not in context['topics']:
+                context['topics'].append(topic)
+        # Keep only recent topics
+        context['topics'] = context['topics'][-10:]
+    
     # Trim old messages if exceeding limit
     if len(context['messages']) > MAX_CONTEXT_MESSAGES * 2:
         # Keep system message if present, then recent messages
         context['messages'] = context['messages'][-(MAX_CONTEXT_MESSAGES * 2):]
+
+
+def extract_topics(text: str) -> List[str]:
+    """Extract likely topics from user message for /status display"""
+    # Simple heuristic: look for question patterns and key phrases
+    topics = []
+    
+    # Check for question words and extract the subject
+    question_patterns = [
+        r'(?:what|how|why|when|where|who|which)\s+(?:is|are|was|were|do|does|did|can|could|would|should)?\s*(.+?)(?:\?|$)',
+        r'(?:tell me about|explain|describe|help me with|show me)\s+(.+?)(?:\?|$)',
+        r'(?:can you|could you|would you)\s+(.+?)(?:\?|$)',
+    ]
+    
+    text_lower = text.lower()
+    
+    for pattern in question_patterns:
+        match = re.search(pattern, text_lower, re.IGNORECASE)
+        if match:
+            topic = match.group(1).strip()
+            # Clean up and truncate
+            topic = re.sub(r'\s+', ' ', topic)[:50]
+            if len(topic) > 3:
+                topics.append(topic)
+    
+    # If no patterns matched, use first few words as topic
+    if not topics and len(text) > 10:
+        words = text.split()[:6]
+        topic = ' '.join(words)
+        if len(topic) > 50:
+            topic = topic[:47] + "..."
+        topics.append(topic)
+    
+    return topics
 
 
 def build_messages_for_ollama(session: dict, user_message: str, user_info: dict) -> list:
@@ -154,5 +199,31 @@ def get_chat_stats(session: dict) -> dict:
     return {
         'message_count': context['message_count'],
         'context_messages': len(context['messages']),
-        'started_at': context.get('started_at', 'unknown')
+        'started_at': context.get('started_at', 'unknown'),
+        'topics': context.get('topics', [])
     }
+
+
+def get_recent_topics(session: dict) -> List[str]:
+    """Get list of recently discussed topics for /status display"""
+    context = get_chat_context(session)
+    return context.get('topics', [])
+
+
+def get_last_exchange(session: dict) -> Optional[dict]:
+    """Get the last user message and assistant response"""
+    context = get_chat_context(session)
+    messages = context.get('messages', [])
+    
+    if len(messages) < 2:
+        return None
+    
+    # Find the last user-assistant pair
+    for i in range(len(messages) - 1, 0, -1):
+        if messages[i]['role'] == 'assistant' and messages[i-1]['role'] == 'user':
+            return {
+                'user': messages[i-1]['content'],
+                'assistant': messages[i]['content']
+            }
+    
+    return None

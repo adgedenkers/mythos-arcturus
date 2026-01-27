@@ -4,6 +4,8 @@ Mythos Telegram Bot - WITH SELL MODE + CHAT MODE
 Updated to include:
 - Item selling via photo analysis
 - Direct Ollama chat with conversation context
+- Default mode: chat
+- Enhanced /status with activity summary
 """
 
 import os
@@ -49,7 +51,8 @@ from handlers import (
 from handlers.chat_mode import (
     handle_chat_message,
     clear_chat_context,
-    get_chat_stats
+    get_chat_stats,
+    get_recent_topics
 )
 
 # Patch management handlers
@@ -68,6 +71,9 @@ API_KEY = os.getenv('API_KEY_TELEGRAM_BOT')
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 MEDIA_BASE_PATH = "/opt/mythos/media"
 
+# Default mode for new sessions
+DEFAULT_MODE = "chat"
+
 # In-memory session store
 SESSIONS = {}
 
@@ -84,12 +90,13 @@ def get_or_create_session(telegram_id):
                 user = response.json()
                 SESSIONS[telegram_id] = {
                     "user": user,
-                    "current_mode": "db",
+                    "current_mode": DEFAULT_MODE,  # Now defaults to chat
                     "current_model": "auto",
                     "conversation_id": None,
                     "last_activity": datetime.now(),
                     "sell_session": None,
-                    "chat_context": None  # For chat mode conversation history
+                    "chat_context": None,  # For chat mode conversation history
+                    "activity_log": []  # Track recent activity for /status
                 }
             else:
                 return None
@@ -100,6 +107,18 @@ def get_or_create_session(telegram_id):
     
     SESSIONS[telegram_id]["last_activity"] = datetime.now()
     return SESSIONS[telegram_id]
+
+
+def log_activity(session: dict, activity_type: str, details: str):
+    """Log an activity to the session for /status reporting"""
+    activity_log = session.get("activity_log", [])
+    activity_log.append({
+        "time": datetime.now().isoformat(),
+        "type": activity_type,
+        "details": details
+    })
+    # Keep only last 10 activities
+    session["activity_log"] = activity_log[-10:]
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -116,15 +135,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     user = session["user"]
+    log_activity(session, "start", "Session started")
+    
+    # Initialize chat context for new sessions
+    if session.get("chat_context") is None:
+        clear_chat_context(session)
     
     await update.message.reply_text(
-        f"🔮 Welcome to the Mythos System, {user['soul_name']}!\n\n"
-        f"Current mode: {session['current_mode']}\n\n"
-        "Quick start:\n"
-        "/mode chat - Talk with AI\n"
-        "/mode db   - Query databases\n"
-        "/mode sell - Sell items\n\n"
-        "/help - Full command list"
+        f"🔮 Welcome to Mythos, {user['soul_name']}!\n\n"
+        f"You're in **chat** mode - just type to talk.\n\n"
+        "Quick commands:\n"
+        "`/mode db` - Query databases\n"
+        "`/mode sell` - Sell items\n"
+        "`/status` - What's happening\n"
+        "`/help` - All commands",
+        parse_mode='Markdown'
     )
 
 
@@ -136,17 +161,18 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 **QUICK START - MODES**
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
-`/mode chat` - Talk with local AI (Ollama)
+`/mode chat` - Talk with local AI (default)
 `/mode db` - Query Neo4j/Postgres databases
 `/mode sell` - Sell items via photo analysis
 `/mode seraphe` - Cosmology assistant
 `/mode genealogy` - Bloodline research
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
-**CHAT MODE**
+**CHAT MODE** (default)
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
 Just type to chat! Context is maintained.
+`/status` - See what you've been discussing
 `/clear` - Reset conversation context
 `/model fast` - Use faster model
 `/model deep` - Use best quality model
@@ -175,7 +201,7 @@ Send 3 photos → Auto-analyzed → Added to inventory
 **SYSTEM**
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
-`/status` - Current mode & user info
+`/status` - Current mode, activity & context
 `/patch_status` - System version
 `/photos` - View recent photos
 """
@@ -183,7 +209,7 @@ Send 3 photos → Auto-analyzed → Added to inventory
 
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /status command"""
+    """Handle /status command - comprehensive status with activity summary"""
     telegram_id = update.effective_user.id
     session = get_or_create_session(telegram_id)
     
@@ -191,35 +217,72 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Session not found. Use /start to begin.")
         return
     
-    # Check if in sell mode
+    # Check if in sell mode - delegate to sell status
     if is_sell_mode(session):
         await sell_status_command(update, context, session)
         return
     
     user = session["user"]
+    mode = session.get("current_mode", "chat")
+    model = session.get("current_model", "auto")
     
-    convo_status = "None"
+    # Build status message
+    lines = [f"📊 **Status for {user['soul_name']}**", ""]
+    
+    # Current mode
+    mode_emoji = {
+        "chat": "💬",
+        "db": "🗄️",
+        "sell": "📦",
+        "seraphe": "🔮",
+        "genealogy": "🌳"
+    }
+    lines.append(f"{mode_emoji.get(mode, '🔧')} **Mode:** {mode}")
+    lines.append(f"🤖 **Model:** {model}")
+    
+    # Tracked conversation status
     if session.get("conversation_id"):
-        convo_status = f"Active ({session['conversation_id'][:8]}...)"
+        lines.append(f"📝 **Tracked Convo:** Active ({session['conversation_id'][:8]}...)")
     
-    # Add chat context info if in chat mode
-    chat_info = ""
-    if session.get("current_mode") == "chat":
+    # Chat mode specific info
+    if mode == "chat":
         stats = get_chat_stats(session)
-        chat_info = f"\n💬 Chat messages: {stats['message_count']}"
+        lines.append("")
+        lines.append("━━━━━━━━━━━━━━━━━━━━━━━━")
+        lines.append("**💬 Chat Context**")
+        lines.append(f"Messages this session: {stats['message_count']}")
+        
+        # Get recent topics/summary
+        topics = get_recent_topics(session)
+        if topics:
+            lines.append("")
+            lines.append("**Recent topics:**")
+            for topic in topics[:5]:
+                lines.append(f"• {topic}")
+        
+        if stats['message_count'] > 0:
+            lines.append("")
+            lines.append("_Use /clear to reset conversation_")
     
-    status_text = f"""
-📊 Current Status
-
-👤 User: {user['soul_name']} (@{user['username']})
-🔮 Soul: {user['soul_name']}
-🔧 Mode: {session['current_mode']}
-🤖 Model: {session['current_model']}{chat_info}
-💬 Tracked Convo: {convo_status}
-
-Use /help to see available commands.
-"""
-    await update.message.reply_text(status_text)
+    # Recent activity log
+    activity_log = session.get("activity_log", [])
+    if activity_log:
+        lines.append("")
+        lines.append("━━━━━━━━━━━━━━━━━━━━━━━━")
+        lines.append("**📋 Recent Activity**")
+        for activity in activity_log[-5:]:
+            time_str = activity['time'][11:16]  # Extract HH:MM
+            lines.append(f"• {time_str} - {activity['details']}")
+    
+    # Footer with tips
+    lines.append("")
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━")
+    if mode == "chat":
+        lines.append("_Just type to continue chatting_")
+    elif mode == "db":
+        lines.append("_Ask questions about souls, persons, lineages_")
+    
+    await update.message.reply_text("\n".join(lines), parse_mode='Markdown')
 
 
 async def mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -237,8 +300,11 @@ async def mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         valid_modes = ["db", "seraphe", "genealogy", "chat", "sell"]
         
         if new_mode in valid_modes:
+            old_mode = session.get("current_mode", "chat")
+            
             # Handle sell mode specially
             if new_mode == "sell":
+                log_activity(session, "mode_change", f"Entered sell mode")
                 await enter_sell_mode(update, session)
                 return
             
@@ -252,6 +318,7 @@ async def mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     clear_chat_context(session)
             
             session["current_mode"] = new_mode
+            log_activity(session, "mode_change", f"Switched to {new_mode} mode")
             
             mode_descriptions = {
                 "db": "Database Manager - Query souls, persons, and lineages via natural language",
@@ -271,11 +338,11 @@ async def mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "Available modes: db, seraphe, genealogy, chat, sell"
             )
     else:
-        current = session.get("current_mode", "db")
+        current = session.get("current_mode", "chat")
         await update.message.reply_text(
             f"Current mode: **{current}**\n\n"
             "Available modes:\n"
-            "  `/mode chat`      - Talk with AI\n"
+            "  `/mode chat`      - Talk with AI (default)\n"
             "  `/mode db`        - Database queries\n"
             "  `/mode sell`      - Sell items\n"
             "  `/mode seraphe`   - Cosmology\n"
@@ -294,6 +361,7 @@ async def clear_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     clear_chat_context(session)
+    log_activity(session, "clear", "Chat context cleared")
     await update.message.reply_text("🔄 Chat context cleared. Starting fresh conversation.")
 
 
@@ -308,6 +376,7 @@ async def done_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if is_sell_mode(session):
         await sell_done_command(update, context, session)
+        log_activity(session, "sell", "Exited sell mode")
     else:
         await update.message.reply_text("Nothing to finish. Not in sell mode.")
 
@@ -346,6 +415,7 @@ async def convo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     conversation_id = str(uuid.uuid4())
     session["conversation_id"] = conversation_id
+    log_activity(session, "convo", f"Started tracked conversation")
     
     try:
         response = requests.post(
@@ -395,6 +465,7 @@ async def endconvo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     conversation_id = session["conversation_id"]
     session["conversation_id"] = None
+    log_activity(session, "convo", "Ended tracked conversation")
     
     try:
         requests.post(
@@ -429,6 +500,7 @@ async def model_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         if new_model in ["auto", "fast", "deep"]:
             session["current_model"] = new_model
+            log_activity(session, "model", f"Switched to {new_model} model")
             
             descriptions = {
                 "auto": "Automatic (qwen2.5:32b)",
@@ -610,6 +682,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             response_text = await handle_chat_message(user_message, session, model)
             
+            # Log activity with truncated message
+            preview = user_message[:50] + "..." if len(user_message) > 50 else user_message
+            log_activity(session, "chat", f"Asked: {preview}")
+            
             # Handle long responses
             if len(response_text) > 4000:
                 chunks = [response_text[i:i+4000] for i in range(0, len(response_text), 4000)]
@@ -642,6 +718,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if response.status_code == 200:
             data = response.json()
             bot_response = data["response"]
+            
+            # Log activity
+            preview = user_message[:50] + "..." if len(user_message) > 50 else user_message
+            log_activity(session, mode, f"Query: {preview}")
             
             if len(bot_response) > 4000:
                 chunks = [bot_response[i:i+4000] for i in range(0, len(bot_response), 4000)]
@@ -686,7 +766,7 @@ def main():
     application.add_handler(CommandHandler("convo", convo_command))
     application.add_handler(CommandHandler("endconvo", endconvo_command))
     application.add_handler(CommandHandler("photos", photos_command))
-    application.add_handler(CommandHandler("clear", clear_command))  # New: clear chat context
+    application.add_handler(CommandHandler("clear", clear_command))
     
     # Sell mode commands
     application.add_handler(CommandHandler("done", done_command))
@@ -713,8 +793,8 @@ def main():
     application.add_error_handler(error_handler)
     
     print("🤖 Mythos Telegram Bot starting...")
+    print(f"💬 Default mode: {DEFAULT_MODE}")
     print("📦 Sell mode enabled")
-    print("💬 Chat mode enabled (Ollama)")
     print("📸 Photo analysis via Ollama")
     print("   Press Ctrl+C to stop")
     
