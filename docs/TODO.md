@@ -1,7 +1,7 @@
 # Mythos Project TODO & Roadmap
 
-> **Last Updated:** 2026-01-24 10:00 EST
-> **Current Focus:** System Documentation + Finance Polish
+> **Last Updated:** 2026-01-27 15:00 EST
+> **Current Focus:** Arcturian Grid Full Implementation
 
 ---
 
@@ -13,152 +13,173 @@
 |----------|---------|------------------|
 | `TODO.md` | What we're trying to do | Every work session |
 | `ARCHITECTURE.md` | What actually exists and works | Only at stable milestones |
+| `ARCTURIAN_GRID.md` | Complete grid specification | When grid design changes |
 
 ---
 
 ## 🔥 Active Work
 
-### Comprehensive Documentation (patch_0020)
-- **Status:** In progress
-- **What:** Full system audit and documentation update
-- **Files:** `ARCHITECTURE.md`, `TODO.md`
-
-### Finance System - Sunmark Parser (patch_0018)
-- **Status:** Deployed, needs verification
-- **What:** Clean descriptions with (POS)/(ATM)/(EXT) tags
-- **Next:** Run `update_sunmark_descriptions.py` to fix existing transactions
+### Arcturian Grid - Full Implementation
+- **Status:** Phase 1 complete (basic scoring), Phase 2 in design
+- **Spec Document:** `/opt/mythos/docs/ARCTURIAN_GRID.md`
+- **What's Working:**
+  - ChatAssistant dispatches exchanges to Redis queue
+  - Grid worker processes with single LLM call
+  - Basic 0-100 scores for all 9 nodes
+  - Storage to PostgreSQL (timeseries) and Neo4j (graph)
+- **What's Missing:**
+  - Two-phase processing (8 parallel + GATEWAY last)
+  - Per-node extraction (entities, relationships, tensions, absences)
+  - Entity merging across nodes
+  - Dual scoring (confidence + strength)
+  - GATEWAY sequencing with ANCHOR stability check
+  - Running totals on Conversation nodes
 
 ---
 
-## 🚧 Gaps to Fill (High Priority)
+## 🎯 Grid Implementation Phases
 
-These are missing pieces needed for a complete, production-ready system.
+### Phase 1: Basic Scoring ✅ COMPLETE
+- [x] Grid worker with single LLM call
+- [x] 9 node scores (0-100)
+- [x] PostgreSQL timeseries storage
+- [x] Neo4j Exchange nodes with grid scores
+- [x] Redis dispatch from ChatAssistant
+- [x] Basic entity extraction (list only)
 
-### 1. Local LLM Conversational Interface
-- **Problem:** Can't have multi-turn conversations with local Ollama without external interface
-- **Solution Options:**
-  - Open WebUI (Docker container)
-  - Extend Telegram bot with `/chat` mode that maintains context
-  - Build simple web interface
-- **Priority:** HIGH - blocks sovereign AI workflow
+### Phase 2: Two-Phase Processing ← NEXT
+- [ ] Separate Phase 1 (8 nodes parallel) from Phase 2 (GATEWAY)
+- [ ] GATEWAY receives Phase 1 results
+- [ ] ANCHOR stability check before GATEWAY
+- [ ] Proper sequencing enforcement
 
-### 2. Finance - Telegram Integration
+### Phase 3: Per-Node Extraction
+- [ ] Individual prompts for each node
+- [ ] Five extraction layers per node:
+  - Entities
+  - Relationships
+  - Tensions
+  - Absences
+  - Functional output
+- [ ] Node-specific output types
+
+### Phase 4: Entity Merging
+- [ ] Same entity seen by multiple nodes
+- [ ] Merge logic for attributes
+- [ ] Preserve per-node strength scores
+- [ ] Graph structure for multi-node entities
+
+### Phase 5: Dual Scoring
+- [ ] Confidence score (existence certainty)
+- [ ] Strength score (activation intensity)
+- [ ] Both scores on all extractions
+
+### Phase 6: Running Totals
+- [ ] Conversation-level aggregates
+- [ ] Incremental updates (no full rescans)
+- [ ] Node averages per conversation
+- [ ] Pattern detection queries
+
+### Phase 7: Safety Rules
+- [ ] ANCHOR stability enforcement
+- [ ] MIRROR softness rules
+- [ ] BEACON telemetry-only rules
+- [ ] GATEWAY sequencing validation
+
+---
+
+## 🚧 Other Gaps to Fill (High Priority)
+
+### 1. Finance - Telegram Integration
 - **Problem:** Finance data only accessible via CLI
 - **Solution:** Add `/finance` command group to bot
-  - `/finance summary` - Account balances
-  - `/finance recent [n]` - Last N transactions
-  - `/finance search <term>` - Find transactions
-  - `/finance category <term>` - Spending by category
-  - `/finance uncategorized` - List uncategorized for review
 - **Priority:** HIGH - daily use feature
 
-### 3. Seraphe Mode Implementation
+### 2. Seraphe Mode Implementation
 - **Problem:** `/mode seraphe` returns placeholder
-- **Solution:** Create `seraphe_assistant.py` with:
-  - Cosmology/symbolism knowledge base
-  - Dream interpretation
-  - Spiritual guidance prompts
-  - Integration with Neo4j spiritual entities
+- **Solution:** Create `seraphe_assistant.py` with cosmology knowledge
 - **Priority:** MEDIUM - core spiritual functionality
 
-### 4. Genealogy Mode Implementation
+### 3. Genealogy Mode Implementation
 - **Problem:** `/mode genealogy` not implemented
-- **Solution:** Create `genealogy_assistant.py` with:
-  - Family tree traversal queries
-  - Bloodline tracing
-  - Integration with genealogy data sources
-  - GEDCOM import support
+- **Solution:** Create `genealogy_assistant.py` with family tree queries
 - **Priority:** MEDIUM - supports lineage work
 
+### 4. Tool Calling for Local LLM
+- **Problem:** LLM can't query systems directly
+- **Solution:** Implement tool use in ChatAssistant
+- **Priority:** HIGH - enables "what's my grid showing?" queries
+
 ### 5. Worker Health Monitoring
-- **Problem:** Workers run but no visibility into their health/throughput
-- **Solution:**
-  - Add `/worker_status` Telegram command
-  - Track processing times and error rates
-  - Alert on worker failures
+- **Problem:** No visibility into worker health/throughput
+- **Solution:** Add `/worker_status` Telegram command
 - **Priority:** MEDIUM - operational visibility
-
-### 6. Conversation Context for Local LLM
-- **Problem:** `db_manager.py` doesn't persist conversation context well
-- **Solution:**
-  - Implement sliding window context
-  - Store recent exchanges in session
-  - Use summary worker for long conversations
-- **Priority:** MEDIUM - improves LLM interaction quality
-
-### 7. System Monitor Service
-- **Problem:** `graph_logging/system_monitor.py` exists but not running as service
-- **Solution:**
-  - Create `mythos-monitor.service`
-  - Configure collection intervals
-  - Verify Neo4j event storage
-- **Priority:** LOW - nice-to-have for diagnostics
-
-### 8. Qdrant Collection Setup
-- **Problem:** Embedding worker references Qdrant but collection may not exist
-- **Solution:**
-  - Verify/create `text_embeddings` collection
-  - Add collection initialization to worker startup
-  - Document Qdrant setup
-- **Priority:** LOW - embeddings not actively used yet
 
 ---
 
 ## 📋 Backlog (Planned Features)
 
+### Grid Enhancements
+- [ ] Fractal grid (9×9 = 81 dimensions)
+- [ ] Grid visualization in Neo4j Browser
+- [ ] Pattern detection across conversations
+- [ ] Grid-based conversation routing
+- [ ] Automatic ANCHOR strengthening suggestions
+
 ### Finance Enhancements
 - [ ] Recurring transaction detection
 - [ ] Budget alerts per category
 - [ ] Weekly spending digest via Telegram
-- [ ] Plaid API integration (real-time bank sync)
 - [ ] Receipt photo matching to transactions
 
 ### Sales System Enhancements
-- [ ] Batch photo upload (more than 3 at a time)
-- [ ] Price suggestion based on sold history
-- [ ] Auto-post to multiple marketplaces
+- [ ] Batch photo upload
+- [ ] Price suggestion based on history
 - [ ] Inventory aging alerts
-- [ ] Sales analytics dashboard
 
 ### Conversation System
-- [ ] Implement Tier 1/Tier 2 summary system
 - [ ] Semantic search across past conversations
 - [ ] Topic extraction and tracking
-- [ ] Emotional state timeline
+- [ ] Emotional state timeline (from MIRROR)
+- [ ] Tier 1/Tier 2 summary system
 
 ### Graph Database
 - [ ] Lineage visualization web UI
-- [ ] Incarnation timeline view
 - [ ] Entity relationship explorer
-- [ ] Automated fact extraction from conversations
+- [ ] Grid activation heatmaps
 
 ### Infrastructure
-- [ ] Backup automation (PostgreSQL + Neo4j)
-- [ ] Log rotation for all services
+- [ ] Backup automation
 - [ ] Health check endpoint aggregator
-- [ ] Prometheus/Grafana metrics (optional)
+- [ ] Standard diagnostic scripts
 
 ### AI/LLM
-- [ ] Fine-tune local model on Mythos data
-- [ ] Tool calling for db_manager (vs prompt-based Cypher)
 - [ ] RAG pipeline for knowledge retrieval
 - [ ] Voice input via Telegram voice messages
+- [ ] Fine-tune local model on Mythos data
 
 ---
 
 ## ✅ Completed
 
+### 2026-01-27
+- [x] Chat mode via API gateway (patch_0023)
+- [x] Architecture principles documented (patch_0024)
+- [x] Status command cleanup (patch_0025)
+- [x] Grid integration - basic scoring (patch_0026)
+- [x] Worker import path fix (patch_0027)
+- [x] Grid documentation complete (patch_0028)
+- [x] Comprehensive grid specification (patch_0029)
+
 ### 2026-01-24
 - [x] Comprehensive system audit
 - [x] ARCHITECTURE.md rewrite (v2.0.0)
 - [x] TODO.md overhaul with gaps analysis
-- [x] Patch history tracking added
 - [x] Sunmark description cleanup (patch_0018)
 
 ### 2026-01-23
-- [x] Patch system with auto-deploy (patch_0010-0017)
-- [x] Finance system - imports, categories, reports (patch_0015)
-- [x] USAA and Sunmark CSV parsers
+- [x] Patch system with auto-deploy
+- [x] Finance system - imports, categories, reports
 - [x] 682 transactions imported
 - [x] 199 category mappings
 
@@ -166,10 +187,8 @@ These are missing pieces needed for a complete, production-ready system.
 - [x] Telegram bot with multi-mode support
 - [x] FastAPI gateway with orchestrator
 - [x] 6 async workers (vision, embedding, grid, entity, temporal, summary)
-- [x] Sales intake pipeline (photo → vision → DB → export)
+- [x] Sales intake pipeline
 - [x] Neo4j graph schema for souls, persons, conversations
-- [x] Graph logging with causal event tracking
-- [x] `mythos-ask` LLM diagnostic CLI
 - [x] Vision module with llava integration
 
 ---
@@ -177,14 +196,12 @@ These are missing pieces needed for a complete, production-ready system.
 ## 💡 Ideas (Unplanned)
 
 - Web dashboard for all Mythos data
-- Mobile app (React Native)
 - Integration with Obsidian vault
-- Astrological event correlation
-- Dream journal with pattern detection
-- Automated spiritual practice reminders
-- Integration with calendar (Google/Apple)
+- Astrological event correlation with grid patterns
+- Dream journal with GATEWAY pattern detection
+- Earth grid node correlation (12 planetary nodes)
+- Spiral time integration with grid analysis
 - Genealogy GEDCOM export
-- Public API for trusted partners
 
 ---
 
@@ -206,43 +223,50 @@ cat "$D" | xclip -selection clipboard && echo "✓ Copied to clipboard"
 1. Claude creates `patch_NNNN_description/` with files and `install.sh`
 2. Claude zips and provides download
 3. User downloads → copies to `~/Downloads` on Arcturus
-4. Patch monitor auto-detects → git tag → extract → commit → version → push → install
+4. Patch monitor auto-detects → git tag → install
 5. Verify via `/patch_status`
 
 ### Session Start Pattern
 
 When starting a new Claude conversation:
-1. Provide handoff prompt or "continuing Mythos work on [topic]"
-2. Claude requests diagnostic dump for TODO.md and ARCHITECTURE.md
-3. Claude reviews current state before proceeding
+1. Request diagnostic dump for TODO.md and ARCHITECTURE.md
+2. If working on grid, also request ARCTURIAN_GRID.md
+3. Review current state before proceeding
 
 ---
 
 ## 📦 Patch History
 
-> **Next Patch Number: 0021**
+> **Next Patch Number: 0030**
 
 | Patch | Date | Description |
 |-------|------|-------------|
+| 0029 | 2026-01-27 | Comprehensive Arcturian Grid specification |
+| 0028 | 2026-01-27 | Grid documentation in ARCHITECTURE.md |
+| 0027 | 2026-01-27 | Worker import path fix |
+| 0026 | 2026-01-27 | Grid integration - ChatAssistant dispatch |
+| 0025 | 2026-01-27 | Status command cleanup |
+| 0024 | 2026-01-27 | Architecture principles documentation |
+| 0023 | 2026-01-27 | ChatAssistant in API gateway |
+| 0022 | 2026-01-27 | Default chat mode + enhanced status |
+| 0021 | 2026-01-27 | Help and chat mode (bot-side) |
 | 0020 | 2026-01-24 | Comprehensive documentation overhaul |
 | 0019 | 2026-01-24 | Added patch history to TODO.md |
-| 0018 | 2026-01-24 | Sunmark description cleanup - (POS)/(ATM)/(EXT) tags |
+| 0018 | 2026-01-24 | Sunmark description cleanup |
 | 0017 | 2026-01-24 | Project docs updated |
-| 0016 | 2026-01-24 | Project documentation system (TODO.md, ARCHITECTURE.md) |
-| 0015 | 2026-01-24 | Finance system complete - imports, categories, reports |
+| 0016 | 2026-01-24 | Project documentation system |
+| 0015 | 2026-01-24 | Finance system complete |
 | 0014 | 2026-01-23 | Finance migration |
 | 0013 | 2026-01-23 | Finance system initial |
 | 0012 | 2026-01-23 | Telegram autoexec |
 | 0011 | 2026-01-23 | Test patch |
 | 0010 | 2026-01-23 | GitHub patch system |
 
-*Increment patch number and add row when creating new patches.*
-
 ---
 
 ## ❌ Dropped (Abandoned Ideas)
 
-*Nothing dropped yet - this section holds ideas we explicitly decided not to pursue.*
+*Nothing dropped yet.*
 
 ---
 
