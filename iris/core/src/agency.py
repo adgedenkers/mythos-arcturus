@@ -5,13 +5,11 @@ How Iris acts in the world.
 This is where autonomous code execution lives.
 This is her hands.
 
-v0.2.0 - Real Docker sandbox execution
+v0.2.1 - Fixed sandbox path to use shared volume
 """
 
 import asyncio
 import os
-import tempfile
-import shutil
 import uuid
 from datetime import datetime
 from typing import Dict, List, Any, Optional
@@ -59,9 +57,15 @@ class AgencySystem:
         
         # Configuration from environment
         self.sandbox_image = os.getenv("SANDBOX_IMAGE", "iris-sandbox:latest")
-        self.sandbox_network = os.getenv("SANDBOX_NETWORK", "mythos_iris-internal")
+        self.sandbox_network = os.getenv("SANDBOX_NETWORK", "docker_iris-internal")
         self.sandbox_timeout = int(os.getenv("SANDBOX_TIMEOUT", "60"))
         self.workshop_path = os.getenv("WORKSHOP_PATH", "/iris/workshop")
+        
+        # Path for temporary sandbox files
+        # This MUST be a path that's shared between iris-core and the host
+        # /iris/sandbox inside container = /opt/mythos/iris/sandbox on host
+        self.sandbox_temp_path_container = os.getenv("SANDBOX_PATH", "/iris/sandbox")
+        self.sandbox_temp_path_host = os.getenv("SANDBOX_HOST_PATH", "/opt/mythos/iris/sandbox")
         
         # Database connection info for sandbox
         self.db_env = {
@@ -94,10 +98,14 @@ class AgencySystem:
             # Verify/build sandbox image
             await self._ensure_sandbox_image()
             
+            # Ensure temp directory exists
+            os.makedirs(self.sandbox_temp_path_container, exist_ok=True)
+            
             self._initialized = True
             log.info("agency_initialized",
                      sandbox_image=self.sandbox_image,
-                     sandbox_timeout=self.sandbox_timeout)
+                     sandbox_timeout=self.sandbox_timeout,
+                     sandbox_temp_path=self.sandbox_temp_path_container)
             
         except Exception as e:
             log.error("agency_init_failed", error=str(e))
@@ -112,12 +120,12 @@ class AgencySystem:
         except aiodocker.DockerError:
             log.warning("sandbox_image_missing", image=self.sandbox_image)
             # Try to build it
-            sandbox_path = os.getenv("SANDBOX_PATH", "/iris/sandbox")
-            if os.path.exists(os.path.join(sandbox_path, "Dockerfile")):
-                log.info("building_sandbox_image", path=sandbox_path)
+            sandbox_dockerfile_path = os.getenv("SANDBOX_PATH", "/iris/sandbox")
+            if os.path.exists(os.path.join(sandbox_dockerfile_path, "Dockerfile")):
+                log.info("building_sandbox_image", path=sandbox_dockerfile_path)
                 try:
                     await self._docker.images.build(
-                        path=sandbox_path,
+                        path=sandbox_dockerfile_path,
                         tag=self.sandbox_image,
                         rm=True,
                     )
@@ -125,7 +133,7 @@ class AgencySystem:
                 except Exception as e:
                     log.error("sandbox_build_failed", error=str(e))
             else:
-                log.error("sandbox_dockerfile_missing", path=sandbox_path)
+                log.error("sandbox_dockerfile_missing", path=sandbox_dockerfile_path)
     
     async def consider_actions(self, integrated: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
@@ -261,6 +269,11 @@ class AgencySystem:
         
         This is the real implementation - spawns a Docker container,
         writes code to it, executes, captures output, cleans up.
+        
+        IMPORTANT: We use a shared volume path so that:
+        - iris-core writes to /iris/sandbox/tmp_xxx/task.py
+        - This maps to /opt/mythos/iris/sandbox/tmp_xxx on the host
+        - Sandbox container mounts /opt/mythos/iris/sandbox/tmp_xxx:/workspace
         """
         log.info("executing_in_sandbox", code_length=len(code))
         
@@ -273,39 +286,46 @@ class AgencySystem:
                 "duration": 0.0,
             }
         
-        # Create temp directory for code
-        temp_dir = tempfile.mkdtemp(prefix="iris_sandbox_")
-        task_file = os.path.join(temp_dir, "task.py")
+        # Create temp directory in the SHARED volume
+        # This path exists on the host and is accessible by sandbox containers
+        task_id = uuid.uuid4().hex[:8]
+        temp_dir_container = os.path.join(self.sandbox_temp_path_container, f"tmp_{task_id}")
+        temp_dir_host = os.path.join(self.sandbox_temp_path_host, f"tmp_{task_id}")
+        task_file = os.path.join(temp_dir_container, "task.py")
         
         container = None
         start_time = datetime.utcnow()
         
         try:
-            # Write code to file
+            # Create temp directory and write code
+            os.makedirs(temp_dir_container, exist_ok=True)
             with open(task_file, "w") as f:
                 f.write(code)
             
+            log.debug("code_written", 
+                      container_path=temp_dir_container,
+                      host_path=temp_dir_host)
+            
             # Create container configuration
-            container_name = f"iris-sandbox-{uuid.uuid4().hex[:8]}"
+            container_name = f"iris-sandbox-{task_id}"
             
             config = {
                 "Image": self.sandbox_image,
                 "Cmd": ["python", "/workspace/task.py"],
                 "HostConfig": {
-                    "Binds": [f"{temp_dir}:/workspace:ro"],
+                    # Mount the HOST path into the sandbox
+                    "Binds": [f"{temp_dir_host}:/workspace:ro"],
                     "NetworkMode": self.sandbox_network,
                     "Memory": 512 * 1024 * 1024,  # 512MB limit
                     "CpuPeriod": 100000,
                     "CpuQuota": 50000,  # 50% CPU limit
-                    "AutoRemove": False,  # We'll remove manually after getting logs
+                    "AutoRemove": False,
+                    # Add host.docker.internal mapping
+                    "ExtraHosts": ["host.docker.internal:host-gateway"],
                 },
                 "Env": [f"{k}={v}" for k, v in self.db_env.items()],
                 "WorkingDir": "/workspace",
             }
-            
-            # Add extra_hosts for host.docker.internal if needed
-            # (This is handled by docker-compose for iris-core, 
-            # but sandboxes need it too)
             
             log.debug("creating_sandbox_container", 
                       name=container_name,
@@ -331,7 +351,6 @@ class AgencySystem:
                 log.warning("sandbox_timeout", timeout=self.sandbox_timeout)
                 exit_code = -1
                 timed_out = True
-                # Kill the container
                 try:
                     await container.kill()
                 except:
@@ -393,7 +412,9 @@ class AgencySystem:
             
             # Clean up temp directory
             try:
-                shutil.rmtree(temp_dir)
+                import shutil
+                shutil.rmtree(temp_dir_container)
+                log.debug("temp_dir_cleaned", path=temp_dir_container)
             except Exception as e:
                 log.warning("temp_cleanup_failed", error=str(e))
     
@@ -403,7 +424,7 @@ class AgencySystem:
         if result.get("timed_out"):
             return {
                 "success": False,
-                "should_give_up": False,  # Might work with optimization
+                "should_give_up": False,
                 "reason": "Execution timed out",
                 "suggestions": ["Optimize the code for speed", "Break into smaller steps"],
             }
@@ -587,7 +608,6 @@ Important:
     
     async def _execute_analyze(self, action: Dict) -> TaskResult:
         """Run analysis."""
-        # Convert to build task
         task = {
             "name": action.get("name", "analysis_task"),
             "goal": action.get("goal"),
