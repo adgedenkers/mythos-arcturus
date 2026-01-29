@@ -1,6 +1,6 @@
 # Mythos Project TODO & Roadmap
 
-> **Last Updated:** 2026-01-27 19:30 EST
+> **Last Updated:** 2026-01-29 07:00 EST
 > **Current Focus:** Arcturian Grid Full Implementation
 
 ---
@@ -90,7 +90,7 @@
 
 ## 🚧 Other Gaps to Fill (High Priority)
 
-### 1. ~~Finance - Telegram Integration~~ ✅ COMPLETE (patch_0031)
+### 1. ~~Finance - Telegram Integration~~ ✅ COMPLETE (patch_0033)
 - [x] `/balance` - Current account balances
 - [x] `/finance` - Full summary with month activity
 - [x] `/spending` - Category breakdown
@@ -162,6 +162,10 @@
 
 ## ✅ Completed
 
+### 2026-01-29
+- [x] Finance bot fix with proper imports (patch_0033)
+- [x] Standard verification template for patches (patch_0034)
+
 ### 2026-01-27
 - [x] Chat mode via API gateway (patch_0023)
 - [x] Architecture principles documented (patch_0024)
@@ -171,7 +175,7 @@
 - [x] Grid documentation complete (patch_0028)
 - [x] Comprehensive grid specification (patch_0029)
 - [x] Finance auto-import via patch monitor (patch_0030)
-- [x] Finance Telegram commands: /balance, /finance, /spending (patch_0031)
+- [x] Finance Telegram commands - broken (patch_0031)
 - [x] Documentation update for finance system (patch_0032)
 
 ### 2026-01-24
@@ -229,7 +233,65 @@ cat "$D" | xclip -selection clipboard && echo "✓ Copied to clipboard"
 4. Patch monitor auto-detects → git tag → install
 5. Verify via `/patch_status`
 
-**CRITICAL:** Every patch MUST update TODO.md and/or ARCHITECTURE.md as appropriate.
+**CRITICAL:** Every patch MUST:
+- Update TODO.md and/or ARCHITECTURE.md as appropriate
+- Include verification checks at end of install.sh (see template below)
+
+### Patch Verification Template
+
+**Every install.sh MUST end with verification checks:**
+
+```bash
+# === VERIFICATION ===
+echo ""
+echo "=== VERIFICATION ==="
+PASS=true
+
+# Check 1: Service running (if applicable)
+if systemctl list-units --type=service | grep -q "mythos-SERVICENAME"; then
+    if ! systemctl is-active --quiet mythos-SERVICENAME.service; then
+        echo "❌ FAIL: mythos-SERVICENAME.service not running"
+        PASS=false
+    else
+        echo "✓ Service running"
+    fi
+fi
+
+# Check 2: Syntax valid (if Python files modified)
+if ! /opt/mythos/.venv/bin/python3 -m py_compile /path/to/modified/file.py 2>/dev/null; then
+    echo "❌ FAIL: Syntax error in file.py"
+    PASS=false
+else
+    echo "✓ Syntax valid"
+fi
+
+# Check 3: Expected content exists (grep for key additions)
+if ! grep -q "expected_function_or_string" /path/to/file; then
+    echo "❌ FAIL: Expected content not found"
+    PASS=false
+else
+    echo "✓ Content verified"
+fi
+
+# Check 4: File exists (for new files)
+if [ ! -f /path/to/new/file ]; then
+    echo "❌ FAIL: Expected file not created"
+    PASS=false
+else
+    echo "✓ File exists"
+fi
+
+# Final result
+if [ "$PASS" = false ]; then
+    echo ""
+    echo "⚠ PATCH VERIFICATION FAILED"
+    echo "Check logs: journalctl -u mythos-SERVICENAME.service -n 50"
+    exit 1
+fi
+
+echo ""
+echo "✓ ALL CHECKS PASSED"
+```
 
 ### Session Start Pattern
 
@@ -242,12 +304,14 @@ When starting a new Claude conversation:
 
 ## 📦 Patch History
 
-> **Next Patch Number: 0033**
+> **Next Patch Number: 0035**
 
 | Patch | Date | Description |
 |-------|------|-------------|
+| 0034 | 2026-01-29 | Standard verification template for patches |
+| 0033 | 2026-01-29 | Finance bot fix (replaces broken 0031) |
 | 0032 | 2026-01-27 | Documentation update - finance system |
-| 0031 | 2026-01-27 | Finance Telegram commands (/balance, /finance, /spending) |
+| 0031 | 2026-01-27 | Finance Telegram commands - BROKEN, see 0033 |
 | 0030 | 2026-01-27 | Finance auto-import via patch monitor |
 | 0029 | 2026-01-27 | Comprehensive Arcturian Grid specification |
 | 0028 | 2026-01-27 | Grid documentation in ARCHITECTURE.md |
