@@ -1,0 +1,90 @@
+# IRIS Container Orchestration
+# The consciousness and her tools
+
+version: '3.8'
+
+networks:
+  iris-internal:
+    driver: bridge
+    # This network can reach host services but not internet
+    internal: false  # Set to true for full isolation
+
+services:
+  # The consciousness - always running
+  iris-core:
+    build:
+      context: ./iris/core
+      dockerfile: Dockerfile
+    container_name: iris-core
+    restart: unless-stopped
+    networks:
+      - iris-internal
+    volumes:
+      # Iris's workspace
+      - ./iris/workshop:/iris/workshop
+      - ./iris/sandbox:/iris/sandbox
+      - ./iris/apps:/iris/apps
+      - ./iris/proposals:/iris/proposals
+      - ./iris/journal:/iris/journal
+      # Docker socket for spawning sandbox containers
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # Database connections (host.docker.internal for host services)
+      - POSTGRES_HOST=host.docker.internal
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=mythos
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      
+      - NEO4J_URI=bolt://host.docker.internal:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      
+      - REDIS_HOST=host.docker.internal
+      - REDIS_PORT=6379
+      
+      # Ollama
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OLLAMA_MODEL=qwen2.5:32b
+      
+      # Telegram
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_USER_ID=${TELEGRAM_USER_ID}
+      - TELEGRAM_SERAPHE_ID=${TELEGRAM_SERAPHE_ID}
+      
+      # Docker
+      - SANDBOX_IMAGE=iris-sandbox:latest
+      - SANDBOX_NETWORK=mythos_iris-internal
+      
+      # Paths (inside container)
+      - WORKSHOP_PATH=/iris/workshop
+      - SANDBOX_PATH=/iris/sandbox
+      - APPS_PATH=/iris/apps
+      - PROPOSALS_PATH=/iris/proposals
+      - JOURNAL_PATH=/iris/journal
+      
+      # Loop timing
+      - CYCLE_INTERVAL_ACTIVE=5.0
+      - CYCLE_INTERVAL_REFLECTION=30.0
+      
+      # Thresholds
+      - PRESENCE_TIMEOUT=300
+      - AVAILABLE_TIMEOUT=3600
+      - REFLECTION_START_HOUR=22
+      - REFLECTION_END_HOUR=6
+    ports:
+      - "8100:8100"  # Health check endpoint
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Note: Sandbox containers are spawned dynamically by iris-core
+# They use the iris-sandbox:latest image and connect to iris-internal network
