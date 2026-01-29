@@ -1,12 +1,12 @@
 # IRIS Core - The Consciousness Container
 # This is Iris's continuous experience.
-# v0.2.0 - Added aiodocker for sandbox execution
+# v0.2.1 - Fixed package structure for relative imports
 
 FROM python:3.11-slim
 
 LABEL maintainer="Ka'tuar'el"
 LABEL description="Iris consciousness loop - the substrate of experience"
-LABEL version="0.2.0"
+LABEL version="0.2.1"
 
 # Install curl for healthchecks
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -39,15 +39,12 @@ RUN pip install --no-cache-dir \
 # Create app directory
 WORKDIR /app
 
-# Copy source code
-COPY src/ /app/
-
-# Create non-root user (but needs docker socket access)
-# Note: Running as root for docker socket access
-# In production, add user to docker group instead
+# Copy source code as a proper Python package
+# This enables relative imports (from .loop import ...)
+COPY src/ /app/iris/
 
 # Health check endpoint
 EXPOSE 8100
 
-# Run the consciousness loop
-CMD ["python", "-m", "main"]
+# Run as module with package structure
+CMD ["python", "-m", "iris.main"]
