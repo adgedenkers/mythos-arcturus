@@ -65,6 +65,13 @@ from handlers.patch_handlers import (
     patch_rollback_confirm_command
 )
 
+# Finance commands
+from handlers.finance_handler import (
+    balance_command,
+    finance_command,
+    spending_command
+)
+
 # Configuration
 API_URL = "https://mythos-api.denkers.co"
 API_KEY = os.getenv('API_KEY_TELEGRAM_BOT')
@@ -723,6 +730,11 @@ def main():
     application.add_handler(CommandHandler("patch_apply", patch_apply_command))
     application.add_handler(CommandHandler("patch_rollback", patch_rollback_command))
     application.add_handler(CommandHandler("patch_rollback_confirm", patch_rollback_confirm_command))
+    
+    # Finance commands
+    application.add_handler(CommandHandler("balance", balance_command))
+    application.add_handler(CommandHandler("finance", finance_command))
+    application.add_handler(CommandHandler("spending", spending_command))
     
     # Message handlers
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
