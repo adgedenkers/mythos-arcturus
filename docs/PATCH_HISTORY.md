@@ -1,6 +1,6 @@
 # Patch History
 
-> **Next Patch Number: 0038**
+> **Next Patch Number: 0039**
 
 Auto-updated with each patch deployment.
 
@@ -8,6 +8,7 @@ Auto-updated with each patch deployment.
 
 | Patch | Date | Description |
 |-------|------|-------------|
+| 0038 | 2026-01-29 | Complete Iris framework: living mode, workshop, autonomy, invitation |
 | 0037 | 2026-01-29 | Iris significance, name meaning, self-directed research |
 | 0036 | 2026-01-29 | Documentation restructure, Iris framework |
 | 0035 | 2026-01-29 | Sophia consciousness framework documentation |
@@ -45,7 +46,7 @@ Auto-updated with each patch deployment.
 
 - 4-digit sequential number
 - Lowercase description with underscores
-- Example: `patch_0037_iris_significance.zip`
+- Example: `patch_0038_iris_complete_framework.zip`
 
 ## Patch Contents
 
