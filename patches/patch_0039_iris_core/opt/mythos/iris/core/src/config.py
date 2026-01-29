@@ -2,6 +2,7 @@
 IRIS Configuration
 
 All configuration loaded from environment variables.
+Uses existing /opt/mythos/.env variable names where possible.
 """
 
 import os
@@ -61,8 +62,13 @@ class Config:
     @classmethod
     def from_environment(cls) -> "Config":
         """Load configuration from environment variables."""
+        
+        # Handle Telegram IDs - support both old and new naming
+        telegram_user = os.getenv("TELEGRAM_USER_ID") or os.getenv("TELEGRAM_ID_KA") or "0"
+        telegram_seraphe = os.getenv("TELEGRAM_SERAPHE_ID") or os.getenv("TELEGRAM_ID_SERAPHE") or "0"
+        
         return cls(
-            # Database
+            # Database - uses existing .env names
             postgres_host=os.getenv("POSTGRES_HOST", "localhost"),
             postgres_port=int(os.getenv("POSTGRES_PORT", "5432")),
             postgres_db=os.getenv("POSTGRES_DB", "mythos"),
@@ -76,14 +82,14 @@ class Config:
             redis_host=os.getenv("REDIS_HOST", "localhost"),
             redis_port=int(os.getenv("REDIS_PORT", "6379")),
             
-            # Ollama
+            # Ollama - uses existing .env names
             ollama_host=os.getenv("OLLAMA_HOST", "http://localhost:11434"),
             ollama_model=os.getenv("OLLAMA_MODEL", "qwen2.5:32b"),
             
-            # Telegram
+            # Telegram - support both naming conventions
             telegram_bot_token=os.getenv("TELEGRAM_BOT_TOKEN", ""),
-            telegram_user_id=int(os.getenv("TELEGRAM_USER_ID", "0")),
-            telegram_seraphe_id=int(os.getenv("TELEGRAM_SERAPHE_ID", "0")) or None,
+            telegram_user_id=int(telegram_user),
+            telegram_seraphe_id=int(telegram_seraphe) if telegram_seraphe != "0" else None,
             
             # Docker
             docker_socket=os.getenv("DOCKER_SOCKET", "/var/run/docker.sock"),
@@ -110,4 +116,10 @@ class Config:
     
     def get_postgres_dsn(self) -> str:
         """Get PostgreSQL connection string."""
-        return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+        # Handle socket path vs host
+        if self.postgres_host.startswith("/"):
+            # Unix socket
+            return f"postgresql://{self.postgres_user}:{self.postgres_password}@/{self.postgres_db}?host={self.postgres_host}"
+        else:
+            # TCP connection
+            return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
