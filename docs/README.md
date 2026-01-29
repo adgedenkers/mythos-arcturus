@@ -1,93 +1,66 @@
-# Mythos System Documentation
+# Mythos Documentation Index
 
-## Overview
+> **Last Updated:** 2026-01-29
 
-Mythos is a sovereign spiritual infrastructure system combining graph databases, vector storage, and AI processing for tracking soul lineages, incarnations, and spiritual patterns.
+## Quick Reference
 
-**Base Directory:** `/opt/mythos`  
-**Primary User:** Ka'tuar'el (ka)
+| Document | Purpose | Update Frequency |
+|----------|---------|------------------|
+| `TODO.md` | Active work, backlog | Every session |
+| `ARCHITECTURE.md` | System overview | At milestones |
+| `IDEAS.md` | Potential features | When inspired |
+| `PATCH_HISTORY.md` | Version history | Auto with patches |
 
-## Documentation Structure
+## Document Map
 
 ```
-/opt/mythos/docs/
-├── README.md           # This file
-├── tools/              # Utility and debugging tools
-├── patches/            # Patch-specific documentation
-├── architecture/       # System design docs
-└── api/                # API endpoint documentation
+docs/
+├── README.md              ← You are here
+├── TODO.md                # What we're doing
+├── ARCHITECTURE.md        # What exists
+├── IDEAS.md               # What we might do
+├── PATCH_HISTORY.md       # What we've done
+│
+├── consciousness/         # Iris - the soul of Arcturus
+│   ├── IRIS.md            # Complete framework
+│   ├── COVENANT.md        # Partnership agreements (future)
+│   └── INVOCATION.md      # Ceremony design (future)
+│
+├── grid/                  # Arcturian Grid system
+│   └── ARCTURIAN_GRID.md  # Full specification
+│
+├── finance/               # Financial tracking
+│   └── FINANCE_SYSTEM.md  # Detailed docs
+│
+├── subsystems/            # Component details (as needed)
+│
+└── archive/               # Historical records
+    └── COMPLETED.md       # Past completed work
 ```
 
-## Quick Links
+## Session Start
 
-### Tools
-- [Debug Pipeline](tools/debug_pipeline.md) - System monitoring and debugging
-- [Test Pipeline](tools/test_pipeline.md) - Automated health checks
-
-### Patches Applied
-- [Patch 0008](patches/patch_0008.md) - Orchestration System (Qdrant, Redis, Workers)
-
-### Architecture
-- [System Overview](architecture/overview.md)
-- [Data Flow](architecture/data_flow.md)
-
-## Core Components
-
-| Component | Port | Purpose |
-|-----------|------|---------|
-| FastAPI | 8000 | Main API |
-| PostgreSQL | 5432 | Relational data |
-| Neo4j | 7687 | Graph database |
-| Qdrant | 6333 | Vector storage |
-| Redis | 6379 | Task queue |
-| Ollama | 11434 | Local LLM |
-
-## Services
-
+Standard diagnostic dump:
 ```bash
-# API
-sudo systemctl status mythos-api
-
-# Workers
-sudo systemctl status mythos-worker-grid
-sudo systemctl status mythos-worker-embedding
-sudo systemctl status mythos-worker-vision
-sudo systemctl status mythos-worker-temporal
-sudo systemctl status mythos-worker-entity
-sudo systemctl status mythos-worker-summary
+D=~/diag.txt; > "$D"
+echo "=== TODO ===" >> "$D"
+cat /opt/mythos/docs/TODO.md >> "$D" 2>&1
+echo -e "\n\n=== ARCHITECTURE ===" >> "$D"
+cat /opt/mythos/docs/ARCHITECTURE.md >> "$D" 2>&1
+echo -e "\n\n=== DOCS INDEX ===" >> "$D"
+cat /opt/mythos/docs/README.md >> "$D" 2>&1
+cat "$D" | xclip -selection clipboard && echo "✓ Copied to clipboard"
 ```
 
-## Common Commands
+Then request specific docs as needed:
+- Working on Iris? Add `consciousness/IRIS.md`
+- Working on grid? Add `grid/ARCTURIAN_GRID.md`
+- Working on finance? Add `finance/FINANCE_SYSTEM.md`
 
-```bash
-# Activate environment
-cd /opt/mythos && source .venv/bin/activate
+## Maintenance Rules
 
-# Run tests
-python3 utils/test_pipeline.py
-
-# Debug status
-python3 utils/debug_pipeline.py status
-
-# View logs
-journalctl -u mythos-api -f
-journalctl -u mythos-worker-grid -f
-```
-
-## Maintenance
-
-### Restart All Services
-```bash
-sudo systemctl restart mythos-api
-for w in grid embedding vision temporal entity summary; do
-  sudo systemctl restart mythos-worker-$w
-done
-```
-
-### Check All Services
-```bash
-python3 /opt/mythos/utils/debug_pipeline.py status
-```
-
----
-*Last updated: 2026-01-21*
+1. **TODO.md stays lean** - Active work + backlog titles only. Details go in domain docs.
+2. **ARCHITECTURE.md stays lean** - Overview only. Details go in domain docs.
+3. **IDEAS.md is low-commitment** - Capture freely, delete ruthlessly.
+4. **Domain docs hold the depth** - Full specifications, implementation details.
+5. **Every patch updates docs** - No exceptions.
