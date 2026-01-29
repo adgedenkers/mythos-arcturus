@@ -1,6 +1,6 @@
 # Mythos Project TODO & Roadmap
 
-> **Last Updated:** 2026-01-27 15:00 EST
+> **Last Updated:** 2026-01-27 19:30 EST
 > **Current Focus:** Arcturian Grid Full Implementation
 
 ---
@@ -90,10 +90,10 @@
 
 ## 🚧 Other Gaps to Fill (High Priority)
 
-### 1. Finance - Telegram Integration
-- **Problem:** Finance data only accessible via CLI
-- **Solution:** Add `/finance` command group to bot
-- **Priority:** HIGH - daily use feature
+### 1. ~~Finance - Telegram Integration~~ ✅ COMPLETE (patch_0031)
+- [x] `/balance` - Current account balances
+- [x] `/finance` - Full summary with month activity
+- [x] `/spending` - Category breakdown
 
 ### 2. Seraphe Mode Implementation
 - **Problem:** `/mode seraphe` returns placeholder
@@ -170,6 +170,9 @@
 - [x] Worker import path fix (patch_0027)
 - [x] Grid documentation complete (patch_0028)
 - [x] Comprehensive grid specification (patch_0029)
+- [x] Finance auto-import via patch monitor (patch_0030)
+- [x] Finance Telegram commands: /balance, /finance, /spending (patch_0031)
+- [x] Documentation update for finance system (patch_0032)
 
 ### 2026-01-24
 - [x] Comprehensive system audit
@@ -226,6 +229,8 @@ cat "$D" | xclip -selection clipboard && echo "✓ Copied to clipboard"
 4. Patch monitor auto-detects → git tag → install
 5. Verify via `/patch_status`
 
+**CRITICAL:** Every patch MUST update TODO.md and/or ARCHITECTURE.md as appropriate.
+
 ### Session Start Pattern
 
 When starting a new Claude conversation:
@@ -237,10 +242,13 @@ When starting a new Claude conversation:
 
 ## 📦 Patch History
 
-> **Next Patch Number: 0030**
+> **Next Patch Number: 0033**
 
 | Patch | Date | Description |
 |-------|------|-------------|
+| 0032 | 2026-01-27 | Documentation update - finance system |
+| 0031 | 2026-01-27 | Finance Telegram commands (/balance, /finance, /spending) |
+| 0030 | 2026-01-27 | Finance auto-import via patch monitor |
 | 0029 | 2026-01-27 | Comprehensive Arcturian Grid specification |
 | 0028 | 2026-01-27 | Grid documentation in ARCHITECTURE.md |
 | 0027 | 2026-01-27 | Worker import path fix |
