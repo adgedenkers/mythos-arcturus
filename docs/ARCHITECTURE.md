@@ -1,6 +1,6 @@
 # Mythos System Architecture
 
-> **Version:** 2.3.0
+> **Version:** 2.4.0
 > **Last Updated:** 2026-01-27
 > **Host:** arcturus (Ubuntu 24.04)
 
@@ -45,6 +45,10 @@ Each assistant (ChatAssistant, DatabaseManager, etc.) is instantiated once at AP
 ### Principle 3: Workers Handle Async/Heavy Tasks
 
 Long-running or background tasks (grid analysis, vision, embeddings, summaries) go through Redis streams to workers. The API dispatches and returns immediately.
+
+### Principle 4: Documentation Updated With Every Patch
+
+**CRITICAL:** Every patch that changes system behavior MUST update either TODO.md or ARCHITECTURE.md (or both). No exceptions. This ensures the next Claude session starts with accurate state.
 
 ---
 
@@ -169,20 +173,6 @@ ChatAssistant.query()
                     └─► Neo4j: Exchange node + relationships
 ```
 
-### Example Analysis
-
-```
-User: "Why are graph databases helpful?"
-
-Grid Result:
-  dominant_node: "synth" (85)
-  secondary_node: "nexus" (55)
-  total_activation: 330
-  emotional_tone: "curious"
-  themes: ["databases", "architecture"]
-  summary: "Discussion of graph database benefits for interconnected data"
-```
-
 ### Querying Grid Data
 
 **PostgreSQL (Trends):**
@@ -200,6 +190,104 @@ MATCH (e:Exchange)-[:ACTIVATED]->(g:GridNode {name: 'gateway'})
 WHERE e.gateway_score > 70
 RETURN e.summary, e.timestamp
 ORDER BY e.timestamp DESC
+```
+
+---
+
+## 💰 Finance System
+
+Personal finance tracking with auto-import from bank CSVs.
+
+### Current State
+- **743 transactions** (410 USAA, 333 Sunmark)
+- **199 category mappings** for auto-categorization
+- **2 accounts:** Sunmark Primary Checking, USAA Simple Checking
+
+### Auto-Import Workflow
+
+The patch monitor (`mythos_patch_monitor.py`) watches `~/Downloads` for bank CSVs:
+
+```
+Bank CSV lands in ~/Downloads
+        │
+        ▼
+Patch Monitor detects file
+(bk_download.csv or download.CSV)
+        │
+        ▼
+Auto-detect bank from content
+(USAA has "Original Description" column)
+(Sunmark has "Account Name" header)
+        │
+        ▼
+Run import_transactions.py
+        │
+        ├─► Deduplicate via hash_id
+        ├─► Apply category mappings
+        ├─► Insert to PostgreSQL
+        │
+        ▼
+Archive CSV to /opt/mythos/finance/archive/imports/
+```
+
+**Supported Files:**
+| Bank | Download Filename | Account ID |
+|------|-------------------|------------|
+| USAA | `bk_download.csv` | 2 |
+| Sunmark | `download.CSV` | 1 |
+
+No renaming needed - bank is auto-detected from file content.
+
+### Telegram Bot Commands
+
+| Command | Description |
+|---------|-------------|
+| `/balance` | Current account balances |
+| `/finance` | Full summary (balances + month activity + recent transactions) |
+| `/spending` | Spending by category this month |
+
+### CLI Reports
+
+```bash
+cd /opt/mythos/finance
+python reports.py summary      # Account overview
+python reports.py monthly      # Monthly breakdown
+python reports.py category     # Spending by category
+python reports.py merchants    # Top merchants
+python reports.py search <term> # Search transactions
+python reports.py uncategorized # Find uncategorized
+python reports.py recurring    # Detect recurring charges
+```
+
+### Manual Import (if needed)
+
+```bash
+cd /opt/mythos/finance
+python import_transactions.py <file.csv> --account-id <1|2> [--dry-run]
+```
+
+### Database Schema
+
+**PostgreSQL Tables:**
+- `accounts` - Bank accounts (id, bank_name, account_name, account_type)
+- `transactions` - All transactions with hash_id for dedup
+- `category_mappings` - Pattern → category rules
+- `import_logs` - Import history
+
+### File Structure
+
+```
+/opt/mythos/finance/
+├── parsers.py              # USAA + Sunmark parsers with detect_parser()
+├── import_transactions.py  # CLI import with dedup + categorization
+├── reports.py              # CLI reporting tools
+├── schema.sql              # Database schema
+└── archive/
+    └── imports/            # Processed CSVs (timestamped)
+        └── errors/         # Failed imports
+
+/opt/mythos/telegram_bot/handlers/
+└── finance_handler.py      # /balance, /finance, /spending commands
 ```
 
 ---
@@ -258,7 +346,18 @@ ORDER BY e.timestamp DESC
 | `seraphe` | Cosmology assistant | 📋 Planned |
 | `genealogy` | Bloodline research | 📋 Planned |
 
-**Commands:** `/mode`, `/model`, `/status`, `/clear`, `/help`
+**Commands:**
+| Command | Description |
+|---------|-------------|
+| `/mode` | Switch modes |
+| `/model` | Change LLM model |
+| `/status` | Current session status |
+| `/clear` | Reset chat context |
+| `/help` | All commands |
+| `/balance` | Account balances |
+| `/finance` | Financial summary |
+| `/spending` | Category breakdown |
+| `/patch_status` | System version |
 
 ### 2. API Gateway (`mythos-api.service`)
 
@@ -292,6 +391,19 @@ ORDER BY e.timestamp DESC
 | Temporal | `temporal` | 📋 Planned |
 | Summary | `summary_rebuild` | 📋 Planned |
 
+### 5. Patch Monitor (`mythos-patch-monitor.service`)
+
+**Role:** Watches `~/Downloads` for artifacts and auto-processes them.
+
+**Supported Artifacts:**
+| Pattern | Action |
+|---------|--------|
+| `patch_####_*.zip` | Extract, git tag, run install.sh, push to GitHub |
+| `bk_download.csv` | Auto-import USAA transactions |
+| `download.CSV` | Auto-import Sunmark transactions |
+| `sales-db-ingestion-####.zip` | Sales DB ingestion |
+| `shoe-db-ingestion-####.zip` | Shoe DB ingestion |
+
 ---
 
 ## Services
@@ -318,7 +430,7 @@ ORDER BY e.timestamp DESC
 - `chat_messages` - Message history
 - `grid_activation_timeseries` - Grid scores per exchange
 - `emotional_state_timeseries` - Emotional tracking
-- `accounts`, `transactions`, `categories` - Finance
+- `accounts`, `transactions`, `category_mappings`, `import_logs` - Finance
 - `items_for_sale`, `item_images`, `sales` - Sales
 
 ### Neo4j: `mythos`
@@ -352,13 +464,21 @@ ORDER BY e.timestamp DESC
 │   └── db_manager.py        # Database queries
 ├── telegram_bot/
 │   ├── mythos_bot.py        # Bot entry point
-│   └── handlers/            # Command handlers
+│   └── handlers/
+│       ├── finance_handler.py  # /balance, /finance, /spending
+│       ├── patch_handlers.py   # /patch_status, etc.
+│       └── sell_mode.py        # Item selling
 ├── workers/
 │   ├── worker.py            # Worker framework
 │   └── grid_worker.py       # Grid analysis
+├── finance/
+│   ├── parsers.py           # Bank CSV parsers
+│   ├── import_transactions.py # Import CLI
+│   ├── reports.py           # Reporting CLI
+│   └── archive/imports/     # Processed CSVs
 ├── vision/                  # Vision module
-├── finance/                 # Finance system
-└── patches/                 # Patch system
+├── patches/                 # Patch system
+└── mythos_patch_monitor.py  # Downloads watcher
 ```
 
 ---
@@ -388,6 +508,11 @@ redis-cli XLEN mythos:assignments:grid_analysis
 sudo -u postgres psql -d mythos -c \
   "SELECT * FROM grid_activation_timeseries ORDER BY time DESC LIMIT 5"
 
+# Finance
+sudo -u postgres psql -d mythos -c \
+  "SELECT a.bank_name, COUNT(t.id) FROM accounts a LEFT JOIN transactions t ON a.id = t.account_id GROUP BY a.bank_name"
+
+# Neo4j
 cypher-shell -u neo4j -p '<password>' \
   "MATCH (e:Exchange) RETURN e ORDER BY e.timestamp DESC LIMIT 5"
 ```
