@@ -10,8 +10,6 @@ Supported artifacts:
 - patch_####_*.zip              → Mythos patch ingestion (with git versioning)
 - sales-db-ingestion-####.zip   → Sales DB ingestion (stage + extract + run SQL)
 - shoe-db-ingestion-####.zip    → Shoe DB ingestion (stage + extract + run SQL)
-- sunmark_*.csv                 → Sunmark bank CSV auto-import
-- usaa_*.csv                    → USAA bank CSV auto-import
 
 Git Integration:
 - Creates tagged snapshot before applying any patch
@@ -28,7 +26,6 @@ Notes:
 import os
 import re
 import shutil
-import sys
 import zipfile
 import time
 import logging
@@ -55,16 +52,6 @@ SALES_ARCHIVE_DIR = SALES_DIR / "archive"
 SHOE_DIR = Path("/opt/mythos/shoe_ingestion")
 SHOE_ARCHIVE_DIR = SHOE_DIR / "archive"
 
-# Finance auto-import config
-FINANCE_DIR = Path("/opt/mythos/finance")
-FINANCE_ARCHIVE_DIR = FINANCE_DIR / "archive" / "imports"
-
-# Bank account mapping (filename pattern -> account_id)
-BANK_ACCOUNTS = {
-    "sunmark": 1,  # Sunmark Primary Checking
-    "usaa": 2,     # USAA Simple Checking
-}
-
 INGESTOR = Path("/opt/mythos/sales_ingestion/ingest_sales_zip.py")
 VENV_PY = Path("/opt/mythos/.venv/bin/python")
 
@@ -72,11 +59,6 @@ ARTIFACT_PATTERNS = {
     "patch": re.compile(r"^patch_\d{4}_.*\.zip$"),
     "sales_ingestion": re.compile(r"^sales-db-ingestion-\d{4}\.zip$"),
     "shoe_ingestion": re.compile(r"^shoe-db-ingestion-\d{4}\.zip$"),
-    # Bank CSVs - match known download names from banks
-    # USAA downloads as: bk_download.csv
-    # Sunmark downloads as: download.CSV
-    # Also accept explicitly named files like sunmark_2026_01.csv
-    "bank_csv": re.compile(r"^(bk_download|download|sunmark[_-].*|usaa[_-].*)\.csv$", re.IGNORECASE),
 }
 
 # Git configuration
@@ -85,9 +67,6 @@ GITHUB_PUSH_ENABLED = True
 
 # Auto-execute install.sh after extraction
 AUTO_EXECUTE_INSTALL = True
-
-# Telegram notifications for finance imports
-TELEGRAM_NOTIFY_FINANCE = True
 
 # ------------------------------------------------------------
 # Logging
@@ -252,27 +231,6 @@ class GitManager:
 git_manager = GitManager(MYTHOS_ROOT) if GIT_ENABLED else None
 
 # ------------------------------------------------------------
-# Telegram Notifications
-# ------------------------------------------------------------
-
-def send_telegram_notification(message: str):
-    """Send notification via Telegram bot if configured"""
-    try:
-        # Use the bot's send mechanism
-        bot_script = MYTHOS_ROOT / "telegram_bot" / "send_notification.py"
-        if bot_script.exists():
-            subprocess.run(
-                [str(VENV_PY), str(bot_script), message],
-                capture_output=True,
-                timeout=30
-            )
-        else:
-            # Fallback: try to import and use bot directly
-            logger.debug("Telegram notification script not found, skipping")
-    except Exception as e:
-        logger.debug(f"Telegram notification failed: {e}")
-
-# ------------------------------------------------------------
 # Handler
 # ------------------------------------------------------------
 
@@ -294,7 +252,7 @@ class DownloadsHandler(FileSystemEventHandler):
             return
 
         logger.info(f"Detected {artifact_type} artifact: {name}")
-        # Give browsers/OS time to finish writing the file
+        # Give browsers/OS time to finish writing the zip
         time.sleep(2)
         self.process_artifact(artifact_type, path)
 
@@ -311,115 +269,6 @@ class DownloadsHandler(FileSystemEventHandler):
             self.process_sales_ingestion(path)
         elif artifact_type == "shoe_ingestion":
             self.process_shoe_ingestion(path)
-        elif artifact_type == "bank_csv":
-            self.process_bank_csv(path)
-
-    # --------------------------------------------------------
-    # Bank CSV handling
-    # --------------------------------------------------------
-
-    def process_bank_csv(self, csv_path: Path):
-        """Process bank CSV file for auto-import with auto-detection"""
-        name = csv_path.name
-        if name in self.processing:
-            return
-
-        try:
-            self.processing.add(name)
-            
-            # Auto-detect bank from file content using existing parsers
-            sys.path.insert(0, str(FINANCE_DIR))
-            from parsers import detect_parser
-            
-            bank = detect_parser(csv_path)
-            if not bank:
-                logger.error(f"Could not detect bank format for: {name}")
-                logger.error("File must be USAA or Sunmark CSV format")
-                return
-            
-            account_id = BANK_ACCOUNTS.get(bank)
-            if not account_id:
-                logger.error(f"No account mapping for bank: {bank}")
-                return
-
-            logger.info(f"Auto-detected bank: {bank} (account_id={account_id})")
-
-            # Ensure archive directory exists
-            FINANCE_ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
-
-            # Run the import script
-            import_script = FINANCE_DIR / "import_transactions.py"
-            if not import_script.exists():
-                logger.error(f"Import script not found: {import_script}")
-                return
-
-            logger.info(f"Importing {name} for {bank} (account_id={account_id})")
-
-            result = subprocess.run(
-                [
-                    str(VENV_PY),
-                    str(import_script),
-                    str(csv_path),
-                    "--account-id", str(account_id),
-                    "--imported-by", "auto-import"
-                ],
-                capture_output=True,
-                text=True,
-                timeout=120,
-                cwd=str(FINANCE_DIR)
-            )
-
-            if result.returncode == 0:
-                # Parse output for summary
-                output = result.stdout
-                imported = 0
-                skipped = 0
-                
-                for line in output.split('\n'):
-                    if 'Imported:' in line:
-                        try:
-                            imported = int(line.split(':')[1].strip())
-                        except (ValueError, IndexError):
-                            pass
-                    elif 'Skipped' in line:
-                        try:
-                            skipped = int(line.split(':')[1].strip())
-                        except (ValueError, IndexError):
-                            pass
-
-                logger.info(f"✓ Import complete: {imported} imported, {skipped} skipped")
-
-                # Archive the CSV with timestamp and bank name
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                archive_name = f"{bank}_{timestamp}{csv_path.suffix}"
-                archive_path = FINANCE_ARCHIVE_DIR / archive_name
-                shutil.move(csv_path, archive_path)
-                logger.info(f"✓ Archived to: {archive_path}")
-
-                # Send Telegram notification
-                if TELEGRAM_NOTIFY_FINANCE and imported > 0:
-                    msg = f"💰 Finance Import: {bank.upper()}\n"
-                    msg += f"📄 {name}\n"
-                    msg += f"✅ {imported} new, ⏭️ {skipped} skipped"
-                    send_telegram_notification(msg)
-
-            else:
-                logger.error(f"Import failed for {name}:")
-                logger.error(result.stderr)
-                
-                # Move to error folder
-                error_dir = FINANCE_ARCHIVE_DIR / "errors"
-                error_dir.mkdir(parents=True, exist_ok=True)
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                error_name = f"{bank}_{timestamp}_ERROR{csv_path.suffix}"
-                shutil.move(csv_path, error_dir / error_name)
-
-        except subprocess.TimeoutExpired:
-            logger.error(f"Import timed out for {name}")
-        except Exception as e:
-            logger.error(f"Bank CSV import error {name}: {e}", exc_info=True)
-        finally:
-            self.processing.discard(name)
 
     # --------------------------------------------------------
     # Patch handling (with git versioning)
