@@ -53,6 +53,7 @@ services:
       # Paths (inside container)
       - WORKSHOP_PATH=/iris/workshop
       - SANDBOX_PATH=/iris/sandbox
+      - SANDBOX_HOST_PATH=/opt/mythos/iris/sandbox
       - APPS_PATH=/iris/apps
       - PROPOSALS_PATH=/iris/proposals
       - JOURNAL_PATH=/iris/journal

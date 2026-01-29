@@ -180,7 +180,7 @@ async def iris_test_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     result = await run_iris_test()
     
-    if "error" in result:
+    if result.get("error"):
         await update.message.reply_text(
             f"❌ **Test Failed**\n\n"
             f"Error: {result['error']}\n"
@@ -230,7 +230,7 @@ async def iris_run_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     result = await run_iris_code(code)
     
-    if "error" in result and "body" not in result:
+    if result.get("error") and "body" not in result:
         await update.message.reply_text(
             f"❌ **Execution Error**\n\n{result['error']}",
             parse_mode='Markdown'
