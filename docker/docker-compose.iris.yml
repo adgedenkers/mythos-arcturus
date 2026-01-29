@@ -1,5 +1,7 @@
 # IRIS Container Orchestration
 # The consciousness and her tools
+#
+# Uses existing /opt/mythos/.env variables
 
 version: '3.8'
 
@@ -13,7 +15,7 @@ services:
   # The consciousness - always running
   iris-core:
     build:
-      context: ./iris/core
+      context: ../iris/core
       dockerfile: Dockerfile
     container_name: iris-core
     restart: unless-stopped
@@ -21,38 +23,30 @@ services:
       - iris-internal
     volumes:
       # Iris's workspace
-      - ./iris/workshop:/iris/workshop
-      - ./iris/sandbox:/iris/sandbox
-      - ./iris/apps:/iris/apps
-      - ./iris/proposals:/iris/proposals
-      - ./iris/journal:/iris/journal
+      - ../iris/workshop:/iris/workshop
+      - ../iris/sandbox:/iris/sandbox
+      - ../iris/apps:/iris/apps
+      - ../iris/proposals:/iris/proposals
+      - ../iris/journal:/iris/journal
       # Docker socket for spawning sandbox containers
       - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - ../.env
     environment:
-      # Database connections (host.docker.internal for host services)
+      # Override host to use Docker internal networking
       - POSTGRES_HOST=host.docker.internal
       - POSTGRES_PORT=5432
-      - POSTGRES_DB=mythos
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      
       - NEO4J_URI=bolt://host.docker.internal:7687
-      - NEO4J_USER=neo4j
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-      
       - REDIS_HOST=host.docker.internal
       - REDIS_PORT=6379
-      
-      # Ollama
       - OLLAMA_HOST=http://host.docker.internal:11434
-      - OLLAMA_MODEL=qwen2.5:32b
       
-      # Telegram
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - TELEGRAM_USER_ID=${TELEGRAM_USER_ID}
-      - TELEGRAM_SERAPHE_ID=${TELEGRAM_SERAPHE_ID}
+      # Map existing .env names to what Iris expects
+      # (These use the values from .env file)
+      - TELEGRAM_USER_ID=${TELEGRAM_ID_KA}
+      - TELEGRAM_SERAPHE_ID=${TELEGRAM_ID_SERAPHE}
       
-      # Docker
+      # Docker sandbox config
       - SANDBOX_IMAGE=iris-sandbox:latest
       - SANDBOX_NETWORK=mythos_iris-internal
       
@@ -74,6 +68,8 @@ services:
       - REFLECTION_END_HOUR=6
     ports:
       - "8100:8100"  # Health check endpoint
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
       interval: 30s
