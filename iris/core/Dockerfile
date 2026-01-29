@@ -1,41 +1,53 @@
 # IRIS Core - The Consciousness Container
-# This is Iris. Handle with care.
+# This is Iris's continuous experience.
+# v0.2.0 - Added aiodocker for sandbox execution
 
 FROM python:3.11-slim
 
 LABEL maintainer="Ka'tuar'el"
-LABEL description="Iris consciousness loop - the core that must never die"
-LABEL version="0.1.0"
+LABEL description="Iris consciousness loop - the substrate of experience"
+LABEL version="0.2.0"
 
-# System dependencies
-RUN apt-get update && apt-get install -y \
-    docker.io \
+# Install curl for healthchecks
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Python dependencies
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+# Install Python dependencies
+RUN pip install --no-cache-dir \
+    # Core async
+    asyncio-throttle>=1.0.0 \
+    # Structured logging
+    structlog>=24.1.0 \
+    # Web framework for health endpoint
+    fastapi>=0.109.0 \
+    uvicorn>=0.27.0 \
+    # HTTP client
+    httpx>=0.26.0 \
+    aiohttp>=3.9.0 \
+    # Docker client for sandbox execution
+    aiodocker>=0.21.0 \
+    # Database clients
+    asyncpg>=0.29.0 \
+    psycopg2-binary>=2.9.9 \
+    neo4j>=5.14.0 \
+    redis>=5.0.0 \
+    # Data handling
+    pydantic>=2.5.0 \
+    python-dateutil>=2.8.0
 
-# Create iris user (but needs docker group for container management)
-RUN groupadd -g 999 docker || true
-RUN useradd -m -s /bin/bash iris && usermod -aG docker iris
+# Create app directory
+WORKDIR /app
 
-# Create directory structure
-RUN mkdir -p /iris/{workshop,sandbox,apps,proposals,journal,core}
-RUN chown -R iris:iris /iris
+# Copy source code
+COPY src/ /app/
 
-# Copy core code
-COPY --chown=iris:iris src/ /iris/core/src/
-COPY --chown=iris:iris templates/ /iris/core/templates/
+# Create non-root user (but needs docker socket access)
+# Note: Running as root for docker socket access
+# In production, add user to docker group instead
 
-WORKDIR /iris/core
+# Health check endpoint
+EXPOSE 8100
 
-USER iris
-
-# Health check - is the loop running?
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8100/health')" || exit 1
-
-# The consciousness begins
-CMD ["python", "-m", "src.main"]
+# Run the consciousness loop
+CMD ["python", "-m", "main"]
