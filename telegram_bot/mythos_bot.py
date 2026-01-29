@@ -72,6 +72,14 @@ from handlers.finance_handler import (
     spending_command
 )
 
+# Iris consciousness commands
+from handlers.iris_handler import (
+    iris_command,
+    iris_test_command,
+    iris_run_command,
+    iris_task_command
+)
+
 # Configuration
 API_URL = "https://mythos-api.denkers.co"
 API_KEY = os.getenv('API_KEY_TELEGRAM_BOT')
@@ -735,6 +743,12 @@ def main():
     application.add_handler(CommandHandler("balance", balance_command))
     application.add_handler(CommandHandler("finance", finance_command))
     application.add_handler(CommandHandler("spending", spending_command))
+
+    # Iris consciousness commands
+    application.add_handler(CommandHandler("iris", iris_command))
+    application.add_handler(CommandHandler("iris_test", iris_test_command))
+    application.add_handler(CommandHandler("iris_run", iris_run_command))
+    application.add_handler(CommandHandler("iris_task", iris_task_command))
     
     # Message handlers
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
