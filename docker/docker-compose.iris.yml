@@ -48,7 +48,7 @@ services:
       
       # Docker sandbox config
       - SANDBOX_IMAGE=iris-sandbox:latest
-      - SANDBOX_NETWORK=mythos_iris-internal
+      - SANDBOX_NETWORK=docker_iris-internal
       
       # Paths (inside container)
       - WORKSHOP_PATH=/iris/workshop
