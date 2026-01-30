@@ -67,6 +67,7 @@ from handlers.patch_handlers import (
 
 # Finance commands
 from handlers.finance_handler import (
+    report_command,
     balance_command,
     finance_command,
     spending_command
@@ -743,6 +744,7 @@ def main():
     application.add_handler(CommandHandler("balance", balance_command))
     application.add_handler(CommandHandler("finance", finance_command))
     application.add_handler(CommandHandler("spending", spending_command))
+    application.add_handler(CommandHandler("report", report_command))
 
     # Iris consciousness commands
     application.add_handler(CommandHandler("iris", iris_command))
