@@ -1,0 +1,27 @@
+# /etc/sudoers.d/mythos
+# Passwordless sudo for Mythos patch monitor and install scripts
+# 
+# This allows the patch monitor service (running as adge) to:
+# - Restart mythos services
+# - Run PostgreSQL commands as postgres user
+# - Check systemd service status
+# - Read journalctl logs
+#
+# SECURITY NOTE: These are limited to specific commands needed for
+# automated patch deployment. No general root access is granted.
+
+# Service management (restart, status)
+adge ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart mythos-*
+adge ALL=(ALL) NOPASSWD: /usr/bin/systemctl start mythos-*
+adge ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop mythos-*
+adge ALL=(ALL) NOPASSWD: /usr/bin/systemctl status mythos-*
+adge ALL=(ALL) NOPASSWD: /usr/bin/systemctl is-active mythos-*
+adge ALL=(ALL) NOPASSWD: /usr/bin/systemctl is-active --quiet mythos-*
+
+# PostgreSQL access (for migrations)
+adge ALL=(postgres) NOPASSWD: /usr/bin/psql -d mythos *
+adge ALL=(postgres) NOPASSWD: /usr/bin/psql -d mythos
+
+# Journalctl for log checking
+adge ALL=(ALL) NOPASSWD: /usr/bin/journalctl -u mythos-* *
+adge ALL=(ALL) NOPASSWD: /usr/bin/journalctl -u mythos-*
