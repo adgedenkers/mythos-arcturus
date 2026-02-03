@@ -51,3 +51,6 @@ from .patch_handlers import (
     patch_rollback_command,
     patch_list_command
 )
+
+# Task tracking
+from .task_handler import task_command, tasks_command
