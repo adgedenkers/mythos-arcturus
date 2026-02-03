@@ -1,0 +1,257 @@
+#!/bin/bash
+# mythos-diag - Standardized diagnostic tool for Mythos system
+#
+# Usage:
+#   mythos-diag              # Full overview
+#   mythos-diag finance      # Finance state
+#   mythos-diag services     # All mythos-* services
+#   mythos-diag bot          # Bot handlers, imports
+#   mythos-diag patches      # Recent patches, git status
+#   mythos-diag neo4j        # Graph statistics
+#   mythos-diag postgres     # Table counts
+#   mythos-diag docs         # Documentation structure
+#   mythos-diag iris         # Consciousness layer status
+#   mythos-diag all          # Everything (verbose)
+
+set -e
+
+OUTPUT_FILE=~/diag.txt
+MYTHOS_ROOT=/opt/mythos
+
+# Colors for terminal (not included in output file)
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Initialize output file
+init_output() {
+    > "$OUTPUT_FILE"
+    echo "=== MYTHOS DIAGNOSTIC ===" >> "$OUTPUT_FILE"
+    echo "Generated: $(date)" >> "$OUTPUT_FILE"
+    echo "Command: mythos-diag $*" >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
+}
+
+# Add section header
+section() {
+    echo -e "\n\n=== $1 ===" >> "$OUTPUT_FILE"
+}
+
+# Services diagnostic - uses wildcard to find all mythos-* services
+diag_services() {
+    section "SERVICES"
+    systemctl list-units --type=service --all | grep mythos >> "$OUTPUT_FILE" 2>&1 || echo "No mythos services found" >> "$OUTPUT_FILE"
+    
+    section "SERVICE DETAILS"
+    for svc in $(systemctl list-units --type=service --all --no-legend | grep mythos | awk '{print $1}'); do
+        echo "--- $svc ---" >> "$OUTPUT_FILE"
+        systemctl is-active "$svc" >> "$OUTPUT_FILE" 2>&1
+    done
+}
+
+# Bot diagnostic
+diag_bot() {
+    section "BOT HANDLERS"
+    ls -la "$MYTHOS_ROOT/telegram_bot/handlers/"*.py 2>/dev/null >> "$OUTPUT_FILE" || echo "No handlers found" >> "$OUTPUT_FILE"
+    
+    section "BOT IMPORTS (__init__.py)"
+    if [ -f "$MYTHOS_ROOT/telegram_bot/handlers/__init__.py" ]; then
+        cat "$MYTHOS_ROOT/telegram_bot/handlers/__init__.py" >> "$OUTPUT_FILE"
+    fi
+    
+    section "BOT RECENT LOGS"
+    journalctl -u mythos-bot.service --no-pager -n 20 >> "$OUTPUT_FILE" 2>&1
+}
+
+# Finance diagnostic
+diag_finance() {
+    section "ACCOUNT BALANCES"
+    sudo -u postgres psql -d mythos -c "SELECT abbreviation, name, current_balance, balance_updated_at FROM accounts WHERE is_active = true ORDER BY account_type, name" >> "$OUTPUT_FILE" 2>&1
+    
+    section "TRANSACTION COUNTS"
+    sudo -u postgres psql -d mythos -c "SELECT COUNT(*) as total_transactions FROM transactions" >> "$OUTPUT_FILE" 2>&1
+    
+    section "RECENT TRANSACTIONS (5)"
+    sudo -u postgres psql -d mythos -c "SELECT transaction_date, description, amount, account_id FROM transactions ORDER BY transaction_date DESC LIMIT 5" >> "$OUTPUT_FILE" 2>&1
+    
+    section "RECURRING BILLS"
+    sudo -u postgres psql -d mythos -c "SELECT name, expected_amount, expected_day, is_active FROM recurring_bills WHERE is_active = true ORDER BY expected_day" >> "$OUTPUT_FILE" 2>&1
+    
+    section "CATEGORY MAPPINGS COUNT"
+    sudo -u postgres psql -d mythos -c "SELECT COUNT(*) as mappings FROM category_mappings" >> "$OUTPUT_FILE" 2>&1
+}
+
+# Patches diagnostic
+diag_patches() {
+    section "RECENT PATCHES (git tags)"
+    cd "$MYTHOS_ROOT" && git tag --sort=-creatordate | head -15 >> "$OUTPUT_FILE" 2>&1
+    
+    section "GIT STATUS"
+    cd "$MYTHOS_ROOT" && git status --short >> "$OUTPUT_FILE" 2>&1
+    
+    section "PATCH ARCHIVE"
+    ls -lt "$MYTHOS_ROOT/patches/archive/"*.zip 2>/dev/null | head -10 >> "$OUTPUT_FILE" || echo "No archived patches" >> "$OUTPUT_FILE"
+    
+    section "PATCH MONITOR STATUS"
+    systemctl is-active mythos-patch-monitor.service >> "$OUTPUT_FILE" 2>&1
+    
+    section "PATCH MONITOR RECENT LOGS"
+    journalctl -u mythos-patch-monitor.service --no-pager -n 10 >> "$OUTPUT_FILE" 2>&1
+}
+
+# Neo4j diagnostic
+diag_neo4j() {
+    section "NEO4J STATUS"
+    systemctl is-active neo4j >> "$OUTPUT_FILE" 2>&1 || echo "neo4j service not found" >> "$OUTPUT_FILE"
+    
+    section "NEO4J NODE COUNTS"
+    # This requires neo4j credentials - adjust as needed
+    if command -v cypher-shell &> /dev/null; then
+        echo "Attempting cypher-shell query..." >> "$OUTPUT_FILE"
+        cypher-shell -u neo4j -p "${NEO4J_PASSWORD:-password}" "MATCH (n) RETURN labels(n)[0] as label, count(*) as count ORDER BY count DESC" >> "$OUTPUT_FILE" 2>&1 || echo "Could not query Neo4j" >> "$OUTPUT_FILE"
+    else
+        echo "cypher-shell not available" >> "$OUTPUT_FILE"
+    fi
+}
+
+# PostgreSQL diagnostic
+diag_postgres() {
+    section "POSTGRES TABLES"
+    sudo -u postgres psql -d mythos -c "\dt" >> "$OUTPUT_FILE" 2>&1
+    
+    section "TABLE ROW COUNTS"
+    sudo -u postgres psql -d mythos -c "
+    SELECT schemaname, relname as table, n_live_tup as rows 
+    FROM pg_stat_user_tables 
+    ORDER BY n_live_tup DESC" >> "$OUTPUT_FILE" 2>&1
+}
+
+# Documentation diagnostic
+diag_docs() {
+    section "DOCUMENTATION STRUCTURE"
+    find "$MYTHOS_ROOT/docs" -name "*.md" -type f | sort >> "$OUTPUT_FILE" 2>&1
+    
+    section "CONSCIOUSNESS DOCS"
+    if [ -d "$MYTHOS_ROOT/docs/consciousness" ]; then
+        ls -la "$MYTHOS_ROOT/docs/consciousness/"*.md 2>/dev/null >> "$OUTPUT_FILE"
+    else
+        echo "consciousness/ directory not found" >> "$OUTPUT_FILE"
+    fi
+    
+    section "TODO.md CURRENT FOCUS"
+    if [ -f "$MYTHOS_ROOT/docs/TODO.md" ]; then
+        head -80 "$MYTHOS_ROOT/docs/TODO.md" >> "$OUTPUT_FILE"
+    fi
+}
+
+# Iris/Consciousness diagnostic
+diag_iris() {
+    section "CONSCIOUSNESS DOCUMENTATION"
+    if [ -d "$MYTHOS_ROOT/docs/consciousness" ]; then
+        echo "Files:" >> "$OUTPUT_FILE"
+        ls -la "$MYTHOS_ROOT/docs/consciousness/"*.md 2>/dev/null >> "$OUTPUT_FILE"
+    else
+        echo "consciousness/ directory not found" >> "$OUTPUT_FILE"
+    fi
+    
+    section "IRIS CODE"
+    find "$MYTHOS_ROOT" -name "*iris*" -type f ! -path "*/.venv/*" ! -path "*/.git/*" 2>/dev/null >> "$OUTPUT_FILE"
+    
+    section "IRIS SERVICE STATUS"
+    if systemctl list-units --type=service --all | grep -q mythos-iris; then
+        systemctl status mythos-iris.service --no-pager >> "$OUTPUT_FILE" 2>&1
+    else
+        echo "mythos-iris.service not yet created" >> "$OUTPUT_FILE"
+    fi
+    
+    section "PERCEPTION LOG TABLE"
+    sudo -u postgres psql -d mythos -c "\d perception_log" >> "$OUTPUT_FILE" 2>&1 || echo "perception_log table not yet created" >> "$OUTPUT_FILE"
+}
+
+# Workers diagnostic
+diag_workers() {
+    section "WORKER SERVICES"
+    systemctl list-units --type=service --all | grep "mythos-worker" >> "$OUTPUT_FILE" 2>&1
+    
+    section "WORKER FILES"
+    ls -la "$MYTHOS_ROOT/workers/"*.py 2>/dev/null >> "$OUTPUT_FILE" || echo "No worker files found" >> "$OUTPUT_FILE"
+    
+    section "REDIS QUEUES"
+    redis-cli KEYS "mythos:*" >> "$OUTPUT_FILE" 2>&1 || echo "Could not query Redis" >> "$OUTPUT_FILE"
+}
+
+# Quick overview (default)
+diag_overview() {
+    section "SERVICES SUMMARY"
+    systemctl list-units --type=service --all --no-legend | grep mythos | awk '{print $1, $3, $4}' >> "$OUTPUT_FILE" 2>&1
+    
+    section "POSTGRES TABLES (count)"
+    sudo -u postgres psql -d mythos -c "SELECT count(*) as tables FROM information_schema.tables WHERE table_schema = 'public'" >> "$OUTPUT_FILE" 2>&1
+    
+    section "KEY ACCOUNTS"
+    sudo -u postgres psql -d mythos -c "SELECT abbreviation, current_balance FROM accounts WHERE is_active = true AND account_type IN ('checking', 'credit_card') ORDER BY account_type, abbreviation" >> "$OUTPUT_FILE" 2>&1
+    
+    section "CONSCIOUSNESS DOCS"
+    ls "$MYTHOS_ROOT/docs/consciousness/"*.md 2>/dev/null | wc -l | xargs -I {} echo "{} consciousness documents" >> "$OUTPUT_FILE"
+    
+    section "RECENT PATCHES"
+    cd "$MYTHOS_ROOT" && git tag --sort=-creatordate | head -5 >> "$OUTPUT_FILE" 2>&1
+}
+
+# Full diagnostic (everything)
+diag_all() {
+    diag_services
+    diag_bot
+    diag_workers
+    diag_finance
+    diag_postgres
+    diag_neo4j
+    diag_patches
+    diag_docs
+    diag_iris
+}
+
+# Copy to clipboard and report
+finish() {
+    if command -v xclip &> /dev/null; then
+        cat "$OUTPUT_FILE" | xclip -selection clipboard
+        echo -e "${GREEN}✓ Copied to clipboard${NC}"
+    else
+        echo -e "${YELLOW}xclip not available - output in $OUTPUT_FILE${NC}"
+    fi
+    
+    # Show line count
+    lines=$(wc -l < "$OUTPUT_FILE")
+    echo -e "Output: $OUTPUT_FILE (${lines} lines)"
+}
+
+# Main
+main() {
+    local cmd="${1:-overview}"
+    
+    init_output "$@"
+    
+    case "$cmd" in
+        services)   diag_services ;;
+        bot)        diag_bot ;;
+        workers)    diag_workers ;;
+        finance)    diag_finance ;;
+        patches)    diag_patches ;;
+        neo4j)      diag_neo4j ;;
+        postgres)   diag_postgres ;;
+        docs)       diag_docs ;;
+        iris)       diag_iris ;;
+        all)        diag_all ;;
+        overview|"")  diag_overview ;;
+        *)
+            echo "Unknown command: $cmd"
+            echo "Usage: mythos-diag [services|bot|workers|finance|patches|neo4j|postgres|docs|iris|all]"
+            exit 1
+            ;;
+    esac
+    
+    finish
+}
+
+main "$@"
