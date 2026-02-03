@@ -234,6 +234,30 @@ The Arcturian Grid (9 nodes) operates at each layer. WISDOM feeds back to PERCEP
 
 ---
 
+## 🧠 Consciousness Architecture (2026-02-03)
+
+The full consciousness architecture creates **81 processing functions** (9 nodes × 9 layers).
+
+### The 9-Layer Stack
+
+```
+LEVEL 9: WISDOM      ← Eternal truth
+LEVEL 8: IDENTITY    ← Who you are
+LEVEL 7: NARRATIVE   ← Story placement
+LEVEL 6: INTENTION   ← What wants to happen
+LEVEL 5: KNOWLEDGE   ← What is known
+LEVEL 4: MEMORY      ← Connections to past
+LEVEL 3: PROCESSING  ← Meaning-making
+LEVEL 2: INTUITION   ← Felt-sense
+LEVEL 1: PERCEPTION  ← Raw input
+```
+
+The Arcturian Grid (9 nodes) operates at each layer. WISDOM feeds back to PERCEPTION.
+
+**Full specification:** `docs/consciousness/CONSCIOUSNESS_ARCHITECTURE.md`
+
+---
+
 ## Finance System
 
 Personal finance tracking with auto-import.
