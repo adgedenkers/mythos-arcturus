@@ -80,15 +80,93 @@ from handlers.snapshot_handler import (
 
 # Iris consciousness commands
 from handlers.iris_handler import (
-    iris_command,
-    iris_test_command,
-    iris_run_command,
-    iris_task_command
-)
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
 
 
 # Task tracking commands
 from handlers.task_handler import task_command, tasks_command
+# Task tracking commands
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+from handlers.task_handler import task_command, tasks_command
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+    iris_command,
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+# Task tracking commands
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+from handlers.task_handler import task_command, tasks_command
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+    iris_test_command,
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+# Task tracking commands
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+from handlers.task_handler import task_command, tasks_command
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+    iris_run_command,
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+# Task tracking commands
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+from handlers.task_handler import task_command, tasks_command
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+    iris_task_command
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+# Task tracking commands
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+from handlers.task_handler import task_command, tasks_command
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+)
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+
+# Task tracking commands
+from handlers.task_handler import task_command, tasks_command
+
 # Configuration
 API_URL = "https://mythos-api.denkers.co"
 API_KEY = os.getenv('API_KEY_TELEGRAM_BOT')
@@ -220,6 +298,15 @@ Send 3 photos → Auto-analyzed → Added to inventory
 `/endconvo` - End tracked conversation
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━
+**TASKS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/task add Do something` - Add task
+`/task add -h Urgent!` - High priority
+`/tasks` - List open tasks
+`/task done 1` - Complete task #1
+`/task drop 1` - Remove task #1
+
 **SYSTEM**
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -763,10 +850,6 @@ def main():
     application.add_handler(CommandHandler("iris_run", iris_run_command))
     application.add_handler(CommandHandler("iris_task", iris_task_command))
     
-    # Task tracking commands
-    application.add_handler(CommandHandler("task", task_command))
-    application.add_handler(CommandHandler("tasks", tasks_command))
-
     # Task tracking commands
     application.add_handler(CommandHandler("task", task_command))
     application.add_handler(CommandHandler("tasks", tasks_command))
