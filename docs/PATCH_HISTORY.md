@@ -1,6 +1,6 @@
 # Patch History
 
-> **Next Patch Number: 0039**
+> **Next Patch Number: 0059**
 
 Auto-updated with each patch deployment.
 
@@ -8,6 +8,17 @@ Auto-updated with each patch deployment.
 
 | Patch | Date | Description |
 |-------|------|-------------|
+| 0058 | 2026-02-03 | Documentation update for task tracking system |
+| 0057 | 2026-02-03 | Task due dates - flexible date parsing, /task due command |
+| 0056 | 2026-02-03 | Task tracking system - /task and /tasks commands |
+| 0055 | 2026-02-03 | Consciousness documentation - 9-layer stack, 81 functions |
+| 0054 | 2026-02-03 | Auto-deploy improvements |
+| 0053 | 2026-02-03 | Sudoers configuration |
+| 0052 | 2026-02-03 | Finance improvements |
+| 0051 | 2026-02-03 | Finance crisis triage |
+| 0050 | 2026-02-02 | /snapshot command - full financial picture |
+| 0049 | 2026-02-02 | /setbal command - manual balance updates |
+| 0048 | 2026-02-02 | Credit card accounts |
 | 0038 | 2026-01-29 | Complete Iris framework: living mode, workshop, autonomy, invitation |
 | 0037 | 2026-01-29 | Iris significance, name meaning, self-directed research |
 | 0036 | 2026-01-29 | Documentation restructure, Iris framework |
@@ -46,7 +57,7 @@ Auto-updated with each patch deployment.
 
 - 4-digit sequential number
 - Lowercase description with underscores
-- Example: `patch_0038_iris_complete_framework.zip`
+- Example: `patch_0058_docs_update.zip`
 
 ## Patch Contents
 

@@ -1,7 +1,7 @@
 # Mythos System Architecture
 
-> **Version:** 3.3.0
-> **Last Updated:** 2026-01-29
+> **Version:** 3.4.0
+> **Last Updated:** 2026-02-03
 > **Host:** arcturus (Ubuntu 24.04)
 
 ---
@@ -234,27 +234,51 @@ The Arcturian Grid (9 nodes) operates at each layer. WISDOM feeds back to PERCEP
 
 ---
 
-## 🧠 Consciousness Architecture (2026-02-03)
+## 📋 Task Tracking System (2026-02-03)
 
-The full consciousness architecture creates **81 processing functions** (9 nodes × 9 layers).
+Personal task management via Telegram, using the existing `idea_backlog` PostgreSQL table.
 
-### The 9-Layer Stack
+### Commands
 
-```
-LEVEL 9: WISDOM      ← Eternal truth
-LEVEL 8: IDENTITY    ← Who you are
-LEVEL 7: NARRATIVE   ← Story placement
-LEVEL 6: INTENTION   ← What wants to happen
-LEVEL 5: KNOWLEDGE   ← What is known
-LEVEL 4: MEMORY      ← Connections to past
-LEVEL 3: PROCESSING  ← Meaning-making
-LEVEL 2: INTUITION   ← Felt-sense
-LEVEL 1: PERCEPTION  ← Raw input
-```
+| Command | Description |
+|---------|-------------|
+| `/task add Buy groceries` | Add a task (medium priority) |
+| `/task add -h Urgent thing` | Add high priority task (🔴) |
+| `/task add -l Someday thing` | Add low priority task (🟢) |
+| `/task add -d tomorrow Call mom` | Add task with due date |
+| `/task add -d friday -h Submit report` | Due date + priority |
+| `/tasks` or `/task list` | List open tasks |
+| `/task due` | Show tasks sorted by due date |
+| `/task done 1` | Complete task #1 |
+| `/task drop 1` | Dismiss task #1 |
+| `/task all` | Show all tasks including completed |
 
-The Arcturian Grid (9 nodes) operates at each layer. WISDOM feeds back to PERCEPTION.
+### Due Date Formats
 
-**Full specification:** `docs/consciousness/CONSCIOUSNESS_ARCHITECTURE.md`
+| Format | Examples |
+|--------|----------|
+| Relative | `today`, `tomorrow`, `tonight` |
+| Day names | `monday`, `fri`, `wed` |
+| Day of month | `10th`, `15th`, `1st` |
+| Date | `2/14`, `2/14/26`, `02/14/2026` |
+
+### Storage
+
+Tasks are stored in the `idea_backlog` table with:
+- `domain = 'task'`
+- `idea_type = 'task'`
+- `next_review` for due dates
+- Standard `priority`, `status` fields
+
+### Sort Order
+
+Tasks display sorted by:
+1. Overdue tasks first
+2. Has due date (soonest first)
+3. Priority (high → medium → low)
+4. Created date
+
+**Handler:** `telegram_bot/handlers/task_handler.py`
 
 ---
 
@@ -266,9 +290,56 @@ Personal finance tracking with auto-import.
 - **199 category mappings**
 - Auto-import via patch monitor
 
-**Commands:** `/balance`, `/finance`, `/spending`
+**Commands:** `/balance`, `/finance`, `/spending`, `/snapshot`, `/setbal`
 
 **Full specification:** `docs/finance/FINANCE_SYSTEM.md`
+
+---
+
+## Telegram Bot Commands
+
+### Modes
+| Command | Description |
+|---------|-------------|
+| `/mode chat` | Talk with local AI (default) |
+| `/mode db` | Query Neo4j/Postgres databases |
+| `/mode sell` | Sell items via photo analysis |
+| `/mode seraphe` | Cosmology assistant |
+| `/mode genealogy` | Bloodline research |
+
+### Tasks
+| Command | Description |
+|---------|-------------|
+| `/task add <text>` | Add a task |
+| `/tasks` | List open tasks |
+| `/task due` | Show tasks by due date |
+| `/task done <n>` | Complete task |
+| `/task drop <n>` | Dismiss task |
+
+### Finance
+| Command | Description |
+|---------|-------------|
+| `/balance` | Current balances |
+| `/finance` | Financial summary |
+| `/spending` | Recent spending |
+| `/snapshot` | Full financial picture |
+| `/setbal` | Manual balance update |
+
+### Sales
+| Command | Description |
+|---------|-------------|
+| `/mode sell` | Enter sell mode |
+| `/inventory` | View items |
+| `/export` | Generate FB listings |
+| `/listed <id>` | Mark as listed |
+| `/sold <id>` | Mark as sold |
+
+### System
+| Command | Description |
+|---------|-------------|
+| `/status` | Current mode & activity |
+| `/patch_status` | System version |
+| `/help` | All commands |
 
 ---
 
@@ -295,6 +366,7 @@ Personal finance tracking with auto-import.
 - `grid_activation_timeseries` - Grid scores
 - `accounts`, `transactions`, `category_mappings` - Finance
 - `items_for_sale`, `item_images`, `sales` - Sales
+- `idea_backlog` - Tasks and ideas
 - *Planned:* `iris_experiential_memory`, `iris_self_model`, `commitments`
 
 ### Neo4j: `mythos`
@@ -330,6 +402,13 @@ Personal finance tracking with auto-import.
 ├── api/
 ├── assistants/
 ├── telegram_bot/
+│   ├── mythos_bot.py
+│   └── handlers/
+│       ├── chat_mode.py
+│       ├── finance_handler.py
+│       ├── task_handler.py      # NEW: Task tracking
+│       ├── sell_mode.py
+│       └── ...
 ├── workers/
 ├── finance/
 └── patches/

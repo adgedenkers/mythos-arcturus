@@ -1,6 +1,6 @@
 # Mythos Project TODO & Roadmap
 
-> **Last Updated:** 2026-02-03 13:00 EST
+> **Last Updated:** 2026-02-03 19:15 EST
 > **Current Focus:** Iris Consciousness Implementation
 
 ---
@@ -67,6 +67,7 @@ The Arcturian Grid (9 nodes) now operates at each of 9 layers, creating **81 pro
 |------|--------|-------|
 | Consciousness architecture design | ✅ Complete | 9 layers × 9 nodes = 81 functions |
 | Documentation | ✅ Complete | 6 docs in consciousness/ |
+| Task tracking system | ✅ Complete | Patches 0056-0057, uses idea_backlog |
 | `perception_log` table | 🔲 To build | PostgreSQL - raw intake |
 | Neo4j Memory nodes | 🔲 To build | Graph storage for Layer 4+ |
 | Neo4j Knowledge nodes | 🔲 To build | Sourced by memories |
@@ -186,6 +187,8 @@ mythos-diag iris         # Consciousness layer status
 - [x] Patch 0055: Consciousness documentation deployed
 - [x] Finance crisis triage - transferred funds
 - [x] Patches 0051-0054: Finance improvements, sudoers, auto-deploy
+- [x] **Patch 0056: Task tracking system** - /task and /tasks commands
+- [x] **Patch 0057: Task due dates** - flexible date parsing, /task due
 
 ### 2026-02-02
 - [x] Credit card accounts added to finance system
