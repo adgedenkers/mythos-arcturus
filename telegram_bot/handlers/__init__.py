@@ -54,3 +54,6 @@ from .patch_handlers import (
 
 # Task tracking
 from .task_handler import task_command, tasks_command
+
+# Help system
+from .help_handler import help_command

@@ -89,6 +89,9 @@ from handlers.iris_handler import (
 
 # Task tracking commands
 from handlers.task_handler import task_command, tasks_command
+
+# Help system
+from handlers.help_handler import help_command as help_command_handler
 # Configuration
 API_URL = "https://mythos-api.denkers.co"
 API_KEY = os.getenv('API_KEY_TELEGRAM_BOT')
@@ -723,7 +726,7 @@ def main():
     
     # Command handlers
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("help", help_command_handler))
     application.add_handler(CommandHandler("status", status_command))
     application.add_handler(CommandHandler("mode", mode_command))
     application.add_handler(CommandHandler("model", model_command))
