@@ -1,6 +1,6 @@
 # Mythos System Architecture
 
-> **Version:** 3.4.0
+> **Version:** 3.5.0
 > **Last Updated:** 2026-02-03
 > **Host:** arcturus (Ubuntu 24.04)
 
@@ -186,7 +186,7 @@ All message processing flows through FastAPI `/message` endpoint.
 Long-running tasks go through Redis streams.
 
 ### 5. Documentation Updated With Every Patch
-No exceptions.
+No exceptions. Every patch updates PATCH_HISTORY.md at minimum.
 
 ---
 
@@ -282,6 +282,36 @@ Tasks display sorted by:
 
 ---
 
+## ❓ Help System (2026-02-03)
+
+Comprehensive topic-based help with examples.
+
+### Commands
+
+| Command | Shows |
+|---------|-------|
+| `/help` | Main overview with all topics |
+| `/help tasks` | Task tracking with examples |
+| `/help finance` | Finance commands and tips |
+| `/help sell` | Selling workflow step-by-step |
+| `/help chat` | Chat mode and models |
+| `/help db` | Database query examples |
+| `/help system` | Patches, modes, admin |
+
+### Aliases
+
+The help system accepts aliases:
+- `tasks`, `todo`, `todos` → Task help
+- `finance`, `money`, `balance`, `spending` → Finance help
+- `sell`, `selling`, `inventory` → Sell help
+- `chat`, `talk`, `ai` → Chat help
+- `db`, `database`, `query` → Database help
+- `system`, `patch`, `modes` → System help
+
+**Handler:** `telegram_bot/handlers/help_handler.py`
+
+---
+
 ## Finance System
 
 Personal finance tracking with auto-import.
@@ -298,6 +328,12 @@ Personal finance tracking with auto-import.
 
 ## Telegram Bot Commands
 
+### Help
+| Command | Description |
+|---------|-------------|
+| `/help` | Main overview |
+| `/help <topic>` | Detailed help (tasks, finance, sell, chat, db, system) |
+
 ### Modes
 | Command | Description |
 |---------|-------------|
@@ -311,6 +347,8 @@ Personal finance tracking with auto-import.
 | Command | Description |
 |---------|-------------|
 | `/task add <text>` | Add a task |
+| `/task add -h/-l <text>` | Add with priority |
+| `/task add -d <date> <text>` | Add with due date |
 | `/tasks` | List open tasks |
 | `/task due` | Show tasks by due date |
 | `/task done <n>` | Complete task |
@@ -339,7 +377,6 @@ Personal finance tracking with auto-import.
 |---------|-------------|
 | `/status` | Current mode & activity |
 | `/patch_status` | System version |
-| `/help` | All commands |
 
 ---
 
@@ -406,7 +443,8 @@ Personal finance tracking with auto-import.
 │   └── handlers/
 │       ├── chat_mode.py
 │       ├── finance_handler.py
-│       ├── task_handler.py      # NEW: Task tracking
+│       ├── task_handler.py
+│       ├── help_handler.py      # NEW: Comprehensive help
 │       ├── sell_mode.py
 │       └── ...
 ├── workers/

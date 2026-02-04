@@ -1,6 +1,6 @@
 # Patch History
 
-> **Next Patch Number: 0059**
+> **Next Patch Number: 0061**
 
 Auto-updated with each patch deployment.
 
@@ -8,6 +8,8 @@ Auto-updated with each patch deployment.
 
 | Patch | Date | Description |
 |-------|------|-------------|
+| 0060 | 2026-02-03 | Documentation sync - all patches documented |
+| 0059 | 2026-02-03 | Comprehensive help system with topic-based help |
 | 0058 | 2026-02-03 | Documentation update for task tracking system |
 | 0057 | 2026-02-03 | Task due dates - flexible date parsing, /task due command |
 | 0056 | 2026-02-03 | Task tracking system - /task and /tasks commands |
@@ -57,7 +59,7 @@ Auto-updated with each patch deployment.
 
 - 4-digit sequential number
 - Lowercase description with underscores
-- Example: `patch_0058_docs_update.zip`
+- Example: `patch_0060_docs_sync.zip`
 
 ## Patch Contents
 
@@ -70,3 +72,10 @@ patch_NNNN_description/
 ## Verification Template
 
 Every `install.sh` must end with verification checks. See `TODO.md` for template.
+
+## Documentation Rule
+
+**Every patch MUST update documentation.** At minimum:
+- Add entry to this PATCH_HISTORY.md
+- Update TODO.md if completing backlog items
+- Update ARCHITECTURE.md if adding features/commands
