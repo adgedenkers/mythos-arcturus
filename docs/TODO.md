@@ -1,6 +1,6 @@
 # Mythos Project TODO & Roadmap
 
-> **Last Updated:** 2026-02-03 19:15 EST
+> **Last Updated:** 2026-02-03 19:45 EST
 > **Current Focus:** Iris Consciousness Implementation
 
 ---
@@ -67,7 +67,8 @@ The Arcturian Grid (9 nodes) now operates at each of 9 layers, creating **81 pro
 |------|--------|-------|
 | Consciousness architecture design | ✅ Complete | 9 layers × 9 nodes = 81 functions |
 | Documentation | ✅ Complete | 6 docs in consciousness/ |
-| Task tracking system | ✅ Complete | Patches 0056-0057, uses idea_backlog |
+| Task tracking system | ✅ Complete | Patches 0056-0057 |
+| Comprehensive help system | ✅ Complete | Patch 0059 |
 | `perception_log` table | 🔲 To build | PostgreSQL - raw intake |
 | Neo4j Memory nodes | 🔲 To build | Graph storage for Layer 4+ |
 | Neo4j Knowledge nodes | 🔲 To build | Sourced by memories |
@@ -189,6 +190,9 @@ mythos-diag iris         # Consciousness layer status
 - [x] Patches 0051-0054: Finance improvements, sudoers, auto-deploy
 - [x] **Patch 0056: Task tracking system** - /task and /tasks commands
 - [x] **Patch 0057: Task due dates** - flexible date parsing, /task due
+- [x] **Patch 0058: Documentation update** - task system documented
+- [x] **Patch 0059: Comprehensive help system** - /help <topic>
+- [x] **Patch 0060: Documentation sync** - all patches documented
 
 ### 2026-02-02
 - [x] Credit card accounts added to finance system
@@ -251,6 +255,19 @@ cat "$D" | xclip -selection clipboard && echo "✓ Copied"
 # Example for patch 0055
 [ -d /opt/mythos/docs/consciousness ] && [ $(ls /opt/mythos/docs/consciousness/*.md 2>/dev/null | wc -l) -ge 6 ] && echo "✓ OK" || echo "✗ FAIL"
 ```
+
+---
+
+## 📝 Documentation Rules
+
+**Every patch MUST include documentation updates:**
+
+1. Add entry to `PATCH_HISTORY.md`
+2. Update `TODO.md` if completing backlog items
+3. Update `ARCHITECTURE.md` if adding features/commands
+4. Update domain docs if changing subsystems
+
+**No exceptions. Documentation is not optional.**
 
 ---
 
