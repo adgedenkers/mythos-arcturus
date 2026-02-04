@@ -57,3 +57,6 @@ from .task_handler import task_command, tasks_command
 
 # Help system
 from .help_handler import help_command
+
+# Pulse handler (Patch 0064)
+from .pulse_handler import pulse_command, setup_pulse_scheduler
