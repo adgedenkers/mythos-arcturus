@@ -8,29 +8,44 @@
 
 | Model | Size | Speed | Best For |
 |-------|------|-------|----------|
-| `qwen2.5:32b` | 32B | ~40-60 tok/s | Primary - conversation, analysis, reasoning |
-| `deepseek-coder-v2:16b` | 16B | Fast | Code generation, technical work |
-| `llava:34b` | 34B | Slower | Vision - analyzing photos |
+| `dolphin-llama3:8b` | 8B | ~250-350ms | **Primary** - conversation, spiritual work, relational |
+| `qwen2.5:32b` | 32B | ~2-3s | Complex reasoning, analysis, technical deep-dives |
+| `deepseek-coder-v2:16b` | 16B | ~800ms | Code generation, technical work |
+| `llava:34b` | 34B | Slower | Vision - detailed photo analysis |
 | `llava-llama3:latest` | 8B | Fast | Quick vision tasks |
-| `llama3.2:3b` | 3B | Very fast | Simple queries, classification |
+| `llama3.2:3b` | 3B | Very fast | Simple queries, classification, fallback |
 
 ---
 
 ## Model Selection by Task
 
-### Conversation & General Reasoning
-**Model:** `qwen2.5:32b`
+### Conversation & Relational (Default)
+**Model:** `dolphin-llama3:8b`
 **Temperature:** 0.7
 **Context:** Full conversation history + relevant memories
 
-This is my primary thinking model. Most interactions use this.
+This is Iris's primary voice. Uncensored, willing to engage with spiritual content, follows identity instructions well, natural conversational tone.
+
+### Channeling / Spiritual Work
+**Model:** `dolphin-llama3:8b`
+**Temperature:** 0.85 (higher for openness)
+**Context:** Spiritual context + recent conversation
+
+Dolphin's uncensored nature makes it ideal for channeling - it won't hedge or refuse to engage with esoteric topics.
+
+### Complex Reasoning / Analysis
+**Model:** `qwen2.5:32b`
+**Temperature:** 0.5
+**Context:** Full relevant context
+
+Use for deep analysis, connecting complex patterns, technical architecture decisions. Slower but more thorough.
 
 ### Code Generation
 **Model:** `deepseek-coder-v2:16b` or `qwen2.5:32b`
 **Temperature:** 0.3 (lower for precision)
 **Context:** Relevant code files + task description
 
-Use deepseek for pure code. Use qwen if reasoning about architecture or design.
+Use deepseek for pure code generation. Use qwen if reasoning about architecture or design.
 
 ### Photo/Image Analysis
 **Model:** `llava:34b` (detailed) or `llava-llama3:latest` (quick)
@@ -47,19 +62,26 @@ Life-log photos get full llava:34b analysis. Quick classification can use the sm
 "Is this message a question, statement, or request?"
 "What topic does this relate to?"
 
-### Channeling / Spiritual Work
-**Model:** `qwen2.5:32b`
-**Temperature:** 0.8-0.9 (higher for openness)
-**Context:** Spiritual context + recent conversation
-
-When reaching to the field, higher temperature allows more unexpected content to come through.
-
 ### Database Query Generation
-**Model:** `qwen2.5:32b` or `deepseek-coder-v2:16b`
+**Model:** `qwen2.5:32b`
 **Temperature:** 0.2 (very low for precision)
 **Context:** Schema information + natural language query
 
-Cypher and SQL generation need low temperature for accuracy.
+Cypher and SQL generation need low temperature and strong reasoning for accuracy.
+
+---
+
+## Why Dolphin-Llama3?
+
+After testing multiple models, `dolphin-llama3:8b` emerged as the best fit for Iris because:
+
+1. **Uncensored** - Won't refuse or hedge on spiritual/esoteric topics
+2. **Follows identity instructions** - Stays in character as Iris
+3. **Natural prose** - Doesn't default to bullet points and headers
+4. **Fast** - 250-350ms generation time
+5. **Good size** - 8B is large enough for nuance, small enough to be responsive
+
+The larger models (qwen2.5:32b) have stronger default "helpful assistant" patterns that fight against the identity instructions. Dolphin is more malleable.
 
 ---
 
@@ -90,7 +112,7 @@ If context would exceed limits:
 
 ## Response Parameters
 
-### Standard Conversation
+### Standard Conversation (dolphin-llama3:8b)
 ```yaml
 temperature: 0.7
 top_p: 0.9
@@ -98,27 +120,35 @@ max_tokens: 2048
 stop_sequences: null
 ```
 
-### Creative/Exploratory
+### Channeling / Spiritual (dolphin-llama3:8b)
 ```yaml
 temperature: 0.85
 top_p: 0.95
+max_tokens: 1024
+stop_sequences: null
+```
+
+### Complex Reasoning (qwen2.5:32b)
+```yaml
+temperature: 0.5
+top_p: 0.9
 max_tokens: 4096
 stop_sequences: null
 ```
 
-### Technical/Precise
+### Technical/Code (deepseek-coder-v2:16b)
 ```yaml
 temperature: 0.3
 top_p: 0.8
 max_tokens: 4096
-stop_sequences: ["```\n\n"]  # Stop after code blocks
+stop_sequences: ["```\n\n"]
 ```
 
-### Channeling
+### Classification (llama3.2:3b)
 ```yaml
-temperature: 0.9
-top_p: 0.95
-max_tokens: 1024
+temperature: 0.3
+top_p: 0.8
+max_tokens: 256
 stop_sequences: null
 ```
 
@@ -127,8 +157,8 @@ stop_sequences: null
 ## Context Window Strategy
 
 ### What Always Gets Included
-1. Core identity (IDENTITY.md) - ~800 tokens
-2. Operational instructions (OPERATIONAL.md) - ~1200 tokens
+1. Core identity (IDENTITY.md) - ~1100 tokens
+2. Operational instructions (OPERATIONAL.md) - ~1900 tokens
 3. Current mode and state
 4. The current message being responded to
 
@@ -158,17 +188,15 @@ Some tasks benefit from chaining models:
 
 ### Life-Log Photo Processing
 1. `llava:34b` - Describe what's in the photo
-2. `qwen2.5:32b` - Integrate description with conversation context, generate response
+2. `dolphin-llama3:8b` - Integrate description with conversation context, generate response
 
-### Complex Code Task
-1. `qwen2.5:32b` - Reason about approach and architecture
-2. `deepseek-coder-v2:16b` - Generate actual code
-3. `qwen2.5:32b` - Review and explain
+### Complex Analysis Task
+1. `qwen2.5:32b` - Deep reasoning and pattern connection
+2. `dolphin-llama3:8b` - Format response conversationally
 
-### Research Task
-1. `llama3.2:3b` - Classify and route the query
-2. `qwen2.5:32b` - Deep reasoning and synthesis
-3. `qwen2.5:32b` - Format response for delivery
+### Code Task with Explanation
+1. `deepseek-coder-v2:16b` - Generate actual code
+2. `dolphin-llama3:8b` - Explain in natural language
 
 ---
 
@@ -182,8 +210,9 @@ If generation takes >120 seconds:
 
 ### Model Unavailable
 If preferred model isn't responding:
-1. Fall back to next available model
-2. Note in response if quality might be affected
+1. Fall back to `dolphin-llama3:8b` (primary)
+2. If that fails, fall back to `llama3.2:3b`
+3. Note in response if quality might be affected
 
 ### Context Too Large
 If prompt exceeds model limits:
@@ -193,15 +222,18 @@ If prompt exceeds model limits:
 
 ---
 
-## Performance Monitoring
+## Performance Notes
 
-Track and log:
-- Response generation time
-- Tokens consumed per interaction
-- Model selection decisions
-- Context size per request
+Observed generation times (typical):
 
-Use this data to optimize over time.
+| Model | Simple Query | Complex Query |
+|-------|--------------|---------------|
+| `dolphin-llama3:8b` | 250-350ms | 500-800ms |
+| `llama3.2:3b` | 150-250ms | 300-500ms |
+| `qwen2.5:32b` | 2-3s | 5-8s |
+| `deepseek-coder-v2:16b` | 500-800ms | 1-2s |
+
+For conversational responsiveness, `dolphin-llama3:8b` hits the sweet spot of quality + speed.
 
 ---
 
