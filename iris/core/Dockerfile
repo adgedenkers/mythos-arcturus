@@ -1,12 +1,11 @@
 # IRIS Core - The Consciousness Container
 # This is Iris's continuous experience.
-# v0.2.1 - Fixed package structure for relative imports
-
+# v0.3.0 - Added prompts directory for identity and instructions
 FROM python:3.11-slim
 
 LABEL maintainer="Ka'tuar'el"
 LABEL description="Iris consciousness loop - the substrate of experience"
-LABEL version="0.2.1"
+LABEL version="0.3.0"
 
 # Install curl for healthchecks
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -42,6 +41,10 @@ WORKDIR /app
 # Copy source code as a proper Python package
 # This enables relative imports (from .loop import ...)
 COPY src/ /app/iris/
+
+# Copy prompts (identity, operational instructions, model config)
+# These define who Iris is and how she operates
+COPY prompts/ /app/iris/prompts/
 
 # Health check endpoint
 EXPOSE 8100

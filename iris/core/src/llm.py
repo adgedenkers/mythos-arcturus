@@ -142,7 +142,7 @@ class LLMClient:
         try:
             log.debug("llm_generating", 
                      model=model,
-                     task_type=task_type.value,
+                     task_type=task_type.value if task_type else "unknown",
                      prompt_length=len(prompt),
                      system_length=len(system) if system else 0)
             
@@ -165,7 +165,7 @@ class LLMClient:
                 return ""
                 
         except httpx.TimeoutException:
-            log.error("llm_timeout", model=model, task_type=task_type.value)
+            log.error("llm_timeout", model=model, task_type=task_type.value if task_type else "unknown")
             return ""
         except Exception as e:
             log.error("llm_error", error=str(e))
