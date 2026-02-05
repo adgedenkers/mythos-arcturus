@@ -129,11 +129,12 @@ def generate_pulse_message() -> str:
                 ri.expected_amount,
                 ri.expected_day,
                 ri.frequency,
+                ri.next_date,
                 a.abbreviation as acct
             FROM recurring_income ri
             LEFT JOIN accounts a ON ri.account_id = a.id
             WHERE ri.is_active = true
-            ORDER BY COALESCE(ri.expected_day, 99)
+            ORDER BY COALESCE(ri.next_date, make_date(2099,1,1)), COALESCE(ri.expected_day, 99)
         """)
         all_income = cur.fetchall()
         
@@ -141,24 +142,38 @@ def generate_pulse_message() -> str:
         income_total = Decimal('0')
         income_to_main = Decimal('0')  # Only to USAA + Sunmark
         
+        today_date = today.date() if hasattr(today, 'date') else today
+        fourteen_days = today_date + timedelta(days=14)
+        
         for inc in all_income:
             day = inc['expected_day']
             freq = inc['frequency']
             amount = Decimal(str(inc['expected_amount']))
             acct = inc['acct']
+            next_date = inc['next_date']
             
             include = False
+            display_day = None
             
-            if freq == 'biweekly':
-                include = True
+            if freq == 'biweekly' and next_date:
+                # Use actual next_date for biweekly
+                if today_date <= next_date <= fourteen_days:
+                    include = True
+                    display_day = next_date.day
             elif day is not None:
+                # Monthly - use expected_day
                 if current_day <= day <= current_day + 14:
                     include = True
+                    display_day = day
                 elif current_day + 14 > 31 and day <= (current_day + 14 - 31):
                     include = True
+                    display_day = day
             
             if include:
-                income_14_day.append(inc)
+                # Add display_day to the income dict for output
+                inc_with_day = dict(inc)
+                inc_with_day['display_day'] = display_day
+                income_14_day.append(inc_with_day)
                 income_total += amount
                 if acct in ('USAA', 'SUN'):
                     income_to_main += amount
@@ -184,28 +199,52 @@ def generate_pulse_message() -> str:
             status_emoji = "🟢"
             status_word = "OK"
         
+        # Get individual account balances
+        sun_balance = Decimal('0')
+        usaa_balance = Decimal('0')
+        sid_balance = Decimal('0')
+        
+        for acct in checking_accounts:
+            if acct['abbreviation'] == 'SUN':
+                sun_balance = Decimal(str(acct['current_balance'] or 0))
+            elif acct['abbreviation'] == 'USAA':
+                usaa_balance = Decimal(str(acct['current_balance'] or 0))
+            elif acct['abbreviation'] == 'SID':
+                sid_balance = Decimal(str(acct['current_balance'] or 0))
+        
         lines = [
             f"📊 **Financial Pulse**",
             f"_{today.strftime('%A, %B %d')}_",
             "",
             f"**Available Now**",
-            f"  Main (USAA+SUN): {format_currency(main_checking)}",
+            f"  Sunmark: {format_currency(sun_balance)}",
+            f"  USAA: {format_currency(usaa_balance)}",
+            f"  _Total: {format_currency(main_checking)}_",
         ]
         
         # Add Sidney if it has balance
-        for acct in checking_accounts:
-            if acct['abbreviation'] == 'SID' and acct['current_balance']:
-                lines.append(f"  Sidney: {format_currency(acct['current_balance'])}")
+        if sid_balance > 0:
+            lines.append(f"  Sidney: {format_currency(sid_balance)}")
         
-        lines.extend([
-            "",
-            f"**Next 14 Days**",
-            f"  📥 Income: +{format_currency(income_total)}",
-            f"  📤 Bills: -{format_currency(bills_total)}",
-            "",
-            f"**Projected** {status_emoji}",
-            f"  {format_currency(projected)} {status_word}",
-        ])
+        # Income details
+        lines.append("")
+        lines.append(f"**📥 Income Next 14 Days**")
+        if income_14_day:
+            for inc in income_14_day:
+                day = inc.get('display_day') or inc.get('expected_day')
+                day_str = str(day) if day else "~"
+                source = inc['source_name']
+                amount = Decimal(str(inc['expected_amount']))
+                acct = inc['acct'] or '?'
+                lines.append(f"  {day_str}: {source} → {acct} ({format_currency(amount)})")
+            lines.append(f"  _Total: +{format_currency(income_total)}_")
+        else:
+            lines.append("  None expected")
+        
+        # Bills summary
+        lines.append("")
+        lines.append(f"**📤 Bills Next 14 Days**")
+        lines.append(f"  Total: -{format_currency(bills_total)}")
         
         # Add warning for big bills
         big_bills = [b for b in bills_14_day if Decimal(str(b['expected_amount'])) >= 200]
