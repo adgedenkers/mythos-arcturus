@@ -375,7 +375,8 @@ class SunmarkParser:
                 'balance': balance_amt,
                 'bank_transaction_id': txn_num,
                 'is_pending': False,
-                'hash_id': make_hash(parsed_date, amount, original_desc, self.account_id),
+                # Include txn_num in hash to distinguish identical transactions
+                'hash_id': make_hash(parsed_date, amount, f"{original_desc}|{txn_num}", self.account_id),
             }
             self.transactions.append(txn)
         
@@ -464,7 +465,8 @@ class USAAParser:
                 'category_primary': txn['category'] if txn['category'] != 'Category Pending' else None,
                 'bank_transaction_id': None,
                 'is_pending': False,
-                'hash_id': make_hash(txn['date'], txn['amount'], txn['original_description'], self.account_id),
+                # Include balance in hash to distinguish identical transactions
+                'hash_id': make_hash(txn['date'], txn['amount'], f"{txn['original_description']}|{balance_after}", self.account_id),
             })
             
             # Move balance backwards for next (older) transaction
@@ -496,12 +498,13 @@ class Importer:
             self.conn.close()
     
     def import_transactions(self, transactions: list, source_file: str) -> dict:
-        """Import transactions to database"""
+        """Import transactions to database one at a time, collecting errors"""
         results = {
             'total': len(transactions),
             'imported': 0,
             'skipped': 0,
             'errors': 0,
+            'failed': [],  # List of failed transactions with reasons
         }
         
         if not transactions:
@@ -537,42 +540,50 @@ class Importer:
         if not new_txns:
             return results
         
-        # Prepare values for bulk insert
-        values = []
+        # Insert one at a time, collecting errors
         for t in new_txns:
-            values.append((
-                t['account_id'],
-                t['transaction_date'],
-                t['description'],
-                t.get('original_description'),
-                t['amount'],
-                t.get('balance'),
-                t.get('category_primary'),
-                t.get('bank_transaction_id'),
-                t['hash_id'],
-                t.get('is_pending', False),
-                source_file,
-            ))
+            try:
+                self.cur.execute(
+                    """
+                    INSERT INTO transactions (
+                        account_id, transaction_date, description, original_description,
+                        amount, balance, category_primary, bank_transaction_id,
+                        hash_id, is_pending, source_file
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (hash_id) DO NOTHING
+                    """,
+                    (
+                        t['account_id'],
+                        t['transaction_date'],
+                        t['description'],
+                        t.get('original_description'),
+                        t['amount'],
+                        t.get('balance'),
+                        t.get('category_primary'),
+                        t.get('bank_transaction_id'),
+                        t['hash_id'],
+                        t.get('is_pending', False),
+                        source_file,
+                    )
+                )
+                self.conn.commit()
+                results['imported'] += 1
+            except Exception as e:
+                self.conn.rollback()
+                results['failed'].append({
+                    'transaction': t,
+                    'reason': str(e)
+                })
+                results['errors'] += 1
         
-        try:
-            execute_values(
-                self.cur,
-                """
-                INSERT INTO transactions (
-                    account_id, transaction_date, description, original_description,
-                    amount, balance, category_primary, bank_transaction_id,
-                    hash_id, is_pending, source_file
-                ) VALUES %s
-                ON CONFLICT (hash_id) DO NOTHING
-                """,
-                values
-            )
-            self.conn.commit()
-            results['imported'] = self.cur.rowcount
-        except Exception as e:
-            self.conn.rollback()
-            print(f"Database error: {e}")
-            results['errors'] = len(new_txns)
+        # Report failures if any
+        if results['failed'] and self.verbose:
+            print(f"\n⚠️  {len(results['failed'])} transactions failed:")
+            for fail in results['failed'][:5]:  # Show first 5
+                t = fail['transaction']
+                print(f"    {t.get('transaction_date', '?')} | {t.get('description', '?')[:30]} - {fail['reason']}")
+            if len(results['failed']) > 5:
+                print(f"    ... and {len(results['failed']) - 5} more")
         
         return results
     

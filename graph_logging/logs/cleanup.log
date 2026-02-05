@@ -170,3 +170,11 @@
 2026-02-04 03:00:01,797 - INFO - Starting event cleanup (retention: 10 days)
 2026-02-04 03:00:01,801 - INFO - No events older than 10 days found
 2026-02-04 03:00:01,801 - INFO - No events older than 10 days found
+2026-02-05 00:00:05,182 - INFO - Starting event cleanup (retention: 10 days)
+2026-02-05 00:00:05,182 - INFO - Starting event cleanup (retention: 10 days)
+2026-02-05 00:00:05,186 - INFO - No events older than 10 days found
+2026-02-05 00:00:05,186 - INFO - No events older than 10 days found
+2026-02-05 03:00:14,629 - INFO - Starting event cleanup (retention: 10 days)
+2026-02-05 03:00:14,629 - INFO - Starting event cleanup (retention: 10 days)
+2026-02-05 03:00:14,633 - INFO - No events older than 10 days found
+2026-02-05 03:00:14,633 - INFO - No events older than 10 days found
