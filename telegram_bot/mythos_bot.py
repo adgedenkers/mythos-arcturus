@@ -102,6 +102,7 @@ from handlers.help_handler import help_command as help_command_handler
 
 # Pulse handler (household finance visibility)
 from handlers.pulse_handler import pulse_command, setup_pulse_scheduler
+from handlers.forecast_handler import forecast_command, projection_command, bills_command, income_command
 # Configuration
 API_URL = "https://mythos-api.denkers.co"
 API_KEY = os.getenv('API_KEY_TELEGRAM_BOT')
@@ -776,6 +777,10 @@ def main():
     application.add_handler(CommandHandler("back", back_command))
     application.add_handler(CommandHandler("snapshot", snapshot_command))
     application.add_handler(CommandHandler("pulse", pulse_command))
+    application.add_handler(CommandHandler("forecast", forecast_command))
+    application.add_handler(CommandHandler("projection", projection_command))
+    application.add_handler(CommandHandler("bills", bills_command))
+    application.add_handler(CommandHandler("income", income_command))
     application.add_handler(CommandHandler("setbal", setbal_command))
 
     # Iris consciousness commands
