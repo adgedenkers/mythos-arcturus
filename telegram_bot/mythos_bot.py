@@ -67,6 +67,13 @@ from handlers.patch_handlers import (
 
 # Finance commands
 from handlers.finance_handler import (
+    spend_command,
+    monthly_command,
+    compare_command,
+    top_command,
+    txn_command,
+    next_command,
+    back_command,
     setbalance_command,
     report_command,
     balance_command,
@@ -760,6 +767,13 @@ def main():
     application.add_handler(CommandHandler("spending", spending_command))
     application.add_handler(CommandHandler("report", report_command))
     application.add_handler(CommandHandler("setbalance", setbalance_command))
+    application.add_handler(CommandHandler("spend", spend_command))
+    application.add_handler(CommandHandler("monthly", monthly_command))
+    application.add_handler(CommandHandler("compare", compare_command))
+    application.add_handler(CommandHandler("top", top_command))
+    application.add_handler(CommandHandler("txn", txn_command))
+    application.add_handler(CommandHandler("next", next_command))
+    application.add_handler(CommandHandler("back", back_command))
     application.add_handler(CommandHandler("snapshot", snapshot_command))
     application.add_handler(CommandHandler("pulse", pulse_command))
     application.add_handler(CommandHandler("setbal", setbal_command))
