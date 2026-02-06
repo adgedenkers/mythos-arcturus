@@ -1,30 +1,25 @@
 #!/usr/bin/env python3
 """
 Mythos Downloads Monitor Service - WITH GIT VERSIONING
-
 Watches ~/Downloads for known artifact zip files and routes them to
 appropriate handlers. Now includes automatic git snapshots before
 applying patches and push to GitHub after.
-
 Supported artifacts:
 - patch_####_*.zip              → Mythos patch ingestion (with git versioning)
 - sales-db-ingestion-####.zip   → Sales DB ingestion (stage + extract + run SQL)
 - shoe-db-ingestion-####.zip    → Shoe DB ingestion (stage + extract + run SQL)
 - sunmark_*.csv                 → Sunmark bank CSV auto-import
 - usaa_*.csv                    → USAA bank CSV auto-import
-
 Git Integration:
 - Creates tagged snapshot before applying any patch
 - Commits changes after patch extraction
 - Pushes to GitHub if remote is configured
 - Supports rollback via git tags
-
 Notes:
 - Uses /opt/mythos/.venv python
 - Executes SQL via the psql CLI through a dedicated runner script:
   /opt/mythos/sales_ingestion/ingest_sales_zip.py
 """
-
 import os
 import re
 import shutil
@@ -37,37 +32,30 @@ from pathlib import Path
 from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-
+from dotenv import load_dotenv
+load_dotenv("/opt/mythos/.env")
 # ------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------
-
 WATCH_DIR = Path.home() / "Downloads"
-
 MYTHOS_ROOT = Path("/opt/mythos")
 PATCH_DIR = MYTHOS_ROOT / "patches"
 PATCH_ARCHIVE_DIR = PATCH_DIR / "archive"
 PATCH_LOG_DIR = PATCH_DIR / "logs"
-
 SALES_DIR = Path("/opt/mythos/sales_ingestion")
 SALES_ARCHIVE_DIR = SALES_DIR / "archive"
-
 SHOE_DIR = Path("/opt/mythos/shoe_ingestion")
 SHOE_ARCHIVE_DIR = SHOE_DIR / "archive"
-
 # Finance auto-import config
 FINANCE_DIR = Path("/opt/mythos/finance")
 FINANCE_ARCHIVE_DIR = FINANCE_DIR / "archive" / "imports"
-
 # Bank account mapping (filename pattern -> account_id)
 BANK_ACCOUNTS = {
     "sunmark": 1,  # Sunmark Primary Checking
     "usaa": 2,     # USAA Simple Checking
 }
-
 INGESTOR = Path("/opt/mythos/sales_ingestion/ingest_sales_zip.py")
 VENV_PY = Path("/opt/mythos/.venv/bin/python")
-
 ARTIFACT_PATTERNS = {
     "patch": re.compile(r"^patch_\d{4}_.*\.zip$"),
     "sales_ingestion": re.compile(r"^sales-db-ingestion-\d{4}\.zip$"),
@@ -78,21 +66,16 @@ ARTIFACT_PATTERNS = {
     # Also accept explicitly named files like sunmark_2026_01.csv
     "bank_csv": re.compile(r"^(bk_download|download|sunmark[_-].*|usaa[_-].*)\.csv$", re.IGNORECASE),
 }
-
 # Git configuration
 GIT_ENABLED = True
 GITHUB_PUSH_ENABLED = True
-
 # Auto-execute install.sh after extraction
 AUTO_EXECUTE_INSTALL = True
-
 # Telegram notifications for finance imports
 TELEGRAM_NOTIFY_FINANCE = True
-
 # ------------------------------------------------------------
 # Logging
 # ------------------------------------------------------------
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -101,13 +84,10 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-
 logger = logging.getLogger("MythosDownloadsMonitor")
-
 # ------------------------------------------------------------
 # Git Operations
 # ------------------------------------------------------------
-
 class GitManager:
     """Handles git operations for patch versioning"""
     
@@ -246,19 +226,14 @@ class GitManager:
             return [t for t in tags if t][:limit]
         except Exception:
             return []
-
-
 # Global git manager
 git_manager = GitManager(MYTHOS_ROOT) if GIT_ENABLED else None
-
 # ------------------------------------------------------------
 # Telegram Notifications
 # ------------------------------------------------------------
-
 def send_telegram_notification(message: str):
     """Send notification via Telegram bot if configured"""
     try:
-        # Use the bot's send mechanism
         bot_script = MYTHOS_ROOT / "telegram_bot" / "send_notification.py"
         if bot_script.exists():
             subprocess.run(
@@ -267,43 +242,33 @@ def send_telegram_notification(message: str):
                 timeout=30
             )
         else:
-            # Fallback: try to import and use bot directly
             logger.debug("Telegram notification script not found, skipping")
     except Exception as e:
         logger.debug(f"Telegram notification failed: {e}")
-
 # ------------------------------------------------------------
 # Handler
 # ------------------------------------------------------------
-
 class DownloadsHandler(FileSystemEventHandler):
-
     def __init__(self):
         super().__init__()
         self.processing = set()
-
     def on_created(self, event):
         if event.is_directory:
             return
-
         path = Path(event.src_path)
         name = path.name
-
         artifact_type = self._detect_artifact_type(name)
         if not artifact_type:
             return
-
         logger.info(f"Detected {artifact_type} artifact: {name}")
         # Give browsers/OS time to finish writing the file
         time.sleep(2)
         self.process_artifact(artifact_type, path)
-
     def _detect_artifact_type(self, filename):
         for artifact_type, pattern in ARTIFACT_PATTERNS.items():
             if pattern.match(filename):
                 return artifact_type
         return None
-
     def process_artifact(self, artifact_type, path):
         if artifact_type == "patch":
             self.process_patch(path)
@@ -313,17 +278,14 @@ class DownloadsHandler(FileSystemEventHandler):
             self.process_shoe_ingestion(path)
         elif artifact_type == "bank_csv":
             self.process_bank_csv(path)
-
     # --------------------------------------------------------
     # Bank CSV handling
     # --------------------------------------------------------
-
     def process_bank_csv(self, csv_path: Path):
         """Process bank CSV file for auto-import with auto-detection"""
         name = csv_path.name
         if name in self.processing:
             return
-
         try:
             self.processing.add(name)
             
@@ -341,34 +303,45 @@ class DownloadsHandler(FileSystemEventHandler):
             if not account_id:
                 logger.error(f"No account mapping for bank: {bank}")
                 return
-
             logger.info(f"Auto-detected bank: {bank} (account_id={account_id})")
-
+            
             # Ensure archive directory exists
             FINANCE_ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
-
-            # Run the import script
-            import_script = FINANCE_DIR / "import_transactions.py"
+            
+            # Use new importer.py
+            import_script = FINANCE_DIR / "importer.py"
             if not import_script.exists():
                 logger.error(f"Import script not found: {import_script}")
                 return
-
+            
+            # Build command
+            cmd = [
+                str(VENV_PY),
+                str(import_script),
+                bank,  # sunmark or usaa
+                str(csv_path),
+                "--verbose"
+            ]
+            
+            # For USAA, we need to provide --balance from the DB
+            if bank == "usaa":
+                balance = self._get_latest_balance(account_id)
+                if balance is None:
+                    logger.error(f"Cannot auto-import USAA: no balance found in DB")
+                    self._notify_finance_error(f"USAA CSV detected but no balance in DB. Import manually with --balance")
+                    return
+                cmd.extend(["--balance", str(balance)])
+                logger.info(f"Using DB balance for USAA: ${balance}")
+            
             logger.info(f"Importing {name} for {bank} (account_id={account_id})")
-
             result = subprocess.run(
-                [
-                    str(VENV_PY),
-                    str(import_script),
-                    str(csv_path),
-                    "--account-id", str(account_id),
-                    "--imported-by", "auto-import"
-                ],
+                cmd,
                 capture_output=True,
                 text=True,
                 timeout=120,
                 cwd=str(FINANCE_DIR)
             )
-
+            
             if result.returncode == 0:
                 # Parse output for summary
                 output = result.stdout
@@ -381,55 +354,96 @@ class DownloadsHandler(FileSystemEventHandler):
                             imported = int(line.split(':')[1].strip())
                         except (ValueError, IndexError):
                             pass
-                    elif 'Skipped' in line:
+                    elif 'Skipped:' in line:
                         try:
-                            skipped = int(line.split(':')[1].strip())
+                            skipped = int(line.split(':')[1].strip().split()[0])
                         except (ValueError, IndexError):
                             pass
-
+                
                 logger.info(f"✓ Import complete: {imported} imported, {skipped} skipped")
-
-                # Archive the CSV with timestamp and bank name
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                archive_name = f"{bank}_{timestamp}{csv_path.suffix}"
-                archive_path = FINANCE_ARCHIVE_DIR / archive_name
-                shutil.move(csv_path, archive_path)
-                logger.info(f"✓ Archived to: {archive_path}")
-
+                
+                # The importer archives automatically, but check if file still exists
+                if csv_path.exists():
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    archive_name = f"{bank}_{timestamp}{csv_path.suffix}"
+                    archive_path = FINANCE_ARCHIVE_DIR / archive_name
+                    shutil.move(csv_path, archive_path)
+                    logger.info(f"✓ Archived to: {archive_path}")
+                
                 # Send Telegram notification
                 if TELEGRAM_NOTIFY_FINANCE and imported > 0:
-                    msg = f"💰 Finance Import: {bank.upper()}\n"
-                    msg += f"📄 {name}\n"
-                    msg += f"✅ {imported} new, ⏭️ {skipped} skipped"
-                    send_telegram_notification(msg)
-
+                    self._notify_finance_import(bank, imported, skipped)
             else:
-                logger.error(f"Import failed for {name}:")
-                logger.error(result.stderr)
+                logger.error(f"Import failed: {result.stderr}")
+                self._notify_finance_error(f"Import failed for {bank}: {result.stderr[:200]}")
                 
-                # Move to error folder
-                error_dir = FINANCE_ARCHIVE_DIR / "errors"
-                error_dir.mkdir(parents=True, exist_ok=True)
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                error_name = f"{bank}_{timestamp}_ERROR{csv_path.suffix}"
-                shutil.move(csv_path, error_dir / error_name)
-
-        except subprocess.TimeoutExpired:
-            logger.error(f"Import timed out for {name}")
         except Exception as e:
-            logger.error(f"Bank CSV import error {name}: {e}", exc_info=True)
+            logger.error(f"Error processing bank CSV: {e}")
+            self._notify_finance_error(f"Error processing {name}: {e}")
         finally:
             self.processing.discard(name)
-
+    
+    def _get_latest_balance(self, account_id: int):
+        """Get the latest balance from the database for an account"""
+        try:
+            import psycopg2
+            from psycopg2.extras import RealDictCursor
+            
+            conn = psycopg2.connect(
+                host=os.environ.get('POSTGRES_HOST', 'localhost'),
+                database=os.environ.get('POSTGRES_DB', 'mythos'),
+                user=os.environ.get('POSTGRES_USER', 'postgres'),
+                password=os.environ.get('POSTGRES_PASSWORD', ''),
+                port=os.environ.get('POSTGRES_PORT', '5432'),
+                cursor_factory=RealDictCursor
+            )
+            cur = conn.cursor()
+            
+            # Get the most recent transaction's balance for this account
+            cur.execute("""
+                SELECT balance 
+                FROM transactions 
+                WHERE account_id = %s AND balance IS NOT NULL
+                ORDER BY transaction_date DESC, id DESC
+                LIMIT 1
+            """, (account_id,))
+            
+            row = cur.fetchone()
+            conn.close()
+            
+            if row:
+                return float(row['balance'])
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting balance from DB: {e}")
+            return None
+    
+    def _notify_finance_import(self, bank: str, imported: int, skipped: int):
+        """Send success notification via Telegram"""
+        try:
+            msg = f"✅ *Finance Auto-Import*\n\n"
+            msg += f"Bank: {bank.upper()}\n"
+            msg += f"Imported: {imported} new transactions\n"
+            if skipped > 0:
+                msg += f"Skipped: {skipped} (duplicates)\n"
+            send_telegram_notification(msg)
+        except Exception as e:
+            logger.debug(f"Could not send import notification: {e}")
+    
+    def _notify_finance_error(self, message: str):
+        """Send error notification via Telegram"""
+        try:
+            send_telegram_notification(f"⚠️ Finance Auto-Import Error\n\n{message}")
+        except Exception as e:
+            logger.debug(f"Could not send error notification: {e}")
     # --------------------------------------------------------
     # Patch handling (with git versioning)
     # --------------------------------------------------------
-
     def process_patch(self, zip_path):
         name = zip_path.name
         if name in self.processing:
             return
-
         try:
             self.processing.add(name)
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -437,21 +451,17 @@ class DownloadsHandler(FileSystemEventHandler):
             if not self._is_valid_zip(zip_path):
                 logger.error(f"Invalid patch zip: {name}")
                 return
-
             PATCH_DIR.mkdir(parents=True, exist_ok=True)
             PATCH_ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
             PATCH_LOG_DIR.mkdir(parents=True, exist_ok=True)
-
             # ---- GIT: Create pre-patch snapshot ----
             if git_manager and git_manager.is_repo():
                 pre_tag = f"pre-patch-{name.replace('.zip', '')}-{timestamp}"
                 git_manager.create_snapshot(pre_tag, f"State before {name}")
                 logger.info(f"✓ Git snapshot: {pre_tag}")
-
             # Copy zip to patches directory
             dest = PATCH_DIR / name
             shutil.copy2(zip_path, dest)
-
             # Extract
             extract_dir = None
             with zipfile.ZipFile(dest, "r") as z:
@@ -464,17 +474,14 @@ class DownloadsHandler(FileSystemEventHandler):
                     if '/' in f:
                         extract_dir = PATCH_DIR / f.split('/')[0]
                         break
-
             # Archive the zip
             shutil.move(dest, PATCH_ARCHIVE_DIR / name)
             
             # Remove original from Downloads
             zip_path.unlink()
-
             logger.info(f"✓ Patch extracted: {name}")
             if extract_dir:
                 logger.info(f"  Extract location: {extract_dir}")
-
             # ---- GIT: Commit patch and tag new version ----
             if git_manager and git_manager.is_repo():
                 current_version = git_manager.get_current_version()
@@ -488,7 +495,6 @@ class DownloadsHandler(FileSystemEventHandler):
                     git_manager.push()
                 
                 logger.info(f"✓ Git versioned: {current_version} → {new_version}")
-
             # Log the patch application
             log_entry = {
                 "timestamp": timestamp,
@@ -497,8 +503,6 @@ class DownloadsHandler(FileSystemEventHandler):
                 "status": "success"
             }
             self._write_patch_log(log_entry)
-
-
             # ---- AUTO-EXECUTE install.sh if present ----
             if AUTO_EXECUTE_INSTALL and extract_dir:
                 install_script = extract_dir / "install.sh"
@@ -523,9 +527,7 @@ class DownloadsHandler(FileSystemEventHandler):
                         logger.error("install.sh timed out (5 min limit)")
                     except Exception as e:
                         logger.error(f"install.sh error: {e}")
-
             logger.info(f"✓ Patch processed: {name}")
-
         except Exception as e:
             logger.error(f"Patch error {name}: {e}", exc_info=True)
             self._write_patch_log({
@@ -536,7 +538,6 @@ class DownloadsHandler(FileSystemEventHandler):
             })
         finally:
             self.processing.discard(name)
-
     def _write_patch_log(self, entry: dict):
         """Write patch application to log file"""
         import json
@@ -546,11 +547,9 @@ class DownloadsHandler(FileSystemEventHandler):
                 json.dump(entry, f, indent=2)
         except Exception as e:
             logger.error(f"Failed to write patch log: {e}")
-
     # --------------------------------------------------------
     # Sales ingestion handling
     # --------------------------------------------------------
-
     def process_sales_ingestion(self, zip_path):
         self._process_ingestion_zip(
             zip_path=zip_path,
@@ -558,11 +557,9 @@ class DownloadsHandler(FileSystemEventHandler):
             archive_dir=SALES_ARCHIVE_DIR,
             ingestor_type="sales"
         )
-
     # --------------------------------------------------------
     # Shoe ingestion handling
     # --------------------------------------------------------
-
     def process_shoe_ingestion(self, zip_path):
         self._process_ingestion_zip(
             zip_path=zip_path,
@@ -570,41 +567,30 @@ class DownloadsHandler(FileSystemEventHandler):
             archive_dir=SHOE_ARCHIVE_DIR,
             ingestor_type="shoes"
         )
-
     # --------------------------------------------------------
     # Shared ingestion flow
     # --------------------------------------------------------
-
     def _process_ingestion_zip(self, zip_path: Path, root_dir: Path, archive_dir: Path, ingestor_type: str):
         name = zip_path.name
         if name in self.processing:
             return
-
         try:
             self.processing.add(name)
-
             if not self._is_valid_zip(zip_path):
                 logger.error(f"Invalid {ingestor_type} ingestion zip: {name}")
                 return
-
             root_dir.mkdir(parents=True, exist_ok=True)
             archive_dir.mkdir(parents=True, exist_ok=True)
-
             dest = root_dir / name
             shutil.copy2(zip_path, dest)
-
             extract_dir = root_dir / name.replace(".zip", "")
             extract_dir.mkdir(parents=True, exist_ok=True)
-
             with zipfile.ZipFile(dest, "r") as z:
                 z.extractall(extract_dir)
-
             # Archive the staged zip and remove the original download
             shutil.move(dest, archive_dir / name)
             zip_path.unlink()
-
             logger.info(f"✓ {ingestor_type} ingestion staged: {name} -> {extract_dir}")
-
             # Now run DB ingestion (SQL execution) via ingestor
             if not INGESTOR.exists():
                 logger.error(f"Ingestor missing: {INGESTOR}. Staged only.")
@@ -612,46 +598,36 @@ class DownloadsHandler(FileSystemEventHandler):
             if not VENV_PY.exists():
                 logger.error(f"Venv python missing: {VENV_PY}. Staged only.")
                 return
-
             env = os.environ.copy()
             # Default to mythos; allow override in service Environment or shell env
             env.setdefault("MYTHOS_DB", "mythos")
-
             cmd = [str(VENV_PY), str(INGESTOR), "--type", ingestor_type, "--extract-dir", str(extract_dir)]
             logger.info(f"Running ingestor: {' '.join(cmd)} (MYTHOS_DB={env.get('MYTHOS_DB')})")
             subprocess.run(cmd, check=True, env=env)
-
         except subprocess.CalledProcessError as e:
             logger.error(f"{ingestor_type} ingestion failed for {name}: {e}", exc_info=True)
         except Exception as e:
             logger.error(f"{ingestor_type} ingestion error {name}: {e}", exc_info=True)
         finally:
             self.processing.discard(name)
-
     # --------------------------------------------------------
-
     def _is_valid_zip(self, path):
         try:
             with zipfile.ZipFile(path, "r") as z:
                 return z.testzip() is None
         except Exception:
             return False
-
-
 # ------------------------------------------------------------
 # Main loop
 # ------------------------------------------------------------
-
 def main():
     logger.info("=" * 60)
     logger.info("Mythos Downloads Monitor Service Starting")
     logger.info(f"Watching: {WATCH_DIR}")
     logger.info(f"Git enabled: {GIT_ENABLED}")
     logger.info(f"GitHub push enabled: {GITHUB_PUSH_ENABLED}")
-
     for k, v in ARTIFACT_PATTERNS.items():
         logger.info(f"Artifact type '{k}': {v.pattern}")
-
     # Check git status
     if git_manager:
         if git_manager.is_repo():
@@ -660,21 +636,16 @@ def main():
             logger.info(f"Remote configured: {git_manager.has_remote()}")
         else:
             logger.warning(f"Not a git repo: {MYTHOS_ROOT}")
-
     logger.info("=" * 60)
-
     handler = DownloadsHandler()
     observer = Observer()
     observer.schedule(handler, str(WATCH_DIR), recursive=False)
     observer.start()
-
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
-
     observer.join()
-
 if __name__ == "__main__":
     main()
