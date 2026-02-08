@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mythos — Financial Report</title>
+<style>
+/* Inject the full report CSS inline - copy from report_template.html */
+body { background: #0a0e17; color: #e2e8f0; font-family: 'DM Sans', sans-serif; font-size: 14px; margin: 0; padding: 0; }
+.loading { text-align: center; padding: 80px; color: #64748b; font-size: 16px; }
+.back-link { display: inline-block; padding: 10px 20px; margin: 20px; color: #06b6d4; text-decoration: none; border: 1px solid #1e293b; border-radius: 6px; font-size: 13px; }
+.back-link:hover { border-color: #06b6d4; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<a href="/app/dashboard" class="back-link">← Dashboard</a>
+<div id="report-root"><div class="loading">Loading report data...</div></div>
+
+<script>
+// Fetch live data from API and render using the report template engine
+fetch('/api/finance/report?months=6')
+  .then(r => {
+    if (r.status === 401) { window.location.href = '/app/login'; return; }
+    return r.json();
+  })
+  .then(data => {
+    if (!data) return;
+    // Load the static report template and inject data
+    // For now, redirect to the static report
+    // In the future, render inline
+    const root = document.getElementById('report-root');
+    root.innerHTML = '<div class="loading">Rendering...</div>';
+    
+    // Create an iframe with the report
+    const iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.minHeight = '100vh';
+    iframe.style.border = 'none';
+    iframe.style.background = '#0a0e17';
+    root.innerHTML = '';
+    root.appendChild(iframe);
+    
+    // Fetch the template and inject data
+    fetch('/api/finance/report-html')
+      .then(r => r.text())
+      .then(html => {
+        iframe.srcdoc = html;
+      })
+      .catch(() => {
+        root.innerHTML = '<div class="loading" style="color: #ef4444;">Failed to load report template.</div>';
+      });
+  })
+  .catch(err => {
+    document.getElementById('report-root').innerHTML = 
+      `<div class="loading" style="color: #ef4444;">Error: ${err.message}</div>`;
+  });
+</script>
+</body>
+</html>

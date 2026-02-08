@@ -1,0 +1,15 @@
+Requirement already satisfied: PyJWT in /opt/mythos/.venv/lib/python3.12/site-packages (2.11.0)
+Requirement already satisfied: httpx in /opt/mythos/.venv/lib/python3.12/site-packages (0.28.1)
+Requirement already satisfied: authlib in /opt/mythos/.venv/lib/python3.12/site-packages (1.6.7)
+Requirement already satisfied: anyio in /opt/mythos/.venv/lib/python3.12/site-packages (from httpx) (4.12.0)
+Requirement already satisfied: certifi in /opt/mythos/.venv/lib/python3.12/site-packages (from httpx) (2025.11.12)
+Requirement already satisfied: httpcore==1.* in /opt/mythos/.venv/lib/python3.12/site-packages (from httpx) (1.0.9)
+Requirement already satisfied: idna in /opt/mythos/.venv/lib/python3.12/site-packages (from httpx) (3.11)
+Requirement already satisfied: h11>=0.16 in /opt/mythos/.venv/lib/python3.12/site-packages (from httpcore==1.*->httpx) (0.16.0)
+Requirement already satisfied: cryptography in /opt/mythos/.venv/lib/python3.12/site-packages (from authlib) (46.0.4)
+Requirement already satisfied: typing_extensions>=4.5 in /opt/mythos/.venv/lib/python3.12/site-packages (from anyio->httpx) (4.15.0)
+Requirement already satisfied: cffi>=2.0.0 in /opt/mythos/.venv/lib/python3.12/site-packages (from cryptography->authlib) (2.0.0)
+Requirement already satisfied: pycparser in /opt/mythos/.venv/lib/python3.12/site-packages (from cffi>=2.0.0->cryptography->authlib) (3.0)
+
+[notice] A new release of pip is available: 25.3 -> 26.0.1
+[notice] To update, run: /opt/mythos/.venv/bin/python3 -m pip install --upgrade pip

@@ -11,9 +11,6 @@ import os
 import sys
 from dotenv import load_dotenv
 from api.routes.sales import router as sales_router
-from api.routes.finance import router as finance_router
-from api.routes.web import router as web_router
-from api.auth.google_auth import router as auth_router, AuthMiddleware
 import psycopg2
 
 # Add assistants to path
@@ -47,10 +44,6 @@ app = FastAPI(
 
 # Include sales router
 app.include_router(sales_router)
-app.include_router(finance_router)
-app.include_router(web_router)
-app.include_router(auth_router)
-app.add_middleware(AuthMiddleware)
 
 # CORS configuration
 app.add_middleware(
@@ -328,26 +321,3 @@ async def get_chat_stats(
     stats = chat_assistant_instance.get_context_stats(user['uuid'])
     
     return {"status": "ok", "stats": stats}
-
-# Serve live report HTML (report template with API data injection)
-from fastapi.responses import HTMLResponse as _HTMLResponse
-from pathlib import Path as _Path
-import json as _json
-
-@app.get("/api/finance/report-html", response_class=_HTMLResponse)
-async def report_html():
-    """Serve the report template with live data injected"""
-    import sys
-    sys.path.insert(0, '/opt/mythos/finance')
-    from report_generator import generate_report
-    
-    # Generate fresh report to temp path
-    from datetime import date
-    from pathlib import Path
-    
-    output = Path('/tmp/mythos_live_report.html')
-    generate_report(num_months=6, output_path=str(output))
-    
-    if output.exists():
-        return _HTMLResponse(content=output.read_text())
-    return _HTMLResponse(content="<h1>Report generation failed</h1>", status_code=500)
