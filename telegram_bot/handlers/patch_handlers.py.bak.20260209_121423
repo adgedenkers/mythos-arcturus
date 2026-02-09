@@ -171,44 +171,52 @@ async def patch_status_command(update: Update, context: ContextTypes.DEFAULT_TYP
     tags = _get_recent_tags(5)
     logs = _get_recent_logs(5)
     
+    # Check git remote
     has_remote, remote_url = _run_git("remote", "get-url", "origin")
     
+    # Extract latest patch number from recent activity
     latest_patch = "?"
     for log in (logs or []):
-        patch_name = log.get("patch", log.get("target_tag", ""))
-        m = re.search(r"patch_(\d{4})", str(patch_name))
+        patch_name = log.get('patch', log.get('target_tag', ''))
+        m = re.search(r'patch_(\d{4})', str(patch_name))
         if m:
             latest_patch = m.group(1)
             break
     
-    msg = "📊 <b>Patch Status</b>\n\n"
+    msg = f"📊 <b>Patch Status</b>\n\n"
     msg += f"<b>Latest Patch:</b> <code>#{latest_patch}</code>\n"
     msg += f"<b>Git Tag:</b> <code>{version}</code>\n"
-    github = "✓ Connected" if has_remote else "✗ Not configured"
-    msg += f"<b>GitHub:</b> {github}\n\n"
+    msg += f"<b>GitHub:</b> {'✓ Connected' if has_remote else '✗ Not configured'}\n\n"
     
     msg += "<b>Recent Patches:</b>\n"
     for log in (logs or [])[:5]:
-        status = "✓" if log.get("status") == "success" else "✗"
-        pname = log.get("patch", log.get("target_tag", "unknown"))
-        m = re.search(r"patch_(\d{4})_(.+?)\.zip", str(pname))
+        status = "✓" if log.get('status') == 'success' else "✗"
+        patch_name = log.get('patch', log.get('target_tag', 'unknown'))
+        # Extract patch number and name
+        m = re.search(r'patch_(\d{4})_(.+?)\.zip', str(patch_name))
         if m:
             num = m.group(1)
-            name = m.group(2).replace("_", " ")
-            msg += f"  {status} <code>#{num}</code> {name}\n"
+            name = m.group(2).replace('_', ' ')
+            # Find matching git tag
+            tag_match = ""
+            for t in tags:
+                if t['tag'] and t['date'][:10] == log.get('date', '')[:10]:
+                    tag_match = f" → {t['tag']}"
+                    break
+            msg += f"  {status} <code>#{num}</code> {name}{tag_match}\n"
         else:
-            msg += f"  {status} {pname}\n"
+            msg += f"  {status} {patch_name}\n"
     
     if tags:
         msg += "\n<b>Git Tags:</b>\n"
         for t in tags[:5]:
-            tag_name = t["tag"]
-            tag_date = t["date"][:10]
-            msg += f"  <code>{tag_name}</code> ({tag_date})\n"
+            msg += f"  <code>{t['tag']}</code> ({t['date'][:10]})\n"
     
-    msg += "\n<i>Patch # and git tags will be aligned soon.</i>"
+    msg += f"\n<i>Note: Patch numbers and git tags will be aligned in a future update.</i>"
     
-    await update.message.reply_text(msg, parse_mode="HTML")
+    await update.message.reply_text(msg, parse_mode='HTML')
+
+
 async def patch_list_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     /patch_list - List available patches
