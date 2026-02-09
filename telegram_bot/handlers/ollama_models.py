@@ -31,8 +31,38 @@ OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
 ACTIVE_PULLS: Dict[str, dict] = {}
 
 # Model override per user: { telegram_id: "exact_model_name" }
-# When set, this overrides the auto/fast/deep logic in chat_mode
+# Persisted to file so API process can read it too
 USER_MODEL_OVERRIDE: Dict[int, Optional[str]] = {}
+OVERRIDE_FILE = "/opt/mythos/.model_overrides.json"
+
+
+def _save_overrides():
+    """Persist overrides to file for cross-process access"""
+    try:
+        import json
+        # Convert int keys to strings for JSON
+        data = {str(k): v for k, v in USER_MODEL_OVERRIDE.items()}
+        with open(OVERRIDE_FILE, "w") as f:
+            json.dump(data, f)
+    except Exception as e:
+        logger.error(f"Failed to save overrides: {e}")
+
+
+def _load_overrides():
+    """Load overrides from file"""
+    global USER_MODEL_OVERRIDE
+    try:
+        import json
+        if os.path.exists(OVERRIDE_FILE):
+            with open(OVERRIDE_FILE, "r") as f:
+                data = json.load(f)
+            USER_MODEL_OVERRIDE = {int(k): v for k, v in data.items()}
+    except Exception as e:
+        logger.error(f"Failed to load overrides: {e}")
+
+
+# Load on import
+_load_overrides()
 
 
 # ── Ollama API helpers ──────────────────────────────────────────────────────
@@ -322,6 +352,7 @@ async def setmodel_command(update, context):
     if model_name.lower() == "reset":
         if telegram_id in USER_MODEL_OVERRIDE:
             del USER_MODEL_OVERRIDE[telegram_id]
+        _save_overrides()
         env_default = os.getenv("OLLAMA_MODEL", "dolphin-llama3:8b")
         await update.message.reply_text(
             f"🔄 Override cleared. Using default: </code>{env_default}<code>",
@@ -352,6 +383,7 @@ async def setmodel_command(update, context):
         return
 
     USER_MODEL_OVERRIDE[telegram_id] = model_name
+    _save_overrides()
     await update.message.reply_text(
         f"⚡ Active model set to <code>{model_name}</code>\n\n"
         f"All Iris conversations now use this model.\n"
@@ -400,6 +432,7 @@ async def removemodel_command(update, context):
                 for uid, override in list(USER_MODEL_OVERRIDE.items()):
                     if override == model_name:
                         del USER_MODEL_OVERRIDE[uid]
+                _save_overrides()
 
                 await update.message.reply_text(
                     f"🗑️ </code>{model_name}<code> removed.\n\nUse </code>/models<code> to see remaining.",
@@ -419,11 +452,16 @@ async def removemodel_command(update, context):
 def get_active_model(telegram_id: int) -> str:
     """
     Get the active model for a user.
-    Returns the user's override if set, otherwise the env default.
-    
-    Call this from chat_mode.py instead of MODEL_MAP to respect /setmodel.
+    Reads from file each time so it works cross-process (bot + API).
     """
-    override = USER_MODEL_OVERRIDE.get(telegram_id)
-    if override:
-        return override
+    try:
+        import json
+        if os.path.exists(OVERRIDE_FILE):
+            with open(OVERRIDE_FILE, "r") as f:
+                data = json.load(f)
+            override = data.get(str(telegram_id))
+            if override:
+                return override
+    except Exception:
+        pass
     return os.getenv("OLLAMA_MODEL", "dolphin-llama3:8b")
