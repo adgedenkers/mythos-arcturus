@@ -93,6 +93,15 @@ from handlers.iris_handler import (
     iris_task_command
 )
 
+# Ollama model management
+from handlers.ollama_models import (
+    models_command,
+    pull_command,
+    pulling_command,
+    setmodel_command,
+    removemodel_command
+)
+
 
 # Task tracking commands
 from handlers.task_handler import task_command, tasks_command
@@ -261,6 +270,15 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = session["user"]
     mode = session.get("current_mode", "chat")
     model = session.get("current_model", "auto")
+    
+    # Check for /setmodel override to show actual model
+    try:
+        from handlers.ollama_models import USER_MODEL_OVERRIDE
+        override = USER_MODEL_OVERRIDE.get(telegram_id)
+        if override:
+            model = override
+    except ImportError:
+        pass
     
     # Build status message - cleaner format
     mode_emoji = {
@@ -788,6 +806,13 @@ def main():
     application.add_handler(CommandHandler("iris_test", iris_test_command))
     application.add_handler(CommandHandler("iris_run", iris_run_command))
     application.add_handler(CommandHandler("iris_task", iris_task_command))
+
+    # Ollama model management commands
+    application.add_handler(CommandHandler("models", models_command))
+    application.add_handler(CommandHandler("pull", pull_command))
+    application.add_handler(CommandHandler("pulling", pulling_command))
+    application.add_handler(CommandHandler("setmodel", setmodel_command))
+    application.add_handler(CommandHandler("removemodel", removemodel_command))
     
     # Task tracking commands
     application.add_handler(CommandHandler("task", task_command))

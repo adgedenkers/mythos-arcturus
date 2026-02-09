@@ -206,7 +206,8 @@ async def process_message(
             # Process message with model preference
             response_text = chat_assistant_instance.query(
                 request.message,
-                model_preference=request.model_preference
+                model_preference=request.model_preference,
+                telegram_id=int(request.user_id)
             )
             
             return MessageResponse(
