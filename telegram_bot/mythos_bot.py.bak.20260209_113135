@@ -105,7 +105,6 @@ from handlers.ollama_models import (
 )
 
 
-
 # Voice transcription
 from handlers.voice_handler import handle_voice, handle_audio
 
@@ -820,11 +819,19 @@ def main():
     application.add_handler(CommandHandler("setmodel", setmodel_command))
     application.add_handler(CommandHandler("removemodel", removemodel_command))
     
+    # Voice transcription
+from handlers.voice_handler import handle_voice, handle_audio
 
+# Task tracking commands
     application.add_handler(CommandHandler("task", task_command))
     application.add_handler(CommandHandler("tasks", tasks_command))
 
+    # Voice transcription
+from handlers.voice_handler import handle_voice, handle_audio
 
+# Task tracking commands
+    application.add_handler(CommandHandler("task", task_command))
+    application.add_handler(CommandHandler("tasks", tasks_command))
 
     # Message handlers
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
