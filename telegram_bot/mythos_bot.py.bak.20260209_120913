@@ -9,7 +9,6 @@ Updated to include:
 """
 
 import os
-import asyncio
 import sys
 sys.path.insert(0, '/opt/mythos')
 import logging
@@ -124,12 +123,6 @@ API_URL = "https://mythos-api.denkers.co"
 API_KEY = os.getenv('API_KEY_TELEGRAM_BOT')
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 MEDIA_BASE_PATH = "/opt/mythos/media"
-
-# Message buffer for collecting multi-chunk messages
-# { telegram_id: {"chunks": [str], "timer": asyncio.Task, "update": Update, "context": Context} }
-MESSAGE_BUFFER = {}
-MESSAGE_BUFFER_DELAY = 1.5  # seconds to wait for more chunks
-
 
 # Default mode for new sessions
 DEFAULT_MODE = "chat"
@@ -687,21 +680,23 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"❌ Error: {e}")
 
 
-async def _process_buffered_message(telegram_id: int):
-    """Process collected message chunks as a single message"""
-    if telegram_id not in MESSAGE_BUFFER:
-        return
-    
-    buf = MESSAGE_BUFFER.pop(telegram_id)
-    combined_message = "\n".join(buf["chunks"])
-    update = buf["update"]
-    context = buf["context"]
-    
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle text messages"""
+    telegram_id = update.effective_user.id
     session = get_or_create_session(telegram_id)
+    
     if not session:
         await update.message.reply_text("❌ Session not found. Use /start")
         return
     
+    if is_sell_mode(session):
+        await update.message.reply_text(
+            "📦 Sell mode - send photos only.\n"
+            "/done to exit"
+        )
+        return
+    
+    user_message = update.message.text
     mode = session["current_mode"]
     model = session["current_model"]
     conversation_id = session.get("conversation_id")
@@ -709,13 +704,8 @@ async def _process_buffered_message(telegram_id: int):
     await update.message.chat.send_action("typing")
     
     # Log activity
-    chunk_count = len(buf["chunks"])
-    preview = combined_message[:30] + "..." if len(combined_message) > 30 else combined_message
-    if chunk_count > 1:
-        log_activity(session, mode, f"[{chunk_count} chunks] {preview}")
-        logger.info(f"Processing buffered message: {chunk_count} chunks, {len(combined_message)} chars")
-    else:
-        log_activity(session, mode, preview)
+    preview = user_message[:30] + "..." if len(user_message) > 30 else user_message
+    log_activity(session, mode, preview)
     
     try:
         response = requests.post(
@@ -723,7 +713,7 @@ async def _process_buffered_message(telegram_id: int):
             headers={"X-API-Key": API_KEY},
             json={
                 "user_id": str(telegram_id),
-                "message": combined_message,
+                "message": user_message,
                 "mode": mode,
                 "model_preference": model,
                 "conversation_id": conversation_id
@@ -748,49 +738,6 @@ async def _process_buffered_message(telegram_id: int):
         await update.message.reply_text("⏱️ Timed out")
     except Exception as e:
         await update.message.reply_text(f"❌ Error: {e}")
-
-
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle text messages — buffers multi-chunk messages before processing"""
-    telegram_id = update.effective_user.id
-    session = get_or_create_session(telegram_id)
-    
-    if not session:
-        await update.message.reply_text("❌ Session not found. Use /start")
-        return
-    
-    if is_sell_mode(session):
-        await update.message.reply_text(
-            "📦 Sell mode - send photos only.\n"
-            "/done to exit"
-        )
-        return
-    
-    user_message = update.message.text
-    
-    # Buffer the message chunk
-    if telegram_id in MESSAGE_BUFFER:
-        # Cancel existing timer, add chunk, restart timer
-        buf = MESSAGE_BUFFER[telegram_id]
-        buf["timer"].cancel()
-        buf["chunks"].append(user_message)
-        buf["update"] = update  # keep latest update for reply
-        buf["context"] = context
-    else:
-        # First chunk — start new buffer
-        MESSAGE_BUFFER[telegram_id] = {
-            "chunks": [user_message],
-            "update": update,
-            "context": context,
-            "timer": None,
-        }
-    
-    # Set timer — when it fires, process all collected chunks
-    async def fire():
-        await asyncio.sleep(MESSAGE_BUFFER_DELAY)
-        await _process_buffered_message(telegram_id)
-    
-    MESSAGE_BUFFER[telegram_id]["timer"] = asyncio.ensure_future(fire())
 
 
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
