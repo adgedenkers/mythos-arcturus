@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
 """
-Mythos Web Routes - Serves HTML pages for the dashboard
+Mythos Web Routes - Serves HTML pages
 /opt/mythos/api/routes/web.py
+
+Route structure:
+    /app/              → Home (Command Center)
+    /app/login         → Login page (public)
+    /app/finance/      → Financial dashboard
+    /app/finance/report → Full monthly report
+    /app/finance/forecast → Forecast page
+    /app/system/       → System status
+    /app/sessions/     → Transmission sessions (placeholder)
+    /app/registry/     → The 144 registry (placeholder)
 """
 from pathlib import Path
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse
 
 router = APIRouter(prefix="/app", tags=["web"])
 
@@ -13,35 +23,71 @@ TEMPLATES = Path('/opt/mythos/web/templates')
 REPORTS = Path('/opt/mythos/finance/reports')
 
 
+def serve(name: str) -> HTMLResponse:
+    """Serve a template file"""
+    path = TEMPLATES / name
+    if path.exists():
+        return HTMLResponse(content=path.read_text())
+    return HTMLResponse(content=f"<h1>Template not found: {name}</h1>", status_code=404)
+
+
+# ===== PUBLIC =====
+
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    """Login page - public"""
-    return HTMLResponse(content=(TEMPLATES / 'login.html').read_text())
+    return serve('login.html')
 
 
-@router.get("/dashboard", response_class=HTMLResponse)
-async def dashboard_page(request: Request):
-    """Dashboard page - protected by AuthMiddleware"""
-    return HTMLResponse(content=(TEMPLATES / 'dashboard.html').read_text())
+# ===== PROTECTED (AuthMiddleware handles redirect) =====
+
+# Home
+@router.get("/", response_class=HTMLResponse)
+@router.get("", response_class=HTMLResponse)
+async def home_page(request: Request):
+    return serve('home.html')
 
 
-@router.get("/report", response_class=HTMLResponse)
-async def report_page(request: Request):
-    """Full report page - serves the generated HTML report with live data"""
-    # Read the template and inject live data via API fetch
+# Finance
+@router.get("/finance/", response_class=HTMLResponse)
+@router.get("/finance", response_class=HTMLResponse)
+async def finance_page(request: Request):
+    return serve('dashboard.html')
+
+
+@router.get("/finance/report", response_class=HTMLResponse)
+async def finance_report_page(request: Request):
+    # Serve live report
     template = TEMPLATES / 'report_live.html'
     if template.exists():
         return HTMLResponse(content=template.read_text())
-    
-    # Fallback to static report
+    # Fallback to static
     reports = sorted(REPORTS.glob('report_*.html'), reverse=True)
     if reports:
         return HTMLResponse(content=reports[0].read_text())
-    
-    return HTMLResponse(content="<h1>No report available. Run the report generator.</h1>")
+    return HTMLResponse(content="<h1>No report available</h1>")
 
 
-@router.get("/forecast", response_class=HTMLResponse)
-async def forecast_page(request: Request):
-    """Forecast page - placeholder"""
-    return HTMLResponse(content=(TEMPLATES / 'dashboard.html').read_text())
+@router.get("/finance/forecast", response_class=HTMLResponse)
+async def finance_forecast_page(request: Request):
+    return serve('dashboard.html')  # TODO: dedicated forecast page
+
+
+# System
+@router.get("/system/", response_class=HTMLResponse)
+@router.get("/system", response_class=HTMLResponse)
+async def system_page(request: Request):
+    return serve('system.html')
+
+
+# Sessions
+@router.get("/sessions/", response_class=HTMLResponse)
+@router.get("/sessions", response_class=HTMLResponse)
+async def sessions_page(request: Request):
+    return serve('sessions.html')
+
+
+# Registry
+@router.get("/registry/", response_class=HTMLResponse)
+@router.get("/registry", response_class=HTMLResponse)
+async def registry_page(request: Request):
+    return serve('registry.html')

@@ -12,7 +12,6 @@ import sys
 from dotenv import load_dotenv
 from api.routes.sales import router as sales_router
 from api.routes.finance import router as finance_router
-from api.routes.system import router as system_router
 from api.routes.web import router as web_router
 from api.auth.google_auth import router as auth_router, AuthMiddleware
 import psycopg2
@@ -49,7 +48,6 @@ app = FastAPI(
 # Include sales router
 app.include_router(sales_router)
 app.include_router(finance_router)
-app.include_router(system_router)
 app.include_router(web_router)
 app.include_router(auth_router)
 app.add_middleware(AuthMiddleware)
