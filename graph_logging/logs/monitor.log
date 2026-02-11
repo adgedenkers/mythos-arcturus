@@ -508,3 +508,11 @@ Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reas
 2026-02-09 12:24:17,343 - SystemMonitor - WARNING - High memory process: ollama (PID 1899146) using 62.9%
 2026-02-09 12:24:17,344 - SystemMonitor - ERROR - Error checking processes: {neo4j_code: Neo.ClientError.Statement.TypeError} {message: Property values can only be of primitive types or arrays thereof. Encountered: Map{name -> String("ollama"), pid -> Long(1899146), memory_percent -> Double(6.290275e+01), cpu_percent -> Double(2.000000e-01)}.} {gql_status: 22G03} {gql_status_description: error: data exception - invalid value type}
 2026-02-09 12:24:17,344 - SystemMonitor - ERROR - Error checking processes: {neo4j_code: Neo.ClientError.Statement.TypeError} {message: Property values can only be of primitive types or arrays thereof. Encountered: Map{name -> String("ollama"), pid -> Long(1899146), memory_percent -> Double(6.290275e+01), cpu_percent -> Double(2.000000e-01)}.} {gql_status: 22G03} {gql_status_description: error: data exception - invalid value type}
+2026-02-11 12:35:58,471 - SystemMonitor - INFO - Starting Arcturus System Monitor
+2026-02-11 12:35:58,471 - SystemMonitor - INFO - Starting Arcturus System Monitor
+2026-02-11 12:35:58,471 - SystemMonitor - INFO - Configuration: /opt/mythos/graph_logging/config/monitoring_config.yaml
+2026-02-11 12:35:58,471 - SystemMonitor - INFO - Configuration: /opt/mythos/graph_logging/config/monitoring_config.yaml
+2026-02-11 12:35:59,135 - SystemMonitor - INFO - Connected to Neo4j
+2026-02-11 12:35:59,135 - SystemMonitor - INFO - Connected to Neo4j
+2026-02-11 12:35:59,135 - SystemMonitor - INFO - Monitoring started (interval: 60s)
+2026-02-11 12:35:59,135 - SystemMonitor - INFO - Monitoring started (interval: 60s)

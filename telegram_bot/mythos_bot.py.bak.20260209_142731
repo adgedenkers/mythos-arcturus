@@ -110,9 +110,6 @@ from handlers.ollama_models import (
 # Voice transcription
 from handlers.voice_handler import handle_voice, handle_audio
 
-# Media handlers (photo vision, video transcription)
-from handlers.media_handler import handle_photo_media, handle_video_media
-
 # Task tracking commands
 from handlers.task_handler import task_command, tasks_command
 
@@ -620,7 +617,7 @@ async def export_wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle photo messages - routes to sell mode or media handler"""
+    """Handle photo messages - routes to sell mode or general handling"""
     telegram_id = update.effective_user.id
     session = get_or_create_session(telegram_id)
     
@@ -631,12 +628,65 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if is_sell_mode(session):
         if update.message.photo:
             await handle_sell_photos(update, context, session)
-        elif update.message.document and update.message.document.mime_type.startswith("image/"):
+        elif update.message.document and update.message.document.mime_type.startswith('image/'):
             await handle_sell_photos(update, context, session)
         return
     
-    # Chat mode — use vision analysis
-    await handle_photo_media(update, context)
+    if not update.message.photo:
+        return
+    
+    photo = update.message.photo[-1]
+    caption = update.message.caption or ""
+    user_uuid = session['user']['uuid']
+    conversation_id = session.get('conversation_id')
+    
+    try:
+        file = await context.bot.get_file(photo.file_id)
+        
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        user_prefix = user_uuid[:8]
+        filename = f"{timestamp}_{photo.file_unique_id[:16]}.jpg"
+        
+        storage_dir = os.path.join(MEDIA_BASE_PATH, user_prefix)
+        os.makedirs(storage_dir, exist_ok=True)
+        
+        storage_path = os.path.join(storage_dir, filename)
+        await file.download_to_drive(storage_path)
+        
+        file_size = os.path.getsize(storage_path)
+        
+        response = requests.post(
+            f"{API_URL}/media/upload",
+            headers={"X-API-Key": API_KEY},
+            json={
+                "user_id": str(telegram_id),
+                "conversation_id": conversation_id,
+                "filename": filename,
+                "file_path": storage_path,
+                "file_size": file_size,
+                "width": photo.width,
+                "height": photo.height,
+                "telegram_file_id": photo.file_id,
+                "telegram_file_unique_id": photo.file_unique_id,
+                "caption": caption,
+                "mime_type": "image/jpeg"
+            },
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            await update.message.reply_text(
+                f"📸 Saved ({file_size // 1024}KB)"
+            )
+        else:
+            await update.message.reply_text("⚠️ Saved locally")
+            
+    except Exception as e:
+        logger.error(f"Photo error: {e}", exc_info=True)
+        await update.message.reply_text(f"❌ Error: {e}")
+
+
 async def _process_buffered_message(telegram_id: int):
     """Process collected message chunks as a single message"""
     if telegram_id not in MESSAGE_BUFFER:
@@ -832,8 +882,6 @@ def main():
     # Message handlers
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     application.add_handler(MessageHandler(filters.Document.IMAGE, handle_photo))
-    application.add_handler(MessageHandler(filters.VIDEO, handle_video_media))
-    application.add_handler(MessageHandler(filters.VIDEO_NOTE, handle_video_media))
     application.add_handler(MessageHandler(filters.VOICE, handle_voice))
     application.add_handler(MessageHandler(filters.AUDIO, handle_audio))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
