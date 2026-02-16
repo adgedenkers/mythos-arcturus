@@ -1,0 +1,32 @@
+[
+  {
+    "Object": "Mercury",
+    "Sign": "Leo",
+    "House": 9,
+    "Longitude": 144.749888
+  },
+  {
+    "Object": "Neptune",
+    "Sign": "Sagittarius",
+    "House": 1,
+    "Longitude": 255.564539
+  },
+  {
+    "Object": "Mean Node",
+    "Sign": "Virgo",
+    "House": 10,
+    "Longitude": 178.335661
+  },
+  {
+    "Object": "True Node",
+    "Sign": "Virgo",
+    "House": 10,
+    "Longitude": 176.964454
+  },
+  {
+    "Object": "South Node",
+    "Sign": "Pisces",
+    "House": 4,
+    "Longitude": 358.335661
+  }
+]

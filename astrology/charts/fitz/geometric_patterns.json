@@ -1,0 +1,97 @@
+[
+  {
+    "Type": "Grand Trine",
+    "Points": [
+      "Descendant",
+      "Mars",
+      "Neptune"
+    ],
+    "Aspects": [
+      "Descendant-Mars",
+      "Mars-Neptune",
+      "Neptune-Descendant"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Jupiter",
+      "Pluto",
+      "Saturn"
+    ],
+    "Aspects": [
+      "Jupiter-Saturn (Opposition)",
+      "Jupiter-Pluto (Square)",
+      "Saturn-Pluto (Square)"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Pluto",
+      "Saturn",
+      "South Node"
+    ],
+    "Aspects": [
+      "Pluto-South Node (Opposition)",
+      "Pluto-Saturn (Square)",
+      "South Node-Saturn (Square)"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Pluto",
+      "Saturn",
+      "Uranus"
+    ],
+    "Aspects": [
+      "Saturn-Uranus (Opposition)",
+      "Saturn-Pluto (Square)",
+      "Uranus-Pluto (Square)"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Mean Node",
+      "Saturn",
+      "Uranus"
+    ],
+    "Aspects": [
+      "Saturn-Uranus (Opposition)",
+      "Saturn-Mean Node (Square)",
+      "Uranus-Mean Node (Square)"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Saturn",
+      "South Node",
+      "Uranus"
+    ],
+    "Aspects": [
+      "Saturn-Uranus (Opposition)",
+      "Saturn-South Node (Square)",
+      "Uranus-South Node (Square)"
+    ]
+  },
+  {
+    "Type": "Kite",
+    "Points": [
+      "Ascendant",
+      "Descendant",
+      "Mars",
+      "Neptune"
+    ],
+    "Aspects": [
+      "Descendant\u2013Mars (Trine)",
+      "Mars\u2013Neptune (Trine)",
+      "Descendant\u2013Neptune (Trine)",
+      "Ascendant\u2013Descendant (Opposition)",
+      "Ascendant\u2013Mars (Sextile)",
+      "Ascendant\u2013Neptune (Sextile)"
+    ]
+  }
+]

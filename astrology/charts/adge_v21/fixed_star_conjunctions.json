@@ -1,0 +1,24 @@
+[
+  {
+    "Object": "True Node",
+    "Object_Longitude": 194.5578,
+    "Star": "Zubenelgenubi",
+    "Star_Longitude": 194.7492,
+    "Star_J2000": 195.058,
+    "Magnitude": 2.75,
+    "Constellation": "Libra",
+    "Orb": 0.1914,
+    "Significance": "Negative social reform; malevolence; unforgiving"
+  },
+  {
+    "Object": "Saturn",
+    "Object_Longitude": 150.2155,
+    "Star": "Regulus",
+    "Star_Longitude": 149.5192,
+    "Star_J2000": 149.828,
+    "Magnitude": 1.36,
+    "Constellation": "Leo",
+    "Orb": 0.6963,
+    "Significance": "Success, power, nobility; risk of downfall through revenge"
+  }
+]

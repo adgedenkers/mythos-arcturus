@@ -1,0 +1,32 @@
+{
+  "Name": "Riley Green",
+  "Birth": {
+    "Date": "1988-10-18",
+    "Time": "14:45",
+    "Place": "Jacksonville, AL, USA",
+    "Latitude": 33.8137,
+    "Longitude": -85.7613,
+    "Timezone": "America/Chicago"
+  },
+  "House System": "Placidus",
+  "Zodiac Type": "Tropical",
+  "Ephemeris": "Swiss Ephemeris",
+  "Ephemeris Path": "(Moshier built-in)",
+  "Included Objects": [
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+    "Lilith",
+    "Mean Node",
+    "True Node",
+    "South Node"
+  ],
+  "Engine Version": "2.1"
+}

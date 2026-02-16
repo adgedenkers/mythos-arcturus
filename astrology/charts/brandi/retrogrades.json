@@ -1,0 +1,44 @@
+[
+  {
+    "Object": "Saturn",
+    "Sign": "Libra",
+    "House": 12,
+    "Longitude": 183.004653
+  },
+  {
+    "Object": "Uranus",
+    "Sign": "Scorpio",
+    "House": 2,
+    "Longitude": 237.537541
+  },
+  {
+    "Object": "Neptune",
+    "Sign": "Sagittarius",
+    "House": 3,
+    "Longitude": 263.823237
+  },
+  {
+    "Object": "Pluto",
+    "Sign": "Libra",
+    "House": 1,
+    "Longitude": 201.77383
+  },
+  {
+    "Object": "Mean Node",
+    "Sign": "Leo",
+    "House": 10,
+    "Longitude": 124.466797
+  },
+  {
+    "Object": "True Node",
+    "Sign": "Leo",
+    "House": 10,
+    "Longitude": 122.895862
+  },
+  {
+    "Object": "South Node",
+    "Sign": "Aquarius",
+    "House": 4,
+    "Longitude": 304.466797
+  }
+]

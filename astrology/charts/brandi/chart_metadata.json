@@ -1,0 +1,32 @@
+{
+  "Name": "Brandi Carlile",
+  "Birth": {
+    "Date": "1981-06-01",
+    "Time": "15:45",
+    "Place": "Ravensdale, WA, USA",
+    "Latitude": 47.3543,
+    "Longitude": -121.9987,
+    "Timezone": "America/Los_Angeles"
+  },
+  "House System": "Placidus",
+  "Zodiac Type": "Tropical",
+  "Ephemeris": "Swiss Ephemeris",
+  "Ephemeris Path": "(Moshier built-in)",
+  "Included Objects": [
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+    "Lilith",
+    "Mean Node",
+    "True Node",
+    "South Node"
+  ],
+  "Engine Version": "2.1"
+}

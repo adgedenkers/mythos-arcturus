@@ -1,0 +1,57 @@
+[
+  {
+    "Object": "Uranus",
+    "Object_Longitude": 359.1202,
+    "Star": "Scheat",
+    "Star_Longitude": 359.4963,
+    "Star_J2000": 359.347,
+    "Magnitude": 2.44,
+    "Constellation": "Pegasus",
+    "Orb": 0.3761,
+    "Significance": "Extreme misfortune; drowning; imprisonment; murder"
+  },
+  {
+    "Object": "Midheaven",
+    "Object_Longitude": 194.7618,
+    "Star": "Zubenelgenubi",
+    "Star_Longitude": 195.2073,
+    "Star_J2000": 195.058,
+    "Magnitude": 2.75,
+    "Constellation": "Libra",
+    "Orb": 0.4455,
+    "Significance": "Negative social reform; malevolence; unforgiving"
+  },
+  {
+    "Object": "Jupiter",
+    "Object_Longitude": 0.0534,
+    "Star": "Scheat",
+    "Star_Longitude": 359.4963,
+    "Star_J2000": 359.347,
+    "Magnitude": 2.44,
+    "Constellation": "Pegasus",
+    "Orb": 0.5572,
+    "Significance": "Extreme misfortune; drowning; imprisonment; murder"
+  },
+  {
+    "Object": "Venus",
+    "Object_Longitude": 210.0925,
+    "Star": "Toliman",
+    "Star_Longitude": 209.5073,
+    "Star_J2000": 209.358,
+    "Magnitude": -0.01,
+    "Constellation": "Centaurus",
+    "Orb": 0.5852,
+    "Significance": "Friendship, refinement; connected to esoteric knowledge"
+  },
+  {
+    "Object": "Descendant",
+    "Object_Longitude": 81.0752,
+    "Star": "Capella",
+    "Star_Longitude": 81.9873,
+    "Star_J2000": 81.838,
+    "Magnitude": 0.08,
+    "Constellation": "Auriga",
+    "Orb": 0.9121,
+    "Significance": "Public honor, wealth; curiosity; love of learning"
+  }
+]

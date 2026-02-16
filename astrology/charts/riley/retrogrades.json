@@ -1,0 +1,32 @@
+[
+  {
+    "Object": "Mercury",
+    "Sign": "Libra",
+    "House": 8,
+    "Longitude": 191.830387
+  },
+  {
+    "Object": "Mars",
+    "Sign": "Aries",
+    "House": 2,
+    "Longitude": 0.462656
+  },
+  {
+    "Object": "Jupiter",
+    "Sign": "Gemini",
+    "House": 4,
+    "Longitude": 65.156461
+  },
+  {
+    "Object": "Mean Node",
+    "Sign": "Pisces",
+    "House": 1,
+    "Longitude": 341.715445
+  },
+  {
+    "Object": "South Node",
+    "Sign": "Virgo",
+    "House": 7,
+    "Longitude": 161.715445
+  }
+]

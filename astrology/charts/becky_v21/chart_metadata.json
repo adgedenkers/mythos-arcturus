@@ -1,0 +1,32 @@
+{
+  "Name": "Becky Denkers",
+  "Birth": {
+    "Date": "1978-08-19",
+    "Time": "14:02",
+    "Place": "Norwich, NY, USA",
+    "Latitude": 42.54158518822175,
+    "Longitude": -75.52621508838459,
+    "Timezone": "America/New_York"
+  },
+  "House System": "Placidus",
+  "Zodiac Type": "Tropical",
+  "Ephemeris": "Swiss Ephemeris",
+  "Ephemeris Path": "(Moshier built-in)",
+  "Included Objects": [
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+    "Lilith",
+    "Mean Node",
+    "True Node",
+    "South Node"
+  ],
+  "Engine Version": "2.1"
+}

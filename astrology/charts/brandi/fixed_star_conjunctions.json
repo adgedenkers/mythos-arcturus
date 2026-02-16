@@ -1,0 +1,24 @@
+[
+  {
+    "Object": "Ascendant",
+    "Object_Longitude": 194.4911,
+    "Star": "Zubenelgenubi",
+    "Star_Longitude": 194.7984,
+    "Star_J2000": 195.058,
+    "Magnitude": 2.75,
+    "Constellation": "Libra",
+    "Orb": 0.3073,
+    "Significance": "Negative social reform; malevolence; unforgiving"
+  },
+  {
+    "Object": "Jupiter",
+    "Object_Longitude": 180.4854,
+    "Star": "Vindemiatrix",
+    "Star_Longitude": 179.5784,
+    "Star_J2000": 179.838,
+    "Magnitude": 2.83,
+    "Constellation": "Virgo",
+    "Orb": 0.907,
+    "Significance": "Falsity, disgrace, widowhood; gathering of the harvest"
+  }
+]
