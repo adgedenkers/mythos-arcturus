@@ -308,3 +308,21 @@ Tools:
 - `/opt/mythos/patches/scripts/validate_manifest.sh` - Validate manifest
 - `/opt/mythos/docs/patch_system/AI_PATCH_GENERATION_GUIDE.md` - AI handoff
 
+
+### Session Start Diagnostic Command
+
+Run at session start to get all context:
+
+```bash
+session-start            # Full diagnostic (default)
+session-start --patch    # Patch-focused (for patch generation)
+session-start --quick    # Quick status check
+```
+
+Output includes:
+- Latest patch info
+- Next version options
+- System documentation
+- Service status
+- Git status
+
