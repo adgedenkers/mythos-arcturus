@@ -1,26 +1,34 @@
 #!/usr/bin/env python3
 """
 ============================================================================
- ASTROCHART CLI ENGINE v2.1
+ ASTROCHART CLI ENGINE v2.0
  Comprehensive Geocentric Tropical Placidus Natal Chart Generator
 
  Author: Ka'tuar'el / Mythos System
 
- WHAT'S NEW vs v2.0:
-   - Fixed Star Conjunctions: Built-in catalog of 20+ major stars with
-     J2000 positions and precession correction. No CSV dependency required.
-     CSV still supported as override if present.
-   - Tiered Aspect Orb Filtering: Aspects now carry a "tier" field
-     (major/minor/harmonic) with enforced orb limits per tier.
-   - Dispositor Chain: Circular loop detection via DFS cycle-finding.
-     Loops like Mars→Sun→Jupiter→Moon→Mars are now explicitly labeled.
-   - Mutual Reception Detection: Both classical (sign-based) and modern
-     (sign+house) mutual receptions detected and reported.
+ WHAT'S NEW vs v1:
+   - compute_chart() fully implemented (was missing)
+   - Eris (136199), True Node, South Node added
+   - Arabic Parts: Fortune, Spirit, Eros, Marriage, Death, Commerce,
+                   Courage, Fatality, Passion (with day/night sect reversal)
+   - Essential Dignities: Domicile, Exaltation, Detriment, Fall, Peregrine
+   - Sect: Day/Night with sect light/benefic/malefic assignments
+   - Chart Ruler: Traditional + Modern, with ruler sign & house
+   - Dispositor Chain: Full chain + final dispositors + mutual receptions
+   - Balance: Element, Modality, Polarity tallies with dominant
+   - Retrograde Summary: Structured list
+   - Aspect Motion: Applying / Separating / Exact (partile)
+   - Full 18-aspect orb overrides (Decile, Tridecile, Quindecile, Septile family)
+   - Ephemeris path auto-detection with Moshier fallback
+   - assign_house() used consistently for all bodies
 
  PRESERVED (drop-in compatible):
-   - All v2.0 keys and structure
-   - generate_natal_chart() return structure unchanged (new fields additive)
-   - generate_natal_report() signature unchanged
+   - generate_natal_chart() return structure (all original keys + new ones)
+   - generate_natal_report() signature
+   - compute_aspects() with axes, alias_map, orb_overrides
+   - compute_fixed_star_conjunctions()
+   - run_geometry_audit() with full composition policy
+   - All imports from astrochart_cli_geometry unchanged
    - CLI tool compatibility (astrochart_cli_tool.py works unchanged)
 
  Dependencies:
@@ -173,95 +181,6 @@ FALLS = {
     "Sun": "Libra", "Moon": "Scorpio", "Mercury": "Pisces",
     "Venus": "Virgo", "Mars": "Cancer", "Jupiter": "Capricorn",
     "Saturn": "Aries",
-}
-
-# ---------- House Rulerships (for modern mutual reception detection) ----------
-# Which planet rules each house number (by natural sign correspondence)
-HOUSE_RULERS = {
-    1: "Mars", 2: "Venus", 3: "Mercury", 4: "Moon",
-    5: "Sun", 6: "Mercury", 7: "Venus", 8: "Mars",
-    9: "Jupiter", 10: "Saturn", 11: "Saturn", 12: "Jupiter",
-}
-
-
-# ============================================================================
-#  FIXED STAR CATALOG (Built-in, J2000.0 epoch)
-# ============================================================================
-#
-# Ecliptic longitudes for epoch J2000.0 (Jan 1, 2000 12:00 TT).
-# Precession rate: ~50.29"/year = ~0.01397°/year applied to get chart-date position.
-# Sources: Robson's Fixed Stars, Bernadette Brady, Vivian Robson, IAU catalogs.
-#
-
-FIXED_STAR_CATALOG = [
-    # (Name, J2000 ecliptic longitude, magnitude, constellation, traditional significance)
-    ("Regulus",     149.828,  1.36, "Leo",          "Success, power, nobility; risk of downfall through revenge"),
-    ("Algol",       56.167,   2.09, "Perseus",      "Intense transformation; female rage; losing one's head"),
-    ("Spica",      203.838,   0.98, "Virgo",        "Brilliance, gifts, protection; the fortunate star"),
-    ("Fomalhaut",  333.868,   1.17, "Piscis Austrinus", "Royal star of the south; fame through noble ideals"),
-    ("Antares",    249.791,   1.06, "Scorpio",      "Royal star; intensity, obsession, courage; risk of self-destruction"),
-    ("Aldebaran",   69.847,   0.87, "Taurus",       "Royal star of the east; integrity, eloquence, public success"),
-    ("Sirius",     104.083,   -1.46,"Canis Major",  "Brilliance, devotion, fame; the scorcher; custodianship"),
-    ("Betelgeuse",  88.783,   0.45, "Orion",        "Success without complications; martial honors; everlasting fame"),
-    ("Rigel",       76.967,   0.18, "Orion",        "Technical skill; mechanical ability; education; benevolence"),
-    ("Polaris",     88.515,   1.97, "Ursa Minor",   "Spiritual direction; the guiding star; illness that leads to wisdom"),
-    ("Vega",       275.169,   0.03, "Lyra",         "Charisma, artistic talent, idealism; magic; political power"),
-    ("Deneb",      335.257,   1.25, "Cygnus",       "Quick mind; ability to command and lead; the hen's tail"),
-    ("Altair",     301.868,   0.77, "Aquila",       "Boldness, ambition, sudden rise; danger from reptiles"),
-    ("Procyon",    115.628,   0.34, "Canis Minor",  "Wealth, fame, early success; petulance; activity"),
-    ("Canopus",    104.864,   -0.72,"Carina",       "Pathfinder; voyages, navigation; old age; piousness"),
-    ("Achernar",   345.317,   0.45, "Eridanus",     "Royal honors; religious and philosophical leanings"),
-    ("Arcturus",   204.138,   -0.05,"Boötes",       "Prosperity through journeys; lasting success; a guardian"),
-    ("Capella",     81.838,   0.08, "Auriga",       "Public honor, wealth; curiosity; love of learning"),
-    ("Castor",      110.267,  1.58, "Gemini",       "Intellectual, creative; sudden fame or loss; mischief"),
-    ("Pollux",     113.217,   1.16, "Gemini",       "Subtlety, cruelty, audacity; connected to poisons"),
-    ("Alphecca",   222.167,   2.22, "Corona Borealis","Artistic ability; love of flowers; lassitude; honored"),
-    ("Vindemiatrix",179.838,  2.83, "Virgo",        "Falsity, disgrace, widowhood; gathering of the harvest"),
-    ("Zubenelgenubi",195.058, 2.75, "Libra",        "Negative social reform; malevolence; unforgiving"),
-    ("Zubeneschamali",199.167,2.61, "Libra",        "Social reform; good fortune; keen intellect"),
-    ("Scheat",     359.347,   2.44, "Pegasus",      "Extreme misfortune; drowning; imprisonment; murder"),
-    ("Markab",     353.497,   2.49, "Pegasus",      "Sorrow, destructiveness; spiritual guidance through trials"),
-    ("Algenib",    339.558,   2.83, "Pegasus",      "Ambition, vanity; sharp mind; notoriety"),
-    ("Hamal",       37.837,   2.01, "Aries",        "Independence, cruelty, authority; head injuries"),
-    ("Toliman",    209.358,   -0.01,"Centaurus",    "Friendship, refinement; connected to esoteric knowledge"),
-]
-
-# Precession constant: degrees per year
-_PRECESSION_RATE = 50.29 / 3600.0  # arcseconds -> degrees
-
-
-def _precess_star_longitude(j2000_lon: float, year: float) -> float:
-    """Apply precession correction from J2000 to a given year."""
-    delta_years = year - 2000.0
-    return j2000_lon + (_PRECESSION_RATE * delta_years)
-
-
-# ============================================================================
-#  ASPECT TIER CLASSIFICATION
-# ============================================================================
-
-ASPECT_TIERS = {
-    # Major aspects
-    "Conjunction":     {"tier": "major",   "max_orb": 8.0},
-    "Opposition":      {"tier": "major",   "max_orb": 8.0},
-    "Trine":           {"tier": "major",   "max_orb": 8.0},
-    "Square":          {"tier": "major",   "max_orb": 7.0},
-    "Sextile":         {"tier": "major",   "max_orb": 7.0},
-    # Minor aspects
-    "Semi-sextile":    {"tier": "minor",   "max_orb": 2.0},
-    "Quincunx":        {"tier": "minor",   "max_orb": 3.0},
-    "Semi-square":     {"tier": "minor",   "max_orb": 2.0},
-    "Sesquiquadrate":  {"tier": "minor",   "max_orb": 2.0},
-    # Harmonic aspects
-    "Quintile":        {"tier": "harmonic", "max_orb": 2.0},
-    "Biquintile":      {"tier": "harmonic", "max_orb": 1.5},
-    "Decile":          {"tier": "harmonic", "max_orb": 1.0},
-    "Tridecile":       {"tier": "harmonic", "max_orb": 1.0},
-    "Quindecile":      {"tier": "harmonic", "max_orb": 1.5},
-    "Septile":         {"tier": "harmonic", "max_orb": 1.0},
-    "Biseptile":       {"tier": "harmonic", "max_orb": 1.0},
-    "Triseptile":      {"tier": "harmonic", "max_orb": 1.0},
-    "Novile":          {"tier": "harmonic", "max_orb": 1.0},
 }
 
 
@@ -593,7 +512,7 @@ def compute_sect(positions: dict, axes: dict) -> dict:
 
 
 # ============================================================================
-#  CHART RULER & DISPOSITOR CHAIN (Enhanced v2.1)
+#  CHART RULER & DISPOSITOR CHAIN
 # ============================================================================
 
 def compute_chart_ruler(positions: dict, axes: dict) -> dict:
@@ -615,160 +534,8 @@ def compute_chart_ruler(positions: dict, axes: dict) -> dict:
     return result
 
 
-def _find_cycles_in_chain(chain: dict) -> list:
-    """
-    Find all closed loops in the dispositor chain using DFS.
-    Returns list of lists, e.g. [["Mars", "Sun", "Jupiter", "Moon"]]
-    Each loop is ordered by traversal starting from the alphabetically
-    first planet, following the chain direction.
-    """
-    visited_global = set()
-    cycles = []
-
-    for start in sorted(chain.keys()):
-        if start in visited_global:
-            continue
-
-        # Walk the chain from this start
-        path = []
-        visited_path = {}
-        current = start
-
-        while current in chain and current not in visited_path:
-            visited_path[current] = len(path)
-            path.append(current)
-            current = chain[current]
-
-        # If we ended on a node we've seen in THIS path, we have a cycle
-        if current in visited_path:
-            cycle_start_idx = visited_path[current]
-            cycle = path[cycle_start_idx:]
-
-            # Normalize: rotate so alphabetically first planet is first
-            if len(cycle) > 1:
-                min_idx = cycle.index(min(cycle))
-                cycle = cycle[min_idx:] + cycle[:min_idx]
-
-            cycle_set = frozenset(cycle)
-            # Only add if we haven't seen this exact cycle
-            if cycle_set not in {frozenset(c) for c in cycles} and len(cycle) > 1:
-                cycles.append(cycle)
-
-            visited_global.update(cycle)
-        else:
-            visited_global.update(path)
-
-    return cycles
-
-
-def _find_classical_mutual_receptions(chain: dict) -> list:
-    """
-    Classical mutual reception: A rules B's sign AND B rules A's sign.
-    (This is chain[A]==B and chain[B]==A)
-    """
-    mutual = []
-    done = set()
-    for p1 in chain:
-        for p2 in chain:
-            if p1 < p2 and chain.get(p1) == p2 and chain.get(p2) == p1:
-                key = tuple(sorted([p1, p2]))
-                if key not in done:
-                    mutual.append({
-                        "Planets": list(key),
-                        "Type": "Classical (Sign)",
-                        "Description": f"{p1} in {key[1]}'s sign, {p2} in {key[0]}'s sign"
-                    })
-                    done.add(key)
-    return mutual
-
-
-def _find_modern_mutual_receptions(positions: dict) -> list:
-    """
-    Modern mutual reception: Planet A is in sign ruled by B AND
-    planet B is in house ruled by A (or vice versa).
-
-    Also checks: A in house ruled by B, B in sign ruled by A.
-    """
-    planets = ["Sun", "Moon", "Mercury", "Venus", "Mars",
-               "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
-
-    # Build reverse-rulership lookups
-    # sign_ruler[sign] -> planet that rules it
-    sign_ruler = dict(RULERSHIPS)
-
-    # house_ruler[house_num] -> planet that rules it (natural house)
-    house_ruler = dict(HOUSE_RULERS)
-
-    # planet_rules_signs[planet] -> list of signs it rules
-    planet_rules_signs = {}
-    for sign, ruler in RULERSHIPS.items():
-        planet_rules_signs.setdefault(ruler, []).append(sign)
-
-    # planet_rules_houses[planet] -> list of house numbers it rules
-    planet_rules_houses = {}
-    for hnum, ruler in HOUSE_RULERS.items():
-        planet_rules_houses.setdefault(ruler, []).append(hnum)
-
-    receptions = []
-    done = set()
-
-    for p1 in planets:
-        if p1 not in positions:
-            continue
-        for p2 in planets:
-            if p2 not in positions or p1 >= p2:
-                continue
-
-            p1_sign = positions[p1]["Sign"]
-            p2_sign = positions[p2]["Sign"]
-            p1_house = positions[p1]["House"]
-            p2_house = positions[p2]["House"]
-
-            # Check: p1 in sign ruled by p2, p2 in house ruled by p1
-            p1_in_p2_sign = sign_ruler.get(p1_sign) == p2
-            p2_in_p1_house = house_ruler.get(p2_house) == p1
-
-            # Check: p2 in sign ruled by p1, p1 in house ruled by p2
-            p2_in_p1_sign = sign_ruler.get(p2_sign) == p1
-            p1_in_p2_house = house_ruler.get(p1_house) == p2
-
-            key = tuple(sorted([p1, p2]))
-            if key in done:
-                continue
-
-            if p1_in_p2_sign and p2_in_p1_house:
-                done.add(key)
-                receptions.append({
-                    "Planets": list(key),
-                    "Type": "Modern (Sign+House)",
-                    "Description": (
-                        f"{p1} in {p1_sign} (ruled by {p2}), "
-                        f"{p2} in house {p2_house} (ruled by {p1})"
-                    ),
-                })
-            elif p2_in_p1_sign and p1_in_p2_house:
-                done.add(key)
-                receptions.append({
-                    "Planets": list(key),
-                    "Type": "Modern (Sign+House)",
-                    "Description": (
-                        f"{p2} in {p2_sign} (ruled by {p1}), "
-                        f"{p1} in house {p1_house} (ruled by {p2})"
-                    ),
-                })
-
-    return receptions
-
-
 def compute_dispositor_chain(positions: dict) -> dict:
-    """
-    Enhanced dispositor chain with:
-    - Full chain mapping
-    - Final dispositors (self-ruling planets)
-    - Circular loop detection
-    - Classical mutual receptions (sign-based)
-    - Modern mutual receptions (sign+house)
-    """
+    """Dispositor chain, final dispositors, mutual receptions."""
     planets = ["Sun", "Moon", "Mercury", "Venus", "Mars",
                "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
     chain = {}
@@ -778,27 +545,17 @@ def compute_dispositor_chain(positions: dict) -> dict:
 
     final = [p for p, r in chain.items() if p == r]
 
-    # --- v2.1: Circular loop detection ---
-    loops = _find_cycles_in_chain(chain)
+    mutual = []
+    done = set()
+    for p1 in chain:
+        for p2 in chain:
+            if p1 < p2 and chain.get(p1) == p2 and chain.get(p2) == p1:
+                key = tuple(sorted([p1, p2]))
+                if key not in done:
+                    mutual.append(list(key))
+                    done.add(key)
 
-    # --- v2.1: Classical mutual receptions ---
-    classical_mr = _find_classical_mutual_receptions(chain)
-
-    # --- v2.1: Modern mutual receptions ---
-    modern_mr = _find_modern_mutual_receptions(positions)
-
-    # Combined mutual receptions (backward-compatible: flat list for "Mutual Receptions")
-    all_mr_flat = [mr["Planets"] for mr in classical_mr]
-
-    return {
-        "Chain": chain,
-        "Final Dispositors": final,
-        "Mutual Receptions": all_mr_flat,  # backward compat: list of [p1, p2]
-        # New v2.1 fields
-        "Circular Loops": loops,
-        "Classical Mutual Receptions": classical_mr,
-        "Modern Mutual Receptions": modern_mr,
-    }
+    return {"Chain": chain, "Final Dispositors": final, "Mutual Receptions": mutual}
 
 
 # ============================================================================
@@ -840,6 +597,16 @@ def compute_balance(positions: dict, axes: dict) -> dict:
 def compute_arabic_parts(positions: dict, axes: dict, houses: dict, sect: dict) -> dict:
     """
     Hellenistic Arabic Parts with proper day/night reversal.
+
+    Part of Fortune  = ASC + Moon - Sun  (day) / ASC + Sun - Moon  (night)
+    Part of Spirit   = ASC + Sun - Moon  (day) / ASC + Moon - Sun  (night)
+    Part of Eros     = ASC + Venus - Spirit
+    Part of Marriage  = ASC + DSC - Venus
+    Part of Death     = ASC + 8th cusp - Moon
+    Part of Commerce  = ASC + Mercury - Sun
+    Part of Courage   = ASC + Mars - Fortune
+    Part of Fatality  = ASC + Saturn - Sun
+    Part of Passion   = ASC + Mars - Sun
     """
     parts = {}
     asc = axes.get("Ascendant", 0)
@@ -900,7 +667,7 @@ def compute_retrograde_summary(positions: dict) -> list:
 
 
 # ============================================================================
-#  ASPECT CALCULATION (Enhanced v2.1 with tiered orb filtering)
+#  ASPECT CALCULATION
 # ============================================================================
 
 def compute_aspects(
@@ -914,7 +681,7 @@ def compute_aspects(
 ):
     """
     All pairwise aspects between chart objects (and optionally angles).
-    v2.1: Adds tier classification and enforced tier-based orb limits.
+    Now includes Applying/Separating/Exact motion detection.
     """
     augmented = {k: dict(v) for k, v in positions.items()}
 
@@ -948,13 +715,6 @@ def compute_aspects(
             return float(spec["Orb"])
         return float(default_orb)
 
-    def _get_tier_info(name):
-        """Get tier and enforced max orb for this aspect type."""
-        info = ASPECT_TIERS.get(name)
-        if info:
-            return info["tier"], info["max_orb"]
-        return "major", 8.0  # default to major if unknown
-
     aspects = []
     for i in range(len(names)):
         for j in range(i + 1, len(names)):
@@ -971,13 +731,8 @@ def compute_aspects(
                 if angle is None:
                     continue
                 orb_allow = _get_orb(asp_name)
-
-                # v2.1: Enforce tier-based max orb
-                tier, tier_max = _get_tier_info(asp_name)
-                effective_orb = min(orb_allow, tier_max)
-
                 delta = abs(diff - angle)
-                if delta <= effective_orb + 1e-9:
+                if delta <= orb_allow + 1e-9:
                     out_a = alias_map.get(a, a) if alias_map else a
                     out_b = alias_map.get(b, b) if alias_map else b
 
@@ -998,7 +753,6 @@ def compute_aspects(
                         "Angle": angle,
                         "Exact Difference": round(diff, 4),
                         "Orb": round(delta, 4),
-                        "Tier": tier,           # v2.1: NEW FIELD
                         "Motion": motion,
                         "Description": _get_desc(asp_name),
                     })
@@ -1008,7 +762,7 @@ def compute_aspects(
 
 
 # ============================================================================
-#  FIXED STAR CONJUNCTIONS (Enhanced v2.1 - built-in catalog)
+#  FIXED STAR CONJUNCTIONS
 # ============================================================================
 
 def _load_star_friendly_map():
@@ -1025,67 +779,13 @@ def _load_star_friendly_map():
     }
 
 
-def compute_fixed_star_conjunctions_builtin(
-    positions: dict,
-    axes: dict = None,
-    orb: float = 1.0,
-    include_axes: bool = True,
-    birth_year: float = 2000.0,
-) -> list:
-    """
-    v2.1: Built-in fixed star conjunction detection using the internal catalog.
-    No CSV dependency. Applies precession correction from J2000 to birth year.
-
-    Checks all planetary bodies and angles against the catalog.
-    """
-    # Build test points: all bodies + angles
-    test_points = {}
-    for obj, data in positions.items():
-        test_points[obj] = float(data["Longitude"])
-    if include_axes and axes:
-        for k in ("Ascendant", "Midheaven", "Descendant", "IC"):
-            if k in axes:
-                test_points[k] = float(axes[k])
-
-    results = []
-
-    for star_name, j2000_lon, magnitude, constellation, significance in FIXED_STAR_CATALOG:
-        # Precess to chart date
-        star_lon = _precess_star_longitude(j2000_lon, birth_year)
-        star_lon = normalize_degrees(star_lon)
-
-        for obj, obj_lon in test_points.items():
-            d = abs(normalize_degrees(obj_lon) - star_lon)
-            if d > 180:
-                d = 360 - d
-            if d <= float(orb):
-                results.append({
-                    "Object": obj,
-                    "Object_Longitude": round(obj_lon, 4),
-                    "Star": star_name,
-                    "Star_Longitude": round(star_lon, 4),
-                    "Star_J2000": round(j2000_lon, 3),
-                    "Magnitude": magnitude,
-                    "Constellation": constellation,
-                    "Orb": round(d, 4),
-                    "Significance": significance,
-                })
-
-    # Sort by orb (tightest first)
-    results.sort(key=lambda x: x["Orb"])
-    return results
-
-
 def compute_fixed_star_conjunctions(positions, star_csv, orb=1.0, include_axes=False, axes=None):
-    """
-    Find fixed-star conjunctions within orb degrees.
-    Uses CSV if available, otherwise falls through (caller should use builtin).
-    """
+    """Find fixed-star conjunctions within orb degrees."""
     if pd is None:
-        print("  WARNING: pandas not available, skipping CSV fixed star conjunctions")
+        print("  WARNING: pandas not available, skipping fixed star conjunctions")
         return []
     if not os.path.exists(star_csv):
-        # v2.1: No warning - caller will use builtin instead
+        print(f"  WARNING: Fixed star CSV not found: {star_csv}")
         return []
 
     df = pd.read_csv(star_csv)
@@ -1359,7 +1059,6 @@ def generate_natal_chart(
     house_system="Placidus",
     aspects_file="aspects.json",
     star_csv="astrochart_cli_fixed_stars.csv",
-    star_orb=1.0,
 ):
     """
     Generate a complete natal chart.
@@ -1395,14 +1094,12 @@ def generate_natal_chart(
             "Sextile":{"Angle":60,"Orb":6.5},"Quincunx":{"Angle":150,"Orb":3},
         }
 
-    # v2.1: Orb overrides now respect tier limits (enforced in compute_aspects)
     orb_overrides = {
-        "Conjunction":8.0,"Opposition":8.0,"Trine":8.0,"Square":7.0,
-        "Sextile":7.0,"Semi-sextile":2.0,"Semi-square":2.0,
-        "Sesquiquadrate":2.0,"Quincunx":3.0,
-        "Quintile":2.0,"Biquintile":1.5,
-        "Decile":1.0,"Tridecile":1.0,"Quindecile":1.5,
-        "Septile":1.0,"Biseptile":1.0,"Triseptile":1.0,
+        "Conjunction":6.0,"Opposition":6.0,"Trine":7.0,"Square":6.0,
+        "Sextile":6.5,"Semi-sextile":3.0,"Semi-square":3.0,
+        "Sesquiquadrate":3.5,"Quintile":3.0,"Biquintile":2.0,
+        "Decile":1.5,"Tridecile":1.5,"Quindecile":1.5,
+        "Septile":1.2,"Biseptile":1.2,"Triseptile":1.2,
     }
 
     alias_map = {"Midheaven": "MC", "Mean Node": "North Node"}
@@ -1418,25 +1115,10 @@ def generate_natal_chart(
         aspects, include_modern=True, include_minor=True, min_core=2, max_minor=1,
     )
 
-    # Fixed stars: try CSV first, fall back to built-in catalog
+    # Fixed stars
     stars = compute_fixed_star_conjunctions(
-        positions, star_csv, orb=star_orb, axes=axes, include_axes=True,
+        positions, star_csv, orb=1.0, axes=axes, include_axes=True,
     )
-    if not stars:
-        # v2.1: Use built-in catalog with precession
-        birth_year = float(dob.split("-")[0])
-        # Fractional year for better precession accuracy
-        try:
-            from datetime import date
-            d = date.fromisoformat(dob)
-            day_of_year = d.timetuple().tm_yday
-            birth_year = d.year + (day_of_year / 365.25)
-        except Exception:
-            pass
-        stars = compute_fixed_star_conjunctions_builtin(
-            positions, axes=axes, orb=star_orb,
-            include_axes=True, birth_year=birth_year,
-        )
 
     return {
         # ---- Original v1 keys (preserved for CLI tool compat) ----
@@ -1453,7 +1135,7 @@ def generate_natal_chart(
             "Ephemeris": EPHEMERIS,
             "Ephemeris Path": SE_EPHE_PATH,
             "Included Objects": list(positions.keys()),
-            "Engine Version": "2.1",
+            "Engine Version": "2.0",
         },
         "chart_objects": positions,
         "house_cusps": houses,
