@@ -18,6 +18,7 @@ This patch implements a standardized manifest system for all future patches. It 
 - **Semantic versioning** system (MAJOR.MINOR.PATCH)
 - **get_next_patch_info.sh** - Determines next version number
 - **validate_manifest.sh** - Validates patch manifests
+- **mythos-diag** - Standard diagnostic command for session starts
 - **AI_PATCH_GENERATION_GUIDE.md** - Handoff guide for any AI tool
 - **MANIFEST_TEMPLATE.json** - Template for new patches
 
@@ -37,6 +38,23 @@ cd patch_0080_manifest_system
 ```
 
 ## After Installation
+
+### Standard Diagnostic Command
+
+Run this at the start of any AI session:
+
+```bash
+mythos-diag            # Full diagnostic (default)
+mythos-diag --patch    # Patch-focused (for generating patches)
+mythos-diag --quick    # Quick status check
+```
+
+**Modes:**
+- **--full**: Complete system state (TODO, ARCHITECTURE, services, git)
+- **--patch**: Patch info + recent patches + generation context
+- **quick**: Just patch info and service status
+
+Output is automatically copied to clipboard.
 
 ### Get Next Patch Info
 

@@ -30,6 +30,8 @@
     "files_added": [
       "/opt/mythos/patches/scripts/get_next_patch_info.sh",
       "/opt/mythos/patches/scripts/validate_manifest.sh",
+      "/opt/mythos/patches/scripts/mythos-diag",
+      "/usr/local/bin/mythos-diag",
       "/opt/mythos/patches/MANIFEST_TEMPLATE.json"
     ],
     "files_modified": [

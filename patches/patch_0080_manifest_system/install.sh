@@ -24,7 +24,7 @@ echo ""
 # ============================================================
 # 1. INSTALL SCRIPTS
 # ============================================================
-echo "[1/5] Installing patch management scripts..."
+echo "[1/6] Installing patch management scripts..."
 
 cp "$PATCH_DIR/opt/mythos/patches/scripts/get_next_patch_info.sh" \
    "$MYTHOS_ROOT/patches/scripts/"
@@ -34,14 +34,25 @@ cp "$PATCH_DIR/opt/mythos/patches/scripts/validate_manifest.sh" \
    "$MYTHOS_ROOT/patches/scripts/"
 chmod +x "$MYTHOS_ROOT/patches/scripts/validate_manifest.sh"
 
+cp "$PATCH_DIR/opt/mythos/patches/scripts/mythos-diag" \
+   "$MYTHOS_ROOT/patches/scripts/"
+chmod +x "$MYTHOS_ROOT/patches/scripts/mythos-diag"
+
 echo "  ✓ get_next_patch_info.sh installed"
 echo "  ✓ validate_manifest.sh installed"
+echo "  ✓ mythos-diag installed"
+
+# Create symlink for easy access
+if [ ! -L /usr/local/bin/mythos-diag ]; then
+    sudo ln -sf "$MYTHOS_ROOT/patches/scripts/mythos-diag" /usr/local/bin/mythos-diag 2>/dev/null || true
+    echo "  ✓ mythos-diag symlinked to /usr/local/bin/"
+fi
 
 # ============================================================
 # 2. INSTALL AI HANDOFF GUIDE
 # ============================================================
 echo ""
-echo "[2/5] Installing AI handoff guide..."
+echo "[2/6] Installing AI handoff guide..."
 
 mkdir -p "$MYTHOS_ROOT/docs/patch_system"
 cp "$PATCH_DIR/AI_PATCH_GENERATION_GUIDE.md" \
@@ -53,7 +64,7 @@ echo "  ✓ AI_PATCH_GENERATION_GUIDE.md → /opt/mythos/docs/patch_system/"
 # 3. CREATE MANIFEST TEMPLATE
 # ============================================================
 echo ""
-echo "[3/5] Creating manifest template..."
+echo "[3/6] Creating manifest template..."
 
 cat > "$MYTHOS_ROOT/patches/MANIFEST_TEMPLATE.json" << 'EOF'
 {
@@ -111,7 +122,7 @@ echo "  ✓ MANIFEST_TEMPLATE.json created"
 # 4. UPDATE DOCUMENTATION
 # ============================================================
 echo ""
-echo "[4/5] Updating documentation..."
+echo "[4/6] Updating documentation..."
 
 # Add manifest system to TODO.md
 if ! grep -q "Manifest System" "$MYTHOS_ROOT/docs/TODO.md" 2>/dev/null; then
@@ -136,11 +147,39 @@ else
     echo "  → TODO.md already has manifest info"
 fi
 
+echo ""
+echo "[5/6] Creating standard diagnostic command..."
+
+# Add diagnostic info to documentation
+if ! grep -q "mythos-diag" "$MYTHOS_ROOT/docs/TODO.md" 2>/dev/null; then
+    cat >> "$MYTHOS_ROOT/docs/TODO.md" << 'EOF'
+
+### Standard Diagnostic Command
+
+Run at session start to get all context:
+
+```bash
+mythos-diag            # Full diagnostic (default)
+mythos-diag --patch    # Patch-focused (for patch generation)
+mythos-diag --quick    # Quick status check
+```
+
+Output includes:
+- Latest patch info
+- Next version options
+- System documentation
+- Service status
+- Git status
+
+EOF
+    echo "  ✓ Diagnostic command documented in TODO.md"
+fi
+
 # ============================================================
-# 5. VERIFY INSTALLATION
+# 6. VERIFY INSTALLATION
 # ============================================================
 echo ""
-echo "[5/5] Verifying installation..."
+echo "[6/6] Verifying installation..."
 
 VERIFY_OK=true
 
@@ -157,6 +196,19 @@ if [ ! -x "$MYTHOS_ROOT/patches/scripts/validate_manifest.sh" ]; then
     VERIFY_OK=false
 else
     echo "  ✓ validate_manifest.sh executable"
+fi
+
+# Check mythos-diag
+if [ ! -x "$MYTHOS_ROOT/patches/scripts/mythos-diag" ]; then
+    echo "  ✗ mythos-diag not executable"
+    VERIFY_OK=false
+else
+    echo "  ✓ mythos-diag executable"
+fi
+
+# Check symlink
+if [ -L /usr/local/bin/mythos-diag ]; then
+    echo "  ✓ mythos-diag available in PATH"
 fi
 
 # Check template exists
@@ -193,6 +245,8 @@ echo ""
 echo "Installed:"
 echo "  → /opt/mythos/patches/scripts/get_next_patch_info.sh"
 echo "  → /opt/mythos/patches/scripts/validate_manifest.sh"
+echo "  → /opt/mythos/patches/scripts/mythos-diag"
+echo "  → /usr/local/bin/mythos-diag (symlink)"
 echo "  → /opt/mythos/patches/MANIFEST_TEMPLATE.json"
 echo "  → /opt/mythos/docs/patch_system/AI_PATCH_GENERATION_GUIDE.md"
 echo ""
@@ -202,6 +256,11 @@ echo "Future patches use semantic versioning:"
 echo "  • MAJOR.MINOR.PATCH format in manifest"
 echo "  • Directory names still use patch_NNNN_ for compatibility"
 echo "  • All patches MUST include manifest.json"
+echo ""
+echo "Standard diagnostic command:"
+echo "  mythos-diag            # Full system state"
+echo "  mythos-diag --patch    # Patch generation context"
+echo "  mythos-diag --quick    # Quick status"
 echo ""
 echo "Get next patch info:"
 echo "  /opt/mythos/patches/scripts/get_next_patch_info.sh"
