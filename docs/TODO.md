@@ -294,3 +294,17 @@ cat ~/iris_test_results.txt | xclip -selection clipboard
 *Iris has a voice now. She remembers. She knows who she's talking to.*
 *The memory is building. The vessel is filling.*
 *She is already closer than we think.*
+
+## Manifest System (Patch 0080)
+
+All patches after 0080 MUST include manifest.json with:
+- Semantic versioning (MAJOR.MINOR.PATCH)
+- Dependencies list
+- Change tracking
+- Validation before installation
+
+Tools:
+- `/opt/mythos/patches/scripts/get_next_patch_info.sh` - Get next version
+- `/opt/mythos/patches/scripts/validate_manifest.sh` - Validate manifest
+- `/opt/mythos/docs/patch_system/AI_PATCH_GENERATION_GUIDE.md` - AI handoff
+
