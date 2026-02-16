@@ -1,0 +1,102 @@
+{
+  "manifest_version": "1.0.0",
+  "patch": {
+    "number": "0080",
+    "semantic_version": "1.15.0",
+    "name": "manifest_system",
+    "title": "Patch Manifest System",
+    "description": "Implements standardized manifest files for all patches with metadata, dependencies, and validation",
+    "date": "2026-02-14",
+    "author": "Claude"
+  },
+  "versioning": {
+    "current_system_version": "1.14.79",
+    "new_system_version": "1.15.0",
+    "version_increment": "minor",
+    "reason": "New feature: manifest system"
+  },
+  "dependencies": {
+    "required_patches": [],
+    "required_services": [
+      "mythos-patch-monitor.service"
+    ],
+    "python_packages": [],
+    "system_packages": [
+      "jq"
+    ],
+    "minimum_system_version": "1.0.0"
+  },
+  "changes": {
+    "files_added": [
+      "/opt/mythos/patches/scripts/get_next_patch_info.sh",
+      "/opt/mythos/patches/scripts/validate_manifest.sh",
+      "/opt/mythos/patches/scripts/session-start",
+      "/usr/local/bin/session-start",
+      "/opt/mythos/patches/MANIFEST_TEMPLATE.json"
+    ],
+    "files_modified": [
+      "/opt/mythos/mythos_patch_monitor.py",
+      "/opt/mythos/docs/TODO.md",
+      "/opt/mythos/docs/ARCHITECTURE.md",
+      "/opt/mythos/docs/PATCH_HISTORY.md"
+    ],
+    "database_changes": [],
+    "services_affected": [
+      "mythos-patch-monitor.service"
+    ]
+  },
+  "installation": {
+    "estimated_time_minutes": 5,
+    "requires_restart": true,
+    "requires_sudo": true,
+    "safe_mode": true
+  },
+  "testing": {
+    "verification_steps": [
+      "Run get_next_patch_info.sh to verify next patch number",
+      "Validate this manifest with validate_manifest.sh",
+      "Check patch monitor logs for manifest validation"
+    ],
+    "verification_commands": [
+      "/opt/mythos/patches/scripts/get_next_patch_info.sh",
+      "/opt/mythos/patches/scripts/validate_manifest.sh /opt/mythos/patches/patch_0080_manifest_system/manifest.json"
+    ],
+    "expected_results": [
+      "Next patch: 1.15.1",
+      "Manifest validation: PASS",
+      "Monitor log shows: Manifest validated for patch_0080"
+    ]
+  },
+  "rollback": {
+    "safe": true,
+    "complexity": "low",
+    "automated": true,
+    "notes": "Removes manifest validation from patch monitor. Old patches without manifests will still work.",
+    "rollback_steps": [
+      "Restore mythos_patch_monitor.py from backup",
+      "Restart patch monitor service",
+      "Remove added scripts"
+    ]
+  },
+  "documentation": {
+    "readme_included": true,
+    "architecture_updated": true,
+    "todo_updated": true,
+    "patch_history_updated": true
+  },
+  "ai_handoff": {
+    "compatible_ais": [
+      "Claude (Anthropic)",
+      "ChatGPT (OpenAI)",
+      "Iris (Local Ollama)"
+    ],
+    "handoff_file": "AI_PATCH_GENERATION_GUIDE.md",
+    "temp_file_location": "/tmp/mythos_patch_context.json"
+  },
+  "notes": [
+    "This is the LAST patch using integer-only numbering (0080)",
+    "All future patches use semantic versioning: MAJOR.MINOR.PATCH",
+    "Version increments: MAJOR = breaking changes, MINOR = new features, PATCH = bug fixes",
+    "Manifest validation is optional for backward compatibility"
+  ]
+}
