@@ -1,0 +1,88 @@
+{
+  "patch_id": "patch_0083",
+  "version": "1.15.2",
+  "base_version": "1.15.1",
+  "name": "Model Bench Phase 1.2 - Ollama Integration",
+  "description": "Ollama API client wrapper, model registry, and model management system. Enables discovery, registration, and tracking of installed Ollama models. Second of 7 sub-phases for Model Bench infrastructure.",
+  "author": "Ka'tuar'el",
+  "created_at": "2026-02-16T23:30:00Z",
+  "tags": ["orchestrator", "model-bench", "phase-1.2", "ollama", "models"],
+  "phase": {
+    "current": "1.2",
+    "total": 7,
+    "name": "Ollama Integration",
+    "previous": "1.1 - Core Infrastructure",
+    "next": "1.3 - Test Framework"
+  },
+  "dependencies": {
+    "system": {
+      "python": ">=3.11",
+      "postgresql": ">=14",
+      "ollama": ">=0.1.0"
+    },
+    "patches": [
+      "patch_0082"
+    ],
+    "python": [
+      "aiohttp==3.9.1",
+      "asyncio"
+    ]
+  },
+  "changes": {
+    "added": [
+      "orchestrator/src/models/ollama_client.py",
+      "orchestrator/src/models/model_registry.py",
+      "orchestrator/src/models/model_manager.py",
+      "orchestrator/scripts/register_models.sh",
+      "docs/orchestrator/OLLAMA.md"
+    ],
+    "modified": [
+      "orchestrator/src/models/__init__.py",
+      "docs/orchestrator/CHANGELOG.md",
+      "docs/TODO.md",
+      ".version"
+    ],
+    "removed": []
+  },
+  "database": {
+    "new_tables": [],
+    "modified_tables": [
+      "orch_models"
+    ],
+    "data_changes": true,
+    "reversible": true
+  },
+  "services": {
+    "restart_required": [],
+    "new_services": [],
+    "modified_services": []
+  },
+  "files": {
+    "total": 6,
+    "python": 3,
+    "scripts": 1,
+    "documentation": 2
+  },
+  "rollback": {
+    "supported": true,
+    "script": "scripts/rollback_0083.sh"
+  },
+  "next_patch": {
+    "patch_id": "patch_0084",
+    "version": "1.15.3",
+    "name": "Model Bench Phase 1.3 - Test Framework"
+  },
+  "testing": {
+    "automated_tests": false,
+    "manual_verification": true,
+    "verification_steps": [
+      "Check version file contains 1.15.2",
+      "Verify Ollama client can list models",
+      "Confirm models registered in database",
+      "Test model manager operations"
+    ]
+  },
+  "estimated_install_time": "1-2 minutes",
+  "breaking_changes": false,
+  "backward_compatible": true
+}

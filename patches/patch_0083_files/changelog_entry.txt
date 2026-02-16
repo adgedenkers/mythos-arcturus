@@ -1,0 +1,40 @@
+
+
+---
+
+## [1.15.2] - 2026-02-16
+
+### Added
+- **Phase 1.2: Ollama Integration**
+- Ollama API client wrapper (`OllamaClient`)
+  - Async operations with automatic retries
+  - Model listing, pulling, deletion
+  - Text generation with streaming support
+  - Embeddings support
+  - Health checking
+- Model registry (`ModelRegistry`)
+  - Database-backed model tracking
+  - Model normalization and ID management
+  - Capability tracking per model
+  - Best model selection for task types
+- Model manager (`ModelManager`)
+  - High-level model operations
+  - Automatic model synchronization
+  - Model selection strategies
+  - Usage tracking
+- Model registration script (`register_models.sh`)
+  - Automatic sync of installed Ollama models
+  - Called during installation
+- Documentation (`OLLAMA.md`)
+  - Complete API reference
+  - Usage examples
+  - Troubleshooting guide
+
+### Changed
+- Updated `pydantic` to >=2.9.0 for ollama compatibility
+- System version: 1.15.1 → 1.15.2
+
+### Fixed
+- N/A
+
+---
