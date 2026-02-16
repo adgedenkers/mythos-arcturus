@@ -1,0 +1,75 @@
+{
+  "patch_number": "0081",
+  "name": "astrology_system",
+  "version": "4.1.0",
+  "description": "Complete natal astrology system with Swiss Ephemeris, chart calculations, comparisons, and Telegram interface",
+  "date": "2026-02-16",
+  "author": "katuarel",
+  "dependencies": [
+    "patch_0074",
+    "pyswisseph"
+  ],
+  "changes": {
+    "added": [
+      "Complete PostgreSQL schema (astro_charts, astro_placements, astro_house_cusps, astro_aspects, astro_chart_comparisons, astro_comparison_aspects)",
+      "Enhanced chart calculator with batch processing",
+      "Swiss Ephemeris integration with auto-download",
+      "Telegram commands: /chart, /planets, /houses, /aspects, /group_planets",
+      "Chart comparison support (bi-wheel, synastry)",
+      "Group analysis queries (find all Mars in Aries, etc.)",
+      "Dignity calculations (domicile, exaltation, detriment, fall)",
+      "Helper views and functions for quick queries"
+    ],
+    "modified": [
+      "telegram_bot/mythos_bot.py - registered astrology handler"
+    ],
+    "database": [
+      "Created 6 new tables for astrology data",
+      "Created 2 views for summaries",
+      "Created 2 utility functions"
+    ]
+  },
+  "files": {
+    "new": [
+      "astrology/schema.sql",
+      "astrology/calculator.py",
+      "telegram_bot/handlers/astrology_handler.py",
+      "ephemeris/ (directory with Swiss Ephemeris files)"
+    ],
+    "modified": [
+      "telegram_bot/mythos_bot.py",
+      ".env (added SWISSEPH_PATH)"
+    ]
+  },
+  "rollback": {
+    "sql": "DROP TABLE IF EXISTS astro_comparison_aspects, astro_chart_comparisons, astro_aspects, astro_house_cusps, astro_placements, astro_charts CASCADE;",
+    "files": [
+      "rm -rf /opt/mythos/astrology",
+      "rm -rf /opt/mythos/ephemeris"
+    ]
+  },
+  "validation": {
+    "database": [
+      "SELECT COUNT(*) FROM astro_charts",
+      "SELECT COUNT(*) FROM astro_placements",
+      "SELECT COUNT(*) FROM astro_aspects"
+    ],
+    "files": [
+      "test -f /opt/mythos/astrology/calculator.py",
+      "test -d /opt/mythos/ephemeris",
+      "test -f /opt/mythos/ephemeris/seas_18.se1"
+    ],
+    "services": [
+      "systemctl is-active mythos-bot.service"
+    ]
+  },
+  "notes": [
+    "First natal chart system in Mythos",
+    "Swiss Ephemeris files downloaded during installation",
+    "Birth data already exists for Ka'tuar'el, Seraphe, and Fitz in people table",
+    "Charts automatically calculated for all people with birth data on install",
+    "Support for multiple house systems (Placidus, Whole Sign, Equal, Koch, etc.)",
+    "Ready for bi-wheel comparisons and synastry analysis",
+    "Future: SVG chart rendering, transits, progressions, composite charts"
+  ]
+}
