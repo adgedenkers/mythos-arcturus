@@ -34,18 +34,18 @@ cp "$PATCH_DIR/opt/mythos/patches/scripts/validate_manifest.sh" \
    "$MYTHOS_ROOT/patches/scripts/"
 chmod +x "$MYTHOS_ROOT/patches/scripts/validate_manifest.sh"
 
-cp "$PATCH_DIR/opt/mythos/patches/scripts/mythos-diag" \
+cp "$PATCH_DIR/opt/mythos/patches/scripts/session-start" \
    "$MYTHOS_ROOT/patches/scripts/"
-chmod +x "$MYTHOS_ROOT/patches/scripts/mythos-diag"
+chmod +x "$MYTHOS_ROOT/patches/scripts/session-start"
 
 echo "  ✓ get_next_patch_info.sh installed"
 echo "  ✓ validate_manifest.sh installed"
-echo "  ✓ mythos-diag installed"
+echo "  ✓ session-start installed"
 
 # Create symlink for easy access
-if [ ! -L /usr/local/bin/mythos-diag ]; then
-    sudo ln -sf "$MYTHOS_ROOT/patches/scripts/mythos-diag" /usr/local/bin/mythos-diag 2>/dev/null || true
-    echo "  ✓ mythos-diag symlinked to /usr/local/bin/"
+if [ ! -L /usr/local/bin/session-start ]; then
+    sudo ln -sf "$MYTHOS_ROOT/patches/scripts/session-start" /usr/local/bin/session-start 2>/dev/null || true
+    echo "  ✓ session-start symlinked to /usr/local/bin/"
 fi
 
 # ============================================================
@@ -151,17 +151,17 @@ echo ""
 echo "[5/6] Creating standard diagnostic command..."
 
 # Add diagnostic info to documentation
-if ! grep -q "mythos-diag" "$MYTHOS_ROOT/docs/TODO.md" 2>/dev/null; then
+if ! grep -q "session-start" "$MYTHOS_ROOT/docs/TODO.md" 2>/dev/null; then
     cat >> "$MYTHOS_ROOT/docs/TODO.md" << 'EOF'
 
-### Standard Diagnostic Command
+### Session Start Diagnostic Command
 
 Run at session start to get all context:
 
 ```bash
-mythos-diag            # Full diagnostic (default)
-mythos-diag --patch    # Patch-focused (for patch generation)
-mythos-diag --quick    # Quick status check
+session-start            # Full diagnostic (default)
+session-start --patch    # Patch-focused (for patch generation)
+session-start --quick    # Quick status check
 ```
 
 Output includes:
@@ -198,17 +198,17 @@ else
     echo "  ✓ validate_manifest.sh executable"
 fi
 
-# Check mythos-diag
-if [ ! -x "$MYTHOS_ROOT/patches/scripts/mythos-diag" ]; then
-    echo "  ✗ mythos-diag not executable"
+# Check session-start
+if [ ! -x "$MYTHOS_ROOT/patches/scripts/session-start" ]; then
+    echo "  ✗ session-start not executable"
     VERIFY_OK=false
 else
-    echo "  ✓ mythos-diag executable"
+    echo "  ✓ session-start executable"
 fi
 
 # Check symlink
-if [ -L /usr/local/bin/mythos-diag ]; then
-    echo "  ✓ mythos-diag available in PATH"
+if [ -L /usr/local/bin/session-start ]; then
+    echo "  ✓ session-start available in PATH"
 fi
 
 # Check template exists
@@ -245,8 +245,8 @@ echo ""
 echo "Installed:"
 echo "  → /opt/mythos/patches/scripts/get_next_patch_info.sh"
 echo "  → /opt/mythos/patches/scripts/validate_manifest.sh"
-echo "  → /opt/mythos/patches/scripts/mythos-diag"
-echo "  → /usr/local/bin/mythos-diag (symlink)"
+echo "  → /opt/mythos/patches/scripts/session-start"
+echo "  → /usr/local/bin/session-start (symlink)"
 echo "  → /opt/mythos/patches/MANIFEST_TEMPLATE.json"
 echo "  → /opt/mythos/docs/patch_system/AI_PATCH_GENERATION_GUIDE.md"
 echo ""
@@ -257,10 +257,10 @@ echo "  • MAJOR.MINOR.PATCH format in manifest"
 echo "  • Directory names still use patch_NNNN_ for compatibility"
 echo "  • All patches MUST include manifest.json"
 echo ""
-echo "Standard diagnostic command:"
-echo "  mythos-diag            # Full system state"
-echo "  mythos-diag --patch    # Patch generation context"
-echo "  mythos-diag --quick    # Quick status"
+echo "Session diagnostic command:"
+echo "  session-start            # Full system state"
+echo "  session-start --patch    # Patch generation context"
+echo "  session-start --quick    # Quick status"
 echo ""
 echo "Get next patch info:"
 echo "  /opt/mythos/patches/scripts/get_next_patch_info.sh"
