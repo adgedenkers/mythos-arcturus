@@ -21,9 +21,12 @@ filelock==3.20.3
 flatbuffers==25.12.19
 frozenlist==1.8.0
 fsspec==2026.1.0
+geographiclib==2.1
+geopy==2.4.1
 grpcio==1.76.0
 h11==0.16.0
 h2==4.3.0
+h3==4.4.2
 hf-xet==1.2.0
 hpack==4.1.0
 httpcore==1.0.9
@@ -58,6 +61,7 @@ nvidia-nvtx-cu12==12.8.90
 ollama==0.6.1
 onnxruntime==1.24.1
 packaging==25.0
+pandas==3.0.0
 pillow==12.1.0
 pillow_heif==1.2.0
 plaid-python==38.0.0
@@ -88,6 +92,7 @@ six==1.17.0
 starlette==0.50.0
 sympy==1.14.0
 threadpoolctl==3.6.0
+timezonefinder==8.2.1
 tokenizers==0.22.2
 torch==2.10.0
 tqdm==4.67.1

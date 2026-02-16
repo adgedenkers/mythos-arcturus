@@ -419,7 +419,6 @@ journalctl -u mythos-bot -f
 
 # Topic aliases for flexible matching
 HELP_TOPICS = {
-    'astrology': """\nASTROLOGY COMMANDS\n\nView Charts:\n  /chart <name> - Show full natal chart\n  /chart <name1> <name2> - Compare two charts\n  /planets <name> - Planet positions only\n  /houses <name> - House cusps only\n  /aspects <name> - Major aspects only\n\nGroup Analysis:\n  /group_planets <planet> <sign> - Find all with placement\n\nExamples:\n  /chart Ka\n  /chart Ka Seraphe\n  /planets Seraphe\n  /aspects Fitz\n  /group_planets Jupiter Cancer\n\nChart Notation:\n  R = Retrograde\n  Dom = Domicile (dignity)\n  Exa = Exaltation\n  Det = Detriment\n  Fal = Fall\n\nAvailable charts: Ka'tuar'el, Seraphe, Fitz\n""",
     # Tasks
     'task': HELP_TASKS,
     'tasks': HELP_TASKS,
@@ -468,8 +467,74 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
 ,
 
+    'astrology': """
+🌟 **Astrology Commands**
+
+**View Charts:**
+- `/chart <name>` - Show full natal chart
+- `/chart <name1> <name2>` - Compare two charts (bi-wheel)
+- `/planets <name>` - Planet positions only
+- `/houses <name>` - House cusps only
+- `/aspects <name>` - Major aspects only
+
+**Group Analysis:**
+- `/group_planets <planet> <sign>` - Find all with placement
+  Example: `/group_planets Mars Aries`
+  Example: `/group_planets Sun Leo`
+
+**Examples:**
+```
+/chart Ka
+/chart Ka Seraphe
+/planets Seraphe
+/aspects Fitz
+/group_planets Jupiter Cancer
+```
+
+**Chart Notation:**
+- R = Retrograde
+- Dom = Domicile (dignity)
+- Exa = Exaltation
+- Det = Detriment
+- Fal = Fall
+
+Available for: Ka'tuar'el, Seraphe, Fitz
+""",
 ,
 
+    'astrology': """
+🌟 **Astrology Commands**
+
+**View Charts:**
+- `/chart <name>` - Show full natal chart
+- `/chart <name1> <name2>` - Compare two charts (bi-wheel)
+- `/planets <name>` - Planet positions only
+- `/houses <name>` - House cusps only
+- `/aspects <name>` - Major aspects only
+
+**Group Analysis:**
+- `/group_planets <planet> <sign>` - Find all with placement
+  Example: `/group_planets Mars Aries`
+  Example: `/group_planets Sun Leo`
+
+**Examples:**
+```
+/chart Ka
+/chart Ka Seraphe
+/planets Seraphe
+/aspects Fitz
+/group_planets Jupiter Cancer
+```
+
+**Chart Notation:**
+- R = Retrograde
+- Dom = Domicile (dignity)
+- Exa = Exaltation
+- Det = Detriment
+- Fal = Fall
+
+Available for: Ka'tuar'el, Seraphe, Fitz
+""",
     Handle /help command with optional topic
     
     Usage:
@@ -497,7 +562,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             f"❓ Unknown topic: `{topic}`\n\n"
             "Available topics:\n"
-            "`tasks`, `finance`, `sell`, `chat`, `db`, `system`, `astrology`\n\n"
+            "`tasks`, `finance`, `sell`, `chat`, `db`, `system`\n\n"
             "Use `/help` for overview.",
             parse_mode='Markdown'
         )

@@ -9,6 +9,9 @@ Updated to include:
 """
 
 import os
+import asyncio
+import sys
+sys.path.insert(0, '/opt/mythos')
 import logging
 import uuid
 from datetime import datetime
@@ -35,6 +38,7 @@ logger = logging.getLogger(__name__)
 
 # Import sell mode handlers
 from handlers import (
+from handlers import astrology_handler
     listed_command,
     sold_command,
     enter_sell_mode,
@@ -67,6 +71,13 @@ from handlers.patch_handlers import (
 
 # Finance commands
 from handlers.finance_handler import (
+    spend_command,
+    monthly_command,
+    compare_command,
+    top_command,
+    txn_command,
+    next_command,
+    back_command,
     setbalance_command,
     report_command,
     balance_command,
@@ -80,98 +91,49 @@ from handlers.snapshot_handler import (
 
 # Iris consciousness commands
 from handlers.iris_handler import (
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-# Task tracking commands
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-from handlers.task_handler import task_command, tasks_command
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
     iris_command,
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-# Task tracking commands
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-from handlers.task_handler import task_command, tasks_command
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
     iris_test_command,
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-# Task tracking commands
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-from handlers.task_handler import task_command, tasks_command
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
     iris_run_command,
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-# Task tracking commands
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-from handlers.task_handler import task_command, tasks_command
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
     iris_task_command
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-# Task tracking commands
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
-from handlers.task_handler import task_command, tasks_command
-
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
 )
 
-# Task tracking commands
-from handlers.task_handler import task_command, tasks_command
+# Ollama model management
+from handlers.ollama_models import (
+    models_command,
+    pull_command,
+    pulling_command,
+    setmodel_command,
+    removemodel_command
+)
+
+
+
+# Voice transcription
+from handlers.voice_handler import handle_voice, handle_audio
+
+# Media handlers (photo vision, video transcription)
+from handlers.media_handler import handle_photo_media, handle_video_media
 
 # Task tracking commands
 from handlers.task_handler import task_command, tasks_command
 
+# Help system
+from handlers.help_handler import help_command as help_command_handler
+
+# Pulse handler (household finance visibility)
+from handlers.pulse_handler import pulse_command, setup_pulse_scheduler
+from handlers.forecast_handler import forecast_command, projection_command, bills_command, income_command
 # Configuration
 API_URL = "https://mythos-api.denkers.co"
 API_KEY = os.getenv('API_KEY_TELEGRAM_BOT')
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 MEDIA_BASE_PATH = "/opt/mythos/media"
+
+# Message buffer for collecting multi-chunk messages
+# { telegram_id: {"chunks": [str], "timer": asyncio.Task, "update": Update, "context": Context} }
+MESSAGE_BUFFER = {}
+MESSAGE_BUFFER_DELAY = 1.5  # seconds to wait for more chunks
+
 
 # Default mode for new sessions
 DEFAULT_MODE = "chat"
@@ -298,15 +260,6 @@ Send 3 photos → Auto-analyzed → Added to inventory
 `/endconvo` - End tracked conversation
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
-━━━━━━━━━━━━━━━━━━━━━━━━
-**TASKS**
-━━━━━━━━━━━━━━━━━━━━━━━━
-`/task add Do something` - Add task
-`/task add -h Urgent!` - High priority
-`/tasks` - List open tasks
-`/task done 1` - Complete task #1
-`/task drop 1` - Remove task #1
-
 **SYSTEM**
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -334,6 +287,15 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = session["user"]
     mode = session.get("current_mode", "chat")
     model = session.get("current_model", "auto")
+    
+    # Check for /setmodel override to show actual model
+    try:
+        from handlers.ollama_models import USER_MODEL_OVERRIDE
+        override = USER_MODEL_OVERRIDE.get(telegram_id)
+        if override:
+            model = override
+    except ImportError:
+        pass
     
     # Build status message - cleaner format
     mode_emoji = {
@@ -659,7 +621,7 @@ async def export_wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle photo messages - routes to sell mode or general handling"""
+    """Handle photo messages - routes to sell mode or media handler"""
     telegram_id = update.effective_user.id
     session = get_or_create_session(telegram_id)
     
@@ -670,82 +632,27 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if is_sell_mode(session):
         if update.message.photo:
             await handle_sell_photos(update, context, session)
-        elif update.message.document and update.message.document.mime_type.startswith('image/'):
+        elif update.message.document and update.message.document.mime_type.startswith("image/"):
             await handle_sell_photos(update, context, session)
         return
     
-    if not update.message.photo:
+    # Chat mode — use vision analysis
+    await handle_photo_media(update, context)
+async def _process_buffered_message(telegram_id: int):
+    """Process collected message chunks as a single message"""
+    if telegram_id not in MESSAGE_BUFFER:
         return
     
-    photo = update.message.photo[-1]
-    caption = update.message.caption or ""
-    user_uuid = session['user']['uuid']
-    conversation_id = session.get('conversation_id')
+    buf = MESSAGE_BUFFER.pop(telegram_id)
+    combined_message = "\n".join(buf["chunks"])
+    update = buf["update"]
+    context = buf["context"]
     
-    try:
-        file = await context.bot.get_file(photo.file_id)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        user_prefix = user_uuid[:8]
-        filename = f"{timestamp}_{photo.file_unique_id[:16]}.jpg"
-        
-        storage_dir = os.path.join(MEDIA_BASE_PATH, user_prefix)
-        os.makedirs(storage_dir, exist_ok=True)
-        
-        storage_path = os.path.join(storage_dir, filename)
-        await file.download_to_drive(storage_path)
-        
-        file_size = os.path.getsize(storage_path)
-        
-        response = requests.post(
-            f"{API_URL}/media/upload",
-            headers={"X-API-Key": API_KEY},
-            json={
-                "user_id": str(telegram_id),
-                "conversation_id": conversation_id,
-                "filename": filename,
-                "file_path": storage_path,
-                "file_size": file_size,
-                "width": photo.width,
-                "height": photo.height,
-                "telegram_file_id": photo.file_id,
-                "telegram_file_unique_id": photo.file_unique_id,
-                "caption": caption,
-                "mime_type": "image/jpeg"
-            },
-            timeout=10
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            await update.message.reply_text(
-                f"📸 Saved ({file_size // 1024}KB)"
-            )
-        else:
-            await update.message.reply_text("⚠️ Saved locally")
-            
-    except Exception as e:
-        logger.error(f"Photo error: {e}", exc_info=True)
-        await update.message.reply_text(f"❌ Error: {e}")
-
-
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle text messages"""
-    telegram_id = update.effective_user.id
     session = get_or_create_session(telegram_id)
-    
     if not session:
         await update.message.reply_text("❌ Session not found. Use /start")
         return
     
-    if is_sell_mode(session):
-        await update.message.reply_text(
-            "📦 Sell mode - send photos only.\n"
-            "/done to exit"
-        )
-        return
-    
-    user_message = update.message.text
     mode = session["current_mode"]
     model = session["current_model"]
     conversation_id = session.get("conversation_id")
@@ -753,8 +660,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.chat.send_action("typing")
     
     # Log activity
-    preview = user_message[:30] + "..." if len(user_message) > 30 else user_message
-    log_activity(session, mode, preview)
+    chunk_count = len(buf["chunks"])
+    preview = combined_message[:30] + "..." if len(combined_message) > 30 else combined_message
+    if chunk_count > 1:
+        log_activity(session, mode, f"[{chunk_count} chunks] {preview}")
+        logger.info(f"Processing buffered message: {chunk_count} chunks, {len(combined_message)} chars")
+    else:
+        log_activity(session, mode, preview)
     
     try:
         response = requests.post(
@@ -762,7 +674,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             headers={"X-API-Key": API_KEY},
             json={
                 "user_id": str(telegram_id),
-                "message": user_message,
+                "message": combined_message,
                 "mode": mode,
                 "model_preference": model,
                 "conversation_id": conversation_id
@@ -789,6 +701,49 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"❌ Error: {e}")
 
 
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle text messages — buffers multi-chunk messages before processing"""
+    telegram_id = update.effective_user.id
+    session = get_or_create_session(telegram_id)
+    
+    if not session:
+        await update.message.reply_text("❌ Session not found. Use /start")
+        return
+    
+    if is_sell_mode(session):
+        await update.message.reply_text(
+            "📦 Sell mode - send photos only.\n"
+            "/done to exit"
+        )
+        return
+    
+    user_message = update.message.text
+    
+    # Buffer the message chunk
+    if telegram_id in MESSAGE_BUFFER:
+        # Cancel existing timer, add chunk, restart timer
+        buf = MESSAGE_BUFFER[telegram_id]
+        buf["timer"].cancel()
+        buf["chunks"].append(user_message)
+        buf["update"] = update  # keep latest update for reply
+        buf["context"] = context
+    else:
+        # First chunk — start new buffer
+        MESSAGE_BUFFER[telegram_id] = {
+            "chunks": [user_message],
+            "update": update,
+            "context": context,
+            "timer": None,
+        }
+    
+    # Set timer — when it fires, process all collected chunks
+    async def fire():
+        await asyncio.sleep(MESSAGE_BUFFER_DELAY)
+        await _process_buffered_message(telegram_id)
+    
+    MESSAGE_BUFFER[telegram_id]["timer"] = asyncio.ensure_future(fire())
+
+
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle errors"""
     logger.error(f"Error: {context.error}")
@@ -810,7 +765,7 @@ def main():
     
     # Command handlers
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("help", help_command_handler))
     application.add_handler(CommandHandler("status", status_command))
     application.add_handler(CommandHandler("mode", mode_command))
     application.add_handler(CommandHandler("model", model_command))
@@ -841,7 +796,19 @@ def main():
     application.add_handler(CommandHandler("spending", spending_command))
     application.add_handler(CommandHandler("report", report_command))
     application.add_handler(CommandHandler("setbalance", setbalance_command))
+    application.add_handler(CommandHandler("spend", spend_command))
+    application.add_handler(CommandHandler("monthly", monthly_command))
+    application.add_handler(CommandHandler("compare", compare_command))
+    application.add_handler(CommandHandler("top", top_command))
+    application.add_handler(CommandHandler("txn", txn_command))
+    application.add_handler(CommandHandler("next", next_command))
+    application.add_handler(CommandHandler("back", back_command))
     application.add_handler(CommandHandler("snapshot", snapshot_command))
+    application.add_handler(CommandHandler("pulse", pulse_command))
+    application.add_handler(CommandHandler("forecast", forecast_command))
+    application.add_handler(CommandHandler("projection", projection_command))
+    application.add_handler(CommandHandler("bills", bills_command))
+    application.add_handler(CommandHandler("income", income_command))
     application.add_handler(CommandHandler("setbal", setbal_command))
 
     # Iris consciousness commands
@@ -849,14 +816,27 @@ def main():
     application.add_handler(CommandHandler("iris_test", iris_test_command))
     application.add_handler(CommandHandler("iris_run", iris_run_command))
     application.add_handler(CommandHandler("iris_task", iris_task_command))
+
+    # Ollama model management commands
+    application.add_handler(CommandHandler("models", models_command))
+    application.add_handler(CommandHandler("pull", pull_command))
+    application.add_handler(CommandHandler("pulling", pulling_command))
+    application.add_handler(CommandHandler("setmodel", setmodel_command))
+    application.add_handler(CommandHandler("removemodel", removemodel_command))
     
-    # Task tracking commands
+
     application.add_handler(CommandHandler("task", task_command))
     application.add_handler(CommandHandler("tasks", tasks_command))
+
+
 
     # Message handlers
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     application.add_handler(MessageHandler(filters.Document.IMAGE, handle_photo))
+    application.add_handler(MessageHandler(filters.VIDEO, handle_video_media))
+    application.add_handler(MessageHandler(filters.VIDEO_NOTE, handle_video_media))
+    application.add_handler(MessageHandler(filters.VOICE, handle_voice))
+    application.add_handler(MessageHandler(filters.AUDIO, handle_audio))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     # Error handler

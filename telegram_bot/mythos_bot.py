@@ -49,6 +49,7 @@ from handlers import (
     export_command,
     inventory_command
 )
+from handlers import astrology_handler
 
 # Import chat mode handler
 from handlers.chat_mode import (
@@ -801,6 +802,13 @@ def main():
     application.add_handler(CommandHandler("top", top_command))
     application.add_handler(CommandHandler("txn", txn_command))
     application.add_handler(CommandHandler("next", next_command))
+    
+    # Astrology commands
+    application.add_handler(CommandHandler("chart", astrology_handler.handle_chart))
+    application.add_handler(CommandHandler("planets", astrology_handler.handle_planets))
+    application.add_handler(CommandHandler("houses", astrology_handler.handle_houses))
+    application.add_handler(CommandHandler("aspects", astrology_handler.handle_aspects))
+    application.add_handler(CommandHandler("group_planets", astrology_handler.handle_group_planets))
     application.add_handler(CommandHandler("back", back_command))
     application.add_handler(CommandHandler("snapshot", snapshot_command))
     application.add_handler(CommandHandler("pulse", pulse_command))

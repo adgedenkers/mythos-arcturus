@@ -1,0 +1,90 @@
+{
+  "Conjunction": {
+    "Angle": 0,
+    "Orb": 8.0,
+    "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+  },
+  "Opposition": {
+    "Angle": 180,
+    "Orb": 7.0,
+    "Description": "Polarization; reflection and projection; potential for balance or conflict."
+  },
+  "Trine": {
+    "Angle": 120,
+    "Orb": 7.0,
+    "Description": "Harmonious and easy energy exchange; talents and natural flows."
+  },
+  "Square": {
+    "Angle": 90,
+    "Orb": 6.0,
+    "Description": "Dynamic tension; challenges that drive growth and confrontation."
+  },
+  "Sextile": {
+    "Angle": 60,
+    "Orb": 6.5,
+    "Description": "Easy flow of energy; opportunities that require initiative."
+  },
+
+  "Quincunx": {
+    "Angle": 150,
+    "Orb": 3.0,
+    "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+  },
+  "Semi-sextile": {
+    "Angle": 30,
+    "Orb": 3.0,
+    "Description": "Mildly positive; represents potential growth through minor adjustments."
+  },
+  "Semi-square": {
+    "Angle": 45,
+    "Orb": 3.0,
+    "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
+  },
+  "Sesquiquadrate": {
+    "Angle": 135,
+    "Orb": 3.5,
+    "Description": "Minor challenging aspect; irritations that require discipline."
+  },
+
+  "Quintile": {
+    "Angle": 72,
+    "Orb": 2.5,
+    "Description": "Creative/talent-driven link; refined skill or artistry."
+  },
+  "Biquintile": {
+    "Angle": 144,
+    "Orb": 2.0,
+    "Description": "Harmonic creative flow; specialized talents or genius-level expression."
+  },
+  "Decile": {
+    "Angle": 36,
+    "Orb": 1.5,
+    "Description": "Semi-quintile; subtle creativity, finesse and technique."
+  },
+  "Tridecile": {
+    "Angle": 108,
+    "Orb": 1.5,
+    "Description": "Quintile family; inventive, elegant problem solving."
+  },
+  "Quindecile": {
+    "Angle": 165,
+    "Orb": 1.5,
+    "Description": "Intense focus/compulsion; persistent drive toward integration."
+  },
+
+  "Septile": {
+    "Angle": 51.428571,
+    "Orb": 1.2,
+    "Description": "Subtle, numinous link; inspiration/obsession, 'fated' vibe."
+  },
+  "Biseptile": {
+    "Angle": 102.857143,
+    "Orb": 1.2,
+    "Description": "Septile family; unusual timing/synchrony, creative compulsion."
+  },
+  "Triseptile": {
+    "Angle": 154.285714,
+    "Orb": 1.2,
+    "Description": "Septile family; inner calling, synchronistic pressure to adjust."
+  }
+}

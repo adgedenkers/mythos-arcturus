@@ -1,0 +1,31 @@
+[
+    {
+      "Element": "Fire",
+      "Signs": ["Aries", "Leo", "Sagittarius"],
+      "Keywords": ["Passion", "Energy", "Inspiration"],
+      "Meaning": "Fire signs are dynamic, enthusiastic, and full of life. They represent creativity, courage, and the spark of action.",
+      "Example": "Fire energy is like lighting a match — it burns bright, acts quickly, and inspires others."
+    },
+    {
+      "Element": "Earth",
+      "Signs": ["Taurus", "Virgo", "Capricorn"],
+      "Keywords": ["Stability", "Practicality", "Groundedness"],
+      "Meaning": "Earth signs are solid, reliable, and grounded. They focus on building, achieving, and maintaining physical reality.",
+      "Example": "Earth energy is like a stone wall — dependable, structured, and built to last."
+    },
+    {
+      "Element": "Air",
+      "Signs": ["Gemini", "Libra", "Aquarius"],
+      "Keywords": ["Intellect", "Communication", "Ideas"],
+      "Meaning": "Air signs are curious, social, and mentally driven. They deal with abstract thinking and connection through language.",
+      "Example": "Air energy is like the wind — unseen, always moving, and capable of changing direction quickly."
+    },
+    {
+      "Element": "Water",
+      "Signs": ["Cancer", "Scorpio", "Pisces"],
+      "Keywords": ["Emotion", "Intuition", "Depth"],
+      "Meaning": "Water signs are sensitive, intuitive, and emotionally deep. They move through life by feeling and connecting deeply.",
+      "Example": "Water energy is like a river — flowing, adaptive, and able to carve through stone over time."
+    }
+  ]
+  

@@ -1,0 +1,75 @@
+[
+    {
+      "House": 1,
+      "Name": "House of Self",
+      "Themes": ["Identity", "Persona", "First Impressions", "Physical Body", "Outward Behavior"],
+      "Meaning": "The 1st House governs your outward personality, how others perceive you, and your approach to life. It also reflects your physical appearance and general temperament."
+    },
+    {
+      "House": 2,
+      "Name": "House of Value",
+      "Themes": ["Money", "Self-Worth", "Possessions", "Security", "Material Resources"],
+      "Meaning": "The 2nd House concerns your finances, personal assets, sense of self-worth, and how you build and sustain personal security and comfort."
+    },
+    {
+      "House": 3,
+      "Name": "House of Communication",
+      "Themes": ["Thinking", "Learning", "Siblings", "Short Trips", "Local Environment"],
+      "Meaning": "This house governs communication, thought processes, early education, neighborhood dynamics, and relationships with siblings and extended family."
+    },
+    {
+      "House": 4,
+      "Name": "House of Home and Family",
+      "Themes": ["Roots", "Family", "Home Life", "Emotional Foundations", "Ancestry"],
+      "Meaning": "The 4th House is about your roots, your sense of belonging, and your emotional base. It also represents your home life, parents (often mother), and private self."
+    },
+    {
+      "House": 5,
+      "Name": "House of Pleasure",
+      "Themes": ["Creativity", "Children", "Romance", "Recreation", "Self-Expression"],
+      "Meaning": "This house is where you seek joy through personal creativity, romance, entertainment, hobbies, and the raising of children. It also governs fun and spontaneity."
+    },
+    {
+      "House": 6,
+      "Name": "House of Health and Service",
+      "Themes": ["Work", "Routine", "Health", "Habits", "Pets"],
+      "Meaning": "The 6th House rules daily responsibilities, health and wellness, service to others, and practical skills. It also governs your relationship to work and your body’s rhythms."
+    },
+    {
+      "House": 7,
+      "Name": "House of Partnerships",
+      "Themes": ["Marriage", "One-on-One Relationships", "Contracts", "Rivals"],
+      "Meaning": "This house focuses on committed relationships—romantic, business, and legal. It also shows how you relate to others in a mirrored way, including enemies."
+    },
+    {
+      "House": 8,
+      "Name": "House of Transformation",
+      "Themes": ["Sex", "Death", "Rebirth", "Shared Resources", "Psychology"],
+      "Meaning": "The 8th House involves deep bonding, shared finances, inheritance, personal transformation, and taboos. It represents cycles of death and rebirth in your life."
+    },
+    {
+      "House": 9,
+      "Name": "House of Philosophy",
+      "Themes": ["Beliefs", "Higher Education", "Travel", "Law", "Wisdom"],
+      "Meaning": "This house governs philosophy, religious and spiritual outlooks, foreign travel, and higher education. It expands your worldview through knowledge and experience."
+    },
+    {
+      "House": 10,
+      "Name": "House of Career",
+      "Themes": ["Career", "Ambition", "Reputation", "Public Life", "Authority"],
+      "Meaning": "The 10th House reveals your highest aspirations, career path, achievements, and public image. It reflects your legacy and often parental or societal expectations."
+    },
+    {
+      "House": 11,
+      "Name": "House of Community",
+      "Themes": ["Friendships", "Groups", "Social Causes", "Future Goals", "Networks"],
+      "Meaning": "The 11th House governs friendships, group affiliations, collective goals, and your larger vision for humanity. It’s also linked to your hopes, dreams, and tech."
+    },
+    {
+      "House": 12,
+      "Name": "House of the Subconscious",
+      "Themes": ["Spirituality", "Karma", "Isolation", "Hidden Enemies", "Mental Health"],
+      "Meaning": "The 12th House represents the unseen: subconscious patterns, spiritual development, dreams, solitude, institutions, and the need for retreat or healing."
+    }
+  ]
+  

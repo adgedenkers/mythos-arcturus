@@ -1,0 +1,113 @@
+[
+    {
+      "Object": "Sun",
+      "Keywords": ["Core Self", "Vitality", "Purpose"],
+      "Meaning": "The Sun represents your core identity, life force, and conscious will. It shows how you shine and express your ego in the world."
+    },
+    {
+      "Object": "Moon",
+      "Keywords": ["Emotions", "Habits", "Inner Self"],
+      "Meaning": "The Moon governs your feelings, instincts, memories, and unconscious needs. It reflects how you nurture and what makes you feel safe."
+    },
+    {
+      "Object": "Mercury",
+      "Keywords": ["Thinking", "Communication", "Logic"],
+      "Meaning": "Mercury rules the mind, learning, speaking, and how you process information. It governs language, thought patterns, and curiosity."
+    },
+    {
+      "Object": "Venus",
+      "Keywords": ["Love", "Attraction", "Values"],
+      "Meaning": "Venus rules love, pleasure, beauty, and what you value in relationships. It shows how you express affection and seek harmony."
+    },
+    {
+      "Object": "Mars",
+      "Keywords": ["Action", "Desire", "Aggression"],
+      "Meaning": "Mars governs drive, physical energy, ambition, and sexuality. It shows how you assert yourself and pursue what you want."
+    },
+    {
+      "Object": "Jupiter",
+      "Keywords": ["Expansion", "Luck", "Belief"],
+      "Meaning": "Jupiter expands whatever it touches—governing optimism, growth, travel, philosophy, and your pursuit of meaning."
+    },
+    {
+      "Object": "Saturn",
+      "Keywords": ["Structure", "Discipline", "Karma"],
+      "Meaning": "Saturn brings lessons, boundaries, responsibilities, and long-term goals. It tests your resilience and rewards patience."
+    },
+    {
+      "Object": "Uranus",
+      "Keywords": ["Innovation", "Change", "Rebellion"],
+      "Meaning": "Uranus disrupts the status quo. It’s about freedom, originality, unexpected events, and technological breakthroughs."
+    },
+    {
+      "Object": "Neptune",
+      "Keywords": ["Dreams", "Illusion", "Spirituality"],
+      "Meaning": "Neptune dissolves boundaries. It rules fantasy, intuition, creativity, and ideals—but can also bring confusion or deception."
+    },
+    {
+      "Object": "Pluto",
+      "Keywords": ["Power", "Transformation", "Rebirth"],
+      "Meaning": "Pluto reveals hidden forces. It rules death/rebirth cycles, control, obsession, healing, and deep psychological change."
+    },
+    {
+      "Object": "Chiron",
+      "Keywords": ["Wounds", "Healing", "Wisdom"],
+      "Meaning": "Chiron shows your deepest wounds and your unique path to healing. Where it lies, there is pain—but also the potential for great wisdom."
+    },
+    {
+      "Object": "Lilith",
+      "Keywords": ["Rebellion", "Feminine Power", "Taboo"],
+      "Meaning": "Black Moon Lilith represents raw, untamed feminine energy, shadow desires, and themes of rejection and autonomy."
+    },
+    {
+      "Object": "Mean Node",
+      "Keywords": ["Karma", "Destiny", "Growth Path"],
+      "Meaning": "The North Node represents your soul’s evolutionary path forward. The South Node (opposite) shows past-life comfort zones."
+    },
+    {
+      "Object": "Ceres",
+      "Keywords": ["Nurturing", "Food", "Fertility"],
+      "Meaning": "Ceres governs care, harvest, motherhood, and nourishment. It shows how you give and receive support—especially physically."
+    },
+    {
+      "Object": "Pallas",
+      "Keywords": ["Wisdom", "Strategy", "Creative Insight"],
+      "Meaning": "Pallas Athena rules wisdom, patterns, politics, and artistic strategy. She blends intellect with intuition and battle with beauty."
+    },
+    {
+      "Object": "Juno",
+      "Keywords": ["Marriage", "Fairness", "Commitment"],
+      "Meaning": "Juno shows your ideal partner, soul contracts, and how you relate in committed unions. She seeks equality and respect."
+    },
+    {
+      "Object": "Vesta",
+      "Keywords": ["Devotion", "Focus", "Spiritual Fire"],
+      "Meaning": "Vesta represents sacred sexuality, focus, and devotion to a higher calling. It rules rituals, purity, and inner sanctity."
+    },
+    {
+      "Object": "Eris",
+      "Keywords": ["Discord", "Justice", "Rebellion"],
+      "Meaning": "Eris challenges systemic imbalances. She brings chaos that ultimately exposes truth, injustice, and power struggles."
+    },
+    {
+      "Object": "Ascendant",
+      "Keywords": ["Mask", "Persona", "Gateway"],
+      "Meaning": "The Ascendant (rising sign) is your outer shell—how you greet the world, initiate action, and are perceived in first impressions."
+    },
+    {
+      "Object": "Descendant",
+      "Keywords": ["Mirror", "Others", "Partnerships"],
+      "Meaning": "The Descendant reveals your relational style and the qualities you seek in close partnerships—often a shadow mirror of yourself."
+    },
+    {
+      "Object": "Midheaven",
+      "Keywords": ["Career", "Reputation", "Public Image"],
+      "Meaning": "The MC is your professional peak and public persona—your goals, legacy, and role in society."
+    },
+    {
+      "Object": "IC",
+      "Keywords": ["Roots", "Home", "Emotional Security"],
+      "Meaning": "The IC is your foundation—where you come from emotionally and what 'home' means to you at your core."
+    }
+  ]
+  

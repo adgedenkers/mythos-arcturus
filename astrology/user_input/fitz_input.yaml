@@ -1,0 +1,9 @@
+name: Fitz
+birth:
+  date: "2010-09-08"
+  time: "14:39"
+  city: "Schenectady"
+  region: "NY"
+  country: "USA"
+  longitude: 42.79284559591072
+  latitude: -73.87896264604282
