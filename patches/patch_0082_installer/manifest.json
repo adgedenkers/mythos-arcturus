@@ -1,0 +1,93 @@
+{
+  "patch_id": "patch_0082",
+  "version": "1.15.1",
+  "base_version": "1.0.0",
+  "name": "Model Bench Phase 1.1 - Core Infrastructure",
+  "description": "Core project structure, database schema, configuration, and utilities for Model Bench testing system. Establishes foundation for multi-model orchestration and testing infrastructure. First of 7 sub-phases implementing comprehensive LLM model benchmarking capabilities.",
+  "author": "Ka'tuar'el",
+  "created_at": "2026-02-16T17:00:00Z",
+  "tags": ["orchestrator", "model-bench", "phase-1.1", "core", "infrastructure"],
+  "phase": {
+    "current": "1.1",
+    "total": 7,
+    "name": "Core Infrastructure",
+    "next": "1.2 - Ollama Integration"
+  },
+  "dependencies": {
+    "system": {
+      "python": ">=3.11",
+      "postgresql": ">=14",
+      "disk_space": "100MB"
+    },
+    "python": [
+      "fastapi==0.104.1",
+      "uvicorn==0.24.0",
+      "pydantic==2.5.0",
+      "pydantic-settings==2.1.0",
+      "aiohttp==3.9.1",
+      "asyncpg==0.29.0",
+      "psycopg[binary]==3.1.13",
+      "sqlalchemy==2.0.23",
+      "python-multipart==0.0.6",
+      "redis==5.0.1",
+      "python-dotenv==1.0.0"
+    ]
+  },
+  "changes": {
+    "added": [
+      "orchestrator/",
+      "orchestrator/src/__init__.py",
+      "orchestrator/src/config.py",
+      "orchestrator/src/database.py",
+      "orchestrator/src/utils.py",
+      "orchestrator/.env.example",
+      "orchestrator/README.md",
+      "docs/orchestrator/ARCHITECTURE.md",
+      "docs/orchestrator/README.md",
+      "docs/orchestrator/CHANGELOG.md",
+      ".version"
+    ],
+    "modified": [
+      "docs/TODO.md"
+    ],
+    "removed": []
+  },
+  "database": {
+    "new_tables": [
+      "orch_models",
+      "orch_model_capabilities",
+      "orch_test_suites",
+      "orch_test_questions",
+      "orch_test_runs",
+      "orch_test_results",
+      "orch_model_benchmarks"
+    ],
+    "modified_tables": [],
+    "indexes_added": 9,
+    "reversible": true
+  },
+  "services": {
+    "restart_required": [],
+    "new_services": [],
+    "modified_services": []
+  },
+  "files": {
+    "total": 12,
+    "python": 4,
+    "documentation": 4,
+    "configuration": 1,
+    "scripts": 1
+  },
+  "rollback": {
+    "supported": true,
+    "script": "scripts/rollback.sh"
+  },
+  "next_patch": {
+    "patch_id": "patch_0083",
+    "version": "1.15.2",
+    "name": "Model Bench Phase 1.2 - Ollama Integration"
+  },
+  "estimated_install_time": "2-3 minutes",
+  "breaking_changes": false,
+  "backward_compatible": true
+}
