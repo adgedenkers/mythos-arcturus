@@ -1,0 +1,26 @@
+{
+  "patch": "0086",
+  "version": "1.1.0",
+  "title": "Finance Hash Fix - Deterministic Deduplication",
+  "description": "Fixes non-deterministic USAA transaction hash that caused duplicate imports. New hash uses account_id|date|amount|original_description (no balance). Includes rehash script to clean existing duplicates and recompute all hashes.",
+  "type": "MINOR",
+  "date": "2026-02-17",
+  "author": "Ka'tuar'el + Claude",
+  "dependencies": [],
+  "files_changed": [
+    "opt/mythos/finance/importer.py",
+    "opt/mythos/finance/scripts/rehash_transactions.py"
+  ],
+  "changes": [
+    "importer.py v4: make_hash() no longer includes balance in USAA hash",
+    "importer.py v4: both Sunmark and USAA use identical hash algorithm",
+    "rehash_transactions.py: removes duplicates from existing data",
+    "rehash_transactions.py: recomputes all hashes to v4 algorithm"
+  ],
+  "breaking": false,
+  "rollback": "Revert importer.py from git. Hashes in DB will be v4 format — existing imports will re-run as new (no data loss).",
+  "validation": [
+    "total transactions == unique hashes after rehash",
+    "re-importing an archived CSV produces 0 new rows (all skipped as dupes)"
+  ]
+}
