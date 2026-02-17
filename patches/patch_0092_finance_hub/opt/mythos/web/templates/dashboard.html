@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mythos — Finance</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e17; --bg-card: #111827; --bg-hover: #1a2332;
+  --border: #1e293b; --border-light: #293548;
+  --text: #e2e8f0; --text-dim: #64748b; --text-muted: #475569;
+  --green: #22c55e; --green-bg: rgba(34,197,94,0.08);
+  --red: #ef4444; --red-bg: rgba(239,68,68,0.08);
+  --amber: #f59e0b; --amber-bg: rgba(245,158,11,0.08);
+  --blue: #3b82f6; --blue-bg: rgba(59,130,246,0.08);
+  --cyan: #06b6d4; --cyan-bg: rgba(6,182,212,0.08);
+  --sidebar-w: 200px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+
+/* Topbar */
+.topbar { display:flex; justify-content:space-between; align-items:center; padding:12px 24px; border-bottom:1px solid var(--border); background:var(--bg-card); flex-shrink:0; z-index:10; }
+.topbar-left { display:flex; align-items:center; gap:20px; }
+.topbar-nav { display:flex; gap:4px; }
+.topbar-nav a { padding:6px 14px; border-radius:6px; color:var(--text-dim); text-decoration:none; font-size:13px; font-weight:500; transition:all .15s; }
+.topbar-nav a:hover { color:var(--text); background:var(--bg-hover); }
+.topbar-nav a.active { color:var(--cyan); background:var(--cyan-bg); }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.user-info { font-size:12px; color:var(--text-dim); }
+.logout-btn { padding:5px 12px; border:1px solid var(--border); border-radius:5px; background:transparent; color:var(--text-muted); font-size:12px; cursor:pointer; text-decoration:none; }
+.logout-btn:hover { border-color:var(--red); color:var(--red); }
+
+/* Layout */
+.app-body { display:flex; flex:1; overflow:hidden; }
+
+/* Sidebar */
+.sidebar { width:var(--sidebar-w); background:var(--bg-card); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; padding:16px 0; }
+.sidebar-section { padding:0 12px; margin-bottom:4px; }
+.sidebar-label { font-size:10px; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-muted); padding:8px 8px 4px; }
+.sidebar-item { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:7px; cursor:pointer; color:var(--text-dim); font-size:13px; font-weight:500; transition:all .15s; border:none; background:none; width:100%; text-align:left; }
+.sidebar-item:hover { color:var(--text); background:var(--bg-hover); }
+.sidebar-item.active { color:var(--cyan); background:var(--cyan-bg); }
+.sidebar-item .icon { font-size:15px; width:18px; text-align:center; }
+.sidebar-divider { border:none; border-top:1px solid var(--border); margin:8px 12px; }
+
+/* Main content */
+.main { flex:1; overflow-y:auto; padding:24px; }
+
+/* Summary cards */
+.summary-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin-bottom:24px; }
+.summary-card { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+.summary-card .label { font-size:10px; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-muted); margin-bottom:5px; }
+.summary-card .value { font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:600; }
+.value.positive { color:var(--green); } .value.negative { color:var(--red); }
+
+/* Section header */
+.section-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.section-hdr h2 { font-size:16px; font-weight:600; }
+.section-hdr .hint { font-size:12px; color:var(--text-muted); }
+
+/* Filter bar */
+.filter-bar { display:flex; gap:8px; flex-wrap:wrap; padding:10px 14px; background:var(--bg-card); border:1px solid var(--border); border-radius:10px 10px 0 0; border-bottom:none; align-items:center; }
+.filter-bar select, .filter-bar input { background:var(--bg); border:1px solid var(--border-light); color:var(--text); padding:5px 9px; border-radius:6px; font-family:'DM Sans',sans-serif; font-size:13px; outline:none; }
+.filter-bar select:focus, .filter-bar input:focus { border-color:var(--cyan); }
+.filter-bar input { width:180px; }
+.filter-spacer { flex:1; }
+.filter-count { font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; }
+
+/* Table */
+.table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:0 0 10px 10px; overflow:hidden; }
+.table-wrap.standalone { border-radius:10px; }
+.table-scroll { max-height:calc(100vh - 280px); overflow-y:auto; }
+table { width:100%; border-collapse:collapse; }
+th { padding:9px 13px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); border-bottom:1px solid var(--border); background:var(--bg); font-weight:500; white-space:nowrap; cursor:pointer; user-select:none; }
+th:hover { color:var(--text-dim); } th.sorted { color:var(--cyan); }
+td { padding:8px 13px; border-bottom:1px solid var(--border); vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:var(--bg-hover); }
+tr.editing td { background:rgba(6,182,212,0.04); }
+
+/* Badges */
+.acct-badge { display:inline-block; padding:2px 7px; border-radius:4px; font-size:11px; font-family:'JetBrains Mono',monospace; font-weight:600; }
+.acct-USAA { background:rgba(59,130,246,0.15); color:#60a5fa; }
+.acct-SUN { background:rgba(245,158,11,0.15); color:#fbbf24; }
+.acct-SID,.acct-NBT,.acct-DVA { background:rgba(100,116,139,0.15); color:#94a3b8; }
+.acct-credit,.acct-loan { background:rgba(239,68,68,0.15); color:#fca5a5; }
+.cat-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; background:var(--bg-hover); color:var(--text-dim); border:1px solid var(--border-light); }
+.cat-badge.uncat { color:var(--amber); border-color:rgba(245,158,11,0.3); background:var(--amber-bg); }
+.status-paid { color:var(--green); font-size:13px; }
+.status-unpaid { color:var(--text-muted); font-size:13px; }
+.status-overdue { color:var(--red); font-size:13px; }
+
+/* Amounts */
+.amt-pos { color:var(--green); font-family:'JetBrains Mono',monospace; font-size:13px; }
+.amt-neg { color:var(--red); font-family:'JetBrains Mono',monospace; font-size:13px; }
+.amt-dim { color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:12px; }
+.date-cell { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-dim); white-space:nowrap; }
+
+/* Description cell */
+.desc-main { color:var(--text); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px; }
+.desc-orig { font-size:11px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px; margin-top:1px; }
+
+/* Buttons */
+.btn { padding:4px 10px; border-radius:5px; border:1px solid var(--border-light); background:transparent; color:var(--text-muted); font-size:12px; cursor:pointer; transition:all .15s; white-space:nowrap; font-family:'DM Sans',sans-serif; }
+.btn:hover { color:var(--cyan); border-color:var(--cyan); }
+.btn-save { border-color:rgba(34,197,94,0.4); background:var(--green-bg); color:var(--green); }
+.btn-save:hover { background:rgba(34,197,94,0.15); }
+.btn-cancel { }
+.btn-danger { border-color:rgba(239,68,68,0.3); color:var(--red); }
+.btn-danger:hover { background:var(--red-bg); border-color:var(--red); }
+.btn-primary { background:var(--cyan-bg); border-color:rgba(6,182,212,0.4); color:var(--cyan); }
+.btn-primary:hover { background:rgba(6,182,212,0.15); }
+
+/* Inline inputs */
+.inline-input { background:var(--bg); border:1px solid var(--cyan); color:var(--text); padding:4px 8px; border-radius:5px; font-size:13px; font-family:'DM Sans',sans-serif; width:100%; outline:none; }
+.inline-select { background:var(--bg); border:1px solid var(--cyan); color:var(--text); padding:4px 8px; border-radius:5px; font-size:12px; font-family:'DM Sans',sans-serif; outline:none; }
+
+/* Loading / empty */
+.loading { text-align:center; padding:40px; color:var(--text-muted); }
+.empty { text-align:center; padding:60px; color:var(--text-muted); font-size:13px; }
+
+/* Pagination */
+.pagination { display:flex; align-items:center; gap:8px; padding:10px 14px; border-top:1px solid var(--border); font-size:12px; color:var(--text-dim); }
+.page-btn { padding:3px 10px; border:1px solid var(--border); border-radius:5px; background:transparent; color:var(--text-dim); cursor:pointer; font-size:12px; }
+.page-btn:hover:not(:disabled) { border-color:var(--cyan); color:var(--cyan); }
+.page-btn:disabled { opacity:.3; cursor:default; }
+
+/* Bills summary bar */
+.bills-summary { display:flex; gap:12px; margin-bottom:14px; }
+.bills-stat { background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:10px 16px; flex:1; }
+.bills-stat .lbl { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); }
+.bills-stat .val { font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:600; margin-top:2px; }
+
+/* Category row actions */
+.cat-actions { display:flex; gap:6px; align-items:center; }
+.merge-select { background:var(--bg); border:1px solid var(--border-light); color:var(--text); padding:4px 8px; border-radius:5px; font-size:12px; font-family:'DM Sans',sans-serif; outline:none; max-width:160px; }
+.merge-select:focus { border-color:var(--amber); }
+
+/* Account type icons */
+.type-checking::before { content:"🏦 "; }
+.type-credit::before { content:"💳 "; }
+.type-loan::before { content:"📋 "; }
+.type-savings::before { content:"💰 "; }
+
+/* Month nav */
+.month-nav { display:flex; align-items:center; gap:8px; }
+.month-nav select { background:var(--bg-card); border:1px solid var(--border); color:var(--text); padding:5px 10px; border-radius:6px; font-family:'DM Sans',sans-serif; font-size:13px; }
+
+/* Toast */
+.toast { position:fixed; bottom:24px; right:24px; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:10px 16px; font-size:13px; z-index:999; animation:fadeIn .2s; }
+.toast.ok { border-color:rgba(34,197,94,0.4); color:var(--green); }
+.toast.err { border-color:rgba(239,68,68,0.4); color:var(--red); }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div style="font-family:'Cinzel',serif;font-size:16px;font-weight:600;letter-spacing:4px;color:#d4a574">MYTHOS</div>
+    <nav class="topbar-nav">
+      <a href="/app/">Home</a>
+      <a href="/app/finance/" class="active">Finance</a>
+      <a href="/app/system/">System</a>
+      <a href="/app/sessions/">Sessions</a>
+      <a href="/app/registry/">Registry</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span class="user-info" id="user-info"></span>
+    <a href="/auth/logout" class="logout-btn">logout</a>
+  </div>
+</div>
+
+<div class="app-body">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Finance</div>
+      <button class="sidebar-item active" onclick="showSection('overview')" id="nav-overview">
+        <span class="icon">◈</span> Overview
+      </button>
+      <button class="sidebar-item" onclick="showSection('transactions')" id="nav-transactions">
+        <span class="icon">⇄</span> Transactions
+      </button>
+      <button class="sidebar-item" onclick="showSection('bills')" id="nav-bills">
+        <span class="icon">📅</span> Bills
+      </button>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Manage</div>
+      <button class="sidebar-item" onclick="showSection('categories')" id="nav-categories">
+        <span class="icon">🏷</span> Categories
+      </button>
+      <button class="sidebar-item" onclick="showSection('accounts')" id="nav-accounts">
+        <span class="icon">🏦</span> Accounts
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="main" id="main">
+    <div class="loading">Loading...</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast" style="display:none"></div>
+
+<script>
+// ── Globals ────────────────────────────────────────────────
+let currentSection = 'overview';
+let allTxns = [], filteredTxns = [], categories = [], accounts = [];
+let txnSortCol = 'transaction_date', txnSortDir = -1;
+let txnPage = 0; const PAGE_SIZE = 50;
+let editingTxnId = null;
+let billOverrides = {}; // bill_id -> {paid, amount, date}
+let billMonth = currentMonthKey();
+
+function currentMonthKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+}
+
+// ── Utils ──────────────────────────────────────────────────
+function fmt(n, showSign=false) {
+  if (n === null || n === undefined) return '—';
+  const abs = Math.abs(n);
+  const s = abs.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  if (showSign) return n < 0 ? `-$${s}` : `+$${s}`;
+  return n < 0 ? `-$${s}` : `$${s}`;
+}
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = `toast ${type}`; el.style.display = 'block';
+  setTimeout(() => { el.style.display='none'; }, 3000);
+}
+function monthOptions(selectedKey) {
+  const now = new Date();
+  let opts = '';
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const label = d.toLocaleString('en-US', {month:'long', year:'numeric'});
+    opts += `<option value="${key}" ${key===selectedKey?'selected':''}>${label}</option>`;
+  }
+  return opts;
+}
+
+// ── Auth / Init ────────────────────────────────────────────
+fetch('/auth/me').then(r=>r.json()).then(d => {
+  document.getElementById('user-info').textContent = d.name || d.email;
+}).catch(() => { window.location.href='/app/login'; });
+
+// Load categories once
+fetch('/api/finance/categories').then(r=>r.json()).then(d => { categories = d.categories || []; });
+
+showSection('overview');
+
+// ── Navigation ─────────────────────────────────────────────
+function showSection(name) {
+  currentSection = name;
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById(`nav-${name}`);
+  if (navEl) navEl.classList.add('active');
+
+  const main = document.getElementById('main');
+  main.innerHTML = '<div class="loading">Loading...</div>';
+
+  if (name === 'overview')      renderOverview();
+  else if (name === 'transactions') renderTransactions();
+  else if (name === 'bills')    renderBills();
+  else if (name === 'categories') renderCategories();
+  else if (name === 'accounts') renderAccounts();
+}
+
+// ══════════════════════════════════════════════════════════
+// OVERVIEW
+// ══════════════════════════════════════════════════════════
+function renderOverview() {
+  fetch('/api/finance/summary').then(r=>r.json()).then(data => {
+    const main = document.getElementById('main');
+    main.innerHTML = `
+      <div class="summary-row" id="summary-cards"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px">
+        <div>
+          <div class="section-hdr"><h2>This Month's Bills</h2><span class="hint" id="bills-hint"></span></div>
+          <div id="bills-mini"><div class="loading">Loading...</div></div>
+        </div>
+        <div>
+          <div class="section-hdr"><h2>Spending by Category</h2></div>
+          <div id="spending-mini"><div class="loading">Loading...</div></div>
+        </div>
+      </div>`;
+
+    const cards = document.getElementById('summary-cards');
+    cards.innerHTML = `
+      <div class="summary-card"><div class="label">USAA</div><div class="value ${(data.balances.USAA||0)>=0?'positive':'negative'}">${fmt(data.balances.USAA||0)}</div></div>
+      <div class="summary-card"><div class="label">Sunmark</div><div class="value ${(data.balances.SUN||0)>=0?'positive':'negative'}">${fmt(data.balances.SUN||0)}</div></div>
+      <div class="summary-card"><div class="label">Combined</div><div class="value ${data.combined>=0?'positive':'negative'}">${fmt(data.combined)}</div></div>
+      <div class="summary-card"><div class="label">Month Income</div><div class="value positive">${fmt(data.month_income)}</div></div>
+      <div class="summary-card"><div class="label">Month Spending</div><div class="value negative">${fmt(data.month_spending)}</div></div>
+      <div class="summary-card"><div class="label">Month Net</div><div class="value ${data.month_net>=0?'positive':'negative'}">${fmt(data.month_net)}</div></div>`;
+
+    // Mini bills
+    fetch(`/api/finance/bills/tracker?month=${currentMonthKey()}`).then(r=>r.json()).then(d => {
+      document.getElementById('bills-hint').textContent = `${d.paid_count}/${d.bills.length} paid`;
+      const rows = d.bills.slice(0,8).map(b => {
+        const icon = b.status==='paid' ? '✅' : (b.overdue ? '🔴' : '⬜');
+        return `<tr>
+          <td style="padding:5px 10px;font-size:12px">${icon}</td>
+          <td style="padding:5px 10px;font-size:13px">${esc(b.merchant_name)}</td>
+          <td style="padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right;color:var(--text-dim)">${fmt(b.expected_amount)}</td>
+          <td style="padding:5px 10px;font-size:11px;color:var(--text-muted)">${b.due_date ? `Due ${b.due_date.slice(5)}` : 'As needed'}</td>
+        </tr>`;
+      }).join('');
+      document.getElementById('bills-mini').innerHTML = `
+        <div class="table-wrap standalone"><table><tbody>${rows}</tbody></table></div>
+        ${d.bills.length > 8 ? `<div style="padding:8px;font-size:12px;color:var(--text-muted);text-align:center">+${d.bills.length-8} more — <a href="#" onclick="showSection('bills');return false" style="color:var(--cyan)">View all</a></div>` : ''}`;
+    });
+
+    // Mini spending
+    fetch(`/api/finance/spending?month=${currentMonthKey()}`).then(r=>r.json()).then(d => {
+      const spending = d.categories.filter(c => c.total < 0).sort((a,b) => a.total - b.total).slice(0,8);
+      const rows = spending.map(c => `<tr>
+        <td style="padding:5px 10px;font-size:13px">${esc(c.category_primary||'Uncategorized')}</td>
+        <td style="padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right;color:var(--red)">${fmt(c.total)}</td>
+        <td style="padding:5px 10px;font-size:11px;color:var(--text-muted);text-align:right">${c.txn_count} txns</td>
+      </tr>`).join('');
+      document.getElementById('spending-mini').innerHTML = `<div class="table-wrap standalone"><table><tbody>${rows}</tbody></table></div>`;
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// TRANSACTIONS
+// ══════════════════════════════════════════════════════════
+function renderTransactions() {
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="section-hdr"><h2>Transactions</h2><span class="hint">Click Edit to modify description or category</span></div>
+    <div class="filter-bar">
+      <select id="f-month">${monthOptions(currentMonthKey())}</select>
+      <select id="f-account">
+        <option value="">All accounts</option>
+        <option value="USAA">USAA</option>
+        <option value="SUN">Sunmark</option>
+      </select>
+      <select id="f-cat">
+        <option value="">All categories</option>
+        <option value="__uncategorized__">⚠ Uncategorized</option>
+        ${categories.map(c=>`<option value="${esc(c.category_primary||c)}">${esc(c.category_primary||c)}</option>`).join('')}
+      </select>
+      <input type="text" id="f-search" placeholder="Search..." />
+      <div class="filter-spacer"></div>
+      <span class="filter-count" id="txn-count"></span>
+      <button class="btn" onclick="clearTxnFilters()">Clear</button>
+    </div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th onclick="txnSort('transaction_date')">Date</th>
+            <th>Acct</th>
+            <th>Description</th>
+            <th onclick="txnSort('category_primary')">Category</th>
+            <th onclick="txnSort('amount')" style="text-align:right">Amount</th>
+            <th style="text-align:right">Balance</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="txn-body"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="txn-pagination" style="display:none">
+        <button class="page-btn" id="txn-prev" onclick="txnPrev()">← Prev</button>
+        <span id="txn-page-info"></span>
+        <button class="page-btn" id="txn-next" onclick="txnNext()">Next →</button>
+      </div>
+    </div>`;
+
+  loadTxns();
+
+  let searchTimer;
+  document.getElementById('f-search').addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(loadTxns, 400); });
+  document.getElementById('f-month').addEventListener('change', loadTxns);
+  document.getElementById('f-account').addEventListener('change', loadTxns);
+  document.getElementById('f-cat').addEventListener('change', loadTxns);
+}
+
+function loadTxns() {
+  const month = document.getElementById('f-month')?.value || '';
+  const account = document.getElementById('f-account')?.value || '';
+  const cat = document.getElementById('f-cat')?.value || '';
+  const search = document.getElementById('f-search')?.value || '';
+  let url = '/api/finance/transactions?limit=500';
+  if (month) url += `&month=${month}`;
+  if (account) url += `&account=${account}`;
+  if (cat) url += `&category=${encodeURIComponent(cat)}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  document.getElementById('txn-body').innerHTML = '<tr><td colspan="7" class="loading">Loading...</td></tr>';
+  fetch(url).then(r=>r.json()).then(d => {
+    allTxns = d.transactions; filteredTxns = [...allTxns]; txnPage = 0;
+    txnApplySort(); txnRender();
+  }).catch(e => {
+    document.getElementById('txn-body').innerHTML = `<tr><td colspan="7" class="empty" style="color:var(--red)">Error: ${e.message}</td></tr>`;
+  });
+}
+
+function clearTxnFilters() {
+  ['f-month','f-account','f-cat','f-search'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = id==='f-month' ? currentMonthKey() : ''; }
+  });
+  loadTxns();
+}
+
+function txnSort(col) {
+  if (txnSortCol===col) txnSortDir*=-1; else { txnSortCol=col; txnSortDir=-1; }
+  txnApplySort(); txnRender();
+}
+function txnApplySort() {
+  filteredTxns = [...allTxns].sort((a,b) => {
+    let av=a[txnSortCol], bv=b[txnSortCol];
+    if (av===null||av===undefined) av=''; if (bv===null||bv===undefined) bv='';
+    if (typeof av==='number') return txnSortDir*(av-bv);
+    return txnSortDir*String(av).localeCompare(String(bv));
+  });
+}
+function txnPrev() { if (txnPage>0) { txnPage--; txnRender(); } }
+function txnNext() { txnPage++; txnRender(); }
+
+function txnRender() {
+  const start = txnPage*PAGE_SIZE, end = start+PAGE_SIZE;
+  const page = filteredTxns.slice(start, end);
+  const total = filteredTxns.length;
+  const countEl = document.getElementById('txn-count');
+  if (countEl) countEl.textContent = `${total} transactions`;
+
+  if (total===0) {
+    document.getElementById('txn-body').innerHTML = '<tr><td colspan="7" class="empty">No transactions found</td></tr>';
+    const pag = document.getElementById('txn-pagination');
+    if (pag) pag.style.display='none';
+    return;
+  }
+
+  const rows = page.map(t => {
+    const catClass = t.category_primary ? '' : 'uncat';
+    const catLabel = t.category_primary || 'Uncategorized';
+    const amtClass = t.amount>=0 ? 'amt-pos' : 'amt-neg';
+    const origHtml = t.original_description ? `<div class="desc-orig" title="${esc(t.original_description)}">${esc(t.original_description)}</div>` : '';
+    return `<tr data-id="${t.id}">
+      <td class="date-cell">${t.transaction_date}</td>
+      <td><span class="acct-badge acct-${esc(t.account)}">${esc(t.account)}</span></td>
+      <td style="max-width:260px"><div class="desc-main" title="${esc(t.description)}">${esc(t.description)}</div>${origHtml}</td>
+      <td><span class="cat-badge ${catClass}">${esc(catLabel)}</span></td>
+      <td style="text-align:right"><span class="${amtClass}">${fmt(t.amount)}</span></td>
+      <td style="text-align:right"><span class="amt-dim">${fmt(t.balance)}</span></td>
+      <td style="text-align:right"><button class="btn" onclick="txnEdit(${t.id})">Edit</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('txn-body').innerHTML = rows;
+
+  const totalPages = Math.ceil(total/PAGE_SIZE);
+  const pag = document.getElementById('txn-pagination');
+  if (pag) {
+    if (totalPages>1) {
+      pag.style.display='flex';
+      document.getElementById('txn-page-info').textContent = `Page ${txnPage+1} of ${totalPages}`;
+      document.getElementById('txn-prev').disabled = txnPage===0;
+      document.getElementById('txn-next').disabled = txnPage>=totalPages-1;
+    } else pag.style.display='none';
+  }
+}
+
+function txnEdit(id) {
+  if (editingTxnId && editingTxnId!==id) txnCancelEdit();
+  editingTxnId = id;
+  const txn = allTxns.find(t=>t.id===id); if (!txn) return;
+  const row = document.querySelector(`tr[data-id="${id}"]`); if (!row) return;
+  row.classList.add('editing');
+  const catOpts = `<option value="">— Uncategorized —</option>` +
+    categories.map(c => {
+      const cv = c.category_primary || c;
+      return `<option value="${esc(cv)}" ${cv===txn.category_primary?'selected':''}>${esc(cv)}</option>`;
+    }).join('');
+  const amtClass = txn.amount>=0?'amt-pos':'amt-neg';
+  row.innerHTML = `
+    <td class="date-cell">${txn.transaction_date}</td>
+    <td><span class="acct-badge acct-${esc(txn.account)}">${esc(txn.account)}</span></td>
+    <td style="min-width:200px">
+      <input class="inline-input" id="edit-desc" value="${esc(txn.description)}" />
+      <div class="desc-orig" style="margin-top:3px">${esc(txn.original_description||'')}</div>
+    </td>
+    <td><select class="inline-select" id="edit-cat">${catOpts}</select></td>
+    <td style="text-align:right"><span class="${amtClass}">${fmt(txn.amount)}</span></td>
+    <td style="text-align:right"><span class="amt-dim">${fmt(txn.balance)}</span></td>
+    <td style="text-align:right;white-space:nowrap">
+      <button class="btn btn-save" onclick="txnSave(${id})">Save</button>
+      <button class="btn btn-cancel" onclick="txnCancelEdit()">✕</button>
+    </td>`;
+  const descEl = document.getElementById('edit-desc');
+  descEl.focus();
+  descEl.addEventListener('keydown', e => { if(e.key==='Enter') txnSave(id); if(e.key==='Escape') txnCancelEdit(); });
+}
+
+function txnCancelEdit() { editingTxnId=null; txnRender(); }
+
+async function txnSave(id) {
+  const desc = document.getElementById('edit-desc')?.value?.trim();
+  const cat = document.getElementById('edit-cat')?.value;
+  if (!desc) { toast('Description required','err'); return; }
+  try {
+    const r = await fetch(`/api/finance/transactions/${id}`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({description:desc, category_primary:cat||null})
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const txn = allTxns.find(t=>t.id===id);
+    if (txn) { txn.description=desc; txn.category_primary=cat||null; }
+    editingTxnId=null; txnRender(); toast('Saved ✓');
+  } catch(e) { toast('Save failed','err'); }
+}
+
+// ══════════════════════════════════════════════════════════
+// BILLS
+// ══════════════════════════════════════════════════════════
+function renderBills() {
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="section-hdr">
+      <h2>Bills Tracker</h2>
+      <div class="month-nav">
+        <select id="bills-month" onchange="loadBills()">${monthOptions(billMonth)}</select>
+      </div>
+    </div>
+    <div class="bills-summary" id="bills-summary"></div>
+    <div class="table-wrap standalone">
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th style="width:40px">Status</th>
+            <th>Bill</th>
+            <th>Expected</th>
+            <th>Due Day</th>
+            <th>Paid Amount</th>
+            <th>Paid Date</th>
+            <th>Matched To</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="bills-body"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+  loadBills();
+}
+
+function loadBills() {
+  const monthEl = document.getElementById('bills-month');
+  billMonth = monthEl ? monthEl.value : currentMonthKey();
+  fetch(`/api/finance/bills/tracker?month=${billMonth}`).then(r=>r.json()).then(d => {
+    const total = d.total_expected;
+    const paid = d.total_paid;
+    document.getElementById('bills-summary').innerHTML = `
+      <div class="bills-stat"><div class="lbl">Total Expected</div><div class="val" style="color:var(--text)">${fmt(total)}</div></div>
+      <div class="bills-stat"><div class="lbl">Paid</div><div class="val positive">${fmt(paid)}</div></div>
+      <div class="bills-stat"><div class="lbl">Remaining</div><div class="val negative">${fmt(total-paid)}</div></div>
+      <div class="bills-stat"><div class="lbl">Bills Paid</div><div class="val" style="color:var(--cyan)">${d.paid_count} / ${d.bills.length}</div></div>`;
+
+    const rows = d.bills.map(b => {
+      const override = billOverrides[b.id];
+      const isPaid = override ? override.paid : b.status==='paid';
+      const icon = isPaid ? '<span class="status-paid">✅</span>' : (b.overdue ? '<span class="status-overdue">🔴</span>' : '<span class="status-unpaid">⬜</span>');
+      const paidAmt = override?.amount ?? b.matched_amount;
+      const paidDate = override?.date ?? b.matched_date;
+      const matchedDesc = b.matched_description ? `<span style="font-size:11px;color:var(--text-muted)">${esc(b.matched_description)}</span>` : '—';
+      const dueText = b.due_date ? b.due_date.slice(5) : (b.frequency==='as-needed' ? 'As needed' : '—');
+      const overrideBtn = isPaid
+        ? `<button class="btn btn-danger" style="font-size:11px" onclick="billOverride(${b.id},false)">Mark Unpaid</button>`
+        : `<button class="btn btn-primary" style="font-size:11px" onclick="billOverride(${b.id},true)">Mark Paid</button>`;
+      return `<tr>
+        <td style="text-align:center">${icon}</td>
+        <td><strong>${esc(b.merchant_name)}</strong>${b.notes?`<div style="font-size:11px;color:var(--text-muted)">${esc(b.notes)}</div>`:''}</td>
+        <td class="amt-dim">${fmt(b.expected_amount)}</td>
+        <td class="date-cell">${dueText}</td>
+        <td class="${paidAmt?'amt-pos':'amt-dim'}">${paidAmt ? fmt(paidAmt) : '—'}</td>
+        <td class="date-cell">${paidDate ? paidDate.slice(5) : '—'}</td>
+        <td>${matchedDesc}</td>
+        <td style="text-align:right">${overrideBtn}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('bills-body').innerHTML = rows || '<tr><td colspan="8" class="empty">No bills found</td></tr>';
+  });
+}
+
+function billOverride(id, paid) {
+  billOverrides[id] = { paid, amount: null, date: null };
+  loadBills();
+  toast(paid ? 'Marked as paid' : 'Marked as unpaid');
+}
+
+// ══════════════════════════════════════════════════════════
+// CATEGORIES
+// ══════════════════════════════════════════════════════════
+function renderCategories() {
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="section-hdr">
+      <h2>Categories</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="new-cat-input" class="inline-input" style="width:180px" placeholder="New category name..." />
+        <button class="btn btn-primary" onclick="addCategory()">+ Add</button>
+      </div>
+    </div>
+    <div class="table-wrap standalone">
+      <div class="table-scroll" style="max-height:calc(100vh - 220px)">
+        <table>
+          <thead><tr>
+            <th>Category</th>
+            <th style="text-align:right">Transactions</th>
+            <th>Rename To</th>
+            <th>Merge Into</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="cat-body"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+  document.getElementById('new-cat-input').addEventListener('keydown', e => { if(e.key==='Enter') addCategory(); });
+  loadCategories();
+}
+
+function loadCategories() {
+  fetch('/api/finance/categories').then(r=>r.json()).then(d => {
+    categories = d.categories;
+    const rows = d.categories.map(c => {
+      const name = c.category_primary;
+      const otherOpts = d.categories.filter(x=>x.category_primary!==name)
+        .map(x=>`<option value="${esc(x.category_primary)}">${esc(x.category_primary)}</option>`).join('');
+      return `<tr>
+        <td><span class="cat-badge">${esc(name)}</span></td>
+        <td style="text-align:right;color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:12px">${c.txn_count}</td>
+        <td>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="inline-input" id="rename-${esc(name)}" style="width:160px" placeholder="${esc(name)}" />
+            <button class="btn btn-save" onclick="renameCategory('${esc(name)}')">Rename</button>
+          </div>
+        </td>
+        <td>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select class="merge-select" id="merge-${esc(name)}">
+              <option value="">Select target...</option>
+              ${otherOpts}
+            </select>
+            <button class="btn" style="color:var(--amber);border-color:rgba(245,158,11,0.3)" onclick="mergeCategory('${esc(name)}')">Merge</button>
+          </div>
+        </td>
+        <td style="text-align:right">
+          <button class="btn btn-danger" onclick="deleteCategory('${esc(name)}', ${c.txn_count})">Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+    document.getElementById('cat-body').innerHTML = rows || '<tr><td colspan="5" class="empty">No categories found</td></tr>';
+  });
+}
+
+async function addCategory() {
+  const input = document.getElementById('new-cat-input');
+  const name = input?.value?.trim();
+  if (!name) return;
+  // Categories are implicit — just confirm it'll appear once assigned
+  toast(`Category "${name}" ready to use — assign it to transactions`);
+  if (input) input.value = '';
+}
+
+async function renameCategory(oldName) {
+  const input = document.getElementById(`rename-${oldName}`);
+  const newName = input?.value?.trim();
+  if (!newName) { toast('Enter new name','err'); return; }
+  if (newName===oldName) { toast('Same name — no change','err'); return; }
+  try {
+    const r = await fetch('/api/finance/categories/rename', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({old_name:oldName, new_name:newName})
+    });
+    const d = await r.json();
+    toast(`Renamed "${oldName}" → "${newName}" (${d.affected} transactions)`);
+    loadCategories();
+  } catch(e) { toast('Rename failed','err'); }
+}
+
+async function mergeCategory(sourceName) {
+  const sel = document.getElementById(`merge-${sourceName}`);
+  const target = sel?.value;
+  if (!target) { toast('Select a target category','err'); return; }
+  if (!confirm(`Merge "${sourceName}" into "${target}"?\nAll transactions will be recategorized. This cannot be undone.`)) return;
+  try {
+    const r = await fetch('/api/finance/categories/merge', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({source:sourceName, target})
+    });
+    const d = await r.json();
+    toast(`Merged "${sourceName}" into "${target}" (${d.affected} transactions)`);
+    loadCategories();
+  } catch(e) { toast('Merge failed','err'); }
+}
+
+async function deleteCategory(name, count) {
+  if (!confirm(`Delete category "${name}"?\n${count} transactions will become Uncategorized.`)) return;
+  try {
+    const r = await fetch(`/api/finance/categories/${encodeURIComponent(name)}`, {method:'DELETE'});
+    const d = await r.json();
+    toast(`Deleted "${name}" (${d.affected} transactions uncategorized)`);
+    loadCategories();
+  } catch(e) { toast('Delete failed','err'); }
+}
+
+// ══════════════════════════════════════════════════════════
+// ACCOUNTS
+// ══════════════════════════════════════════════════════════
+function renderAccounts() {
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="section-hdr"><h2>Accounts</h2><span class="hint">Update balances manually for accounts without auto-import</span></div>
+    <div class="table-wrap standalone">
+      <div class="table-scroll" style="max-height:calc(100vh - 200px)">
+        <table>
+          <thead><tr>
+            <th>Account</th>
+            <th>Bank</th>
+            <th>Type</th>
+            <th style="text-align:right">Current Balance</th>
+            <th>Last Updated</th>
+            <th>Transactions</th>
+            <th>New Balance</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="acct-body"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+  loadAccounts();
+}
+
+function loadAccounts() {
+  fetch('/api/finance/accounts').then(r=>r.json()).then(d => {
+    accounts = d.accounts;
+    const rows = d.accounts.map(a => {
+      const balClass = a.current_balance >= 0 ? 'amt-pos' : 'amt-neg';
+      const updatedAgo = a.balance_updated_at ? new Date(a.balance_updated_at).toLocaleDateString() : 'Never';
+      const inactiveStyle = a.is_active ? '' : 'opacity:0.5';
+      const typeClass = `type-${a.account_type}`;
+      return `<tr style="${inactiveStyle}">
+        <td><strong>${esc(a.abbreviation)}</strong>${!a.is_active?'<span style="font-size:10px;color:var(--text-muted);margin-left:6px">inactive</span>':''}</td>
+        <td style="color:var(--text-dim)">${esc(a.bank_name)}</td>
+        <td><span class="${typeClass}" style="font-size:12px;color:var(--text-dim)">${a.account_type}</span></td>
+        <td style="text-align:right"><span class="${balClass}">${fmt(a.current_balance)}</span></td>
+        <td class="date-cell">${updatedAgo}</td>
+        <td style="text-align:right;color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:12px">${a.txn_count||0}</td>
+        <td style="min-width:160px">
+          <input class="inline-input" id="bal-${a.id}" placeholder="${fmt(a.current_balance)}" style="width:140px" />
+        </td>
+        <td style="text-align:right">
+          <button class="btn btn-save" onclick="updateBalance(${a.id})">Update</button>
+        </td>
+      </tr>`;
+    }).join('');
+    document.getElementById('acct-body').innerHTML = rows || '<tr><td colspan="8" class="empty">No accounts found</td></tr>';
+    // Enter key on balance inputs
+    d.accounts.forEach(a => {
+      const el = document.getElementById(`bal-${a.id}`);
+      if (el) el.addEventListener('keydown', e => { if(e.key==='Enter') updateBalance(a.id); });
+    });
+  });
+}
+
+async function updateBalance(accountId) {
+  const input = document.getElementById(`bal-${accountId}`);
+  const raw = input?.value?.trim().replace(/[$,]/g,'');
+  if (!raw) { toast('Enter a balance amount','err'); return; }
+  const balance = parseFloat(raw);
+  if (isNaN(balance)) { toast('Invalid amount','err'); return; }
+  try {
+    const r = await fetch(`/api/finance/accounts/${accountId}/balance`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({current_balance: balance})
+    });
+    const d = await r.json();
+    toast(`${d.abbreviation} balance updated to ${fmt(balance)}`);
+    if (input) input.value = '';
+    loadAccounts();
+  } catch(e) { toast('Update failed','err'); }
+}
+</script>
+</body>
+</html>
