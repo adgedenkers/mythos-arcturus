@@ -1,0 +1,84 @@
+{
+  "patch_id": "patch_0090",
+  "version": "1.15.5",
+  "base_version": "1.15.4",
+  "name": "Model Bench Phase 1.5 - Test Runner",
+  "description": "Test execution engine that runs test suites against models, grades responses, and stores results. Integrates TestLoader, OllamaClient, and Grader into a complete testing workflow. Fifth of 7 sub-phases for Model Bench infrastructure.",
+  "author": "Ka'tuar'el",
+  "created_at": "2026-02-17T18:00:00Z",
+  "tags": ["orchestrator", "model-bench", "phase-1.5", "testing", "runner"],
+  "phase": {
+    "current": "1.5",
+    "total": 7,
+    "name": "Test Runner",
+    "previous": "1.4 - Grading System",
+    "next": "1.6 - Test Suites"
+  },
+  "dependencies": {
+    "system": {
+      "python": ">=3.11",
+      "postgresql": ">=14"
+    },
+    "patches": [
+      "patch_0082",
+      "patch_0083",
+      "patch_0084",
+      "patch_0085"
+    ],
+    "python": []
+  },
+  "changes": {
+    "added": [
+      "orchestrator/src/bench/test_run.py",
+      "orchestrator/src/bench/test_runner.py",
+      "docs/orchestrator/RUNNER.md"
+    ],
+    "modified": [
+      "orchestrator/src/bench/__init__.py",
+      "docs/orchestrator/CHANGELOG.md",
+      ".version"
+    ],
+    "removed": []
+  },
+  "database": {
+    "new_tables": [],
+    "modified_tables": [
+      "orch_test_runs",
+      "orch_test_results"
+    ],
+    "data_changes": true,
+    "reversible": true
+  },
+  "services": {
+    "restart_required": [],
+    "new_services": [],
+    "modified_services": []
+  },
+  "files": {
+    "total": 5,
+    "python": 3,
+    "documentation": 2
+  },
+  "rollback": {
+    "supported": true,
+    "script": "scripts/rollback_0086.sh"
+  },
+  "next_patch": {
+    "patch_id": "patch_0091",
+    "version": "1.15.6",
+    "name": "Model Bench Phase 1.6 - Test Suites"
+  },
+  "testing": {
+    "automated_tests": false,
+    "manual_verification": true,
+    "verification_steps": [
+      "Check version file contains 1.15.5",
+      "Run simple test suite",
+      "Verify results stored in database",
+      "Check statistics calculation"
+    ]
+  },
+  "estimated_install_time": "30 seconds",
+  "breaking_changes": false,
+  "backward_compatible": true
+}

@@ -1,0 +1,45 @@
+
+
+---
+
+## [1.15.5] - 2026-02-17
+
+### Added
+- **Phase 1.5: Test Runner**
+- TestRun class
+  - Container for test run results
+  - Individual question results tracking
+  - Run statistics calculation
+  - Status tracking (pending, running, completed, failed)
+  - Export to dictionary/JSON
+- QuestionResult class
+  - Question ID, model response, grading result
+  - Response time tracking
+- TestRunner class
+  - Main test execution engine
+  - Run test suites against models
+  - Automatic grading of responses
+  - Database persistence of runs and results
+  - Progress callback support
+  - Error handling (continue on failure)
+  - Load past runs from database
+  - List runs with filtering
+- Complete test workflow integration
+  - TestLoader → OllamaClient → Grader → Database
+  - Async execution
+  - Performance metrics
+- Documentation (`RUNNER.md`)
+  - Complete API reference
+  - Usage examples
+  - Integration patterns
+  - Performance tips
+
+### Changed
+- System version: 1.15.4 → 1.15.5
+- Updated bench package exports
+- Database: Stores runs in orch_test_runs, results in orch_test_results
+
+### Fixed
+- N/A
+
+---
