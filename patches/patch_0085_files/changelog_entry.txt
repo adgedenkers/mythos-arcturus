@@ -1,0 +1,41 @@
+
+
+---
+
+## [1.15.4] - 2026-02-17
+
+### Added
+- **Phase 1.4: Grading System**
+- GradingResult class
+  - Correctness flag (is_correct)
+  - Score (0.0-1.0)
+  - Partial credit support
+  - Explanation and details
+  - Dict serialization
+- Grader class
+  - Exact matching (case-sensitive/insensitive options)
+  - Numeric comparison (with tolerance and partial credit)
+  - Semantic similarity (word overlap based)
+  - Code validation (normalized comparison)
+  - Automatic routing based on answer_type
+- Grading criteria support
+  - Customizable tolerance for numeric
+  - Case sensitivity for exact
+  - Similarity threshold for semantic
+- Partial credit calculation
+  - Numeric answers: credit for being close
+  - Semantic answers: similarity score as credit
+  - Code answers: line overlap as credit
+- Documentation (`GRADING.md`)
+  - Complete API reference
+  - Usage examples for all grading types
+  - Customization guide
+
+### Changed
+- System version: 1.15.3 → 1.15.4
+- Updated bench package exports
+
+### Fixed
+- N/A
+
+---
