@@ -1,0 +1,50 @@
+{
+  "patch_number": "0094",
+  "version": "1.16.0",
+  "previous_version": "1.15.10",
+  "name": "Immich Photo Management System",
+  "description": "Installs Immich as the sovereign family photo archive on Arcturus. Provides self-hosted Google Photos replacement with web UI, mobile apps, face recognition, and album management. Foundation for ingestion pipelines (Google Photos, iCloud, Amazon) and future Iris photo analysis integration.",
+  "date": "2026-02-17",
+  "author": "Ka'tuar'el / Mythos System",
+  "type": "MINOR",
+  "components": [
+    "photos"
+  ],
+  "dependencies": {
+    "docker": ">=24.0.0",
+    "docker_compose": ">=2.0.0",
+    "ports_required": [2283],
+    "disk_required_gb": 20,
+    "services_affected": []
+  },
+  "files_installed": [
+    "/opt/mythos/photos/docker-compose.yml",
+    "/opt/mythos/photos/.env",
+    "/etc/systemd/system/mythos-photos.service"
+  ],
+  "directories_created": [
+    "/opt/photos/library",
+    "/opt/photos/pgdata",
+    "/opt/photos/import/google",
+    "/opt/photos/import/icloud",
+    "/opt/photos/import/amazon",
+    "/opt/photos/import/staging"
+  ],
+  "services_added": [
+    "mythos-photos (systemd → docker compose: immich_server, immich_machine_learning, immich_redis, immich_postgres)"
+  ],
+  "rollback": "sudo systemctl stop mythos-photos && sudo systemctl disable mythos-photos && docker compose -f /opt/mythos/photos/docker-compose.yml down -v",
+  "next_patches": [
+    "0095 - Google Photos Takeout ingestion pipeline",
+    "0096 - iCloud (icloudpd) ingestion service",
+    "0097 - Amazon Photos ingestion pipeline",
+    "0098 - Duplicate/similar photo review tool"
+  ],
+  "validation": {
+    "checks": [
+      "curl http://localhost:2283/api/server-info/ping",
+      "docker ps | grep immich_server",
+      "systemctl is-active mythos-photos"
+    ]
+  }
+}
