@@ -1,0 +1,21 @@
+{
+  "patch": "0089",
+  "version": "1.1.1",
+  "title": "Importer --allow-dupes Flag",
+  "description": "Adds --allow-dupes flag to importer.py for force-importing legitimate duplicate transactions (same day, same amount, same merchant). Uses row-index hash in allow-dupes mode so each CSV row gets a unique hash. Normal imports unchanged.",
+  "type": "PATCH",
+  "date": "2026-02-17",
+  "author": "Ka'tuar'el + Claude",
+  "dependencies": [],
+  "files_changed": [
+    "opt/mythos/finance/importer.py"
+  ],
+  "changes": [
+    "Added make_hash_with_index() — includes row_index in hash for allow-dupes mode",
+    "USAAParser accepts allow_dupes parameter, switches hash function accordingly",
+    "main() accepts --allow-dupes CLI flag, passes to USAAParser",
+    "Prints warning when --allow-dupes is active"
+  ],
+  "breaking": false,
+  "rollback": "Revert importer.py from git"
+}
