@@ -1,0 +1,20 @@
+{
+  "patch": "0087",
+  "version": "1.15.2",
+  "title": "Finance Import Notification Fix",
+  "description": "Always send Telegram notification after CSV import. Previously only fired when imported > 0, so all-skipped imports (already up to date) were silent. Now sends distinct messages for new imports vs up-to-date.",
+  "type": "PATCH",
+  "date": "2026-02-17",
+  "author": "Ka'tuar'el + Claude",
+  "dependencies": [],
+  "files_changed": [
+    "opt/mythos/mythos_patch_monitor.py"
+  ],
+  "changes": [
+    "Removed `imported > 0` condition — notification fires on every CSV import",
+    "New import message: ✅ Finance Import Complete (shows new + skipped counts)",
+    "Up-to-date message: ℹ️ Finance Import — Up to Date (shows skipped count)"
+  ],
+  "breaking": false,
+  "rollback": "Revert to previous mythos_patch_monitor.py from git"
+}
