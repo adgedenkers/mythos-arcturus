@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """
-Mythos Finance Importer v3
+Mythos Finance Importer v4
 /opt/mythos/finance/importer.py
+
 Clean import system for bank CSVs with proper parsing and inline categorization.
 
 Banks supported:
 - Sunmark (has balance column, 3 header lines, separate debit/credit)
 - USAA (no balance, calculates from known endpoint, single amount column)
 
-Changes in v3:
-- Inline categorization using category_mappings table
-- merchant_name populated from mappings
-- Categorizer loaded once, applied per transaction
+Changes in v4 (patch 0086):
+- HASH FIX: Deterministic hash using account_id|date|amount|original_description
+  Previous USAA hash included running balance, causing duplicate imports.
+  Previous parsers.py used Python's non-deterministic hash() — now fully removed.
+  Hash is now identical regardless of which code path (monitor vs manual) triggers import.
+- Both Sunmark and USAA use the same make_hash() function with same field set.
 
 Usage:
     python importer.py sunmark /path/to/file.CSV
@@ -44,7 +47,10 @@ ACCOUNT_IDS = {
     'sunmark': 1,  # SUN
     'usaa': 2,     # USAA
 }
+
 ARCHIVE_DIR = Path('/opt/mythos/finance/archive/imports')
+
+
 def get_db_connection():
     """Get database connection"""
     return psycopg2.connect(
@@ -55,10 +61,25 @@ def get_db_connection():
         port=os.getenv('POSTGRES_PORT', '5432'),
         cursor_factory=RealDictCursor
     )
-def make_hash(date_str: str, amount: Decimal, description: str, account_id: int) -> str:
-    """Create unique hash for transaction deduplication"""
-    raw = f"{account_id}|{date_str}|{amount}|{description}"
+
+
+def make_hash(account_id: int, date_str: str, amount: Decimal, original_description: str) -> str:
+    """
+    Create deterministic unique hash for transaction deduplication.
+    
+    Uses: account_id | date | amount | original_description
+    
+    IMPORTANT: Does NOT include balance in the hash. Balance can vary between
+    import runs (USAA calculates running balance from endpoint), which caused
+    the same transaction to get different hashes on re-import. 
+    
+    original_description should be the raw bank description before any cleaning,
+    ensuring consistent hashing regardless of description cleanup changes.
+    """
+    raw = f"{account_id}|{date_str}|{amount}|{original_description}"
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
+
+
 def parse_decimal(value: str) -> Decimal:
     """Parse a string to Decimal, handling various formats"""
     if not value or value.strip() == '':
@@ -70,6 +91,8 @@ def parse_decimal(value: str) -> Decimal:
         return Decimal(clean)
     except InvalidOperation:
         return Decimal('0')
+
+
 def parse_date(date_str: str) -> str:
     """Parse date string to YYYY-MM-DD format"""
     date_str = date_str.strip().strip('"')
@@ -89,34 +112,18 @@ def parse_date(date_str: str) -> str:
         pass
     
     raise ValueError(f"Cannot parse date: {date_str}")
+
+
 def clean_description_sunmark(description: str, memo: str) -> str:
     """
     Clean Sunmark description by removing verbose prefixes and extracting merchant.
-    
-    Logic:
-    1. Strip transaction type prefix from description
-    2. What remains in description is usually the merchant
-    3. If nothing remains, extract merchant from memo (before address junk)
-    4. Payment processors (PayPal, Venmo) become transaction type prefix
-    
-    Examples:
-        "Point Of Sale Withdrawal", "WALMART.COM 800 702..." → "Walmart.com"
-        "Point Of Sale Withdrawal PAYPAL", "*DISNEY 7700..." → "PayPal: Disney"
-        "Point Of Sale Withdrawal DUNKIN", "#358342 155 KINGSTON..." → "Dunkin"
-        "Point Of Sale Deposit", "ENTERPRISE RENT 5051..." → "Enterprise Rent"
-        "External Withdrawal Blueox", "Corporati 264..." → "EXT: Blueox"
-        "Overdraft Fee PAYPAL *DISNEY", "7700..." → "OD Fee: PayPal: Disney"
-        "Deposit Shared Branch Mobile", "Latham MD" → "Mobile Deposit: Latham"
-        "Point Of Sale Withdrawal Amazon", "web serv 440..." → "Amazon"
     """
     desc = description.strip().strip('"')
     memo = memo.strip().strip('"') if memo else ''
     
-    # Payment processors - these become the transaction type
     payment_processors = ['PAYPAL', 'VENMO', 'ZELLE', 'CASHAPP', 'CASH APP']
     payment_type = None
     
-    # Check description for payment processor
     desc_upper = desc.upper()
     for processor in payment_processors:
         if processor in desc_upper:
@@ -125,7 +132,6 @@ def clean_description_sunmark(description: str, memo: str) -> str:
                 payment_type = 'CashApp'
             break
     
-    # Transaction type prefixes - order matters (longer/specific first)
     type_patterns = [
         ('Overdraft Fee ', 'OD Fee:'),
         ('Overdraft Fee', 'OD Fee:'),
@@ -163,19 +169,15 @@ def clean_description_sunmark(description: str, memo: str) -> str:
             remainder = desc[len(pattern):].strip()
             break
     
-    # Extract merchant from remainder (what's left in description after prefix)
     merchant = remainder
     
-    # Remove payment processor from merchant (it becomes the type prefix)
     if payment_type:
         for processor in payment_processors:
             merchant = re.sub(rf'\b{processor}\b\s*', '', merchant, flags=re.IGNORECASE)
     
-    # Clean up merchant
-    merchant = re.sub(r'^\*+\s*', '', merchant)  # Remove leading asterisks
+    merchant = re.sub(r'^\*+\s*', '', merchant)
     merchant = merchant.strip()
     
-    # If merchant is empty or too short, extract from memo
     if not merchant or len(merchant) < 2:
         if memo:
             memo_merchant = memo
@@ -191,7 +193,6 @@ def clean_description_sunmark(description: str, memo: str) -> str:
             memo_merchant = re.sub(r'\s+\d[\d\s]*$', '', memo_merchant)
             merchant = memo_merchant.strip()
     
-    # Special case: "Deposit" or "Withdrawal" alone means we need memo
     if merchant.upper() in ['DEPOSIT', 'WITHDRAWAL', '']:
         if memo:
             memo_merchant = memo
@@ -205,12 +206,10 @@ def clean_description_sunmark(description: str, memo: str) -> str:
             memo_merchant = re.sub(r'\s+\d[\d\s]*$', '', memo_merchant)
             merchant = memo_merchant.strip()
     
-    # Special case: Mobile Deposit uses memo for location
     if 'Mobile Deposit' in txn_prefix:
         location = re.sub(r'\s+[A-Z]{2}$', '', memo).strip() if memo else ''
         merchant = location if location else ''
     
-    # Build final result
     if payment_type:
         if not merchant or len(merchant) < 2:
             if memo:
@@ -232,7 +231,6 @@ def clean_description_sunmark(description: str, memo: str) -> str:
     else:
         result = merchant if merchant else desc
     
-    # Final cleanup
     result = re.sub(r'\s+', ' ', result)
     result = re.sub(r':\s*:', ':', result)
     result = re.sub(r':\s*$', '', result)
@@ -242,6 +240,8 @@ def clean_description_sunmark(description: str, memo: str) -> str:
         result = result[:47] + '...'
     
     return result if result else desc
+
+
 def clean_description_usaa(description: str, original_desc: str) -> str:
     """
     Clean USAA description - usually already clean, just minor fixes.
@@ -263,6 +263,8 @@ def clean_description_usaa(description: str, original_desc: str) -> str:
         desc = desc[:97] + '...'
     
     return desc
+
+
 class SunmarkParser:
     """Parser for Sunmark CSV exports"""
     
@@ -332,7 +334,8 @@ class SunmarkParser:
                 'balance': balance_amt,
                 'bank_transaction_id': txn_num,
                 'is_pending': False,
-                'hash_id': make_hash(parsed_date, amount, f"{original_desc}|{txn_num}", self.account_id),
+                # v4: hash does NOT include balance or txn_num — stable across re-imports
+                'hash_id': make_hash(self.account_id, parsed_date, amount, original_desc),
             }
             self.transactions.append(txn)
         
@@ -343,6 +346,8 @@ class SunmarkParser:
         if not self.transactions:
             return None
         return self.transactions[0].get('balance')
+
+
 class USAAParser:
     """Parser for USAA CSV exports"""
     
@@ -408,7 +413,9 @@ class USAAParser:
                 'category_primary': txn['category'] if txn['category'] != 'Category Pending' else None,
                 'bank_transaction_id': None,
                 'is_pending': False,
-                'hash_id': make_hash(txn['date'], txn['amount'], f"{txn['original_description']}|{balance_after}", self.account_id),
+                # v4: hash uses original_description (raw bank text), NOT balance
+                # balance varies by import run since it's calculated from endpoint
+                'hash_id': make_hash(self.account_id, txn['date'], txn['amount'], txn['original_description']),
             })
             
             running_balance = running_balance - txn['amount']
@@ -418,6 +425,8 @@ class USAAParser:
     def get_current_balance(self) -> Decimal:
         """Get the most recent balance"""
         return self.known_balance
+
+
 class Importer:
     """Database importer for parsed transactions with inline categorization"""
     
@@ -432,12 +441,10 @@ class Importer:
         if not self.dry_run:
             self.conn = get_db_connection()
             self.cur = self.conn.cursor()
-            # Load categorizer using same connection
             self.categorizer = Categorizer(conn=self.conn)
             if self.verbose:
                 print(f"Loaded {self.categorizer.mapping_count} category mappings")
         else:
-            # Still load categorizer for dry-run display
             self.categorizer = Categorizer()
             if self.verbose:
                 print(f"Loaded {self.categorizer.mapping_count} category mappings")
@@ -464,7 +471,6 @@ class Importer:
         if self.verbose:
             print(f"\nProcessing {len(transactions)} transactions...")
         
-        # Apply categorization to all transactions
         for txn in transactions:
             if self.categorizer:
                 cat_result = self.categorizer.categorize_transaction(txn)
@@ -474,7 +480,6 @@ class Importer:
                     if not txn.get('category_primary'):
                         results['uncategorized'] += 1
                     else:
-                        # Already had a category (e.g. from USAA)
                         results['categorized'] += 1
         
         if self.dry_run:
@@ -487,7 +492,6 @@ class Importer:
             results['imported'] = len(transactions)
             return results
         
-        # Check for existing hashes
         hashes = [t['hash_id'] for t in transactions]
         self.cur.execute(
             "SELECT hash_id FROM transactions WHERE hash_id = ANY(%s)",
@@ -504,7 +508,6 @@ class Importer:
         if not new_txns:
             return results
         
-        # Insert one at a time
         for t in new_txns:
             try:
                 self.cur.execute(
@@ -570,6 +573,8 @@ class Importer:
         self.conn.commit()
         if self.verbose:
             print(f"\nUpdated account balance to ${balance:.2f}")
+
+
 def archive_file(filepath: str, bank: str):
     """Archive the imported file"""
     ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
@@ -581,6 +586,8 @@ def archive_file(filepath: str, bank: str):
     
     shutil.copy2(filepath, archive_path)
     return archive_path
+
+
 def main():
     parser = argparse.ArgumentParser(description='Import bank CSV files')
     parser.add_argument('bank', choices=['sunmark', 'usaa'], help='Bank type')
@@ -601,7 +608,6 @@ def main():
         print("Check your USAA account and provide current balance")
         sys.exit(1)
     
-    # Parse
     print(f"Parsing {args.bank.upper()} file: {args.file}")
     
     if args.bank == 'sunmark':
@@ -622,7 +628,6 @@ def main():
             bal = f"${txn['balance']:.2f}" if txn.get('balance') else "N/A"
             print(f"  {txn['transaction_date']} | {txn['amount']:>10.2f} | {bal:>12} | {txn['description'][:35]}")
     
-    # Import
     importer = Importer(dry_run=args.dry_run, verbose=args.verbose)
     importer.connect()
     
@@ -638,11 +643,9 @@ def main():
         if results['errors']:
             print(f"  Errors:       {results['errors']}")
         
-        # Update account balance
         if current_balance and results['imported'] > 0:
             importer.update_account_balance(bank_parser.account_id, current_balance)
         
-        # Archive
         if not args.dry_run and not args.no_archive:
             archive_path = archive_file(args.file, args.bank)
             print(f"\nArchived to: {archive_path}")
@@ -651,5 +654,7 @@ def main():
         importer.close()
     
     print("\nDone!")
+
+
 if __name__ == '__main__':
     main()
