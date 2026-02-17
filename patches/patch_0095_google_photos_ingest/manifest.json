@@ -1,0 +1,39 @@
+{
+  "patch_number": "0095",
+  "version": "1.16.1",
+  "previous_version": "1.16.0",
+  "name": "Google Photos Takeout Ingestion Pipeline",
+  "description": "Python pipeline to ingest Google Photos Takeout exports into Immich. Extracts zips, recovers correct timestamps from Google JSON sidecar files, writes timestamps back to EXIF, deduplicates against existing library, and stages clean files for Immich import.",
+  "date": "2026-02-17",
+  "author": "Ka'tuar'el / Mythos System",
+  "type": "PATCH",
+  "components": ["photos"],
+  "dependencies": {
+    "patch_required": "0094",
+    "system_packages": ["libimage-exiftool-perl"],
+    "python_packages": ["pillow"],
+    "services_affected": []
+  },
+  "files_installed": [
+    "/opt/mythos/photos/google_ingest.py"
+  ],
+  "directories_created": [
+    "/opt/photos/import/google/zips",
+    "/opt/photos/import/google/extracted",
+    "/opt/photos/import/google/staging",
+    "/opt/photos/import/google/ready"
+  ],
+  "rollback": "rm /opt/mythos/photos/google_ingest.py",
+  "next_patches": [
+    "0096 - iCloud (icloudpd) sync service",
+    "0097 - Amazon Photos ingestion pipeline",
+    "0098 - Perceptual dedup + burst-shot review UI"
+  ],
+  "validation": {
+    "checks": [
+      "exiftool -ver",
+      "ls /opt/mythos/photos/google_ingest.py",
+      "ls /opt/photos/import/google/"
+    ]
+  }
+}
