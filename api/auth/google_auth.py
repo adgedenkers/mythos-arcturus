@@ -233,7 +233,7 @@ async def google_callback(request: Request, code: str = None, state: str = None,
     token = create_jwt(web_user)
     
     # Set cookie and redirect to dashboard
-    response = RedirectResponse(url="/app/dashboard", status_code=302)
+    response = RedirectResponse(url="/app/finance/", status_code=302)
     response.set_cookie(
         key=JWT_COOKIE_NAME,
         value=token,
