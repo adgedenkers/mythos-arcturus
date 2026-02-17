@@ -213,3 +213,43 @@ Phase 1.1 includes a rollback script at `/opt/mythos/orchestrator/scripts/rollba
 - N/A
 
 ---
+
+
+---
+
+## [1.15.3] - 2026-02-17
+
+### Added
+- **Phase 1.3: Test Framework**
+- TestQuestion class
+  - Question text and correct answer
+  - Answer types: exact, numeric, semantic, code
+  - Difficulty levels: easy, medium, hard, expert
+  - Tags and grading criteria
+  - Validation methods
+  - Dict serialization
+- TestSuite class
+  - Collection of test questions
+  - Add/remove questions
+  - Suite statistics (difficulty distribution, answer types, tags)
+  - Validation methods
+  - Dict serialization
+- TestLoader class
+  - Load test suites from JSON files
+  - Save test suites to JSON files
+  - Load test suites from database
+  - Save test suites to database
+  - List available suites
+  - Auto-generated filenames
+- Documentation (`TESTING.md`)
+  - Complete API reference
+  - Usage examples
+  - File format specification
+
+### Changed
+- System version: 1.15.2 → 1.15.3
+
+### Fixed
+- N/A
+
+---
