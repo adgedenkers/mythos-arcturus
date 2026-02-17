@@ -370,8 +370,8 @@ class DownloadsHandler(FileSystemEventHandler):
                     shutil.move(csv_path, archive_path)
                     logger.info(f"✓ Archived to: {archive_path}")
                 
-                # Send Telegram notification
-                if TELEGRAM_NOTIFY_FINANCE and imported > 0:
+                # Send Telegram notification (always — even all-skipped confirms it ran)
+                if TELEGRAM_NOTIFY_FINANCE:
                     self._notify_finance_import(bank, imported, skipped)
             else:
                 logger.error(f"Import failed: {result.stderr}")
@@ -420,13 +420,19 @@ class DownloadsHandler(FileSystemEventHandler):
             return None
     
     def _notify_finance_import(self, bank: str, imported: int, skipped: int):
-        """Send success notification via Telegram"""
+        """Send import result notification via Telegram"""
         try:
-            msg = f"✅ *Finance Auto-Import*\n\n"
-            msg += f"Bank: {bank.upper()}\n"
-            msg += f"Imported: {imported} new transactions\n"
-            if skipped > 0:
-                msg += f"Skipped: {skipped} (duplicates)\n"
+            if imported > 0:
+                msg = f"✅ *Finance Import Complete*\n\n"
+                msg += f"Bank: {bank.upper()}\n"
+                msg += f"New: {imported} transactions imported\n"
+                if skipped > 0:
+                    msg += f"Skipped: {skipped} (already in DB)\n"
+            else:
+                msg = f"ℹ️ *Finance Import — Up to Date*\n\n"
+                msg += f"Bank: {bank.upper()}\n"
+                msg += f"All {skipped} transactions already in DB\n"
+                msg += f"No new data\n"
             send_telegram_notification(msg)
         except Exception as e:
             logger.debug(f"Could not send import notification: {e}")
