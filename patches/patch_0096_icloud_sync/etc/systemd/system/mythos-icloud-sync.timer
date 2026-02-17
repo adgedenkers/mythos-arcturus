@@ -1,0 +1,11 @@
+[Unit]
+Description=Mythos iCloud Photo Sync Timer
+Requires=mythos-icloud-sync.service
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=6h
+Unit=mythos-icloud-sync.service
+
+[Install]
+WantedBy=timers.target

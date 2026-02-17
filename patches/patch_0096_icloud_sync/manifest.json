@@ -1,0 +1,41 @@
+{
+  "patch_number": "0096",
+  "version": "1.16.2",
+  "previous_version": "1.16.1",
+  "name": "iCloud Photo Sync Service",
+  "description": "Installs icloudpd as a systemd-managed service that syncs iCloud photos to Arcturus every 6 hours. Photos land in /opt/photos/import/icloud/ready/ organized by date, ready for Immich External Library import.",
+  "date": "2026-02-17",
+  "author": "Ka'tuar'el / Mythos System",
+  "type": "PATCH",
+  "components": ["photos"],
+  "dependencies": {
+    "patch_required": "0094",
+    "python_packages": ["icloudpd"],
+    "services_affected": []
+  },
+  "files_installed": [
+    "/opt/mythos/photos/icloud_sync.sh",
+    "/opt/mythos/photos/icloud.conf",
+    "/etc/systemd/system/mythos-icloud-sync.service",
+    "/etc/systemd/system/mythos-icloud-sync.timer"
+  ],
+  "directories_created": [
+    "/opt/photos/import/icloud/ready",
+    "/opt/photos/import/icloud/.cookies"
+  ],
+  "services_added": [
+    "mythos-icloud-sync.timer (every 6 hours)"
+  ],
+  "rollback": "systemctl disable --now mythos-icloud-sync.timer && rm /etc/systemd/system/mythos-icloud-sync.*",
+  "next_patches": [
+    "0097 - Amazon Photos ingestion pipeline",
+    "0098 - Perceptual dedup + burst-shot review UI"
+  ],
+  "validation": {
+    "checks": [
+      "/opt/mythos/.venv/bin/icloudpd --version",
+      "systemctl is-enabled mythos-icloud-sync.timer",
+      "ls /opt/photos/import/icloud/"
+    ]
+  }
+}

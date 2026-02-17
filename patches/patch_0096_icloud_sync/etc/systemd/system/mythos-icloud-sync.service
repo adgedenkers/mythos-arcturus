@@ -1,0 +1,14 @@
+[Unit]
+Description=Mythos iCloud Photo Sync
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/mythos/photos/icloud_sync.sh
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

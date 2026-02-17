@@ -1,0 +1,9 @@
+# iCloud Configuration for Mythos Photos Sync
+# Location: /opt/mythos/photos/icloud.conf
+# Edit this file with your Apple ID before starting the service
+
+ICLOUD_USERNAME=your@apple.id
+
+# Note: Password is handled interactively on first run via icloudpd
+# After first auth, session cookies are stored in /opt/photos/import/icloud/.cookies/
+# and subsequent syncs run automatically without re-entering credentials
