@@ -2,7 +2,7 @@
 """
 Mythos API - Finance Routes
 /opt/mythos/api/routes/finance.py
-v2 - patch 0092: Added bills tracker, accounts management, categories CRUD
+v3 - patch 0093: Persistent bill overrides, forecast view
 """
 import os
 import json
@@ -54,31 +54,27 @@ class TransactionUpdate(BaseModel):
 
 class AccountBalanceUpdate(BaseModel):
     current_balance: float
-    notes: Optional[str] = None
 
 class CategoryRename(BaseModel):
     old_name: str
     new_name: str
 
 class CategoryMerge(BaseModel):
-    source: str       # category to absorb
-    target: str       # category to keep
+    source: str
+    target: str
 
-class CategoryCreate(BaseModel):
-    name: str
-
-class BillPaidOverride(BaseModel):
+class BillOverrideBody(BaseModel):
     paid: bool
     paid_amount: Optional[float] = None
-    paid_date: Optional[str] = None  # YYYY-MM-DD
+    paid_date: Optional[str] = None   # YYYY-MM-DD
+    note: Optional[str] = None
 
 
 # ── Summary ────────────────────────────────────────────────
 
 @router.get("/summary")
 async def get_summary(request: Request):
-    conn = get_db()
-    cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor()
     cur.execute("""
         SELECT DISTINCT ON (a.id) a.abbreviation, COALESCE(t.balance, 0) as balance
         FROM accounts a
@@ -87,8 +83,7 @@ async def get_summary(request: Request):
         ORDER BY a.id, t.transaction_date DESC
     """)
     balances = {r['abbreviation']: float(r['balance']) for r in cur.fetchall()}
-    now = datetime.now()
-    month_start = date(now.year, now.month, 1)
+    now = datetime.now(); month_start = date(now.year, now.month, 1)
     cur.execute("""
         SELECT SUM(amount)::numeric(12,2) as total FROM transactions
         WHERE transaction_date >= %s AND amount < 0
@@ -124,28 +119,22 @@ async def get_transactions(
     search: Optional[str] = Query(default=None),
     limit: int = Query(default=200, ge=1, le=500),
 ):
-    conn = get_db()
-    cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor()
     conditions = ["t.description != 'Balance checkpoint'"]
     params = []
     if month:
         try:
-            parts = month.split('-')
-            year, mon = int(parts[0]), int(parts[1])
-            start = date(year, mon, 1)
-            end = date(year, mon, monthrange(year, mon)[1])
-            conditions.append("t.transaction_date BETWEEN %s AND %s")
-            params.extend([start, end])
+            parts = month.split('-'); year, mon = int(parts[0]), int(parts[1])
+            start = date(year, mon, 1); end = date(year, mon, monthrange(year, mon)[1])
+            conditions.append("t.transaction_date BETWEEN %s AND %s"); params.extend([start, end])
         except: pass
     if category:
         if category == '__uncategorized__':
             conditions.append("(t.category_primary IS NULL OR t.category_primary = '')")
         else:
-            conditions.append("t.category_primary = %s")
-            params.append(category)
+            conditions.append("t.category_primary = %s"); params.append(category)
     if account:
-        conditions.append("a.abbreviation = %s")
-        params.append(account.upper())
+        conditions.append("a.abbreviation = %s"); params.append(account.upper())
     if search:
         conditions.append("(t.description ILIKE %s OR t.original_description ILIKE %s)")
         params.extend([f'%{search}%', f'%{search}%'])
@@ -154,11 +143,9 @@ async def get_transactions(
         SELECT t.id, t.transaction_date, t.description, t.original_description,
                t.amount, t.balance, t.category_primary, t.merchant_name,
                a.abbreviation as account
-        FROM transactions t
-        LEFT JOIN accounts a ON t.account_id = a.id
+        FROM transactions t LEFT JOIN accounts a ON t.account_id = a.id
         WHERE {' AND '.join(conditions)}
-        ORDER BY t.transaction_date DESC, t.id DESC
-        LIMIT %s
+        ORDER BY t.transaction_date DESC, t.id DESC LIMIT %s
     """, params)
     txns = [dict(r) for r in cur.fetchall()]
     conn.close()
@@ -167,8 +154,7 @@ async def get_transactions(
 
 @router.patch("/transactions/{txn_id}")
 async def update_transaction(request: Request, txn_id: int, update: TransactionUpdate):
-    conn = get_db()
-    cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor()
     fields, params = [], []
     if update.description is not None:
         fields.append("description = %s"); params.append(update.description.strip())
@@ -180,8 +166,7 @@ async def update_transaction(request: Request, txn_id: int, update: TransactionU
         conn.close(); raise HTTPException(status_code=400, detail="No fields to update")
     params.append(txn_id)
     cur.execute(f"UPDATE transactions SET {', '.join(fields)} WHERE id = %s RETURNING id", params)
-    result = cur.fetchone()
-    conn.commit(); conn.close()
+    result = cur.fetchone(); conn.commit(); conn.close()
     if not result: raise HTTPException(status_code=404, detail="Transaction not found")
     return json_response({"success": True, "id": txn_id})
 
@@ -190,14 +175,12 @@ async def update_transaction(request: Request, txn_id: int, update: TransactionU
 
 @router.get("/categories")
 async def get_categories(request: Request):
-    conn = get_db()
-    cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor()
     cur.execute("""
         SELECT category_primary, COUNT(*) as txn_count
         FROM transactions
         WHERE category_primary IS NOT NULL AND category_primary != ''
-        GROUP BY category_primary
-        ORDER BY category_primary
+        GROUP BY category_primary ORDER BY category_primary
     """)
     cats = [dict(r) for r in cur.fetchall()]
     conn.close()
@@ -206,46 +189,29 @@ async def get_categories(request: Request):
 
 @router.post("/categories/rename")
 async def rename_category(request: Request, body: CategoryRename):
-    if not body.new_name.strip():
-        raise HTTPException(status_code=400, detail="New name required")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        "UPDATE transactions SET category_primary = %s WHERE category_primary = %s",
-        (body.new_name.strip(), body.old_name)
-    )
-    affected = cur.rowcount
-    conn.commit(); conn.close()
+    if not body.new_name.strip(): raise HTTPException(status_code=400, detail="New name required")
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("UPDATE transactions SET category_primary = %s WHERE category_primary = %s",
+                (body.new_name.strip(), body.old_name))
+    affected = cur.rowcount; conn.commit(); conn.close()
     return json_response({"success": True, "affected": affected})
 
 
 @router.post("/categories/merge")
 async def merge_categories(request: Request, body: CategoryMerge):
-    """Reassign all transactions from source category to target category"""
-    if body.source == body.target:
-        raise HTTPException(status_code=400, detail="Source and target must differ")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        "UPDATE transactions SET category_primary = %s WHERE category_primary = %s",
-        (body.target, body.source)
-    )
-    affected = cur.rowcount
-    conn.commit(); conn.close()
+    if body.source == body.target: raise HTTPException(status_code=400, detail="Source and target must differ")
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("UPDATE transactions SET category_primary = %s WHERE category_primary = %s",
+                (body.target, body.source))
+    affected = cur.rowcount; conn.commit(); conn.close()
     return json_response({"success": True, "affected": affected, "merged_into": body.target})
 
 
 @router.delete("/categories/{name}")
 async def delete_category(request: Request, name: str):
-    """Nullify category on all transactions with this category"""
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        "UPDATE transactions SET category_primary = NULL WHERE category_primary = %s",
-        (name,)
-    )
-    affected = cur.rowcount
-    conn.commit(); conn.close()
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("UPDATE transactions SET category_primary = NULL WHERE category_primary = %s", (name,))
+    affected = cur.rowcount; conn.commit(); conn.close()
     return json_response({"success": True, "affected": affected})
 
 
@@ -253,16 +219,14 @@ async def delete_category(request: Request, name: str):
 
 @router.get("/accounts")
 async def get_accounts(request: Request):
-    conn = get_db()
-    cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor()
     cur.execute("""
         SELECT a.id, a.abbreviation, a.bank_name, a.account_name, a.account_type,
                a.current_balance, a.balance_updated_at, a.is_active,
                a.credit_limit, a.min_payment, a.payment_due_day, a.notes,
                (SELECT COUNT(*) FROM transactions t WHERE t.account_id = a.id) as txn_count,
                (SELECT MAX(t.transaction_date) FROM transactions t WHERE t.account_id = a.id) as last_txn_date
-        FROM accounts a
-        ORDER BY a.is_active DESC, a.id
+        FROM accounts a ORDER BY a.is_active DESC, a.id
     """)
     accounts = [dict(r) for r in cur.fetchall()]
     conn.close()
@@ -271,15 +235,12 @@ async def get_accounts(request: Request):
 
 @router.patch("/accounts/{account_id}/balance")
 async def update_account_balance(request: Request, account_id: int, body: AccountBalanceUpdate):
-    conn = get_db()
-    cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor()
     cur.execute("""
-        UPDATE accounts
-        SET current_balance = %s, balance_updated_at = NOW()
+        UPDATE accounts SET current_balance = %s, balance_updated_at = NOW()
         WHERE id = %s RETURNING id, abbreviation
     """, (body.current_balance, account_id))
-    result = cur.fetchone()
-    conn.commit(); conn.close()
+    result = cur.fetchone(); conn.commit(); conn.close()
     if not result: raise HTTPException(status_code=404, detail="Account not found")
     return json_response({"success": True, "id": account_id, "abbreviation": result['abbreviation'], "balance": body.current_balance})
 
@@ -289,175 +250,235 @@ async def update_account_balance(request: Request, account_id: int, body: Accoun
 @router.get("/bills/tracker")
 async def get_bills_tracker(
     request: Request,
-    month: Optional[str] = Query(default=None, description="YYYY-MM, defaults to current month")
+    month: Optional[str] = Query(default=None),
 ):
-    """
-    Returns recurring bills with payment status for the given month.
-    Auto-matches against transactions by merchant name similarity.
-    """
     if month:
         try:
-            parts = month.split('-')
-            year, mon = int(parts[0]), int(parts[1])
-        except:
-            year, mon = datetime.now().year, datetime.now().month
+            parts = month.split('-'); year, mon = int(parts[0]), int(parts[1])
+        except: year, mon = datetime.now().year, datetime.now().month
     else:
         year, mon = datetime.now().year, datetime.now().month
 
+    month_key = f"{year}-{mon:02d}"
     month_start = date(year, mon, 1)
     month_end = date(year, mon, monthrange(year, mon)[1])
 
-    conn = get_db()
-    cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor()
 
-    # Get active bills
+    # Active bills
     cur.execute("""
         SELECT rb.id, rb.merchant_name, rb.expected_amount, rb.expected_day,
-               rb.frequency, rb.category_primary, rb.amount_variance,
-               rb.notes, a.abbreviation as account
-        FROM recurring_bills rb
-        LEFT JOIN accounts a ON rb.account_id = a.id
-        WHERE rb.is_active = true
-        ORDER BY rb.expected_day NULLS LAST, rb.merchant_name
+               rb.frequency, rb.category_primary, rb.amount_variance, rb.notes,
+               a.abbreviation as account
+        FROM recurring_bills rb LEFT JOIN accounts a ON rb.account_id = a.id
+        WHERE rb.is_active = true ORDER BY rb.expected_day NULLS LAST, rb.merchant_name
     """)
     bills = [dict(r) for r in cur.fetchall()]
 
-    # Get all transactions for the month
+    # Month transactions (debits only)
     cur.execute("""
         SELECT t.id, t.transaction_date, t.description, t.original_description,
                t.amount, a.abbreviation as account
-        FROM transactions t
-        LEFT JOIN accounts a ON t.account_id = a.id
-        WHERE t.transaction_date BETWEEN %s AND %s
-          AND t.amount < 0
+        FROM transactions t LEFT JOIN accounts a ON t.account_id = a.id
+        WHERE t.transaction_date BETWEEN %s AND %s AND t.amount < 0
         ORDER BY t.transaction_date
     """, (month_start, month_end))
     txns = [dict(r) for r in cur.fetchall()]
 
+    # Load existing overrides for this month
+    cur.execute("""
+        SELECT bill_id, is_paid, paid_amount, paid_date, note
+        FROM bill_overrides WHERE month = %s
+    """, (month_key,))
+    overrides = {r['bill_id']: dict(r) for r in cur.fetchall()}
+
     conn.close()
 
-    # Auto-match bills to transactions
+    # Auto-match
     used_txn_ids = set()
-
     for bill in bills:
         bill_name = bill['merchant_name'].lower()
         expected = float(bill['expected_amount'] or 0)
         variance = float(bill['amount_variance'] or 5.0)
-
-        best_match = None
-        best_score = 0
+        best_match = None; best_score = 0
 
         for txn in txns:
-            if txn['id'] in used_txn_ids:
-                continue
-
+            if txn['id'] in used_txn_ids: continue
             txn_desc = (txn['description'] or '').lower()
             txn_orig = (txn['original_description'] or '').lower()
             txn_amt = abs(float(txn['amount']))
-
-            # Name match score
             name_score = 0
             bill_words = set(bill_name.split())
-            desc_words = set(txn_desc.split())
-            orig_words = set(txn_orig.split())
-
-            common_desc = bill_words & desc_words
-            common_orig = bill_words & orig_words
-
             if bill_name in txn_desc or bill_name in txn_orig:
                 name_score = 10
-            elif common_desc:
-                name_score = len(common_desc) / len(bill_words) * 8
-            elif common_orig:
-                name_score = len(common_orig) / len(bill_words) * 6
-
-            if name_score < 3:
-                continue
-
-            # Amount match bonus
-            amt_score = 0
-            if expected > 0:
-                if abs(txn_amt - expected) <= variance:
-                    amt_score = 5
-                elif abs(txn_amt - expected) <= expected * 0.2:
-                    amt_score = 2
-
+            elif bill_words & set(txn_desc.split()):
+                name_score = len(bill_words & set(txn_desc.split())) / len(bill_words) * 8
+            elif bill_words & set(txn_orig.split()):
+                name_score = len(bill_words & set(txn_orig.split())) / len(bill_words) * 6
+            if name_score < 3: continue
+            amt_score = 5 if expected > 0 and abs(txn_amt - expected) <= variance else (2 if expected > 0 and abs(txn_amt - expected) <= expected * 0.2 else 0)
             total_score = name_score + amt_score
-
             if total_score > best_score:
-                best_score = total_score
-                best_match = txn
+                best_score = total_score; best_match = txn
 
         if best_match and best_score >= 5:
-            bill['status'] = 'paid'
+            bill['auto_status'] = 'paid'
             bill['matched_txn_id'] = best_match['id']
             bill['matched_date'] = best_match['transaction_date']
             bill['matched_amount'] = abs(float(best_match['amount']))
             bill['matched_description'] = best_match['description']
             used_txn_ids.add(best_match['id'])
         else:
-            bill['status'] = 'unpaid'
+            bill['auto_status'] = 'unpaid'
             bill['matched_txn_id'] = None
             bill['matched_date'] = None
             bill['matched_amount'] = None
             bill['matched_description'] = None
 
-        # Due date for this month
+        # Apply override if exists
+        ov = overrides.get(bill['id'])
+        if ov:
+            bill['override'] = dict(ov)
+            bill['status'] = 'paid' if ov['is_paid'] else 'unpaid'
+            bill['override_paid_amount'] = float(ov['paid_amount']) if ov['paid_amount'] else None
+            bill['override_paid_date'] = ov['paid_date']
+        else:
+            bill['override'] = None
+            bill['status'] = bill['auto_status']
+            bill['override_paid_amount'] = None
+            bill['override_paid_date'] = None
+
+        # Due date
         if bill['expected_day']:
             try:
                 due = date(year, mon, min(bill['expected_day'], monthrange(year, mon)[1]))
                 bill['due_date'] = due.isoformat()
                 bill['overdue'] = (bill['status'] == 'unpaid' and due < date.today())
             except:
-                bill['due_date'] = None
-                bill['overdue'] = False
+                bill['due_date'] = None; bill['overdue'] = False
         else:
-            bill['due_date'] = None
-            bill['overdue'] = False
+            bill['due_date'] = None; bill['overdue'] = False
 
+    paid_bills = [b for b in bills if b['status'] == 'paid']
     return json_response({
-        "month": f"{year}-{mon:02d}",
+        "month": month_key,
         "month_label": date(year, mon, 1).strftime("%B %Y"),
         "bills": bills,
-        "paid_count": sum(1 for b in bills if b['status'] == 'paid'),
-        "unpaid_count": sum(1 for b in bills if b['status'] == 'unpaid'),
+        "paid_count": len(paid_bills),
+        "unpaid_count": len(bills) - len(paid_bills),
         "total_expected": sum(float(b['expected_amount'] or 0) for b in bills),
-        "total_paid": sum(b['matched_amount'] for b in bills if b['status'] == 'paid'),
+        "total_paid": sum(
+            (b['override_paid_amount'] or b['matched_amount'] or 0)
+            for b in bills if b['status'] == 'paid'
+        ),
     })
 
 
 @router.patch("/bills/{bill_id}/override")
-async def override_bill_status(request: Request, bill_id: int, body: BillPaidOverride):
-    """Manual override for bill paid status — stored in a simple override table if it exists,
-    otherwise just returns the override for client-side state management"""
-    # Return the override for client to manage in session state
-    # Full persistence would require a bill_overrides table
+async def override_bill_status(request: Request, bill_id: int, body: BillOverrideBody):
+    """Persist a manual paid/unpaid override for a bill in a specific month"""
+    # Get month from query param or default to current
+    month = request.query_params.get('month') or datetime.now().strftime('%Y-%m')
+
+    conn = get_db(); cur = conn.cursor()
+
+    # Verify bill exists
+    cur.execute("SELECT id FROM recurring_bills WHERE id = %s", (bill_id,))
+    if not cur.fetchone():
+        conn.close(); raise HTTPException(status_code=404, detail="Bill not found")
+
+    paid_date = None
+    if body.paid_date:
+        try: paid_date = date.fromisoformat(body.paid_date)
+        except: pass
+
+    # Upsert override
+    cur.execute("""
+        INSERT INTO bill_overrides (bill_id, month, is_paid, paid_amount, paid_date, note)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        ON CONFLICT (bill_id, month) DO UPDATE SET
+            is_paid = EXCLUDED.is_paid,
+            paid_amount = EXCLUDED.paid_amount,
+            paid_date = EXCLUDED.paid_date,
+            note = EXCLUDED.note,
+            updated_at = CURRENT_TIMESTAMP
+        RETURNING id
+    """, (bill_id, month, body.paid, body.paid_amount, paid_date, body.note))
+    result = cur.fetchone(); conn.commit(); conn.close()
+    return json_response({"success": True, "bill_id": bill_id, "month": month, "paid": body.paid, "override_id": result['id']})
+
+
+@router.delete("/bills/{bill_id}/override")
+async def clear_bill_override(request: Request, bill_id: int):
+    """Remove a manual override — reverts to auto-match status"""
+    month = request.query_params.get('month') or datetime.now().strftime('%Y-%m')
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("DELETE FROM bill_overrides WHERE bill_id = %s AND month = %s", (bill_id, month))
+    deleted = cur.rowcount; conn.commit(); conn.close()
+    return json_response({"success": True, "deleted": deleted})
+
+
+# ── Forecast ───────────────────────────────────────────────
+
+@router.get("/forecast")
+async def get_forecast(
+    request: Request,
+    account: Optional[str] = Query(default=None, description="USAA, SUN, or combined"),
+    days: int = Query(default=30, ge=7, le=60),
+):
+    import sys
+    sys.path.insert(0, '/opt/mythos/telegram_bot/handlers')
+    try:
+        from forecast_handler import (
+            get_current_balances, get_upcoming_bills, get_upcoming_income,
+            build_forecast, PRIMARY_ACCOUNTS
+        )
+    except ImportError as e:
+        return json_response({"error": f"Forecast handler not available: {e}"})
+
+    conn = get_db(); cur = conn.cursor()
+    balances = get_current_balances(cur)
+    bills = get_upcoming_bills(cur, days)
+    income = get_upcoming_income(cur, days)
+    conn.close()
+
+    acct_filter = [account.upper()] if account and account.upper() in ('USAA', 'SUN') else PRIMARY_ACCOUNTS
+    forecast = build_forecast(balances, bills, income, acct_filter, days)
+
+    day_list = []
+    for dd in forecast['days']:
+        day_list.append({
+            'date': dd['date'].isoformat(),
+            'day_index': dd['day_index'],
+            'day_change': float(dd['day_change']),
+            'running': float(dd['running']),
+            'bills': [{'merchant': b['merchant_name'], 'amount': float(b['expected_amount']), 'acct': b.get('acct')} for b in dd['bills']],
+            'income': [{'source': i['source_name'], 'amount': float(i['expected_amount']), 'acct': i.get('acct')} for i in dd['income']],
+        })
+
     return json_response({
-        "success": True,
-        "bill_id": bill_id,
-        "paid": body.paid,
-        "paid_amount": body.paid_amount,
-        "paid_date": body.paid_date,
-        "note": "Override applied for this session"
+        'account_filter': acct_filter,
+        'starting': float(forecast['starting']),
+        'ending': float(forecast['ending']),
+        'lowest': float(forecast['lowest']),
+        'lowest_date': forecast['lowest_date'].isoformat(),
+        'went_negative': forecast['went_negative'],
+        'negative_date': forecast['negative_date'].isoformat() if forecast['negative_date'] else None,
+        'days': day_list,
     })
 
 
-# ── Report / Spending / Forecast / Income (unchanged) ──────
+# ── Report / Spending / Bills / Income (unchanged) ─────────
 
 @router.get("/report")
 async def get_report(request: Request, months: int = Query(default=6, ge=1, le=12)):
-    import sys
-    sys.path.insert(0, '/opt/mythos/finance')
+    import sys; sys.path.insert(0, '/opt/mythos/finance')
     from report_generator import get_current_balances, get_recurring_bills, build_month_data
-    conn = get_db()
-    cur = conn.cursor()
-    balances = get_current_balances(cur)
-    bills = get_recurring_bills(cur)
-    today = date.today()
-    months_data = []
+    conn = get_db(); cur = conn.cursor()
+    balances = get_current_balances(cur); bills = get_recurring_bills(cur)
+    today = date.today(); months_data = []
     for i in range(months):
-        m = today.month - i
-        y = today.year
+        m = today.month - i; y = today.year
         while m <= 0: m += 12; y -= 1
         months_data.append(build_month_data(cur, y, m, bills))
     conn.close()
@@ -466,11 +487,9 @@ async def get_report(request: Request, months: int = Query(default=6, ge=1, le=1
 
 @router.get("/spending")
 async def get_spending(request: Request, month: Optional[str] = Query(default=None)):
-    conn = get_db()
-    cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor()
     if month:
-        try:
-            parts = month.split('-'); year, mon = int(parts[0]), int(parts[1])
+        try: parts = month.split('-'); year, mon = int(parts[0]), int(parts[1])
         except: year, mon = datetime.now().year, datetime.now().month
     else: year, mon = datetime.now().year, datetime.now().month
     start = date(year, mon, 1); end = date(year, mon, monthrange(year, mon)[1])
@@ -486,8 +505,7 @@ async def get_spending(request: Request, month: Optional[str] = Query(default=No
 
 @router.get("/bills")
 async def get_bills(request: Request):
-    conn = get_db()
-    cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor()
     cur.execute("""
         SELECT rb.id, rb.merchant_name, rb.expected_amount, rb.expected_day,
                rb.frequency, rb.category_primary, rb.notes, a.abbreviation as account
@@ -501,8 +519,7 @@ async def get_bills(request: Request):
 
 @router.get("/income")
 async def get_income_sources(request: Request):
-    conn = get_db()
-    cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor()
     cur.execute("""
         SELECT ri.id, ri.source_name, ri.expected_amount, ri.expected_day,
                ri.frequency, a.abbreviation as account
@@ -512,29 +529,3 @@ async def get_income_sources(request: Request):
     income = [dict(r) for r in cur.fetchall()]
     conn.close()
     return json_response({"income": income})
-
-
-@router.get("/forecast")
-async def get_forecast(request: Request, account: Optional[str] = Query(default=None), days: int = Query(default=30, ge=7, le=60)):
-    conn = get_db()
-    cur = conn.cursor()
-    import sys
-    sys.path.insert(0, '/opt/mythos/telegram_bot/handlers')
-    try:
-        from forecast_handler import get_current_balances, get_upcoming_bills, get_upcoming_income, build_forecast, PRIMARY_ACCOUNTS
-    except ImportError:
-        conn.close(); return json_response({"error": "Forecast handler not available"})
-    balances = get_current_balances(cur)
-    bills = get_upcoming_bills(cur, days)
-    income = get_upcoming_income(cur, days)
-    conn.close()
-    acct_filter = [account.upper()] if account and account.upper() in ('USAA', 'SUN') else PRIMARY_ACCOUNTS
-    forecast = build_forecast(balances, bills, income, acct_filter, days)
-    day_list = [{'date': dd['date'].isoformat(), 'day_change': float(dd['day_change']), 'running': float(dd['running']),
-                 'bills': [{'merchant': b['merchant_name'], 'amount': float(b['expected_amount'])} for b in dd['bills']],
-                 'income': [{'source': i['source_name'], 'amount': float(i['expected_amount'])} for i in dd['income']]}
-                for dd in forecast['days']]
-    return json_response({'account_filter': acct_filter, 'starting': float(forecast['starting']),
-                          'ending': float(forecast['ending']), 'lowest': float(forecast['lowest']),
-                          'lowest_date': forecast['lowest_date'].isoformat(), 'went_negative': forecast['went_negative'],
-                          'negative_date': forecast['negative_date'].isoformat() if forecast['negative_date'] else None, 'days': day_list})
