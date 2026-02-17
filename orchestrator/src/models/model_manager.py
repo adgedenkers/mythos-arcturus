@@ -68,11 +68,20 @@ class ModelManager:
                 parsed = client.parse_model_name(name)
                 size_params = parsed.get("size")
                 
-                # Extract context window from details if available
+                # Extract context window - it should be an integer
+                context_window = None
                 try:
                     details = model_data.get("details", {})
-                    context_window = details.get("parameter_size")
-                except Exception:
+                    # Look for parameter_count or context_length as integers
+                    if "parameter_count" in details:
+                        # This might be the actual parameter count
+                        param_count = details.get("parameter_count")
+                        if isinstance(param_count, (int, float)):
+                            context_window = int(param_count)
+                    # Fallback: try to get from families or other fields
+                    # For now, leave as None if not found
+                except Exception as e:
+                    logger.warning(f"Could not extract context window for {name}: {e}")
                     context_window = None
                 
                 # Check if model exists
@@ -92,7 +101,8 @@ class ModelManager:
                         metadata={
                             "size": model_data.get("size"),
                             "modified_at": model_data.get("modified_at"),
-                            "digest": model_data.get("digest")
+                            "digest": model_data.get("digest"),
+                            "details": model_data.get("details", {})
                         },
                         mark_installed=True
                     )
