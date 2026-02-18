@@ -1,0 +1,16 @@
+[Unit]
+Description=Mythos Knowledge Map Rebuild Listener
+After=postgresql.service redis-server.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/mythos
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/core/knowledge_map_builder.py listen
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

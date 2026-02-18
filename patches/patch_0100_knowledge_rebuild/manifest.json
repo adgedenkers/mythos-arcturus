@@ -1,0 +1,27 @@
+{
+    "patch_number": "0100",
+    "version": "1.18.1",
+    "previous_version": "1.18.0",
+    "description": "Auto-rebuild knowledge map on DB changes via PostgreSQL triggers",
+    "change_type": "patch",
+    "changes": [
+        "PostgreSQL triggers on recurring_bills, accounts, routines tables",
+        "pg_notify fires on INSERT/UPDATE/DELETE",
+        "Knowledge map builder generates dynamic sections from DB",
+        "Static sections (People, Locations, Notes, Routing) preserved",
+        "Listener service runs continuously, rebuilds on notify",
+        "Redis publish on rebuild for downstream consumers",
+        "Initial build on service startup"
+    ],
+    "files_created": [
+        "opt/mythos/core/migration_0100_triggers.sql",
+        "opt/mythos/core/knowledge_map_builder.py",
+        "opt/mythos/core/mythos-knowledge-map.service"
+    ],
+    "services_created": ["mythos-knowledge-map.service"],
+    "dependencies": {
+        "python": ["psycopg2", "python-dotenv", "redis"],
+        "patches": ["0098"]
+    },
+    "rollback": "sudo systemctl stop mythos-knowledge-map.service; DROP triggers; remove files"
+}
