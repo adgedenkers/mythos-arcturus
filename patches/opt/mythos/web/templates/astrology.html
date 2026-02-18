@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mythos — Astrology &amp; Numerology</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050810;--bg-card:rgba(12,17,30,0.85);--bg-hover:rgba(26,35,50,0.8);
+  --border:rgba(30,42,65,0.6);--border-light:rgba(40,55,80,0.6);
+  --text:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#06b6d4;--cyan-bg:rgba(6,182,212,0.08);
+  --gold:#d4a574;--gold-bg:rgba(212,165,116,0.08);
+  --purple:#8b5cf6;--purple-bg:rgba(139,92,246,0.08);
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;overflow-x:hidden;}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:14px 28px;background:rgba(5,8,16,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.topbar-logo{font-family:'Cinzel',serif;font-size:16px;font-weight:600;letter-spacing:4px;color:var(--gold);}
+.topbar-nav{display:flex;gap:2px;}
+.topbar-nav a{padding:7px 16px;border-radius:6px;color:var(--dim);text-decoration:none;font-size:13px;font-weight:500;transition:all 0.2s;}
+.topbar-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+.topbar-nav a.active{color:var(--cyan);background:var(--cyan-bg);}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.topbar-user{font-size:12px;color:var(--dim);font-family:'JetBrains Mono',monospace;}
+.topbar-logout{padding:5px 12px;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--muted);font-size:11px;text-decoration:none;transition:all .2s;}
+.topbar-logout:hover{border-color:var(--red);color:var(--red);}
+
+.main{padding:80px 28px 40px;max-width:1400px;margin:0 auto;}
+.page-header{padding:20px 0 16px;display:flex;justify-content:space-between;align-items:center;}
+.page-header h1{font-family:'Cinzel',serif;font-size:22px;font-weight:600;letter-spacing:2px;color:var(--gold);}
+.page-header .sub{font-size:12px;color:var(--dim);margin-top:3px;}
+
+/* Sub-tabs */
+.subtabs{display:flex;gap:4px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.subtab{padding:7px 18px;border-radius:6px;color:var(--dim);background:transparent;border:1px solid transparent;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.subtab:hover{color:var(--text);background:rgba(255,255,255,0.03);}
+.subtab.active{color:var(--gold);background:var(--gold-bg);border-color:rgba(212,165,116,0.2);}
+
+/* Cards */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:12px;}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.card-title{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);}
+
+/* Chart list items */
+.chart-row{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:8px;display:grid;grid-template-columns:36px 1fr auto auto auto;gap:16px;align-items:center;cursor:pointer;transition:all .15s;}
+.chart-row:hover{border-color:var(--border-light);background:var(--bg-hover);}
+.chart-row.selected{border-color:rgba(212,165,116,0.4);background:rgba(212,165,116,0.04);}
+.chart-check{width:32px;height:32px;border-radius:50%;border:2px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);transition:all .15s;}
+.chart-row.selected .chart-check{border-color:var(--gold);color:var(--gold);}
+.chart-name{font-family:'Cinzel',serif;font-size:15px;font-weight:600;}
+.chart-meta{font-size:11px;color:var(--dim);margin-top:2px;}
+.chart-birthstring{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);font-weight:600;letter-spacing:1px;}
+.chart-triangles{font-family:'JetBrains Mono',monospace;font-size:12px;}
+.tri-1{color:var(--gold);}
+.tri-2{color:var(--blue);}
+.tri-sep{color:var(--muted);margin:0 4px;}
+
+/* Numerology */
+.num-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.reduction-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.reduction-label{font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace;width:90px;text-align:right;}
+.reduction-arrow{color:var(--muted);font-size:10px;}
+.reduction-val{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);}
+.reduction-final{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--gold);font-weight:600;}
+.birthstring-display{text-align:center;padding:18px;background:rgba(5,8,16,0.6);border-radius:8px;border:1px solid var(--border);margin-top:16px;}
+.birthstring-value{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:var(--gold);letter-spacing:3px;}
+.birthstring-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:6px;}
+
+.triangle-container{display:flex;justify-content:center;gap:60px;align-items:center;padding:24px;}
+.triangle-divider{width:1px;height:140px;background:var(--border);}
+
+/* Quick load */
+.quick-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+.quick-btn{padding:5px 12px;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--dim);font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;}
+.quick-btn:hover{color:var(--gold);border-color:rgba(212,165,116,0.3);}
+
+/* Wheel */
+.wheel-container{display:grid;grid-template-columns:1fr 280px;gap:20px;}
+.wheel-svg-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;justify-content:center;align-items:center;}
+.planet-table{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;max-height:600px;overflow-y:auto;}
+.planet-table-header{font-family:'Cinzel',serif;font-size:13px;font-weight:600;margin-bottom:8px;}
+.planet-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(30,42,65,0.3);font-size:11px;}
+.planet-row:last-child{border-bottom:none;}
+.planet-symbol{width:50px;color:var(--dim);}
+.planet-sign{width:20px;text-align:center;}
+.planet-deg{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text);}
+
+.wheel-selectors{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+.wheel-chip{padding:5px 12px;border:1px solid var(--muted);border-radius:6px;color:var(--dim);font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;background:transparent;}
+.wheel-chip.on{background:rgba(212,165,116,0.06);border-color:var(--gold);color:var(--gold);}
+.wheel-label{font-size:11px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;}
+.wheel-mode{font-size:12px;color:var(--dim);padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;margin-top:12px;display:flex;gap:20px;}
+.wheel-mode strong{color:var(--dim);}
+
+.empty-state{text-align:center;padding:60px;color:var(--muted);font-size:13px;}
+.empty-icon{font-size:42px;margin-bottom:10px;opacity:0.3;}
+.loading{text-align:center;padding:40px;color:var(--muted);}
+.mono{font-family:'JetBrains Mono',monospace;}
+
+.btn{padding:5px 12px;border-radius:5px;border:1px solid var(--border-light);background:transparent;color:var(--dim);font-size:12px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.btn:hover{color:var(--gold);border-color:rgba(212,165,116,0.4);}
+.btn-gold{border-color:rgba(212,165,116,0.3);color:var(--gold);background:var(--gold-bg);}
+
+.input{background:rgba(5,8,16,0.6);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 11px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;width:100%;}
+.input:focus{border-color:rgba(212,165,116,0.4);}
+.input-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
+
+@media(max-width:900px){
+  .num-grid{grid-template-columns:1fr;}
+  .wheel-container{grid-template-columns:1fr;}
+  .triangle-container{flex-direction:column;gap:24px;}
+  .triangle-divider{width:140px;height:1px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">MYTHOS</div>
+  <nav class="topbar-nav">
+    <a href="/app/">Home</a>
+    <a href="/app/finance/">Finance</a>
+    <a href="/app/system/">System</a>
+    <a href="/app/sessions/">Sessions</a>
+    <a href="/app/registry/">Registry</a>
+    <a href="/app/astrology/" class="active">Astrology</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-user" id="user-name"></span>
+    <a href="/auth/logout" class="topbar-logout">logout</a>
+  </div>
+</div>
+
+<div class="main">
+  <div class="page-header">
+    <div>
+      <h1>☉ Astrology &amp; Numerology</h1>
+      <div class="sub">Natal Charts · Numerological Triangles · Multi-Wheel Analysis</div>
+    </div>
+  </div>
+
+  <div class="subtabs">
+    <button class="subtab active" onclick="showTab('charts')" id="tab-charts">Birth Charts</button>
+    <button class="subtab" onclick="showTab('numerology')" id="tab-numerology">Numerology</button>
+    <button class="subtab" onclick="showTab('wheels')" id="tab-wheels">Wheel View</button>
+  </div>
+
+  <div id="content"><div class="loading">Loading...</div></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let charts = [];
+let selectedIds = new Set();
+let chartDetails = {};  // cache full chart data by id
+let currentTab = 'charts';
+
+// Numerology state
+let numName = "Ka'tuar'el";
+let numDate = '1977-11-22';
+let numTime = '08:30';
+
+// ══════════════════════════════════════════════════════════
+// ZODIAC DATA
+// ══════════════════════════════════════════════════════════
+const SIGNS = [
+  {n:'Aries',s:'♈',c:'#e74c3c'},{n:'Taurus',s:'♉',c:'#27ae60'},{n:'Gemini',s:'♊',c:'#f1c40f'},
+  {n:'Cancer',s:'♋',c:'#bdc3c7'},{n:'Leo',s:'♌',c:'#e67e22'},{n:'Virgo',s:'♍',c:'#8e6f47'},
+  {n:'Libra',s:'♎',c:'#e91e8f'},{n:'Scorpio',s:'♏',c:'#8e1f2f'},{n:'Sagittarius',s:'♐',c:'#9b59b6'},
+  {n:'Capricorn',s:'♑',c:'#2c3e50'},{n:'Aquarius',s:'♒',c:'#3498db'},{n:'Pisces',s:'♓',c:'#1abc9c'}
+];
+const PLANET_META = {
+  'Sun':{s:'☉',c:'#f4d03f'},'Moon':{s:'☽',c:'#bdc3c7'},'Mercury':{s:'☿',c:'#a0a0a0'},
+  'Venus':{s:'♀',c:'#e91e8f'},'Mars':{s:'♂',c:'#e74c3c'},'Jupiter':{s:'♃',c:'#9b59b6'},
+  'Saturn':{s:'♄',c:'#7f8c8d'},'Uranus':{s:'♅',c:'#3498db'},'Neptune':{s:'♆',c:'#1abc9c'},
+  'Pluto':{s:'⯓',c:'#c0392b'},'North Node':{s:'☊',c:'#95a5a6'},'South Node':{s:'☋',c:'#95a5a6'},
+  'Chiron':{s:'⚷',c:'#d4a06a'},'Ascendant':{s:'Asc',c:'#06b6d4'},'Midheaven':{s:'MC',c:'#22c55e'},
+  'True Node':{s:'☊',c:'#95a5a6'},'Mean Node':{s:'☊',c:'#95a5a6'}
+};
+const WHEEL_COLORS = ['#d4a574','#3498db','#e74c3c','#22c55e','#9b59b6','#e67e22'];
+
+function signOf(deg) { return SIGNS[Math.floor(deg / 30) % 12]; }
+function degInSign(deg) { return (deg % 30).toFixed(1); }
+function esc(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
+
+// ══════════════════════════════════════════════════════════
+// NUMEROLOGY ENGINE
+// ══════════════════════════════════════════════════════════
+function reduceToSingle(n) {
+  let cur = Math.abs(n);
+  const path = [cur];
+  while (cur > 9) { cur = String(cur).split('').reduce((s,d) => s+parseInt(d),0); path.push(cur); }
+  return {path, result: cur};
+}
+function computeTriangles(month, day, year) {
+  const m = reduceToSingle(month), d = reduceToSingle(day);
+  const y2 = reduceToSingle(year % 100), y4 = reduceToSingle(year);
+  return {month:m,day:d,twoDigitYear:y2,fourDigitYear:y4,
+    triangle1:[m.result,d.result,y2.result],triangle2:[m.result,d.result,y4.result]};
+}
+function birthstring(m,d,y,h,min) {
+  return `${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}${y}T${String(h).padStart(2,'0')}${String(min).padStart(2,'0')}`;
+}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+fetch('/auth/me').then(r=>{if(!r.ok)throw 'a';return r.json()}).then(d=>{
+  document.getElementById('user-name').textContent=d.name||d.email;
+}).catch(()=>{window.location.href='/app/login';});
+
+fetch('/api/astrology/charts').then(r=>r.json()).then(d=>{
+  charts = d.charts || [];
+  if (currentTab === 'charts') renderCharts();
+}).catch(e=>console.error('Failed to load charts:', e));
+
+showTab('charts');
+
+// ══════════════════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════════════════
+function showTab(name) {
+  currentTab = name;
+  document.querySelectorAll('.subtab').forEach(el=>el.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  ({charts:renderCharts, numerology:renderNumerology, wheels:renderWheels}[name]||renderCharts)();
+}
+
+// ══════════════════════════════════════════════════════════
+// CHARTS TAB
+// ══════════════════════════════════════════════════════════
+function renderCharts() {
+  const el = document.getElementById('content');
+  if (!charts.length) { el.innerHTML='<div class="loading">Loading charts...</div>'; return; }
+
+  const rows = charts.map(ch => {
+    const sel = selectedIds.has(ch.chart_id);
+    return `<div class="chart-row ${sel?'selected':''}" onclick="toggleChart(${ch.chart_id})">
+      <div class="chart-check">${sel?'✦':'○'}</div>
+      <div>
+        <div class="chart-name">${esc(ch.name)}</div>
+        <div class="chart-meta">${esc(ch.birth_date)} · ${esc(ch.birth_time)} · ${esc(ch.birth_place)}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px">BIRTHSTRING</div>
+        <div class="chart-birthstring">${esc(ch.birthstring)}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px">TRIANGLES</div>
+        <div class="chart-triangles">
+          <span class="tri-1">${ch.triangle1.join('-')}</span>
+          <span class="tri-sep">|</span>
+          <span class="tri-2">${ch.triangle2.join('-')}</span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px">POINTS</div>
+        <div class="mono" style="font-size:12px;color:var(--dim)">${ch.point_count}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const selBar = selectedIds.size > 0 ? `
+    <div style="margin-top:12px;padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:11px;color:var(--dim)">${selectedIds.size} chart${selectedIds.size>1?'s':''} selected</span>
+      <button class="btn btn-gold" onclick="showTab('wheels')">View ${selectedIds.size>1?'Multi-':''}Wheel →</button>
+    </div>` : '';
+
+  el.innerHTML = `
+    <div class="card-header">
+      <span class="card-title">Stored Charts (${charts.length})</span>
+    </div>
+    ${rows}
+    ${selBar}`;
+}
+
+function toggleChart(id) {
+  if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+  if (currentTab === 'charts') renderCharts();
+  else if (currentTab === 'wheels') renderWheels();
+}
+
+// ══════════════════════════════════════════════════════════
+// NUMEROLOGY TAB
+// ══════════════════════════════════════════════════════════
+function renderNumerology() {
+  const [y,m,d] = numDate.split('-').map(Number);
+  const [hh,mm] = numTime.split(':').map(Number);
+  const bs = birthstring(m, d, y, hh, mm);
+  const tri = computeTriangles(m, d, y);
+
+  function reductionHTML(label, path) {
+    return `<div class="reduction-row">
+      <span class="reduction-label">${label}:</span>
+      ${path.map((v,i) => `${i>0?'<span class="reduction-arrow">→</span>':''}
+        <span class="${i===path.length-1?'reduction-final':'reduction-val'}">${v}</span>`).join('')}
+    </div>`;
+  }
+
+  const quickBtns = charts.map(ch =>
+    `<button class="quick-btn" onclick="loadNumChart(${ch.chart_id})">${esc(ch.name)}</button>`
+  ).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="num-grid">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px">Birth Data Input</div>
+        <div style="display:grid;gap:10px">
+          <div><div class="input-label">Name</div><input class="input" id="num-name" value="${esc(numName)}" onchange="numName=this.value;renderNumerology()"></div>
+          <div><div class="input-label">Birth Date</div><input type="date" class="input" id="num-date" value="${numDate}" onchange="numDate=this.value;renderNumerology()" style="color-scheme:dark"></div>
+          <div><div class="input-label">Birth Time</div><input type="time" class="input" id="num-time" value="${numTime}" onchange="numTime=this.value;renderNumerology()" style="color-scheme:dark"></div>
+        </div>
+        <div class="birthstring-display">
+          <div class="birthstring-label">Personal Birthstring</div>
+          <div class="birthstring-value">${bs}</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:4px">${esc(numName)}</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px">Numerological Reduction</div>
+        ${reductionHTML('Month', tri.month.path)}
+        ${reductionHTML('Day', tri.day.path)}
+        ${reductionHTML('2-Digit Yr', tri.twoDigitYear.path)}
+        ${reductionHTML('4-Digit Yr', tri.fourDigitYear.path)}
+        <div style="margin-top:16px;padding:10px;background:rgba(5,8,16,0.6);border-radius:6px;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:6px">CONSTRUCTION</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.8;">
+            <span style="color:var(--dim)">△1 =</span> Month(${tri.month.result}) – Day(${tri.day.result}) – 2DigitYr(${tri.twoDigitYear.result})<br>
+            <span style="color:var(--dim)">△2 =</span> Month(${tri.month.result}) – Day(${tri.day.result}) – 4DigitYr(${tri.fourDigitYear.result})
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="triangle-container">
+        ${triangleSVG(tri.triangle1, 'Triangle 1 (2-digit year)', '#d4a574')}
+        <div class="triangle-divider"></div>
+        ${triangleSVG(tri.triangle2, 'Triangle 2 (4-digit year)', '#3b82f6')}
+      </div>
+    </div>
+    ${charts.length ? `<div style="margin-top:14px"><div class="card-title" style="margin-bottom:8px">Quick Load from Stored Charts</div><div class="quick-btns">${quickBtns}</div></div>` : ''}`;
+}
+
+function loadNumChart(chartId) {
+  const ch = charts.find(c => c.chart_id === chartId);
+  if (!ch) return;
+  numName = ch.name;
+  numDate = ch.birth_date;
+  numTime = ch.birth_time.substring(0,5);
+  renderNumerology();
+}
+
+function triangleSVG(tri, label, color) {
+  const sz=130, pts=[{x:sz/2,y:14},{x:14,y:sz-14},{x:sz-14,y:sz-14}];
+  const polyPts = pts.map(p=>`${p.x},${p.y}`).join(' ');
+  const nodes = pts.map((p,i) => `
+    <circle cx="${p.x}" cy="${p.y}" r="15" fill="#050810" stroke="${color}" stroke-width="1.5"/>
+    <text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="central" fill="${color}" font-size="15" font-weight="bold" font-family="'JetBrains Mono',monospace">${tri[i]}</text>
+  `).join('');
+  return `<div style="text-align:center">
+    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">${label}</div>
+    <svg viewBox="0 0 ${sz} ${sz}" style="width:125px;height:125px">
+      <polygon points="${polyPts}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.5"/>
+      ${nodes}
+    </svg>
+    <div class="mono" style="color:${color};font-size:15px;font-weight:bold;letter-spacing:3px;margin-top:4px">${tri.join(' – ')}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// WHEEL VIEW TAB
+// ══════════════════════════════════════════════════════════
+async function renderWheels() {
+  const el = document.getElementById('content');
+
+  // Build chip selector
+  const chips = charts.map(ch => {
+    const on = selectedIds.has(ch.chart_id);
+    return `<button class="wheel-chip ${on?'on':''}" onclick="toggleChart(${ch.chart_id})">${on?'✦ ':''}${esc(ch.name)}</button>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="wheel-selectors"><span class="wheel-label">Active Wheels:</span>${chips}</div>
+    <div id="wheel-area"><div class="loading">Select charts to display...</div></div>`;
+
+  if (selectedIds.size === 0) {
+    document.getElementById('wheel-area').innerHTML = `
+      <div class="empty-state"><div class="empty-icon">☉</div>Select one or more charts above to display on the wheel</div>`;
+    return;
+  }
+
+  // Fetch full chart data for selected charts
+  const ids = [...selectedIds];
+  document.getElementById('wheel-area').innerHTML = '<div class="loading">Loading chart data...</div>';
+
+  const loaded = [];
+  for (const id of ids) {
+    if (!chartDetails[id]) {
+      try {
+        const r = await fetch(`/api/astrology/charts/${id}`);
+        chartDetails[id] = await r.json();
+      } catch(e) { console.error(`Failed to load chart ${id}:`, e); }
+    }
+    if (chartDetails[id]) loaded.push(chartDetails[id]);
+  }
+
+  if (!loaded.length) {
+    document.getElementById('wheel-area').innerHTML = '<div class="empty-state">Failed to load chart data</div>';
+    return;
+  }
+
+  // Render wheel + planet table
+  const modeLabel = loaded.length === 1 ? 'Single Wheel' : loaded.length === 2 ? 'Double Wheel (Synastry)' : `${loaded.length}-Wheel Composite`;
+  const svgHTML = buildWheelSVG(loaded, 540);
+
+  const planetTables = loaded.map((ch, idx) => {
+    const color = WHEEL_COLORS[idx % WHEEL_COLORS.length];
+    const rows = (ch.points || []).map(p => {
+      const pm = PLANET_META[p.point_name];
+      if (!pm) return '';
+      const sign = signOf(p.longitude);
+      return `<div class="planet-row">
+        <span class="planet-symbol">${pm.s} ${esc(p.point_name)}</span>
+        <span class="planet-sign" style="color:${sign.c}">${sign.s}</span>
+        <span class="planet-deg">${degInSign(p.longitude)}°</span>
+      </div>`;
+    }).join('');
+    return `<div style="margin-bottom:14px"><div class="planet-table-header" style="color:${color}">${esc(ch.name)}</div>${rows}</div>`;
+  }).join('');
+
+  document.getElementById('wheel-area').innerHTML = `
+    <div class="wheel-container">
+      <div class="wheel-svg-wrap">${svgHTML}</div>
+      <div class="planet-table"><div class="card-title" style="margin-bottom:12px">Planetary Positions</div>${planetTables}</div>
+    </div>
+    <div class="wheel-mode">
+      <span><strong>Mode:</strong> ${modeLabel}</span>
+      <span><strong>Charts:</strong> ${loaded.map(c=>esc(c.name)).join(' + ')}</span>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// SVG WHEEL BUILDER
+// ══════════════════════════════════════════════════════════
+function buildWheelSVG(chartList, size) {
+  const cx=size/2, cy=size/2, outerR=size/2-10, signR=outerR-28, innerR=signR-22;
+  const nw = chartList.length;
+  const ringW = nw > 0 ? (innerR - 40) / nw : 0;
+  const polar = (deg, r) => {
+    const rad = (deg-90)*Math.PI/180;
+    return {x: cx+r*Math.cos(rad), y: cy+r*Math.sin(rad)};
+  };
+
+  let svg = `<svg viewBox="0 0 ${size} ${size}" style="width:100%;max-width:${size}px">`;
+  svg += `<defs><radialGradient id="wbg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0d0a14"/><stop offset="100%" stop-color="#050810"/></radialGradient></defs>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="${outerR}" fill="url(#wbg)"/>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="${outerR}" fill="none" stroke="rgba(30,42,65,0.6)" stroke-width="2"/>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="${signR}" fill="none" stroke="rgba(30,42,65,0.3)" stroke-width="1"/>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="${innerR}" fill="none" stroke="rgba(30,42,65,0.6)" stroke-width="1.5"/>`;
+
+  // Sign divisions + symbols
+  for (let i=0;i<12;i++) {
+    const deg = i*30;
+    const p1=polar(deg,outerR), p2=polar(deg,signR);
+    svg += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="rgba(30,42,65,0.4)" stroke-width="1"/>`;
+    const lp = polar(deg+15, (outerR+signR)/2);
+    svg += `<text x="${lp.x}" y="${lp.y}" text-anchor="middle" dominant-baseline="central" fill="${SIGNS[i].c}" font-size="13" font-family="serif" opacity="0.85">${SIGNS[i].s}</text>`;
+  }
+
+  // Degree ticks
+  for (let i=0;i<360;i+=5) {
+    const major=i%30===0, mid=i%10===0;
+    const tO=signR, tI=major?signR-7:mid?signR-4:signR-2;
+    const p1=polar(i,tO), p2=polar(i,tI);
+    svg += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="rgba(30,42,65,0.4)" stroke-width="${major?1.2:0.4}"/>`;
+  }
+
+  // Ring separators
+  for (let i=0;i<nw-1;i++) {
+    const r = innerR - ringW*(i+1);
+    svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(30,42,65,0.3)" stroke-width="0.5" stroke-dasharray="4 4"/>`;
+  }
+
+  // Center
+  svg += `<circle cx="${cx}" cy="${cy}" r="3" fill="#d4a574" opacity="0.5"/>`;
+
+  // Planet markers per chart
+  chartList.forEach((chart, ci) => {
+    const color = WHEEL_COLORS[ci % WHEEL_COLORS.length];
+    const ringCenter = innerR - ringW*ci - ringW/2;
+    const planetR = Math.max(ringCenter, 45);
+
+    (chart.points || []).forEach(pt => {
+      const pm = PLANET_META[pt.point_name];
+      if (!pm) return;
+      const pos = polar(pt.longitude, planetR);
+      svg += `<circle cx="${pos.x}" cy="${pos.y}" r="10" fill="#050810" fill-opacity="0.8" stroke="${color}" stroke-width="0.8"/>`;
+      svg += `<text x="${pos.x}" y="${pos.y}" text-anchor="middle" dominant-baseline="central" fill="${nw>1?color:pm.c}" font-size="9" font-family="serif" font-weight="bold">${pm.s}</text>`;
+    });
+  });
+
+  // Legend for multi-wheel
+  if (nw > 1) {
+    chartList.forEach((ch, i) => {
+      const color = WHEEL_COLORS[i % WHEEL_COLORS.length];
+      svg += `<circle cx="16" cy="${16+i*18}" r="5" fill="${color}" opacity="0.8"/>`;
+      svg += `<text x="26" y="${16+i*18}" fill="${color}" font-size="11" font-family="'JetBrains Mono',monospace" dominant-baseline="central">${esc(ch.name)}</text>`;
+    });
+  }
+
+  svg += '</svg>';
+  return svg;
+}
+
+</script>
+</body>
+</html>
