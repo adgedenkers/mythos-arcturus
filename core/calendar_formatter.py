@@ -112,15 +112,16 @@ def _format_event_line(e: Dict) -> str:
     if e.get('start_time'):
         time_part = f"{_format_time(e['start_time'])} — "
 
-    person = ""
+    person_prefix = ""
     if e.get('person') and e['person'] != 'adge':
-        person = f" <i>({e['person']})</i>"
+        name = e['person'].capitalize()
+        person_prefix = f"({name}) "
 
     location = ""
     if e.get('location'):
         location = f" 📍 {e['location']}"
 
-    return f"│  • {time_part}{e['title']}{person}{location}"
+    return f"│  • {time_part}{person_prefix}{e['title']}{location}"
 
 
 def _format_bill_line(b: Dict) -> str:

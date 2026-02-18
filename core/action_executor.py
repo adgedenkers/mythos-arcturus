@@ -67,7 +67,14 @@ def execute_actions(extraction: Dict[str, Any]) -> List[str]:
                 results.append(r)
 
         if 'calendar_event' in extraction:
-            r = _execute_calendar_event(conn, extraction['calendar_event'])
+            cal = extraction['calendar_event']
+            action = cal.get('action', 'create')
+            if action == 'delete':
+                r = _execute_calendar_delete(conn, cal)
+            elif action == 'update':
+                r = _execute_calendar_update(conn, cal)
+            else:
+                r = _execute_calendar_create(conn, cal)
             if r:
                 results.append(r)
 
@@ -141,21 +148,40 @@ def _execute_bill_paid(conn, data: Dict) -> str:
     return f"Bill paid: {bill['merchant_name']}"
 
 
-def _execute_calendar_event(conn, data: Dict) -> str:
-    """Create a calendar event."""
+def _execute_calendar_create(conn, data: Dict) -> str:
+    """Create a new calendar event, with dedup check."""
     cur = conn.cursor()
 
     event_date = data.get('date')
     if not event_date:
         return None
 
-    # Parse date if string
+    # Parse date first for dedup check
     if isinstance(event_date, str):
         try:
             event_date = datetime.strptime(event_date, '%Y-%m-%d').date()
         except ValueError:
             logger.warning(f"Bad date format: {event_date}")
             return None
+
+    # DEDUP: check if a very similar event already exists
+    person = data.get('person', 'adge')
+    title = data.get('title', '')
+    cur.execute("""
+        SELECT id, title, event_date, start_time FROM calendar_events
+        WHERE is_active = true
+          AND person = %s
+          AND event_date = %s
+          AND (LOWER(title) LIKE LOWER(%s) OR LOWER(%s) LIKE LOWER(CONCAT('%%', title, '%%')))
+        LIMIT 1
+    """, (person, event_date, f'%{title[:20]}%', title))
+    existing = cur.fetchone()
+
+    if existing:
+        # Update existing instead of creating duplicate
+        logger.info(f"Dedup: found existing event {existing['id']}, updating instead of creating")
+        data['event_id'] = existing['id']
+        return _execute_calendar_update(conn, data)
 
     start_time = data.get('time')
     if start_time and isinstance(start_time, str):
@@ -179,6 +205,114 @@ def _execute_calendar_event(conn, data: Dict) -> str:
     event_id = cur.fetchone()['id']
     logger.info(f"Calendar event created: {data.get('title')} on {event_date} (id:{event_id})")
     return f"Calendar: {data.get('title')} on {event_date}"
+
+
+
+def _execute_calendar_update(conn, data: Dict) -> str:
+    """Update an existing calendar event."""
+    cur = conn.cursor()
+    event_id = data.get('event_id')
+
+    if not event_id:
+        # Try to find by title + person match
+        title = data.get('title', '')
+        person = data.get('person', 'adge')
+        cur.execute("""
+            SELECT id FROM calendar_events
+            WHERE is_active = true AND person = %s
+              AND (LOWER(title) LIKE LOWER(%s) OR LOWER(%s) LIKE LOWER(CONCAT('%%', title, '%%')))
+            ORDER BY event_date DESC LIMIT 1
+        """, (person, f'%{title[:20]}%', title))
+        match = cur.fetchone()
+        if match:
+            event_id = match['id']
+        else:
+            logger.warning(f"Calendar update: no matching event found for '{title}'")
+            return None
+
+    # Build update fields
+    updates = []
+    params = []
+
+    if data.get('title'):
+        updates.append("title = %s")
+        params.append(data['title'])
+    if data.get('date'):
+        event_date = data['date']
+        if isinstance(event_date, str):
+            try:
+                event_date = datetime.strptime(event_date, '%Y-%m-%d').date()
+            except ValueError:
+                event_date = None
+        if event_date:
+            updates.append("event_date = %s")
+            params.append(event_date)
+    if data.get('time'):
+        event_time = data['time']
+        if isinstance(event_time, str):
+            try:
+                event_time = datetime.strptime(event_time, '%H:%M').time()
+            except ValueError:
+                event_time = None
+        if event_time:
+            updates.append("start_time = %s")
+            params.append(event_time)
+    if data.get('location'):
+        updates.append("location = %s")
+        params.append(data['location'])
+
+    if not updates:
+        return None
+
+    updates.append("updated_at = NOW()")
+    params.append(event_id)
+
+    cur.execute(f"""
+        UPDATE calendar_events SET {', '.join(updates)}
+        WHERE id = %s
+        RETURNING id, title, event_date
+    """, params)
+
+    result = cur.fetchone()
+    if result:
+        logger.info(f"Calendar updated: {result['title']} on {result['event_date']} (id:{result['id']})")
+        return f"Calendar updated: {result['title']} → {result['event_date']}"
+    return None
+
+
+def _execute_calendar_delete(conn, data: Dict) -> str:
+    """Delete (deactivate) a calendar event."""
+    cur = conn.cursor()
+    event_id = data.get('event_id')
+
+    if not event_id:
+        # Try to find by title + person match
+        title = data.get('title', '')
+        person = data.get('person', 'adge')
+        cur.execute("""
+            SELECT id, title FROM calendar_events
+            WHERE is_active = true AND person = %s
+              AND (LOWER(title) LIKE LOWER(%s) OR LOWER(%s) LIKE LOWER(CONCAT('%%', title, '%%')))
+            ORDER BY event_date DESC LIMIT 1
+        """, (person, f'%{title[:20]}%', title))
+        match = cur.fetchone()
+        if match:
+            event_id = match['id']
+        else:
+            logger.warning(f"Calendar delete: no matching event found for '{title}'")
+            return None
+
+    cur.execute("""
+        UPDATE calendar_events SET is_active = false, updated_at = NOW()
+        WHERE id = %s
+        RETURNING id, title
+    """, (event_id,))
+
+    result = cur.fetchone()
+    if result:
+        logger.info(f"Calendar deleted: {result['title']} (id:{result['id']})")
+        return f"Calendar removed: {result['title']}"
+    return None
 
 
 def _execute_task_completed(conn, data: Dict) -> str:

@@ -32,6 +32,87 @@ EXTRACTOR_MODEL = os.getenv('EXTRACTOR_MODEL', 'qwen2.5:7b')
 OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
 
 # Load knowledge map once at import time
+
+def _validate_extracted_date(extraction: dict, original_message: str) -> dict:
+    """
+    Post-process: if the model returned a date that contradicts
+    day-of-week references in the original message, fix it.
+    """
+    from datetime import date, timedelta
+    
+    cal = extraction.get('calendar_event')
+    if not cal or not cal.get('date'):
+        return extraction
+    
+    msg = original_message.lower()
+    
+    # Map day names to weekday numbers
+    day_map = {
+        'monday': 0, 'tuesday': 1, 'wednesday': 2, 'thursday': 3,
+        'friday': 4, 'saturday': 5, 'sunday': 6,
+        'mon': 0, 'tue': 1, 'tues': 1, 'wed': 2, 'thu': 3, 'thur': 3,
+        'fri': 4, 'sat': 5, 'sun': 6,
+    }
+    
+    # Find which day name was mentioned
+    mentioned_day = None
+    for name, dow in day_map.items():
+        if name in msg.split():
+            mentioned_day = dow
+            break
+    
+    if mentioned_day is None:
+        # Check for today/tomorrow
+        if 'today' in msg or 'tonight' in msg:
+            correct_date = date.today()
+            cal['date'] = correct_date.strftime('%Y-%m-%d')
+        elif 'tomorrow' in msg:
+            correct_date = date.today() + timedelta(days=1)
+            cal['date'] = correct_date.strftime('%Y-%m-%d')
+        return extraction
+    
+    # Parse the returned date
+    try:
+        returned = date.fromisoformat(cal['date'])
+    except (ValueError, TypeError):
+        return extraction
+    
+    # Check if returned date matches the mentioned day
+    if returned.weekday() == mentioned_day:
+        return extraction  # Model got it right
+    
+    # Model got it wrong — find the next occurrence of that day
+    today = date.today()
+    if 'next' in msg:
+        # "next Friday" = skip this week
+        days_ahead = (mentioned_day - today.weekday()) % 7
+        if days_ahead == 0:
+            days_ahead = 7
+        days_ahead += 7  # next week
+        # Actually: next week's occurrence
+        days_to_monday = (7 - today.weekday()) % 7
+        if days_to_monday == 0:
+            days_to_monday = 7
+        next_monday = today + timedelta(days=days_to_monday)
+        correct_date = next_monday + timedelta(days=mentioned_day)
+    else:
+        # Next upcoming occurrence
+        days_ahead = (mentioned_day - today.weekday()) % 7
+        if days_ahead == 0:
+            days_ahead = 7
+        correct_date = today + timedelta(days=days_ahead)
+    
+    import logging
+    logging.getLogger(__name__).warning(
+        f"Date fix: model returned {returned} ({returned.strftime('%A')}) "
+        f"but message said {list(day_map.keys())[list(day_map.values()).index(mentioned_day)]}. "
+        f"Corrected to {correct_date} ({correct_date.strftime('%A')})"
+    )
+    
+    cal['date'] = correct_date.strftime('%Y-%m-%d')
+    return extraction
+
+
 KNOWLEDGE_MAP_PATH = '/opt/mythos/docs/KNOWLEDGE_MAP.md'
 _knowledge_map_cache = None
 _knowledge_map_mtime = 0
@@ -97,9 +178,25 @@ def _build_dynamic_context() -> str:
             r_list = [f"- {r['title']} (id:{r['id']}, {'done' if r['completion_status'] == 'done' else 'pending'})" for r in routines]
             parts.append("TODAY'S ROUTINES:\n" + "\n".join(r_list))
 
-        # Open tasks
+        # Upcoming calendar events (so extractor can match for updates/deletes)
         cur.execute("""
-            SELECT id, idea FROM idea_backlog
+            SELECT id, title, event_date, start_time, person, location
+            FROM calendar_events
+            WHERE event_date >= %s AND event_date < %s AND is_active = true
+            ORDER BY event_date, start_time NULLS LAST
+        """, (today, today + timedelta(days=30)))
+        events = cur.fetchall()
+        if events:
+            e_list = []
+            for e in events:
+                t = f" at {e['start_time']}" if e.get('start_time') else ""
+                p = f" ({e['person']})" if e.get('person') and e['person'] != 'adge' else ""
+                loc = f" @ {e['location']}" if e.get('location') else ""
+                e_list.append(f"- {e['title']}{t} on {e['event_date']}{p}{loc} (id:{e['id']})")
+            parts.append("UPCOMING CALENDAR EVENTS:\n" + "\n".join(e_list))
+
+        # Open tasks
+        cur.execute("""\n            SELECT id, idea FROM idea_backlog
             WHERE (domain = 'task' OR idea_type = 'task')
               AND status IN ('open', 'in_progress') AND is_archived = false
             ORDER BY CASE priority WHEN 'critical' THEN 0 WHEN 'high' THEN 1
@@ -129,10 +226,60 @@ def _build_extractor_prompt() -> str:
     today = date.today()
     now = datetime.now()
 
+    # Build full date reference frame so the model never guesses dates
+    day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    
+    # This week's remaining days
+    this_week = []
+    for i in range(1, 7 - today.weekday()):
+        d = today + timedelta(days=i)
+        this_week.append(f"  {day_names[d.weekday()]} = {d.strftime('%B %d, %Y')}")
+    
+    # Next week
+    days_until_monday = 7 - today.weekday()
+    next_week = []
+    for i in range(7):
+        d = today + timedelta(days=days_until_monday + i)
+        next_week.append(f"  {day_names[d.weekday()]} = {d.strftime('%B %d, %Y')}")
+    
+    # Weekend
+    days_until_sat = 5 - today.weekday()
+    if days_until_sat <= 0:
+        days_until_sat += 7
+    this_sat = today + timedelta(days=days_until_sat)
+    this_sun = this_sat + timedelta(days=1)
+    
+    tomorrow = today + timedelta(days=1)
+    yesterday = today - timedelta(days=1)
+
+    date_frame = f"""DATE REFERENCE — USE THIS FOR ALL DATE RESOLUTION:
+TODAY: {day_names[today.weekday()]}, {today.strftime('%B %d, %Y')}
+YESTERDAY: {day_names[yesterday.weekday()]}, {yesterday.strftime('%B %d, %Y')}
+TOMORROW: {day_names[tomorrow.weekday()]}, {tomorrow.strftime('%B %d, %Y')}
+Current time: {now.strftime('%-I:%M %p')}
+
+REST OF THIS WEEK:
+{chr(10).join(this_week) if this_week else '  (end of week)'}
+
+NEXT WEEK:
+{chr(10).join(next_week)}
+
+THIS WEEKEND: {this_sat.strftime('%B %d')} - {this_sun.strftime('%B %d, %Y')}
+
+RULES FOR DATES:
+- "Thursday" with no qualifier = the NEXT upcoming Thursday = {(today + timedelta(days=(3 - today.weekday()) % 7 or 7)).strftime('%B %d, %Y') if today.weekday() != 3 else today.strftime('%B %d, %Y')}
+- "next Thursday" = Thursday of NEXT week
+- "this weekend" = {this_sat.strftime('%B %d')} - {this_sun.strftime('%B %d')}
+- "today", "tonight" = {today.strftime('%B %d, %Y')}
+- "tomorrow" = {tomorrow.strftime('%B %d, %Y')}
+- "yesterday" = {yesterday.strftime('%B %d, %Y')}
+- ALWAYS output dates as YYYY-MM-DD format
+- If you CANNOT determine the exact date, set date to null"""
+
     return f"""You are a message extraction engine for the Mythos life management system.
 Your job: analyze the user's message and extract ANY actionable structured data.
 
-Current date: {today.strftime('%A, %B %d, %Y')} at {now.strftime('%-I:%M %p')}
+{date_frame}
 
 REFERENCE DATA:
 {knowledge_map}
@@ -158,6 +305,8 @@ Extract any of the following if present. Omit keys that don't apply:
         "account": "account abbreviation if mentioned"
     }},
     "calendar_event": {{
+        "action": "create|update|delete",
+        "event_id": null or number,
         "title": "event description",
         "date": "YYYY-MM-DD",
         "time": "HH:MM" or null,
@@ -188,6 +337,20 @@ Extract any of the following if present. Omit keys that don't apply:
         "new_balance": number
     }}
 }}
+
+CALENDAR TITLE FORMATTING:
+- Format titles as the EVENT, not "event with [person]"
+- WRONG: "doctor appointment with Rebecca", "Rebecca's dentist appointment"
+- RIGHT: "Doctor Appointment", "Dentist - Dr. Nolan"
+- The person field handles WHO it's for. Don't put the person's name in the title.
+- Capitalize the title properly.
+
+CALENDAR RULES:
+- If the user mentions a NEW event, use action: "create"
+- If the user says to CHANGE/MOVE/UPDATE an existing event, use action: "update" with the event_id from UPCOMING CALENDAR EVENTS above
+- If the user says to CANCEL/REMOVE/DELETE an event, use action: "delete" with the event_id
+- If an event sounds similar to an existing one (same person + similar title), prefer "update" over "create"
+- When correcting a date/time ("no, it's Monday not Friday"), use "update" with the correct date/time
 
 If NOTHING actionable is found, return: {{"no_action": true}}
 
@@ -228,6 +391,7 @@ def extract(message: str) -> Dict[str, Any]:
         raw = raw.strip()
 
         parsed = json.loads(raw)
+        parsed = _validate_extracted_date(parsed, message)
         logger.info(f"Extractor result: {json.dumps(parsed, default=str)[:200]}")
         return parsed
 
@@ -261,8 +425,29 @@ def format_extraction_for_context(extraction: Dict) -> str:
 
     if 'calendar_event' in extraction:
         c = extraction['calendar_event']
+        action = c.get('action', 'create')
         time_str = f" at {c['time']}" if c.get('time') else ""
-        parts.append(f"[DETECTED: Calendar event — {c.get('title', 'event')} on {c.get('date', '?')}{time_str} for {c.get('person', 'adge')}]")
+        cal_date = c.get('date', '')
+        if action == 'delete':
+            parts.append(f"[DETECTED: Calendar delete — {c.get('title', 'event')}]")
+        elif action == 'update':
+            parts.append(f"[DETECTED: Calendar update — {c.get('title', 'event')} → {cal_date}{time_str}]")
+        else:
+            parts.append(f"[DETECTED: Calendar event — {c.get('title', 'event')} on {cal_date}{time_str} for {c.get('person', 'adge')}]")
+        # Get the day view for the affected date
+        if cal_date:
+            try:
+                from datetime import date as date_type
+                from calendar_formatter import format_day_view
+                affected_date = date_type.fromisoformat(cal_date)
+                day_view = format_day_view(affected_date)
+                # Strip HTML tags for the model context
+                import re
+                clean_view = re.sub(r'<[^>]+>', '', day_view)
+                parts.append(f"[CALENDAR FOR THAT DAY:\n{clean_view}]")
+                parts.append("Include the calendar view for that day in your response, using the box-drawing format shown above.")
+            except Exception:
+                pass
 
     if 'task_completed' in extraction:
         t = extraction['task_completed']
