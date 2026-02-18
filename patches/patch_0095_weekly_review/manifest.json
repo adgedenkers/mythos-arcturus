@@ -1,0 +1,33 @@
+{
+    "patch_number": "0095",
+    "version": "1.16.0",
+    "previous_version": "1.15.8",
+    "description": "Weekly Financial Review - decision support tool for weekly financial sit-downs",
+    "change_type": "minor",
+    "changes": [
+        "New weekly_review.py generator in /opt/mythos/finance/",
+        "New /review Telegram command for mobile review access",
+        "New /api/finance/review API endpoint for web dashboard",
+        "Terminal-friendly formatted output with runway calculation",
+        "Trouble spot tracking (cash withdrawals, fast food)",
+        "Bill status overview with overdue detection",
+        "Decision prompt section for weekly action items"
+    ],
+    "files_modified": [],
+    "files_created": [
+        "opt/mythos/finance/weekly_review.py",
+        "opt/mythos/telegram_bot/handlers/review_handler.py",
+        "opt/mythos/api/routes/review.py"
+    ],
+    "dependencies": {
+        "python": ["psycopg2"],
+        "services": ["postgresql"],
+        "tables": ["accounts", "transactions", "recurring_bills", "recurring_income", "bill_overrides"]
+    },
+    "manual_steps": [
+        "Register /review command in mythos_bot.py",
+        "Register review router in api/main.py",
+        "Restart mythos-bot and mythos-api services"
+    ],
+    "rollback": "Remove the three new files, no DB changes needed"
+}
