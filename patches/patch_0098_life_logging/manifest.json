@@ -1,0 +1,38 @@
+{
+    "patch_number": "0098",
+    "version": "1.18.0",
+    "previous_version": "1.17.1",
+    "description": "Life Logging - message extractor, action executor, and knowledge map",
+    "change_type": "minor",
+    "changes": [
+        "New message_extractor.py - qwen2.5:7b pre-pass extracts structured data from messages",
+        "New action_executor.py - commits extracted actions to database",
+        "New KNOWLEDGE_MAP.md - static reference for extractor (bills, accounts, people, routing)",
+        "New life_events table for capturing events from conversations",
+        "Patched chat_assistant.py with full extractor pipeline (pre-pass → enrich → main model → post-pass execute)",
+        "Extractor detects: bill payments, spending, calendar events, task completions, new tasks, routine completions, life events, balance updates",
+        "Low temperature (0.1) on extractor for reliable structured output",
+        "Knowledge map auto-caches and refreshes on file change"
+    ],
+    "files_created": [
+        "opt/mythos/core/message_extractor.py",
+        "opt/mythos/core/action_executor.py",
+        "opt/mythos/core/migration_0098_life_events.sql",
+        "opt/mythos/core/patch_extractor.py",
+        "opt/mythos/docs/KNOWLEDGE_MAP.md"
+    ],
+    "files_modified": [
+        "opt/mythos/assistants/chat_assistant.py"
+    ],
+    "dependencies": {
+        "python": ["psycopg2", "python-dotenv", "ollama"],
+        "models": ["qwen2.5:7b"],
+        "tables_created": ["life_events"],
+        "patches": ["0096", "0097"]
+    },
+    "manual_steps": [
+        "Ensure qwen2.5:7b is pulled",
+        "Restart mythos-api.service"
+    ],
+    "rollback": "Restore chat_assistant.py from backup, DROP TABLE life_events, remove new files"
+}

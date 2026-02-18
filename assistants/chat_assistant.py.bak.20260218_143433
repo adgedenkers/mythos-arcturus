@@ -20,8 +20,6 @@ from iris_memory import IrisMemory
 import sys
 sys.path.insert(0, "/opt/mythos/core")
 from life_context import build_life_context
-from message_extractor import extract as extract_message, format_extraction_for_context
-from action_executor import execute_actions
 
 load_dotenv('/opt/mythos/.env')
 
@@ -363,22 +361,8 @@ Fitz is their son."""
             # Track response time
             _start_time = time.time()
             
-            # === EXTRACTOR PRE-PASS ===
-            extraction = {"no_action": True}
-            extraction_context = ""
-            try:
-                extraction = extract_message(message)
-                extraction_context = format_extraction_for_context(extraction)
-                if extraction_context:
-                    logger.info(f"Extractor enriched message with: {extraction_context[:100]}")
-            except Exception as e:
-                logger.warning(f"Extractor pre-pass failed (non-fatal): {e}")
-            
             # Build messages with context
-            enriched_message = message
-            if extraction_context:
-                enriched_message = message + "\n\n" + extraction_context
-            messages = self._build_messages(user_uuid, enriched_message, soul_name, model=model)
+            messages = self._build_messages(user_uuid, message, soul_name, model=model)
             
             logger.info(f"Chat: Sending to {model} with {len(messages)} messages for user {user_uuid[:8]}")
             
@@ -423,15 +407,6 @@ Fitz is their son."""
             )
             
             logger.info(f"Chat: Got response ({len(assistant_message)} chars)")
-            
-            # === EXTRACTOR POST-PASS: Execute actions ===
-            try:
-                if not extraction.get("no_action"):
-                    action_results = execute_actions(extraction)
-                    if action_results:
-                        logger.info(f"Executor completed: {action_results}")
-            except Exception as e:
-                logger.warning(f"Action execution failed (non-fatal): {e}")
             
             # Dispatch to grid analysis (async, fire-and-forget)
             self._dispatch_grid_analysis(
