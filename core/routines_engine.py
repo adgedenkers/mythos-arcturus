@@ -20,6 +20,26 @@ from psycopg2.extras import RealDictCursor
 logger = logging.getLogger(__name__)
 
 
+def _is_nth_weekday(target_date, day_of_week, week_of_month):
+    """
+    Check if target_date is the Nth occurrence of a weekday in its month.
+    day_of_week: 0=Mon..6=Sun
+    week_of_month: 1-5 for 1st-5th, -1 for last
+    """
+    if target_date.weekday() != day_of_week:
+        return False
+    
+    if week_of_month == -1:
+        # Last occurrence: check if adding 7 days would leave the month
+        next_week = target_date + timedelta(days=7)
+        return next_week.month != target_date.month
+    else:
+        # Nth occurrence: which occurrence of this weekday is this date?
+        day = target_date.day
+        occurrence = (day - 1) // 7 + 1
+        return occurrence == week_of_month
+
+
 def get_db_connection():
     from dotenv import load_dotenv
     load_dotenv('/opt/mythos/.env')
@@ -50,6 +70,11 @@ def get_routines_due_today(conn=None):
         dom = today.day
         is_weekend = dow >= 5
 
+        week_num = (today.day - 1) // 7 + 1
+        # Check if this is the last occurrence of this weekday
+        next_week = today + timedelta(days=7)
+        is_last = next_week.month != today.month
+
         cur.execute("""
             SELECT r.*,
                    rc.status as completion_status,
@@ -65,10 +90,12 @@ def get_routines_due_today(conn=None):
                   OR (r.frequency = 'weekdays' AND %s < 5)
                   OR (r.frequency = 'weekends' AND %s >= 5)
                   OR (r.frequency = 'weekly' AND r.day_of_week = %s)
-                  OR (r.frequency = 'monthly' AND r.day_of_month = %s)
+                  OR (r.frequency = 'monthly' AND r.day_of_month IS NOT NULL AND r.day_of_month = %s)
+                  OR (r.frequency = 'monthly' AND r.week_of_month IS NOT NULL AND r.day_of_week = %s 
+                      AND (r.week_of_month = %s OR (r.week_of_month = -1 AND %s = true)))
               )
             ORDER BY r.sort_order, r.time_due NULLS LAST
-        """, (today, dow, dow, dow, dom))
+        """, (today, dow, dow, dow, dom, dow, week_num, is_last))
 
         routines = cur.fetchall()
         return routines
@@ -127,6 +154,9 @@ def ensure_today_instances(conn=None):
         today = date.today()
         dow = today.weekday()
         dom = today.day
+        week_num = (today.day - 1) // 7 + 1
+        next_week = today + timedelta(days=7)
+        is_last = next_week.month != today.month
 
         # Get all routines due today that don't have a completion record yet
         cur.execute("""
@@ -140,11 +170,13 @@ def ensure_today_instances(conn=None):
                   OR (r.frequency = 'weekdays' AND %s < 5)
                   OR (r.frequency = 'weekends' AND %s >= 5)
                   OR (r.frequency = 'weekly' AND r.day_of_week = %s)
-                  OR (r.frequency = 'monthly' AND r.day_of_month = %s)
+                  OR (r.frequency = 'monthly' AND r.day_of_month IS NOT NULL AND r.day_of_month = %s)
+                  OR (r.frequency = 'monthly' AND r.week_of_month IS NOT NULL AND r.day_of_week = %s 
+                      AND (r.week_of_month = %s OR (r.week_of_month = -1 AND %s = true)))
               )
             ON CONFLICT (routine_id, due_date) DO NOTHING
             RETURNING routine_id
-        """, (today, dow, dow, dow, dom))
+        """, (today, dow, dow, dow, dom, dow, week_num, is_last))
 
         created = cur.fetchall()
         conn.commit()

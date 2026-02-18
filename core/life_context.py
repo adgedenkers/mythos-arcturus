@@ -55,6 +55,9 @@ def build_life_context() -> str:
         today = date.today()
         dow = today.weekday()
         dom = today.day
+        week_num = (today.day - 1) // 7 + 1
+        next_week = today + timedelta(days=7)
+        is_last = next_week.month != today.month
 
         sections = []
 
@@ -77,10 +80,12 @@ def build_life_context() -> str:
                   OR (r.frequency = 'weekdays' AND %s < 5)
                   OR (r.frequency = 'weekends' AND %s >= 5)
                   OR (r.frequency = 'weekly' AND r.day_of_week = %s)
-                  OR (r.frequency = 'monthly' AND r.day_of_month = %s)
+                  OR (r.frequency = 'monthly' AND r.day_of_month IS NOT NULL AND r.day_of_month = %s)
+                  OR (r.frequency = 'monthly' AND r.week_of_month IS NOT NULL AND r.day_of_week = %s 
+                      AND (r.week_of_month = %s OR (r.week_of_month = -1 AND %s = true)))
               )
             ORDER BY r.sort_order
-        """, (today, dow, dow, dow, dom))
+        """, (today, dow, dow, dow, dom, dow, week_num, is_last))
         routines = cur.fetchall()
 
         if routines:

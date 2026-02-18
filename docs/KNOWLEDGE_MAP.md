@@ -1,8 +1,9 @@
 # Mythos Knowledge Map
 # ====================
-# This file tells the message extractor where information lives
-# and how to route extracted actions. Updated manually as system grows.
-# Last updated: 2026-02-18
+# This file is AUTO-GENERATED from the database.
+# Static sections (People, Locations, Notes, Data Routing) are preserved.
+# Dynamic sections (Accounts, Bills, Routines) are rebuilt on DB changes.
+# Last rebuilt: 2026-02-18 15:47:21
 
 ## People
 - **Adge** (also: Ka'tuar'el, Adriaan, me, I) → the user speaking
@@ -10,49 +11,63 @@
 - **Fitz** (also: son, kid, boy, little man) → son
 
 ## Financial Accounts
-| Reference Names | Account | Type | Abbr |
-|----------------|---------|------|------|
-| Sunmark, SUN, primary checking | Sunmark Credit Union | checking | SUN |
-| USAA, main checking | USAA Federal Savings | checking | USAA |
-| Sidney, SID | Sidney Federal Credit Union | checking | SID |
-| NBT, estate account | NBT Bank | checking | NBT |
-| LLBean, LL Bean, Bean card | L.L.Bean Mastercard | credit | LLBEAN |
-| Tractor Supply, TSC | Tractor Supply Card | credit | TSC |
-| Old Navy, Barclaycard | Old Navy Barclaycard | credit | OLDNAVY |
-| TJX, TJ Maxx, Marshalls | TJX Rewards Mastercard | credit | TJX |
-| Amex, American Express | American Express Blue Cash | credit | AMEX |
-| USAA loan, personal loan | USAA Personal Loan | loan | USAALOAN |
+| Abbreviation | Account Name | Type |
+|-------------|-------------|------|
+| SID | Checking | checking |
+| NBT | Estate | checking |
+| SUN | Primary Checking | checking |
+| USAA | Simple Checking | checking |
+| OLDNAVY | Barclaycard | credit |
+| AMEX | Blue Cash | credit |
+| TSC | Credit Card | credit |
+| TJX | Mastercard | credit |
+| LLBEAN | Mastercard | credit |
+| USAALOAN | Personal Loan | loan |
 
 ## Bills & Utilities
-| Reference Names | Bill | Expected Amount | Day |
-|----------------|------|-----------------|-----|
-| NYSEG, electric, power, electricity | NYSEG | ~$750 | 20 |
-| AT&T, phone, cell, mobile | AT&T | $257 | 14 |
-| Starlink, internet, satellite | Starlink | $120 | 15 |
-| Progressive, car insurance, auto insurance | Progressive | $272 | 9 |
-| Netflix | Netflix | $27 | 26 |
-| Disney, Disney+ | Disney+ | $25 | 3 |
-| YouTube, YT Premium | YouTube Premium | $23 | 3 |
-| Peacock | Peacock | $17 | 12 |
-| Discovery, Discovery+ | Discovery+ | $10 | 30 |
-| OpenAI, ChatGPT | OpenAI | $65 | 6 |
-| Claude, Anthropic | Claude AI | $45 | 12 |
-| Amazon, Prime | Amazon Prime | $20 | 27 |
-| Ancestry | Ancestry | $43 | 15 |
-| Walmart, Walmart+ | Walmart+ | $14 | 16 |
-| Google One, Google storage | Google One | $22 | 15 |
-| Rocket Money | Rocket Money | $8 | 16 |
-| pharmacy, Bartles, meds | Bartles Pharmacy | $53 | 7 |
-| Norwich, family health, doctor | Norwich Family Health | $95 | 23 |
-| chiro, chiropractor, Wansor | Wansor Moses Chiro | $50 | 23 |
-| USAA loan payment, loan | USAA Loan | $544 | 13 |
-| propane, Blueox, heating | Blueox Propane | $455 | as-needed |
-| LLBean payment, Bean payment | L.L.Bean MC Payment | $717 | 14 |
-| Barclaycard payment, Old Navy payment | Barclaycard Payment | $129 | 14 |
-| Amex payment | AMEX Payment | $179 | 16 |
-| Sunmark loan, credit union loan | Sunmark Loan TFR | $157 | 17 |
-| TSC payment, Tractor payment | Tractor Supply Card | $232 | 18 |
-| TJX payment, TJ Maxx payment | TJX Rewards Payment | $56 | 19 |
+| Merchant | Expected Amount | Due Day | Category |
+|----------|----------------|---------|----------|
+| Disney+ | $25 | Day 3 | Entertainment |
+| Hugging Face | $8 | Day 3 | Subscriptions |
+| YouTube Premium | $23 | Day 3 | Subscriptions |
+| OpenAI | $65 | Day 6 | Subscriptions |
+| Bartles Pharmacy | $53 | Day 7 | Healthcare |
+| Progressive | $272 | Day 9 | Insurance |
+| Claude AI | $45 | Day 12 | Subscriptions |
+| Peacock | $17 | Day 12 | Entertainment |
+| USAA Loan | $544 | Day 13 | Loan |
+| AT&T | $257 | Day 14 | Utilities |
+| Barclaycard Payment | $129 | Day 14 | Transfer |
+| L.L.Bean MC Payment | $717 | Day 14 | Transfer |
+| Ancestry | $43 | Day 15 | Subscriptions |
+| Google One | $22 | Day 15 | Subscriptions |
+| Starlink | $120 | Day 15 | Internet |
+| AMEX Payment | $179 | Day 16 | Transfer |
+| Rocket Money | $8 | Day 16 | Subscriptions |
+| Walmart+ | $14 | Day 16 | Subscriptions |
+| Sunmark Loan TFR | $157 | Day 17 | Transfer |
+| Tractor Supply Card | $232 | Day 18 | Transfer |
+| TJX Rewards Payment | $56 | Day 19 | Transfer |
+| NYSEG | $750 | Day 20 | Utilities |
+| Norwich Family Health | $95 | Day 23 | Healthcare |
+| Wansor Moses Chiro | $50 | Day 23 | Healthcare |
+| Netflix | $27 | Day 26 | Entertainment |
+| Amazon Prime | $20 | Day 27 | Subscriptions |
+| Discovery+ | $10 | Day 30 | Entertainment |
+| Blueox Propane | $455 | as-needed | Utilities |
+
+## Active Routines
+| Routine | Frequency | Domain |
+|---------|-----------|--------|
+| Check calendar | daily | personal |
+| Check bank imports | daily | finance |
+| Review transactions | daily | finance |
+| Full monthly financial review | monthly | finance |
+| Subscription audit | monthly | finance |
+| Credit card strategy | monthly | finance |
+| Set monthly targets | monthly | finance |
+| Weekly financial review | weekly (Mon) | finance |
+| Finance conversation with Rebecca | weekly (Mon) | finance |
 
 ## Data Routing
 | Domain | Target | Action |

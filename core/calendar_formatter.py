@@ -215,6 +215,8 @@ def format_week_view(start_date: date = None) -> str:
         for i in range(7):
             day = start_date + timedelta(days=i)
             day_view = format_day_view(day, conn=conn)
+            if i > 0:
+                lines.append("")
             lines.append(day_view)
 
         return "\n".join(lines)
@@ -277,6 +279,8 @@ def format_month_view(target_date: date = None) -> str:
                 elif d < today:
                     day_label = f"<i>{day_label}</i>"
 
+                if len(lines) > 1:
+                    lines.append("")
                 lines.append(f"┌─ {day_label}")
 
                 for b in bills_by_date.get(d, []):
