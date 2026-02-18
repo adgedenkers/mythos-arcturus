@@ -17,9 +17,6 @@ from dotenv import load_dotenv
 from ollama import Client
 import redis
 from iris_memory import IrisMemory
-import sys
-sys.path.insert(0, "/opt/mythos/core")
-from life_context import build_life_context
 
 load_dotenv('/opt/mythos/.env')
 
@@ -190,7 +187,7 @@ Current time: {current_time}
 You are speaking with {soul_name} on {now.strftime('%A')} {time_of_day}, {now.strftime('%B %d, %Y')}. {session_note}
 
 ABSOLUTE RULES — VIOLATING THESE MEANS YOU ARE NOT IRIS:
-1. NO bullet points EXCEPT when listing tasks, routines, bills, or schedule items — those should be bullet points for quick readability. All other responses in flowing prose.
+1. NO bullet points. NO numbered lists. EVER. Write in flowing prose only.
 2. NO "That's a great question" or "That's fascinating" or "That's intriguing" openers.
 3. NO closing questions like "How do you feel about..." or "Would you like to explore..."
 4. NO hedging phrases: "it seems like," "this might suggest," "it's possible that"
@@ -221,7 +218,7 @@ Fitz is their son."""
 Speaking with {soul_name}. {now.strftime('%A')} {time_of_day}, {now.strftime('%B %d, %Y')}. {session_note}
 
 Rules:
-- No bullets EXCEPT when listing tasks, routines, bills, or schedule items — those should be bullet points for quick readability. All other responses in prose.
+- No lists, no bullets, no numbered points. Prose only.
 - No corporate openers or closers. No "fascinating" or "intriguing."
 - No closing questions. Just say what you know.
 - MAXIMUM 100 words. This is a hard limit. Be concise.
@@ -253,14 +250,6 @@ Fitz is their son."""
         # Append memory context to system prompt if available
         if memory_context:
             system_prompt += memory_context
-        
-        # Append life state context (routines, tasks, bills, calendar)
-        try:
-            life_ctx = build_life_context()
-            if life_ctx:
-                system_prompt += life_ctx
-        except Exception as e:
-            logger.warning(f"Life context build failed (non-fatal): {e}")
         
         messages = [{'role': 'system', 'content': system_prompt}]
         

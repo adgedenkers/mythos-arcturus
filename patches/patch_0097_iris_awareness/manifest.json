@@ -1,0 +1,30 @@
+{
+    "patch_number": "0097",
+    "version": "1.17.1",
+    "previous_version": "1.17.0",
+    "description": "Iris Life Awareness - injects routine/task/financial/calendar state into Iris prompt",
+    "change_type": "patch",
+    "changes": [
+        "New life_context.py builder in /opt/mythos/core/",
+        "Patches chat_assistant.py to inject life state into system prompt",
+        "Iris now knows: current date/time, routine status, open tasks, calendar events, balances, upcoming bills, last checkin",
+        "Context is compact (<500 tokens) for local model efficiency",
+        "Instructions tell Iris to use awareness naturally, not recite it"
+    ],
+    "files_created": [
+        "opt/mythos/core/life_context.py",
+        "opt/mythos/core/patch_chat_assistant.py"
+    ],
+    "files_modified": [
+        "opt/mythos/assistants/chat_assistant.py"
+    ],
+    "dependencies": {
+        "python": ["psycopg2", "python-dotenv"],
+        "tables": ["routines", "routine_completions", "checkin_log", "calendar_events", "accounts", "recurring_bills", "bill_overrides", "idea_backlog"],
+        "patches": ["0096"]
+    },
+    "manual_steps": [
+        "Restart mythos-bot.service"
+    ],
+    "rollback": "Restore chat_assistant.py from backup, remove life_context.py"
+}
