@@ -129,10 +129,60 @@ def _build_extractor_prompt() -> str:
     today = date.today()
     now = datetime.now()
 
+    # Build full date reference frame so the model never guesses dates
+    day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    
+    # This week's remaining days
+    this_week = []
+    for i in range(1, 7 - today.weekday()):
+        d = today + timedelta(days=i)
+        this_week.append(f"  {day_names[d.weekday()]} = {d.strftime('%B %d, %Y')}")
+    
+    # Next week
+    days_until_monday = 7 - today.weekday()
+    next_week = []
+    for i in range(7):
+        d = today + timedelta(days=days_until_monday + i)
+        next_week.append(f"  {day_names[d.weekday()]} = {d.strftime('%B %d, %Y')}")
+    
+    # Weekend
+    days_until_sat = 5 - today.weekday()
+    if days_until_sat <= 0:
+        days_until_sat += 7
+    this_sat = today + timedelta(days=days_until_sat)
+    this_sun = this_sat + timedelta(days=1)
+    
+    tomorrow = today + timedelta(days=1)
+    yesterday = today - timedelta(days=1)
+
+    date_frame = f"""DATE REFERENCE — USE THIS FOR ALL DATE RESOLUTION:
+TODAY: {day_names[today.weekday()]}, {today.strftime('%B %d, %Y')}
+YESTERDAY: {day_names[yesterday.weekday()]}, {yesterday.strftime('%B %d, %Y')}
+TOMORROW: {day_names[tomorrow.weekday()]}, {tomorrow.strftime('%B %d, %Y')}
+Current time: {now.strftime('%-I:%M %p')}
+
+REST OF THIS WEEK:
+{chr(10).join(this_week) if this_week else '  (end of week)'}
+
+NEXT WEEK:
+{chr(10).join(next_week)}
+
+THIS WEEKEND: {this_sat.strftime('%B %d')} - {this_sun.strftime('%B %d, %Y')}
+
+RULES FOR DATES:
+- "Thursday" with no qualifier = the NEXT upcoming Thursday = {(today + timedelta(days=(3 - today.weekday()) % 7 or 7)).strftime('%B %d, %Y') if today.weekday() != 3 else today.strftime('%B %d, %Y')}
+- "next Thursday" = Thursday of NEXT week
+- "this weekend" = {this_sat.strftime('%B %d')} - {this_sun.strftime('%B %d')}
+- "today", "tonight" = {today.strftime('%B %d, %Y')}
+- "tomorrow" = {tomorrow.strftime('%B %d, %Y')}
+- "yesterday" = {yesterday.strftime('%B %d, %Y')}
+- ALWAYS output dates as YYYY-MM-DD format
+- If you CANNOT determine the exact date, set date to null"""
+
     return f"""You are a message extraction engine for the Mythos life management system.
 Your job: analyze the user's message and extract ANY actionable structured data.
 
-Current date: {today.strftime('%A, %B %d, %Y')} at {now.strftime('%-I:%M %p')}
+{date_frame}
 
 REFERENCE DATA:
 {knowledge_map}
