@@ -1,0 +1,36 @@
+{
+    "patch_number": "0096",
+    "version": "1.17.0",
+    "previous_version": "1.16.0",
+    "description": "Recurring Routines Engine & Daily Checkin - Iris life management foundation",
+    "change_type": "minor",
+    "changes": [
+        "New routines table for recurring task templates (daily/weekly/monthly)",
+        "New routine_completions table for tracking completion per day",
+        "New checkin_log table for tracking daily checkins",
+        "New calendar_events table for manual event tracking (Google Calendar integration later)",
+        "Routines engine with auto-spawning, completion tracking, briefing generation",
+        "Seeded initial routines: 3 daily (finance), 2 weekly (Sunday), 4 monthly (20th)",
+        "/checkin command - full daily briefing with calendar, routines, tasks, bills, balances",
+        "/routines command - today's routine list with completion status",
+        "/rdone N - mark routine complete",
+        "/rskip N - skip routine for today",
+        "/routine_add - add new recurring routines via Telegram"
+    ],
+    "files_created": [
+        "opt/mythos/core/migration_0096_routines.sql",
+        "opt/mythos/core/routines_engine.py",
+        "opt/mythos/telegram_bot/handlers/checkin_handler.py"
+    ],
+    "files_modified": [],
+    "dependencies": {
+        "python": ["psycopg2", "python-dotenv"],
+        "services": ["postgresql"],
+        "tables_created": ["routines", "routine_completions", "checkin_log", "calendar_events"]
+    },
+    "manual_steps": [
+        "Register 5 new commands in mythos_bot.py",
+        "Restart mythos-bot.service"
+    ],
+    "rollback": "DROP TABLE routine_completions, checkin_log, calendar_events, routines CASCADE; remove 3 new files"
+}
