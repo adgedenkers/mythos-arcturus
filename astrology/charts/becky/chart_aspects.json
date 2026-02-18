@@ -6,6 +6,7 @@
     "Angle": 180.0,
     "Exact Difference": 180.0,
     "Orb": 0.0,
+    "Tier": "major",
     "Motion": "Exact (partile)",
     "Description": "Polarization; reflection and projection; potential for balance or conflict."
   },
@@ -16,6 +17,7 @@
     "Angle": 180.0,
     "Exact Difference": 180.0,
     "Orb": 0.0,
+    "Tier": "major",
     "Motion": "Exact (partile)",
     "Description": "Polarization; reflection and projection; potential for balance or conflict."
   },
@@ -26,6 +28,7 @@
     "Angle": 180.0,
     "Exact Difference": 180.0,
     "Orb": 0.0,
+    "Tier": "major",
     "Motion": "Exact (partile)",
     "Description": "Polarization; reflection and projection; potential for balance or conflict."
   },
@@ -36,6 +39,7 @@
     "Angle": 150.0,
     "Exact Difference": 149.9836,
     "Orb": 0.0164,
+    "Tier": "minor",
     "Motion": "Exact (partile)",
     "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
   },
@@ -46,6 +50,7 @@
     "Angle": 102.857143,
     "Exact Difference": 102.7711,
     "Orb": 0.086,
+    "Tier": "harmonic",
     "Motion": "Exact (partile)",
     "Description": "Septile family; unusual timing/synchrony, creative compulsion."
   },
@@ -56,6 +61,7 @@
     "Angle": 45.0,
     "Exact Difference": 44.898,
     "Orb": 0.102,
+    "Tier": "minor",
     "Motion": "Exact (partile)",
     "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
   },
@@ -66,6 +72,7 @@
     "Angle": 90.0,
     "Exact Difference": 89.8645,
     "Orb": 0.1355,
+    "Tier": "major",
     "Motion": "Exact (partile)",
     "Description": "Dynamic tension; challenges that drive growth and confrontation."
   },
@@ -76,6 +83,7 @@
     "Angle": 90.0,
     "Exact Difference": 90.1355,
     "Orb": 0.1355,
+    "Tier": "major",
     "Motion": "Exact (partile)",
     "Description": "Dynamic tension; challenges that drive growth and confrontation."
   },
@@ -86,6 +94,7 @@
     "Angle": 165.0,
     "Exact Difference": 165.1389,
     "Orb": 0.1389,
+    "Tier": "harmonic",
     "Motion": "Exact (partile)",
     "Description": "Intense focus/compulsion; persistent drive toward integration."
   },
@@ -96,6 +105,7 @@
     "Angle": 102.857143,
     "Exact Difference": 102.5839,
     "Orb": 0.2732,
+    "Tier": "harmonic",
     "Motion": "Exact (partile)",
     "Description": "Septile family; unusual timing/synchrony, creative compulsion."
   },
@@ -106,6 +116,7 @@
     "Angle": 30.0,
     "Exact Difference": 29.7236,
     "Orb": 0.2764,
+    "Tier": "minor",
     "Motion": "Exact (partile)",
     "Description": "Mildly positive; represents potential growth through minor adjustments."
   },
@@ -116,6 +127,7 @@
     "Angle": 60.0,
     "Exact Difference": 60.2954,
     "Orb": 0.2954,
+    "Tier": "major",
     "Motion": "Exact (partile)",
     "Description": "Easy flow of energy; opportunities that require initiative."
   },
@@ -126,6 +138,7 @@
     "Angle": 36.0,
     "Exact Difference": 36.3116,
     "Orb": 0.3116,
+    "Tier": "harmonic",
     "Motion": "Exact (partile)",
     "Description": "Semi-quintile; subtle creativity, finesse and technique."
   },
@@ -136,6 +149,7 @@
     "Angle": 154.285714,
     "Exact Difference": 154.645,
     "Orb": 0.3592,
+    "Tier": "harmonic",
     "Motion": "Exact (partile)",
     "Description": "Septile family; inner calling, synchronistic pressure to adjust."
   },
@@ -146,6 +160,7 @@
     "Angle": 120.0,
     "Exact Difference": 119.5881,
     "Orb": 0.4119,
+    "Tier": "major",
     "Motion": "Exact (partile)",
     "Description": "Harmonious and easy energy exchange; talents and natural flows."
   },
@@ -156,6 +171,7 @@
     "Angle": 60.0,
     "Exact Difference": 60.4119,
     "Orb": 0.4119,
+    "Tier": "major",
     "Motion": "Exact (partile)",
     "Description": "Easy flow of energy; opportunities that require initiative."
   },
@@ -166,6 +182,7 @@
     "Angle": 45.0,
     "Exact Difference": 44.5847,
     "Orb": 0.4153,
+    "Tier": "minor",
     "Motion": "Exact (partile)",
     "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
   },
@@ -176,6 +193,7 @@
     "Angle": 135.0,
     "Exact Difference": 135.4153,
     "Orb": 0.4153,
+    "Tier": "minor",
     "Motion": "Exact (partile)",
     "Description": "Minor challenging aspect; irritations that require discipline."
   },
@@ -186,6 +204,7 @@
     "Angle": 108.0,
     "Exact Difference": 108.4799,
     "Orb": 0.4799,
+    "Tier": "harmonic",
     "Motion": "Exact (partile)",
     "Description": "Quintile family; inventive, elegant problem solving."
   },
@@ -196,6 +215,7 @@
     "Angle": 72.0,
     "Exact Difference": 71.5201,
     "Orb": 0.4799,
+    "Tier": "harmonic",
     "Motion": "Exact (partile)",
     "Description": "Creative/talent-driven link; refined skill or artistry."
   },
@@ -206,6 +226,7 @@
     "Angle": 30.0,
     "Exact Difference": 30.5118,
     "Orb": 0.5118,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Mildly positive; represents potential growth through minor adjustments."
   },
@@ -216,6 +237,7 @@
     "Angle": 30.0,
     "Exact Difference": 30.5718,
     "Orb": 0.5718,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Mildly positive; represents potential growth through minor adjustments."
   },
@@ -226,6 +248,7 @@
     "Angle": 45.0,
     "Exact Difference": 44.3514,
     "Orb": 0.6486,
+    "Tier": "minor",
     "Motion": "Separating",
     "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
   },
@@ -236,6 +259,7 @@
     "Angle": 135.0,
     "Exact Difference": 135.6486,
     "Orb": 0.6486,
+    "Tier": "minor",
     "Motion": "Separating",
     "Description": "Minor challenging aspect; irritations that require discipline."
   },
@@ -246,6 +270,7 @@
     "Angle": 36.0,
     "Exact Difference": 36.6673,
     "Orb": 0.6673,
+    "Tier": "harmonic",
     "Motion": "Applying",
     "Description": "Semi-quintile; subtle creativity, finesse and technique."
   },
@@ -256,6 +281,7 @@
     "Angle": 60.0,
     "Exact Difference": 59.2927,
     "Orb": 0.7073,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Easy flow of energy; opportunities that require initiative."
   },
@@ -266,6 +292,7 @@
     "Angle": 120.0,
     "Exact Difference": 120.7073,
     "Orb": 0.7073,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Harmonious and easy energy exchange; talents and natural flows."
   },
@@ -276,6 +303,7 @@
     "Angle": 165.0,
     "Exact Difference": 164.2893,
     "Orb": 0.7107,
+    "Tier": "harmonic",
     "Motion": "Applying",
     "Description": "Intense focus/compulsion; persistent drive toward integration."
   },
@@ -286,6 +314,7 @@
     "Angle": 108.0,
     "Exact Difference": 108.7203,
     "Orb": 0.7203,
+    "Tier": "harmonic",
     "Motion": "Separating",
     "Description": "Quintile family; inventive, elegant problem solving."
   },
@@ -296,6 +325,7 @@
     "Angle": 45.0,
     "Exact Difference": 45.7226,
     "Orb": 0.7226,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
   },
@@ -306,6 +336,7 @@
     "Angle": 45.0,
     "Exact Difference": 45.7825,
     "Orb": 0.7825,
+    "Tier": "minor",
     "Motion": "Separating",
     "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
   },
@@ -316,6 +347,7 @@
     "Angle": 30.0,
     "Exact Difference": 30.7832,
     "Orb": 0.7832,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Mildly positive; represents potential growth through minor adjustments."
   },
@@ -326,6 +358,7 @@
     "Angle": 154.285714,
     "Exact Difference": 155.0891,
     "Orb": 0.8034,
+    "Tier": "harmonic",
     "Motion": "Applying",
     "Description": "Septile family; inner calling, synchronistic pressure to adjust."
   },
@@ -336,6 +369,7 @@
     "Angle": 60.0,
     "Exact Difference": 60.8111,
     "Orb": 0.8111,
+    "Tier": "major",
     "Motion": "Separating",
     "Description": "Easy flow of energy; opportunities that require initiative."
   },
@@ -346,6 +380,7 @@
     "Angle": 90.0,
     "Exact Difference": 89.1725,
     "Orb": 0.8275,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Dynamic tension; challenges that drive growth and confrontation."
   },
@@ -356,6 +391,7 @@
     "Angle": 45.0,
     "Exact Difference": 44.082,
     "Orb": 0.918,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
   },
@@ -366,6 +402,7 @@
     "Angle": 135.0,
     "Exact Difference": 135.918,
     "Orb": 0.918,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Minor challenging aspect; irritations that require discipline."
   },
@@ -376,6 +413,7 @@
     "Angle": 30.0,
     "Exact Difference": 30.9214,
     "Orb": 0.9214,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Mildly positive; represents potential growth through minor adjustments."
   },
@@ -386,6 +424,7 @@
     "Angle": 150.0,
     "Exact Difference": 149.0786,
     "Orb": 0.9214,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
   },
@@ -396,6 +435,7 @@
     "Angle": 72.0,
     "Exact Difference": 72.9788,
     "Orb": 0.9788,
+    "Tier": "harmonic",
     "Motion": "Applying",
     "Description": "Creative/talent-driven link; refined skill or artistry."
   },
@@ -406,18 +446,9 @@
     "Angle": 165.0,
     "Exact Difference": 166.1605,
     "Orb": 1.1605,
+    "Tier": "harmonic",
     "Motion": "Applying",
     "Description": "Intense focus/compulsion; persistent drive toward integration."
-  },
-  {
-    "Object 1": "Sun",
-    "Object 2": "Neptune",
-    "Aspect": "Tridecile",
-    "Angle": 108.0,
-    "Exact Difference": 109.1719,
-    "Orb": 1.1719,
-    "Motion": "Applying",
-    "Description": "Quintile family; inventive, elegant problem solving."
   },
   {
     "Object 1": "North Node",
@@ -426,6 +457,7 @@
     "Angle": 0.0,
     "Exact Difference": 1.3712,
     "Orb": 1.3712,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
   },
@@ -436,6 +468,7 @@
     "Angle": 180.0,
     "Exact Difference": 178.6288,
     "Orb": 1.3712,
+    "Tier": "major",
     "Motion": "Separating",
     "Description": "Polarization; reflection and projection; potential for balance or conflict."
   },
@@ -446,6 +479,7 @@
     "Angle": 165.0,
     "Exact Difference": 166.4014,
     "Orb": 1.4014,
+    "Tier": "harmonic",
     "Motion": "Applying",
     "Description": "Intense focus/compulsion; persistent drive toward integration."
   },
@@ -456,6 +490,7 @@
     "Angle": 165.0,
     "Exact Difference": 163.5822,
     "Orb": 1.4178,
+    "Tier": "harmonic",
     "Motion": "Separating",
     "Description": "Intense focus/compulsion; persistent drive toward integration."
   },
@@ -466,6 +501,7 @@
     "Angle": 165.0,
     "Exact Difference": 166.4299,
     "Orb": 1.4299,
+    "Tier": "harmonic",
     "Motion": "Applying",
     "Description": "Intense focus/compulsion; persistent drive toward integration."
   },
@@ -476,6 +512,7 @@
     "Angle": 60.0,
     "Exact Difference": 61.4332,
     "Orb": 1.4332,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Easy flow of energy; opportunities that require initiative."
   },
@@ -486,6 +523,7 @@
     "Angle": 120.0,
     "Exact Difference": 118.5668,
     "Orb": 1.4332,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Harmonious and easy energy exchange; talents and natural flows."
   },
@@ -496,6 +534,7 @@
     "Angle": 90.0,
     "Exact Difference": 91.5073,
     "Orb": 1.5073,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Dynamic tension; challenges that drive growth and confrontation."
   },
@@ -506,6 +545,7 @@
     "Angle": 90.0,
     "Exact Difference": 88.4927,
     "Orb": 1.5073,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Dynamic tension; challenges that drive growth and confrontation."
   },
@@ -516,6 +556,7 @@
     "Angle": 30.0,
     "Exact Difference": 28.3941,
     "Orb": 1.6059,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Mildly positive; represents potential growth through minor adjustments."
   },
@@ -526,6 +567,7 @@
     "Angle": 150.0,
     "Exact Difference": 151.6059,
     "Orb": 1.6059,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
   },
@@ -536,6 +578,7 @@
     "Angle": 45.0,
     "Exact Difference": 46.6093,
     "Orb": 1.6093,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
   },
@@ -546,6 +589,7 @@
     "Angle": 135.0,
     "Exact Difference": 133.3907,
     "Orb": 1.6093,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Minor challenging aspect; irritations that require discipline."
   },
@@ -556,6 +600,7 @@
     "Angle": 0.0,
     "Exact Difference": 1.6428,
     "Orb": 1.6428,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
   },
@@ -566,6 +611,7 @@
     "Angle": 60.0,
     "Exact Difference": 61.6666,
     "Orb": 1.6666,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Easy flow of energy; opportunities that require initiative."
   },
@@ -576,6 +622,7 @@
     "Angle": 120.0,
     "Exact Difference": 118.3334,
     "Orb": 1.6666,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Harmonious and easy energy exchange; talents and natural flows."
   },
@@ -586,6 +633,7 @@
     "Angle": 45.0,
     "Exact Difference": 43.2552,
     "Orb": 1.7448,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
   },
@@ -596,6 +644,7 @@
     "Angle": 30.0,
     "Exact Difference": 28.0808,
     "Orb": 1.9192,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Mildly positive; represents potential growth through minor adjustments."
   },
@@ -606,6 +655,7 @@
     "Angle": 30.0,
     "Exact Difference": 31.943,
     "Orb": 1.943,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Mildly positive; represents potential growth through minor adjustments."
   },
@@ -616,6 +666,7 @@
     "Angle": 150.0,
     "Exact Difference": 148.057,
     "Orb": 1.943,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
   },
@@ -626,18 +677,9 @@
     "Angle": 120.0,
     "Exact Difference": 122.05,
     "Orb": 2.05,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Harmonious and easy energy exchange; talents and natural flows."
-  },
-  {
-    "Object 1": "Uranus",
-    "Object 2": "Pluto",
-    "Aspect": "Semi-sextile",
-    "Angle": 30.0,
-    "Exact Difference": 27.9336,
-    "Orb": 2.0664,
-    "Motion": "Separating",
-    "Description": "Mildly positive; represents potential growth through minor adjustments."
   },
   {
     "Object 1": "North Node",
@@ -646,6 +688,7 @@
     "Angle": 60.0,
     "Exact Difference": 57.9215,
     "Orb": 2.0785,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Easy flow of energy; opportunities that require initiative."
   },
@@ -656,6 +699,7 @@
     "Angle": 120.0,
     "Exact Difference": 122.0785,
     "Orb": 2.0785,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Harmonious and easy energy exchange; talents and natural flows."
   },
@@ -666,6 +710,7 @@
     "Angle": 120.0,
     "Exact Difference": 122.0785,
     "Orb": 2.0785,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Harmonious and easy energy exchange; talents and natural flows."
   },
@@ -676,38 +721,9 @@
     "Angle": 60.0,
     "Exact Difference": 57.9215,
     "Orb": 2.0785,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Easy flow of energy; opportunities that require initiative."
-  },
-  {
-    "Object 1": "Mercury",
-    "Object 2": "True Node",
-    "Aspect": "Semi-sextile",
-    "Angle": 30.0,
-    "Exact Difference": 32.2146,
-    "Orb": 2.2146,
-    "Motion": "Applying",
-    "Description": "Mildly positive; represents potential growth through minor adjustments."
-  },
-  {
-    "Object 1": "Lilith",
-    "Object 2": "MC",
-    "Aspect": "Semi-square",
-    "Angle": 45.0,
-    "Exact Difference": 47.2871,
-    "Orb": 2.2871,
-    "Motion": "Applying",
-    "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
-  },
-  {
-    "Object 1": "Lilith",
-    "Object 2": "IC",
-    "Aspect": "Sesquiquadrate",
-    "Angle": 135.0,
-    "Exact Difference": 132.7129,
-    "Orb": 2.2871,
-    "Motion": "Applying",
-    "Description": "Minor challenging aspect; irritations that require discipline."
   },
   {
     "Object 1": "Lilith",
@@ -716,6 +732,7 @@
     "Angle": 120.0,
     "Exact Difference": 122.2905,
     "Orb": 2.2905,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Harmonious and easy energy exchange; talents and natural flows."
   },
@@ -726,38 +743,9 @@
     "Angle": 60.0,
     "Exact Difference": 57.7095,
     "Orb": 2.2905,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Easy flow of energy; opportunities that require initiative."
-  },
-  {
-    "Object 1": "Saturn",
-    "Object 2": "Uranus",
-    "Aspect": "Quintile",
-    "Angle": 72.0,
-    "Exact Difference": 69.7064,
-    "Orb": 2.2936,
-    "Motion": "Applying",
-    "Description": "Creative/talent-driven link; refined skill or artistry."
-  },
-  {
-    "Object 1": "Mercury",
-    "Object 2": "Venus",
-    "Aspect": "Semi-square",
-    "Angle": 45.0,
-    "Exact Difference": 47.4253,
-    "Orb": 2.4253,
-    "Motion": "Separating",
-    "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
-  },
-  {
-    "Object 1": "Sun",
-    "Object 2": "Lilith",
-    "Aspect": "Semi-sextile",
-    "Angle": 30.0,
-    "Exact Difference": 32.426,
-    "Orb": 2.426,
-    "Motion": "Applying",
-    "Description": "Mildly positive; represents potential growth through minor adjustments."
   },
   {
     "Object 1": "Venus",
@@ -766,6 +754,7 @@
     "Angle": 0.0,
     "Exact Difference": 2.5273,
     "Orb": 2.5273,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
   },
@@ -776,6 +765,7 @@
     "Angle": 150.0,
     "Exact Difference": 152.5618,
     "Orb": 2.5618,
+    "Tier": "minor",
     "Motion": "Applying",
     "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
   },
@@ -786,6 +776,7 @@
     "Angle": 0.0,
     "Exact Difference": 2.5782,
     "Orb": 2.5782,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
   },
@@ -796,18 +787,9 @@
     "Angle": 0.0,
     "Exact Difference": 2.7024,
     "Orb": 2.7024,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
-  },
-  {
-    "Object 1": "Uranus",
-    "Object 2": "Neptune",
-    "Aspect": "Semi-sextile",
-    "Angle": 30.0,
-    "Exact Difference": 32.8775,
-    "Orb": 2.8775,
-    "Motion": "Applying",
-    "Description": "Mildly positive; represents potential growth through minor adjustments."
   },
   {
     "Object 1": "Lilith",
@@ -816,18 +798,9 @@
     "Angle": 60.0,
     "Exact Difference": 62.9978,
     "Orb": 2.9978,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Easy flow of energy; opportunities that require initiative."
-  },
-  {
-    "Object 1": "Moon",
-    "Object 2": "Jupiter",
-    "Aspect": "Sesquiquadrate",
-    "Angle": 135.0,
-    "Exact Difference": 131.932,
-    "Orb": 3.068,
-    "Motion": "Applying",
-    "Description": "Minor challenging aspect; irritations that require discipline."
   },
   {
     "Object 1": "Venus",
@@ -836,6 +809,7 @@
     "Angle": 60.0,
     "Exact Difference": 63.3894,
     "Orb": 3.3894,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Easy flow of energy; opportunities that require initiative."
   },
@@ -846,6 +820,7 @@
     "Angle": 180.0,
     "Exact Difference": 176.5168,
     "Orb": 3.4832,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Polarization; reflection and projection; potential for balance or conflict."
   },
@@ -856,18 +831,9 @@
     "Angle": 0.0,
     "Exact Difference": 3.4832,
     "Orb": 3.4832,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
-  },
-  {
-    "Object 1": "Pluto",
-    "Object 2": "Descendant",
-    "Aspect": "Sesquiquadrate",
-    "Angle": 135.0,
-    "Exact Difference": 138.4963,
-    "Orb": 3.4963,
-    "Motion": "Applying",
-    "Description": "Minor challenging aspect; irritations that require discipline."
   },
   {
     "Object 1": "Neptune",
@@ -876,6 +842,7 @@
     "Angle": 90.0,
     "Exact Difference": 94.3108,
     "Orb": 4.3108,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Dynamic tension; challenges that drive growth and confrontation."
   },
@@ -886,6 +853,7 @@
     "Angle": 90.0,
     "Exact Difference": 85.6892,
     "Orb": 4.3108,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Dynamic tension; challenges that drive growth and confrontation."
   },
@@ -896,6 +864,7 @@
     "Angle": 60.0,
     "Exact Difference": 64.369,
     "Orb": 4.369,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Easy flow of energy; opportunities that require initiative."
   },
@@ -906,6 +875,7 @@
     "Angle": 120.0,
     "Exact Difference": 115.631,
     "Orb": 4.369,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Harmonious and easy energy exchange; talents and natural flows."
   },
@@ -916,6 +886,7 @@
     "Angle": 0.0,
     "Exact Difference": 5.1055,
     "Orb": 5.1055,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
   },
@@ -926,7 +897,41 @@
     "Angle": 60.0,
     "Exact Difference": 65.9167,
     "Orb": 5.9167,
+    "Tier": "major",
     "Motion": "Applying",
     "Description": "Easy flow of energy; opportunities that require initiative."
+  },
+  {
+    "Object 1": "Sun",
+    "Object 2": "Saturn",
+    "Aspect": "Conjunction",
+    "Angle": 0.0,
+    "Exact Difference": 6.5879,
+    "Orb": 6.5879,
+    "Tier": "major",
+    "Motion": "Applying",
+    "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+  },
+  {
+    "Object 1": "Saturn",
+    "Object 2": "Ascendant",
+    "Aspect": "Square",
+    "Angle": 90.0,
+    "Exact Difference": 83.2766,
+    "Orb": 6.7234,
+    "Tier": "major",
+    "Motion": "Applying",
+    "Description": "Dynamic tension; challenges that drive growth and confrontation."
+  },
+  {
+    "Object 1": "Saturn",
+    "Object 2": "Descendant",
+    "Aspect": "Square",
+    "Angle": 90.0,
+    "Exact Difference": 96.7234,
+    "Orb": 6.7234,
+    "Tier": "major",
+    "Motion": "Applying",
+    "Description": "Dynamic tension; challenges that drive growth and confrontation."
   }
 ]
