@@ -9,13 +9,16 @@ from pydantic import BaseModel
 from typing import Optional
 import os
 import sys
+import psycopg2
 from dotenv import load_dotenv
 from api.routes.sales import router as sales_router
 from api.routes.finance import router as finance_router
 from api.routes.system import router as system_router
 from api.routes.web import router as web_router
 from api.auth.google_auth import router as auth_router, AuthMiddleware
-import psycopg2
+from api.routes.review import router as review_router
+
+
 
 # Add assistants to path
 sys.path.insert(0, '/opt/mythos/assistants')
@@ -52,7 +55,9 @@ app.include_router(finance_router)
 app.include_router(system_router)
 app.include_router(web_router)
 app.include_router(auth_router)
+app.include_router(review_router, prefix='/api/finance', tags=['finance'])
 app.add_middleware(AuthMiddleware)
+
 
 # CORS configuration
 app.add_middleware(

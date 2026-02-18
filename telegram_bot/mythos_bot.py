@@ -26,6 +26,8 @@ from telegram.ext import (
 from dotenv import load_dotenv
 import requests
 
+from handlers.review_handler import handle_review
+
 # Load environment variables
 load_dotenv('/opt/mythos/.env')
 
@@ -835,7 +837,7 @@ def main():
     application.add_handler(CommandHandler("task", task_command))
     application.add_handler(CommandHandler("tasks", tasks_command))
 
-
+    application.add_handler(CommandHandler('review', handle_review))
 
     # Message handlers
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
