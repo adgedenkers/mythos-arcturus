@@ -29,6 +29,7 @@ import requests
 from handlers.review_handler import handle_review
 
 from handlers.checkin_handler import handle_checkin, handle_routines, handle_rdone, handle_rskip, handle_routine_add
+from handlers.calendar_handler import handle_calendar
 
 # Load environment variables
 load_dotenv('/opt/mythos/.env')
@@ -845,6 +846,7 @@ def main():
     application.add_handler(CommandHandler('rdone', handle_rdone))
     application.add_handler(CommandHandler('rskip', handle_rskip))
     application.add_handler(CommandHandler('routine_add', handle_routine_add))
+    application.add_handler(CommandHandler('calendar', handle_calendar))
 
 
     # Message handlers
