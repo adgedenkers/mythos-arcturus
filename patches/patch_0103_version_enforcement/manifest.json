@@ -1,0 +1,51 @@
+{
+  "manifest_version": "1.0.0",
+  "patch": {
+    "number": "0103",
+    "semantic_version": "1.16.1",
+    "name": "version_enforcement",
+    "title": "Version Enforcement and Process Alignment",
+    "description": "Patch monitor reads manifest.json for version instead of blind auto-increment. Updates .version file. get_next_patch_info.sh reads git tags as source of truth. AI Patch Generation Guide updated with mandatory rules. mversion alias updated.",
+    "date": "2026-02-19",
+    "author": "Claude"
+  },
+  "versioning": {
+    "current_system_version": "1.16.0",
+    "new_system_version": "1.16.1",
+    "version_increment": "patch",
+    "reason": "Process fix, no new features"
+  },
+  "dependencies": {
+    "required_patches": ["0102"],
+    "required_services": ["mythos-patch-monitor.service"],
+    "python_packages": [],
+    "system_packages": []
+  },
+  "changes": {
+    "files_modified": [
+      "/opt/mythos/mythos_patch_monitor.py",
+      "/opt/mythos/patches/scripts/get_next_patch_info.sh",
+      "/opt/mythos/docs/patch_system/AI_PATCH_GENERATION_GUIDE.md"
+    ],
+    "database_changes": [],
+    "services_affected": ["mythos-patch-monitor.service"]
+  },
+  "installation": {
+    "estimated_time_minutes": 2,
+    "requires_restart": true,
+    "requires_sudo": true,
+    "safe_mode": true
+  },
+  "testing": {
+    "verification_steps": [
+      "Run mversion and confirm version shows v1.16.1",
+      "Run mnp and confirm next patch is 0104 / v1.16.2",
+      "Check .version file matches"
+    ]
+  },
+  "rollback": {
+    "safe": true,
+    "complexity": "low",
+    "automated": true
+  }
+}
