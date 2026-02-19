@@ -130,12 +130,46 @@ class GitManager:
         return "v0.0.0"
     
     def increment_version(self, version: str) -> str:
-        """Increment the patch version number"""
+        """Increment the patch version number (fallback when no manifest)"""
         match = re.match(r'v(\d+)\.(\d+)\.(\d+)', version)
         if match:
             major, minor, patch = map(int, match.groups())
             return f"v{major}.{minor}.{patch + 1}"
         return "v1.0.0"
+
+    def get_manifest_version(self, extract_dir) -> str:
+        """Read version from manifest.json if present. Returns 'vX.Y.Z' or None."""
+        import json as _json
+        manifest_path = extract_dir / "manifest.json"
+        if not manifest_path.exists():
+            return None
+        try:
+            with open(manifest_path) as f:
+                manifest = _json.load(f)
+            # Try versioning.new_system_version first, then patch.semantic_version
+            version = (
+                manifest.get('versioning', {}).get('new_system_version')
+                or manifest.get('patch', {}).get('semantic_version')
+            )
+            if version:
+                if not version.startswith('v'):
+                    version = f'v{version}'
+                logger.info(f"Manifest version: {version}")
+                return version
+        except Exception as e:
+            logger.warning(f"Could not read manifest version: {e}")
+        return None
+
+    def update_version_file(self, version: str):
+        """Update /opt/mythos/.version with the current version."""
+        version_str = version.lstrip('v')
+        try:
+            version_file = Path(MYTHOS_ROOT) / '.version'
+            with open(version_file, 'w') as f:
+                f.write(version_str + '\n')
+            logger.info(f"Updated .version to {version_str}")
+        except Exception as e:
+            logger.warning(f"Could not update .version file: {e}")
     
     def has_changes(self) -> bool:
         """Check if there are uncommitted changes"""
@@ -491,10 +525,20 @@ class DownloadsHandler(FileSystemEventHandler):
             # ---- GIT: Commit patch and tag new version ----
             if git_manager and git_manager.is_repo():
                 current_version = git_manager.get_current_version()
-                new_version = git_manager.increment_version(current_version)
+                
+                # Try manifest version first, fall back to auto-increment
+                new_version = None
+                if extract_dir:
+                    new_version = git_manager.get_manifest_version(extract_dir)
+                if not new_version:
+                    new_version = git_manager.increment_version(current_version)
+                    logger.warning(f"No manifest version found, auto-incremented to {new_version}")
                 
                 git_manager.commit_patch(name, files_in_zip)
                 git_manager.tag_version(new_version, f"After applying {name}")
+                
+                # Update .version file
+                git_manager.update_version_file(new_version)
                 
                 # Push to GitHub if enabled
                 if GITHUB_PUSH_ENABLED:

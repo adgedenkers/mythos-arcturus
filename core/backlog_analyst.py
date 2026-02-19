@@ -44,7 +44,7 @@ Your job:
 
 Output STRICT JSON with this structure:
 {
-    "briefing": "Natural language morning briefing, 3-5 sentences, conversational not robotic. This is what Iris sends to Telegram.",
+    "briefing": "Natural language morning briefing, 3-5 sentences, conversational not robotic. ALWAYS include current weather and temperature. If tomorrow is a weekday, include snow day likelihood for Fitz. This is what Iris sends to Telegram.",
     "priorities_today": ["Priority 1 description", "Priority 2", "Priority 3"],
     "urgent_flags": ["Any urgent items — bills due, low balances, overdue routines"],
     "transfer_recommendations": [

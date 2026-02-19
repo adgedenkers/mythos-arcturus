@@ -3,7 +3,7 @@
 # This file is AUTO-GENERATED from the database.
 # Static sections (People, Locations, Notes, Data Routing) are preserved.
 # Dynamic sections (Accounts, Bills, Routines) are rebuilt on DB changes.
-# Last rebuilt: 2026-02-19 09:52:38
+# Last rebuilt: 2026-02-19 11:04:17
 
 ## People
 - **Adge** (also: Ka'tuar'el, Adriaan, me, I) → the user speaking
@@ -20,8 +20,8 @@
 | OLDNAVY | Barclaycard | credit |
 | AMEX | Blue Cash | credit |
 | TSC | Credit Card | credit |
-| LLBEAN | Mastercard | credit |
 | TJX | Mastercard | credit |
+| LLBEAN | Mastercard | credit |
 | USAALOAN | Personal Loan | loan |
 
 ## Bills & Utilities

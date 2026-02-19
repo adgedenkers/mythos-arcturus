@@ -1,53 +1,61 @@
 #!/bin/bash
 # Get next patch number and system version information
 # Outputs JSON suitable for AI consumption
+# Source of truth: git tags for version, patch directories for patch number
 
 set -e
 
-# Find latest patch
-LATEST_PATCH=$(ls -1d /opt/mythos/patches/patch_* 2>/dev/null | sort -V | tail -1)
+MYTHOS_ROOT="/opt/mythos"
+cd "$MYTHOS_ROOT"
 
-if [ -z "$LATEST_PATCH" ]; then
-    # No patches exist yet
-    cat << 'EOF'
-{
-  "latest_patch": null,
-  "latest_version": "1.0.0",
-  "next_patch_integer": "0001",
-  "next_version": "1.0.1",
-  "recommended_name_format": "patch_0001_initial_system",
-  "system_status": "No patches installed"
-}
-EOF
-    exit 0
+# Get version from git tags (source of truth)
+LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+LATEST_VERSION="${LATEST_TAG#v}"  # Strip leading v
+
+# Get latest patch number from directories
+LATEST_PATCH_DIR=$(ls -1d "$MYTHOS_ROOT/patches/patch_"* 2>/dev/null | sort -t_ -k2 -n | tail -1)
+if [ -n "$LATEST_PATCH_DIR" ]; then
+    LATEST_NAME=$(basename "$LATEST_PATCH_DIR")
+    LATEST_NUM=$(echo "$LATEST_NAME" | grep -oP 'patch_\K\d+' || echo "0000")
+else
+    LATEST_NAME="none"
+    LATEST_NUM="0000"
 fi
 
-# Extract info from latest patch
-LATEST_NAME=$(basename "$LATEST_PATCH")
-LATEST_NUM=$(echo "$LATEST_NAME" | grep -oP 'patch_\K\d+' || echo "0000")
+# Check .version file
+VERSION_FILE=$(cat "$MYTHOS_ROOT/.version" 2>/dev/null || echo "unknown")
 
-# Check for manifest
-MANIFEST_FILE="$LATEST_PATCH/manifest.json"
+# Check manifest of latest patch
+MANIFEST_FILE="$LATEST_PATCH_DIR/manifest.json"
+HAS_MANIFEST=false
+MANIFEST_VERSION="unknown"
+PATCH_TITLE="Unknown"
+PATCH_DESC="No manifest found"
 if [ -f "$MANIFEST_FILE" ]; then
-    # Extract version info from manifest
-    LATEST_VERSION=$(jq -r '.versioning.new_system_version // .patch.semantic_version // "1.0.0"' "$MANIFEST_FILE")
-    PATCH_TITLE=$(jq -r '.patch.title' "$MANIFEST_FILE")
-    PATCH_DESC=$(jq -r '.patch.description' "$MANIFEST_FILE")
-else
-    # No manifest, use legacy numbering
-    LATEST_VERSION="1.0.$LATEST_NUM"
-    PATCH_TITLE="Unknown"
-    PATCH_DESC="No manifest found"
+    HAS_MANIFEST=true
+    MANIFEST_VERSION=$(jq -r '.versioning.new_system_version // .patch.semantic_version // "unknown"' "$MANIFEST_FILE")
+    PATCH_TITLE=$(jq -r '.patch.title // "Unknown"' "$MANIFEST_FILE")
+    PATCH_DESC=$(jq -r '.patch.description // "No description"' "$MANIFEST_FILE")
 fi
 
 # Calculate next numbers
 NEXT_NUM=$(printf "%04d" $((10#$LATEST_NUM + 1)))
 
-# Parse semantic version
+# Parse semantic version for increment suggestions
 IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_VERSION"
+MAJOR=${MAJOR:-1}
+MINOR=${MINOR:-0}
+PATCH=${PATCH:-0}
 
-# Default to patch increment
-NEXT_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+NEXT_PATCH="${MAJOR}.${MINOR}.$((PATCH + 1))"
+NEXT_MINOR="${MAJOR}.$((MINOR + 1)).0"
+NEXT_MAJOR="$((MAJOR + 1)).0.0"
+
+# Version alignment check
+ALIGNED=true
+if [ "$VERSION_FILE" != "$LATEST_VERSION" ] && [ "$VERSION_FILE" != "unknown" ]; then
+    ALIGNED=false
+fi
 
 # Output JSON
 cat << EOF
@@ -55,29 +63,33 @@ cat << EOF
   "latest_patch": {
     "directory": "$LATEST_NAME",
     "number": "$LATEST_NUM",
-    "version": "$LATEST_VERSION",
+    "has_manifest": $HAS_MANIFEST,
+    "manifest_version": "$MANIFEST_VERSION",
     "title": "$PATCH_TITLE",
-    "description": "$PATCH_DESC",
-    "has_manifest": $([ -f "$MANIFEST_FILE" ] && echo "true" || echo "false")
+    "description": "$PATCH_DESC"
+  },
+  "version": {
+    "git_tag": "$LATEST_TAG",
+    "version_file": "$VERSION_FILE",
+    "aligned": $ALIGNED,
+    "source_of_truth": "git tag: $LATEST_TAG"
   },
   "next_patch": {
-    "integer": "$NEXT_NUM",
-    "version_patch": "$NEXT_VERSION",
-    "version_minor": "${MAJOR}.$((MINOR + 1)).0",
-    "version_major": "$((MAJOR + 1)).0.0",
-    "recommended_format": "patch_${NEXT_NUM}_description_name",
-    "new_format": "${NEXT_VERSION}_description_name"
+    "number": "$NEXT_NUM",
+    "format": "patch_${NEXT_NUM}_description",
+    "version_if_patch": "$NEXT_PATCH",
+    "version_if_minor": "$NEXT_MINOR",
+    "version_if_major": "$NEXT_MAJOR"
   },
   "versioning_guide": {
-    "PATCH": "Bug fixes, small changes (${MAJOR}.${MINOR}.X)",
-    "MINOR": "New features, backward compatible (${MAJOR}.X.0)",
-    "MAJOR": "Breaking changes, major refactor (X.0.0)"
+    "PATCH": "Bug fixes, small changes → $NEXT_PATCH",
+    "MINOR": "New features, backward compatible → $NEXT_MINOR",
+    "MAJOR": "Breaking changes, major refactor → $NEXT_MAJOR"
   },
   "system_status": {
-    "total_patches": $(ls -1d /opt/mythos/patches/patch_* 2>/dev/null | wc -l),
-    "patches_with_manifests": $(find /opt/mythos/patches/patch_*/manifest.json 2>/dev/null | wc -l),
-    "current_system_version": "$LATEST_VERSION"
-  },
-  "note": "After patch_0080, use semantic versioning: MAJOR.MINOR.PATCH"
+    "total_patches": $(ls -1d "$MYTHOS_ROOT/patches/patch_"* 2>/dev/null | wc -l),
+    "patches_with_manifests": $(find "$MYTHOS_ROOT/patches/patch_"*/manifest.json 2>/dev/null | wc -l || echo 0),
+    "total_git_tags": $(git tag -l "v*" | wc -l)
+  }
 }
 EOF
