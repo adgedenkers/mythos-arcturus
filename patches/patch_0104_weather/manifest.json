@@ -1,0 +1,56 @@
+{
+  "manifest_version": "1.0.0",
+  "patch": {
+    "number": "0104",
+    "semantic_version": "1.17.0",
+    "name": "weather_service",
+    "title": "Weather Service and /weather Command",
+    "description": "Shared weather service module using Open-Meteo API. /weather command for Telegram with geocoding support (zip codes, city/state). Analyst refactored to use shared weather module. Snow day likelihood for Fitz included in briefings.",
+    "date": "2026-02-19",
+    "author": "Claude"
+  },
+  "versioning": {
+    "current_system_version": "1.16.1",
+    "new_system_version": "1.17.0",
+    "version_increment": "minor",
+    "reason": "New feature: weather service and /weather command"
+  },
+  "dependencies": {
+    "required_patches": ["0103"],
+    "required_services": ["mythos-bot.service"],
+    "python_packages": [],
+    "system_packages": []
+  },
+  "changes": {
+    "files_added": [
+      "/opt/mythos/core/weather_service.py",
+      "/opt/mythos/telegram_bot/handlers/weather_handler.py"
+    ],
+    "files_modified": [
+      "/opt/mythos/core/backlog_analyst.py",
+      "/opt/mythos/telegram_bot/mythos_bot.py"
+    ],
+    "database_changes": [],
+    "services_affected": ["mythos-bot.service"]
+  },
+  "installation": {
+    "estimated_time_minutes": 2,
+    "requires_restart": true,
+    "requires_sudo": true,
+    "safe_mode": true,
+    "manual_wiring_required": true
+  },
+  "testing": {
+    "verification_steps": [
+      "/weather → Oxford NY weather",
+      "/weather 90210 → Beverly Hills weather",
+      "/weather Denver, CO → Denver weather",
+      "/briefing → Should include weather"
+    ]
+  },
+  "rollback": {
+    "safe": true,
+    "complexity": "low",
+    "automated": true
+  }
+}
