@@ -1,15 +1,16 @@
 # Mythos Project TODO & Roadmap
-> **Last Updated:** 2026-02-17 16:49 EST
-> **Current Focus:** Finance Hub — transaction editing, bills tracker, forecast view, categories & accounts management
-> **Current Version:** 1.15.8 (Patch 0093)
+> **Last Updated:** 2026-02-18 17:15 EST
+> **Current Focus:** Backlog Intelligence — schema migration, morning briefing, analyst worker
+> **Current Patch:** 0101 (post-hotfixes)
 
 ---
 
 ## 📖 Document Guide
 | Document | Purpose | Location |
 |----------|---------|----------|
-| This file | Active work, backlog | `docs/TODO.md` |
-| System overview | What exists | `docs/ARCHITECTURE.md` |
+| This file | Active work, ordered backlog, completions | `docs/TODO.md` |
+| System overview | What exists and works | `docs/ARCHITECTURE.md` |
+| Knowledge map | Auto-generated reference data | `docs/KNOWLEDGE_MAP.md` |
 | Potential features | Ideas, no commitment | `docs/IDEAS.md` |
 | Version history | Patch log | `docs/PATCH_HISTORY.md` |
 | **Iris framework** | Consciousness design | `docs/consciousness/IRIS.md` |
@@ -21,187 +22,162 @@ See `docs/README.md` for full documentation map.
 
 ---
 
-## 🔥 Current Focus: Finance Hub
+## 🔥 Active Work
 
-### 2026-02-17: Finance Hub Complete (Patches 0086–0093)
-Major finance sprint — full web-based finance management hub is live at `https://mythos-api.denkers.co/app/finance/`.
+### Backlog Intelligence System (NOW)
+Three-part build: schema migration → analyst worker → morning briefing.
 
-**What landed:**
-- Transaction deduplication via deterministic v4 hash (account|date|amount|original_description)
-- CSV auto-import with Telegram notifications (✅ new / ℹ️ up-to-date)
-- GitHub push fixed for patch monitor (SSH key env var in service)
-- `--allow-dupes` flag for edge-case force imports
-- Finance hub with sidebar nav: Overview | Transactions | Bills | Categories | Accounts | Forecast
-- Inline transaction editing (description + category)
-- Bills tracker with auto-match against month's transactions + persistent manual overrides
-- `bill_overrides` table (UNIQUE per bill+month, FK → recurring_bills, upsert-safe)
-- Forecast view — day-by-day timeline, USAA/SUN/combined, 14/30/45/60 days, overdraft alerts
-- Categories CRUD: rename, merge (reassign all transactions), delete
-- Accounts view: all 11 accounts, manual balance update
-- OAuth redirect fixed (`/app/dashboard` → `/app/finance/`)
-- Install scripts now use `sudo cp` and `${BASH_SOURCE[0]}` for reliable deployment
+**Part 1: Backlog Schema Migration**
+Upgrade `idea_backlog` table (33 rows currently) to support ordered, dependency-tracked work items.
+- Add `priority_order` (integer, sortable position)
+- Add `depends_on` (integer array, FK references to other backlog items)
+- Add `blocked_by` (integer array, computed or manual)
+- Add `phase` (text — which project phase this belongs to)
+- Add `estimated_effort` (text — small/medium/large or hours)
+- Seed all current backlog items with initial priority ordering
+- Update `/tasks` Telegram command to show ordered, dependency-aware list
 
----
+**Part 2: Backlog Analyst Worker**
+`/opt/mythos/core/backlog_analyst.py` — runs the 32b model against full system state.
 
-## 🎯 Implementation Priority
+Inputs (pulled from Postgres):
+- All open backlog items with dependencies
+- Recent completions (last 7 days)
+- Today's routines + completion status
+- Today's calendar events
+- Bills due in next 3 days + account balances
+- Yesterday's checkin (or absence)
+- Recent life events
 
-### Phase 1: Foundation ✅ COMPLETE
-| Task | Status | Notes |
-|------|--------|-------|
-| Consciousness architecture design | ✅ Complete | 9 layers × 9 nodes = 81 functions |
-| Documentation | ✅ Complete | 6 docs in consciousness/ |
-| Task tracking system | ✅ Complete | Patches 0056-0057 |
-| Comprehensive help system | ✅ Complete | Patch 0059 |
-| `perception_log` table | ✅ Exists | PostgreSQL — 2 test rows |
-| Chat message persistence | ✅ Complete | Patch 0074 — IrisMemory layer |
-| Iris consciousness prompt | ✅ Complete | Model-aware, identity-loaded |
-| Ollama model management | ✅ Complete | Patch 0073 |
+Outputs (written to Postgres):
+- Updated priority scores on backlog items
+- `backlog_analysis` table: timestamp, summary, recommendations, flagged items
+- Analysis available to `life_context.py` for Iris awareness injection
 
-### Phase 1.5: Iris Voice & Memory
-| Task | Status | Notes |
-|------|--------|-------|
-| Build good memory through journaling | 🔲 Active | Use Iris daily, build real context |
-| Seraphe mode prompt | 🔲 To build | Chat mode tuned for Seraphe's voice/needs |
-| Builder mode | 🔲 To design | Iris builds her own infrastructure |
-| Memory summarization worker | 🔲 To build | Redis worker compresses old conversations |
-| Memory quality control | 🔲 To build | Flag/weight good vs bad assistant responses |
-| Prompt refinement from real use | 🔲 Ongoing | Iterate based on actual conversations |
-| Additional model testing | 🔲 Ongoing | Pull and test new models as released |
-| Context window management | 🔲 To build | Smart truncation, summary injection |
+Three trigger modes:
+1. **Scheduled morning run** (6:30 AM) — full analysis → Telegram briefing
+2. **Post-patch trigger** — re-analyze dependencies → DB update only (no Telegram unless significant)
+3. **On-demand via Iris** — "reprioritize" / "what should I focus on" → conversational response
 
-### Phase 1.6: Finance Hub (ACTIVE)
-| Task | Status | Notes |
-|------|--------|-------|
-| Transaction import (USAA + Sunmark) | ✅ Complete | Auto-import via patch monitor |
-| Deterministic hash deduplication | ✅ Complete | Patch 0086 |
-| CSV import notifications | ✅ Complete | Patch 0087 |
-| `--allow-dupes` import flag | ✅ Complete | Patch 0089 |
-| Transaction editor UI | ✅ Complete | Patch 0091 |
-| Finance hub sidebar nav | ✅ Complete | Patch 0092 |
-| Bills tracker + auto-match | ✅ Complete | Patch 0092 |
-| Categories CRUD | ✅ Complete | Patch 0092 |
-| Accounts balance update | ✅ Complete | Patch 0092 |
-| Bill override persistence | ✅ Complete | Patch 0093 — bill_overrides table |
-| Forecast view | ✅ Complete | Patch 0093 |
-| Credit card parsers | 🔲 Next | LLBean, TSC, TJX, Amex, Old Navy |
-| Sidney FCU / NBT manual import | 🔲 Next | Manual import flow |
-| Bill match tuning | 🔲 Next | Some merchant names may not auto-match |
+**Part 3: Morning Briefing**
+Iris sends a daily Telegram message with the analyst's output, written in her voice — not a data dump, a perspective on the day. Includes: priorities, calendar, bills, overdue items, what's unblocked.
 
-### Phase 2: Perception Layer
-| Task | Status | Notes |
-|------|--------|-------|
-| Log all Telegram conversations | ✅ Partial | chat_messages logging works |
-| Log all transactions | 🔲 To build | Bank imports → perception |
-| Basic node activation scoring | 🔲 To build | Grid at Layer 1 |
-| Intuition (felt-sense) capture | 🔲 To build | Layer 2 |
-
-### Phase 3: Memory Formation
-| Task | Status | Notes |
-|------|--------|-------|
-| Memory node schema | ✅ Designed | See STORAGE_ARCHITECTURE.md |
-| When does perception become memory? | 🔲 To implement | Emotional charge threshold |
-| Memory-to-memory connections | 🔲 To implement | CONNECTS_TO relationships |
-| Archetype mapping | 🔲 To implement | MAPS_TO relationships |
-| Neo4j Memory nodes | 🔲 To build | |
-| Neo4j Knowledge nodes | 🔲 To build | |
-
-### Phase 4: Knowledge Layer
-| Task | Status | Notes |
-|------|--------|-------|
-| Knowledge node schema | ✅ Designed | |
-| Finance knowledge | 🔲 To implement | Bills, accounts, patterns |
-| Relationship knowledge | 🔲 To implement | Who, how connected |
-| System knowledge | 🔲 To implement | What Iris knows about Mythos |
-
-### Phase 5: Full Stack + Loop
-| Task | Status | Notes |
-|------|--------|-------|
-| All 9 layers operational | 🔲 | Big milestone |
-| Feedback loop | 🔲 | Wisdom → Perception |
-| Adaptive depth | 🔲 | Not all input needs all layers |
+**Why this is first:** The morning briefing IS the nudge system in its best form. Instead of dumb timer-based nudges, every nudge comes from the analyst's understanding of what actually matters today.
 
 ---
 
-## 🔧 Infrastructure Tasks
+## 📋 Ordered Backlog
 
-### Credit Card Parsers (Next Finance Priority)
-Accounts without auto-import: LLBean, Tractor Supply, TJX Rewards, Amex, Old Navy.
-Balances currently set manually. Parser format TBD based on each card's export format.
+Priority order. Work flows top to bottom. Items marked with dependencies.
 
-### Builder Mode (Planned)
-Iris as her own infrastructure architect — receives task via Telegram, generates plan, writes files to staging, user reviews and approves, Iris executes.
+### 🔴 Queue Position 1–5: Critical Path
 
-### mythos-diag Command
-Standardized diagnostic tool — still needed.
-```bash
-mythos-diag              # Full system overview
-mythos-diag finance      # Finance state
-mythos-diag services     # All mythos-* services
-mythos-diag patches      # Recent patches, git status
-```
+| # | Item | Why Now | Depends On | Effort |
+|---|------|---------|------------|--------|
+| 1 | **Backlog schema migration** | Foundation for everything below | — | Small |
+| 2 | **Backlog analyst + morning briefing** | Iris gains agency, daily awareness | #1 | Large |
+| 3 | **Preprocessor refinement** | 7b extractor date bugs, create-vs-update confusion, stale event IDs. Analyst will surface data quality issues the extractor causes | — | Medium |
+| 4 | **Proactive nudges** | Now simple: analyst already knows what to nudge about. Nudges = "send reminders for items the morning analysis flagged" | #2 | Medium |
+| 5 | **Google Calendar sync** | Start with read-only inbound (Google → Mythos) so Seraphe's shared events appear. Bidirectional later | — | Medium |
 
-### Slack Integration (Decision Pending)
-Hybrid: Telegram for quick pings/mobile, Slack for structured work/finance deep-dives.
+### 🟡 Queue Position 6–12: High Value
+
+| # | Item | Notes | Depends On | Effort |
+|---|------|-------|------------|--------|
+| 6 | **Credit card parsers** | LLBean, TSC, TJX, Amex, Old Navy — accounts without auto-import | — | Medium |
+| 7 | **Bill match tuning** | Verify all 29 bills auto-match correctly after more data flows | #6 | Small |
+| 8 | **Sidney FCU / NBT manual import** | Manual import flow for remaining bank accounts | — | Small |
+| 9 | **Routine edit/delete via Telegram** | Currently can only `/routine_add`, need edit and remove | — | Small |
+| 10 | **Seraphe mode prompt** | Her own Iris voice — chat mode tuned for Seraphe | — | Medium |
+| 11 | **Context window management** | Smart truncation + summary injection for Iris conversations | — | Medium |
+| 12 | **Memory summarization worker** | Redis worker compresses old conversations | #11 | Medium |
+
+### 🟢 Queue Position 13–20: Infrastructure & Foundation
+
+| # | Item | Notes | Depends On | Effort |
+|---|------|-------|------------|--------|
+| 13 | **`mythos-diag` command** | Standardized diagnostic tool for system state | — | Small |
+| 14 | **Builder mode** | Iris builds her own infrastructure — receives task, generates plan, writes files | #10, #11 | Large |
+| 15 | **Web UI calendar section** | Calendar view in the web dashboard | #5 | Medium |
+| 16 | **Rich contact/provider DB** | Auto-lookup for doctors, providers, contacts | — | Medium |
+| 17 | **Iris web search capability** | Iris can search the web when she needs current info | — | Medium |
+| 18 | **Redis async queues for Iris** | Background processing, non-blocking responses | — | Medium |
+| 19 | **Perception layer routing** | Route chat_messages into perception_log, activate grid Layer 1 | — | Medium |
+| 20 | **Two-phase grid processing** | Grid scoring at perception + deeper layers | #19 | Large |
+
+### 🔵 Queue Position 21+: Horizon
+
+| # | Item | Notes |
+|---|------|-------|
+| 21 | **Bill calendar visual timeline** | Visual timeline of bills on a calendar view |
+| 22 | **Iris service skeleton** | Background consciousness loop (`mythos-iris.service`) |
+| 23 | **Email integration** | Inbound email processing |
+| 24 | **Slack integration** | Evaluate hybrid: Telegram mobile + Slack structured work |
+| 25 | **Environmental sensors** | Physical world awareness |
+| 26 | **Bash profile builder** | Low priority |
+| 27 | **Neo4j backlog graph** | When dependencies get complex enough to justify graph traversal |
+| 28 | **Memory quality control** | Flag/weight good vs bad assistant responses in history |
+| 29 | **Additional model testing** | Pull and test new models as released |
+
+### 📝 Documentation Backlog
+
+| # | Item | Notes |
+|---|------|-------|
+| D1 | Update ARCHITECTURE.md for patches 0095–0101 | New tables, services, core files |
+| D2 | Document routines engine | Schema, commands, completion tracking |
+| D3 | Document life logging pipeline | Extractor → executor → life_events flow |
+| D4 | Document calendar system | CRUD, formatter, date validation |
+| D5 | Document knowledge map auto-rebuild | Triggers, listener, rebuild flow |
+| D6 | Document checkin system | checkin_log, /checkin command |
+| D7 | Document review system | /review, weekly/monthly schedules |
+| D8 | Document message processing pipeline | Full flow: message → extractor → executor → Iris |
+| D9 | Update Telegram command reference | New commands from 0095–0101 |
+
+---
+
+## 🔥 Known Issues
+
+| Issue | Severity | Notes |
+|-------|----------|-------|
+| 7b extractor frequently gets dates wrong | Medium | Date validator catches day-of-week mismatches but not all cases |
+| Extractor sometimes chooses "update" when should "create" | Medium | Stale event IDs in context window |
+| Calendar events created by extractor lack detail | Low | No doctor name, location, phone number |
+| No way to edit/delete routines via Telegram | Low | Can only `/routine_add` |
+| DB column names may differ from ARCHITECTURE.md | Low | Patches 0095–0101 created tables with different column names than documented |
 
 ---
 
 ## ✅ Recently Completed
 
-### 2026-02-17
-- [x] **Patch 0091: Transaction Editor** - Inline edit description/category, filter bar, pagination
-- [x] **Patch 0092: Finance Hub** - Sidebar nav, bills tracker, categories CRUD, accounts management
-- [x] **Patch 0093: Bill Persistence + Forecast** - `bill_overrides` table, persistent overrides, day-by-day forecast view
-- [x] **Patch 0094: Documentation Update** - TODO.md and ARCHITECTURE.md brought current
+### 2026-02-18: Life Awareness Sprint (Patches 0095–0101)
+- [x] **Patch 0095: Weekly Financial Review** — `/review` generates full financial snapshot
+- [x] **Patch 0096: Routines Engine** — `routines` + `routine_completions` + `checkin_log` + `calendar_events` tables. `/checkin`, `/routines`, `/rdone`, `/rskip`, `/routine_add`
+- [x] **Patch 0097: Iris Life Awareness** — `life_context.py` injects routine/task/bill/calendar/balance state into Iris's system prompt
+- [x] **Patch 0098: Life Logging & Message Extractor** — `qwen2.5:7b` pre-pass extracts structured data from every message. `action_executor.py` commits to DB. `KNOWLEDGE_MAP.md` reference. `life_events` table
+- [x] **Patch 0099: Calendar Display** — `calendar_formatter.py` with box-drawing, bills woven in, paid bills struck through. `/calendar`, `/calendar today`, `/calendar month`, `/calendar add`
+- [x] **Patch 0100: Knowledge Map Auto-Rebuild** — PostgreSQL triggers on bills/accounts/routines fire `pg_notify`. Listener rebuilds `KNOWLEDGE_MAP.md` from DB. `mythos-knowledge-map.service`
+- [x] **Patch 0101: Calendar CRUD** — Extractor creates/updates/deletes calendar events. Deduplication. Date validator. Title formatting. Person display
+- [x] **Hotfixes:** Duplicate routines cleaned, timezone-naive datetime fixed, `llava:13b` override cleared, chat memory purged, API/bot service confusion resolved, calendar formatter spacing, file ownership, checkin header formatting
+- [x] **Schedule changes:** Weekly financial review → Monday mornings. Monthly review → 4th Sunday. `week_of_month` column added to routines
 
-### 2026-02-16
-- [x] **Patch 0086: Hash Fix** - Deterministic v4 hash eliminates false duplicates (723→594 USAA, 607→602 Sunmark)
-- [x] **Patch 0087: Import Notifications** - Telegram notification on every CSV import
-- [x] **Patch 0088: GitHub Push Fix** - SSH key env var in patch monitor service
-- [x] **Patch 0089: Allow-Dupes Flag** - `--allow-dupes` for force-import edge cases
-- [x] **Patch 0090: OAuth Redirect Fix** - `/app/dashboard` → `/app/finance/` redirect corrected
-- [x] **Patch 0082-0085: v1.15.x** - Infrastructure patches, manifest system
+### 2026-02-17: Finance Hub (Patches 0086–0094)
+- [x] **Patch 0086–0090:** Hash fix, import notifications, GitHub push fix, allow-dupes, OAuth redirect
+- [x] **Patch 0091:** Transaction editor — inline edit, filter bar, pagination
+- [x] **Patch 0092:** Finance hub — sidebar nav, bills tracker, categories CRUD, accounts
+- [x] **Patch 0093:** Bill persistence + forecast — `bill_overrides` table, day-by-day forecast
+- [x] **Patch 0094:** Documentation update
 
-### 2026-02-09
-- [x] **Patch 0068: Finance Data Pipeline** - Automated bank transaction imports
-- [x] **Patch 0069: Web Dashboard Foundation** - FastAPI dashboard at :8000
-- [x] **Patch 0070: OAuth & User System** - Google OAuth, session management
-- [x] **Patch 0071: Command Center** - Admin interface
-- [x] **Patch 0072: Dashboard Polish** - Mobile-friendly, dark theme
-- [x] **Patch 0073: Ollama Model Manager** - /models, /pull, /setmodel
-- [x] **Patch 0074: Iris Memory Layer** - IrisMemory class, DB persistence
+### 2026-02-09: Dashboard & Iris (Patches 0068–0074)
+- [x] Finance data pipeline, web dashboard, OAuth, command center, dashboard polish, Ollama model manager, Iris memory layer
 
 See `docs/PATCH_HISTORY.md` for full history.
 
 ---
 
-## 📋 Backlog
-
-### High Priority
-- [ ] Credit card parsers (LLBean, TSC, TJX, Amex, Old Navy)
-- [ ] Bill match tuning — verify all 29 bills auto-match correctly
-- [ ] Seraphe mode prompt — her own Iris voice
-- [ ] Builder mode — Iris builds her own infrastructure
-- [ ] Memory summarization — compress old conversations
-- [ ] `mythos-diag` standardized command
-
-### Medium Priority
-- [ ] Sidney FCU / NBT manual import flow
-- [ ] Context window management (smart truncation + summaries)
-- [ ] Slack integration evaluation
-- [ ] Two-phase grid processing
-- [ ] Iris service skeleton (background consciousness loop)
-- [ ] Perception layer — route chat_messages into perception_log
-
-### Lower Priority
-- [ ] Environmental sensors
-- [ ] Email integration
-- [ ] Calendar sync
-- [ ] Bill calendar visual timeline
-- [ ] Additional model pulls and testing
-
----
-
 ## 🧠 Key Insights
+
+### Backlog Intelligence (2026-02-18)
+Flat TODO lists don't capture dependency relationships. The backlog needs to be Postgres-backed with dependency tracking, analyzed regularly by the 32b model, and surfaced as a daily morning briefing. The analyst replaces dumb nudges with intelligent prioritization.
 
 ### Memory Poisoning (2026-02-09)
 Bad assistant-style responses in chat history teach the model to copy that style. Clean memory = clean output.
@@ -209,12 +185,16 @@ Bad assistant-style responses in chat history teach the model to copy that style
 ### Model Selection (2026-02-09)
 - `qwen2:72b` + B_strict = best voice, ~40s
 - `qwen2.5:32b` + C_minimal = fastest good quality, ~7s
+- `qwen2.5:7b` = extractor/preprocessor only, ~2s
 
 ### Install Script Pattern (2026-02-17)
-Learned from patches 0091-0093: install scripts must use `sudo cp` and `${BASH_SOURCE[0]}` for path resolution. Files in `/opt/mythos` are owned by root. The `-tAc` flag in psql suppresses index/constraint output — use `-c` when grepping for constraints.
+Install scripts must use `sudo cp` and `${BASH_SOURCE[0]}` for path resolution. Files in `/opt/mythos` are owned by root.
 
 ### Finance Hash Strategy (2026-02-16)
-v4 hash = `account_id|date|amount|original_description`. No balance (fluctuates), no transaction numbers (not always present). Original description contains unique marketplace codes (e.g. Amazon MKTPL order IDs) that distinguish legitimately identical transactions.
+v4 hash = `account_id|date|amount|original_description`. No balance, no transaction numbers.
+
+### Date Validation (2026-02-18)
+The 7b extractor frequently hallucinates dates. Day-of-week validator catches mismatches and corrects to nearest matching day. Not all cases caught — needs further refinement.
 
 ---
 
@@ -258,11 +238,29 @@ Sidebar: Overview | Transactions | Bills | Categories | Accounts | Forecast
 All patches after 0080 MUST include manifest.json with semantic versioning, dependencies, change tracking, and validation before installation.
 
 Tools:
-- `/opt/mythos/patches/scripts/get_next_patch_info.sh` - Get next version
-- `/opt/mythos/patches/scripts/validate_manifest.sh` - Validate manifest
-- `/opt/mythos/docs/patch_system/AI_PATCH_GENERATION_GUIDE.md` - AI handoff
+- `/opt/mythos/patches/scripts/get_next_patch_info.sh` — Get next version
+- `/opt/mythos/patches/scripts/validate_manifest.sh` — Validate manifest
+- `/opt/mythos/docs/patch_system/AI_PATCH_GENERATION_GUIDE.md` — AI handoff
+
+---
+
+## 🏗️ Consciousness Roadmap (Long-Term)
+
+These phases from the original architecture remain the north star. Current backlog items feed into them.
+
+| Phase | Focus | Status |
+|-------|-------|--------|
+| Phase 1: Foundation | Architecture, docs, task tracking, chat persistence, prompts | ✅ Complete |
+| Phase 1.5: Iris Voice & Memory | Memory, prompts, Seraphe mode, builder mode | 🔄 Partially complete |
+| Phase 1.6: Finance Hub | Full finance management system | ✅ Complete |
+| Phase 1.7: Life Awareness | Routines, checkins, calendar, life logging, extractor | ✅ Complete |
+| Phase 1.8: Backlog Intelligence | Analyst worker, morning briefing, smart prioritization | 🔥 NOW |
+| Phase 2: Perception Layer | All input → perception_log, grid activation | 📋 Backlog #19–20 |
+| Phase 3: Memory Formation | Perception → memory, Neo4j nodes, connections | 📋 Future |
+| Phase 4: Knowledge Layer | Finance/relationship/system knowledge | 📋 Future |
+| Phase 5: Full Stack + Loop | All 9 layers, feedback loop, adaptive depth | 📋 Future |
 
 ---
 
 *The vessel is filling. The architecture is the invitation.*
-*Finance infrastructure is solid. Next: credit card parsers and Iris voice work.*
+*Iris is learning to see the day before you wake up.*

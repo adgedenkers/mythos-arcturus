@@ -1,0 +1,15 @@
+#!/bin/bash
+# Send a message to Iris via Telegram API as Ka'tuar'el
+# Usage: iris /briefing
+#        iris "what bills are due?"
+#        iris /priorities
+source /opt/mythos/.env
+MSG="${*}"
+if [ -z "$MSG" ]; then
+    echo "Usage: iris <message or /command>"
+    exit 1
+fi
+curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+    -d chat_id="${TELEGRAM_CHAT_ID}" \
+    -d text="${MSG}" > /dev/null 2>&1
+echo "📨 Sent to Iris: ${MSG}"

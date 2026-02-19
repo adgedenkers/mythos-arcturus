@@ -3,7 +3,7 @@
 # This file is AUTO-GENERATED from the database.
 # Static sections (People, Locations, Notes, Data Routing) are preserved.
 # Dynamic sections (Accounts, Bills, Routines) are rebuilt on DB changes.
-# Last rebuilt: 2026-02-18 15:47:21
+# Last rebuilt: 2026-02-19 09:52:38
 
 ## People
 - **Adge** (also: Ka'tuar'el, Adriaan, me, I) → the user speaking
@@ -20,8 +20,8 @@
 | OLDNAVY | Barclaycard | credit |
 | AMEX | Blue Cash | credit |
 | TSC | Credit Card | credit |
-| TJX | Mastercard | credit |
 | LLBEAN | Mastercard | credit |
+| TJX | Mastercard | credit |
 | USAALOAN | Personal Loan | loan |
 
 ## Bills & Utilities
@@ -49,7 +49,7 @@
 | Tractor Supply Card | $232 | Day 18 | Transfer |
 | TJX Rewards Payment | $56 | Day 19 | Transfer |
 | NYSEG | $750 | Day 20 | Utilities |
-| Norwich Family Health | $95 | Day 23 | Healthcare |
+| Norwich YMCA Membership | $95 | Day 23 | Healthcare |
 | Wansor Moses Chiro | $50 | Day 23 | Healthcare |
 | Netflix | $27 | Day 26 | Entertainment |
 | Amazon Prime | $20 | Day 27 | Subscriptions |

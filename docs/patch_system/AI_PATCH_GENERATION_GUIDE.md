@@ -276,6 +276,65 @@ PYEOF
 
 ---
 
+
+---
+
+## MANDATORY RULES (Added 2026-02-19)
+
+### File Delivery Method
+**NEVER use heredocs or inline bash to write multi-line Python/SQL files.**
+The escaping is unreliable and has caused repeated deployment failures.
+
+**Allowed methods (in order of preference):**
+1. **Patch system** — Build complete file in Claude/AI environment, zip it, user downloads, patch monitor installs. This is the default for ALL real changes.
+2. **Python temp script** — `cat > /tmp/fix.py << 'EOF'` with a heredoc delimiter, then `sudo python3 /tmp/fix.py`. Python handles its own quoting. Use for surgical hotfixes only.
+3. **Simple sed** — Only for single-line replacements with no special characters.
+
+**NEVER do:** `echo '...' >> file`, `cat << 'EOF' >> file.py` for multi-line code, or `sudo sed` with complex regex containing quotes.
+
+### Schema Verification Before SQL
+**ALWAYS query actual table schemas before writing any SQL.**
+```bash
+sudo -u postgres psql -d mythos -c "\d tablename"
+```
+Column names, types, and constraints MUST match the real database. Do not assume from memory or previous sessions.
+
+### Patch Numbering and Versioning
+- Patch numbers are sequential 4-digit integers: patch_0103, patch_0104, etc.
+- Every patch MUST have a manifest.json with correct version numbers.
+- Version in manifest MUST be the next increment from the ACTUAL latest git tag.
+- After install, patch monitor MUST create a git tag matching the manifest version.
+- The .version file MUST be updated by install.sh to match the manifest version.
+
+### To determine next patch number and version:
+```bash
+# Get real state
+LAST_TAG=$(cd /opt/mythos && git describe --tags --abbrev=0 2>/dev/null)
+LAST_PATCH=$(ls -1d /opt/mythos/patches/patch_* 2>/dev/null | sort -t_ -k2 -n | tail -1 | xargs basename)
+echo "Last tag: $LAST_TAG"
+echo "Last patch: $LAST_PATCH"
+```
+
+### Test Blocks
+- All patches MUST include a paste-and-run terminal test block (not a file).
+- Test blocks must NOT use `set -e` or `exit` (kills the terminal).
+- Test blocks should print results AND copy to clipboard via `xclip -selection clipboard`.
+
+### Patch Contents Checklist
+Every patch zip MUST contain:
+- [ ] manifest.json with correct version
+- [ ] install.sh (with `chmod +x` in the zip or set by monitor)
+- [ ] All files under opt/mythos/ mirroring deploy paths
+- [ ] Migration SQL if database changes are needed
+
+install.sh MUST:
+- [ ] Update /opt/mythos/.version with the new version
+- [ ] Create git tag matching manifest version
+- [ ] Set correct file ownership
+- [ ] Restart affected services
+- [ ] Print wiring instructions if manual steps needed
+
+
 ## Common Pitfalls
 
 1. **Wrong version increment**

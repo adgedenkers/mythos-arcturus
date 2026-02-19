@@ -30,6 +30,8 @@ from handlers.review_handler import handle_review
 
 from handlers.checkin_handler import handle_checkin, handle_routines, handle_rdone, handle_rskip, handle_routine_add
 from handlers.calendar_handler import handle_calendar
+from telegram_bot.handlers.analyst_handler import cmd_briefing, cmd_priorities, cmd_transfers
+from core.morning_briefing import MorningBriefing
 
 # Load environment variables
 load_dotenv('/opt/mythos/.env')
@@ -847,6 +849,10 @@ def main():
     application.add_handler(CommandHandler('rskip', handle_rskip))
     application.add_handler(CommandHandler('routine_add', handle_routine_add))
     application.add_handler(CommandHandler('calendar', handle_calendar))
+    application.add_handler(CommandHandler('briefing', cmd_briefing))
+    application.add_handler(CommandHandler('analyze', cmd_briefing))
+    application.add_handler(CommandHandler('priorities', cmd_priorities))
+    application.add_handler(CommandHandler('transfers', cmd_transfers))
 
 
     # Message handlers
@@ -864,6 +870,10 @@ def main():
     print("🤖 Mythos Bot starting...")
     print(f"💬 Default mode: {DEFAULT_MODE}")
     
+    # Morning briefing scheduler
+    morning = MorningBriefing(application)
+    morning.start()
+
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
