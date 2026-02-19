@@ -180,19 +180,10 @@ class BacklogAnalyst:
             row = cur.fetchone()
             state['last_analysis'] = dict(row) if row else None
 
-        # Weather for Oxford, NY (lat 42.44, lon -75.60)
+        # Weather
         try:
-            import urllib.request, json as _json
-            weather_url = (
-                "https://api.open-meteo.com/v1/forecast?"
-                "latitude=42.44&longitude=-75.60"
-                "&current=temperature_2m,wind_speed_10m,precipitation,snowfall,weather_code"
-                "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,snowfall_sum,weather_code"
-                "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch"
-                "&timezone=America/New_York&forecast_days=3"
-            )
-            with urllib.request.urlopen(weather_url, timeout=10) as resp:
-                state['weather'] = _json.loads(resp.read())
+            from core.weather_service import fetch_weather
+            state['weather'] = fetch_weather()
         except Exception as e:
             logger.warning(f"Weather fetch failed: {e}")
             state['weather'] = None
@@ -227,38 +218,11 @@ class BacklogAnalyst:
 
         # Weather
         prompt_parts.append("\n=== WEATHER (Oxford, NY) ===")
-        wx = state.get('weather')
-        if wx:
-            cur_wx = wx.get('current', {})
-            daily = wx.get('daily', {})
-            temp = cur_wx.get('temperature_2m', '?')
-            wind = cur_wx.get('wind_speed_10m', '?')
-            precip = cur_wx.get('precipitation', 0)
-            snow = cur_wx.get('snowfall', 0)
-            prompt_parts.append(f"  Current: {temp}F, wind {wind} mph, precip {precip} in, snow {snow} in")
-            dates = daily.get('time', [])
-            highs = daily.get('temperature_2m_max', [])
-            lows = daily.get('temperature_2m_min', [])
-            snow_sums = daily.get('snowfall_sum', [])
-            precip_sums = daily.get('precipitation_sum', [])
-            for i in range(min(3, len(dates))):
-                prompt_parts.append(
-                    f"  {dates[i]}: High {highs[i]}F / Low {lows[i]}F, "
-                    f"precip {precip_sums[i]} in, snow {snow_sums[i]} in"
-                )
-            import datetime as _dt
-            tomorrow = _dt.date.today() + _dt.timedelta(days=1)
-            if tomorrow.weekday() < 5 and len(snow_sums) > 1:
-                tonight_snow = snow_sums[0] + snow_sums[1]
-                if tonight_snow >= 8:
-                    prompt_parts.append(f"  SNOW DAY LIKELIHOOD: HIGH (forecast {tonight_snow} in snow)")
-                elif tonight_snow >= 4:
-                    prompt_parts.append(f"  SNOW DAY LIKELIHOOD: MODERATE (forecast {tonight_snow} in snow)")
-                elif tonight_snow >= 2:
-                    prompt_parts.append(f"  SNOW DAY LIKELIHOOD: LOW (forecast {tonight_snow} in snow)")
-                else:
-                    prompt_parts.append(f"  Snow day unlikely ({tonight_snow} in forecast)")
-        else:
+        try:
+            from core.weather_service import format_weather_for_analyst
+            wx_text = format_weather_for_analyst(state.get('weather'))
+            prompt_parts.append(wx_text)
+        except Exception:
             prompt_parts.append("  Weather data unavailable")
 
         prompt_parts.append("\n=== TODAY'S ROUTINES ===")

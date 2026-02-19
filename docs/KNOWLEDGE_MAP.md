@@ -3,7 +3,7 @@
 # This file is AUTO-GENERATED from the database.
 # Static sections (People, Locations, Notes, Data Routing) are preserved.
 # Dynamic sections (Accounts, Bills, Routines) are rebuilt on DB changes.
-# Last rebuilt: 2026-02-19 11:04:17
+# Last rebuilt: 2026-02-19 13:35:31
 
 ## People
 - **Adge** (also: Ka'tuar'el, Adriaan, me, I) → the user speaking
@@ -60,12 +60,13 @@
 | Routine | Frequency | Domain |
 |---------|-----------|--------|
 | Check calendar | daily | personal |
-| Check bank imports | daily | finance |
+| Import Bank Transactions | daily | finance |
 | Review transactions | daily | finance |
 | Full monthly financial review | monthly | finance |
 | Subscription audit | monthly | finance |
 | Credit card strategy | monthly | finance |
 | Set monthly targets | monthly | finance |
+| Import credit card transactions | monthly (day 1) | finance |
 | Weekly financial review | weekly (Mon) | finance |
 | Finance conversation with Rebecca | weekly (Mon) | finance |
 

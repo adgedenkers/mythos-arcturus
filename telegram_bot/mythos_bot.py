@@ -33,6 +33,8 @@ from handlers.calendar_handler import handle_calendar
 from telegram_bot.handlers.analyst_handler import cmd_briefing, cmd_priorities, cmd_transfers
 from core.morning_briefing import MorningBriefing
 
+from telegram_bot.handlers.weather_handler import cmd_weather
+
 # Load environment variables
 load_dotenv('/opt/mythos/.env')
 
@@ -854,6 +856,7 @@ def main():
     application.add_handler(CommandHandler('priorities', cmd_priorities))
     application.add_handler(CommandHandler('transfers', cmd_transfers))
 
+    application.add_handler(CommandHandler('weather', cmd_weather))
 
     # Message handlers
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))

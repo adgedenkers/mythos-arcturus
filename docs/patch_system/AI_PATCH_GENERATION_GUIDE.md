@@ -20,7 +20,17 @@ The escaping is unreliable and causes repeated deployment failures.
 
 **NEVER do:** `echo '...' >> file.py`, unquoted heredocs for code, or `sudo sed` with complex regex containing quotes/backslashes.
 
-### 2. Schema Verification Before SQL
+### 2. Schema Verification Before ANY Database Work
+
+**ALWAYS query actual table schemas AND existing data before doing ANYTHING with the database.**
+This means BEFORE writing SQL, BEFORE proposing changes, BEFORE even discussing what to change:
+```bash
+sudo -u postgres psql -d mythos -c "\d tablename"
+sudo -u postgres psql -d mythos -c "SELECT * FROM tablename LIMIT 5;"
+```
+Column names, types, data patterns MUST be verified from the real database. Do not assume from memory, previous sessions, or conversation context. This rule exists because every single time it has been skipped, it has caused errors.
+
+### 3. Schema Verification Before SQL (Repeated for Emphasis)
 
 **ALWAYS query actual table schemas before writing any SQL.**
 ```bash
