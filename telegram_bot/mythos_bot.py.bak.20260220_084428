@@ -164,7 +164,7 @@ def get_or_create_session(telegram_id):
                 SESSIONS[telegram_id] = {
                     "user": user,
                     "current_mode": DEFAULT_MODE,
-                    "current_model": "thinking",
+                    "current_model": "auto",
                     "conversation_id": None,
                     "last_activity": datetime.now(),
                     "sell_session": None,
@@ -552,16 +552,14 @@ async def model_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.args:
         new_model = context.args[0].lower()
         
-        if new_model in ["auto", "fast", "deep", "thinking"]:
+        if new_model in ["auto", "fast", "deep"]:
             session["current_model"] = new_model
             log_activity(session, "model", f"→ {new_model}")
             
             descriptions = {
                 "auto": "qwen2.5:32b",
                 "fast": "llama3.2:3b (~5s)",
-                "deep": "qwen2.5:32b (~30s)",
-                "thinking": "qwen3:30b-a3b (deep reasoning)"
-                "thinking": "qwen3:30b-a3b (deep reasoning)"
+                "deep": "qwen2.5:32b (~30s)"
             }
             
             await update.message.reply_text(
@@ -571,15 +569,13 @@ async def model_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text(
                 f"❌ Unknown: {new_model}\n"
-                "Use: auto, fast, deep, thinking"
+                "Use: auto, fast, deep"
             )
     else:
         current = session.get("current_model", "auto")
         await update.message.reply_text(
             f"Current: **{current}**\n\n"
             "`/model auto` - qwen2.5:32b\n"
-            "`/model thinking` - qwen3:30b-a3b (DEFAULT)\n"
-            "`/model thinking` - qwen3:30b-a3b (DEFAULT)\n"
             "`/model fast` - llama3.2:3b\n"
             "`/model deep` - qwen2.5:32b",
             parse_mode='Markdown'

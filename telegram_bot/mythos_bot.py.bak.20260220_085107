@@ -561,7 +561,6 @@ async def model_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "fast": "llama3.2:3b (~5s)",
                 "deep": "qwen2.5:32b (~30s)",
                 "thinking": "qwen3:30b-a3b (deep reasoning)"
-                "thinking": "qwen3:30b-a3b (deep reasoning)"
             }
             
             await update.message.reply_text(
@@ -578,7 +577,6 @@ async def model_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             f"Current: **{current}**\n\n"
             "`/model auto` - qwen2.5:32b\n"
-            "`/model thinking` - qwen3:30b-a3b (DEFAULT)\n"
             "`/model thinking` - qwen3:30b-a3b (DEFAULT)\n"
             "`/model fast` - llama3.2:3b\n"
             "`/model deep` - qwen2.5:32b",
