@@ -561,10 +561,9 @@ class DownloadsHandler(FileSystemEventHandler):
                     try:
                         # Make executable
                         install_script.chmod(0o755)
-                        # Run with sudo so patches can write root-owned files,
-                        # restart services, and compile __pycache__
+                        # Run it
                         result = subprocess.run(
-                            ["sudo", "bash", str(install_script)],
+                            [str(install_script)],
                             cwd=str(extract_dir),
                             capture_output=True,
                             text=True,

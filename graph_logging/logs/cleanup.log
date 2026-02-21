@@ -294,3 +294,11 @@
 2026-02-20 03:00:23,429 - INFO - Starting event cleanup (retention: 10 days)
 2026-02-20 03:00:23,432 - INFO - No events older than 10 days found
 2026-02-20 03:00:23,432 - INFO - No events older than 10 days found
+2026-02-21 00:00:40,113 - INFO - Starting event cleanup (retention: 10 days)
+2026-02-21 00:00:40,113 - INFO - Starting event cleanup (retention: 10 days)
+2026-02-21 00:00:40,116 - INFO - No events older than 10 days found
+2026-02-21 00:00:40,116 - INFO - No events older than 10 days found
+2026-02-21 03:00:50,055 - INFO - Starting event cleanup (retention: 10 days)
+2026-02-21 03:00:50,055 - INFO - Starting event cleanup (retention: 10 days)
+2026-02-21 03:00:50,058 - INFO - No events older than 10 days found
+2026-02-21 03:00:50,058 - INFO - No events older than 10 days found

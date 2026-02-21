@@ -185,44 +185,21 @@ Due dates 3rd–30th plus as-needed (Blueox Propane). Categories span Subscripti
 
 ---
 
-## 🔧 Patch Monitor & Auto-Deploy
+## 🔧 Patch Monitor & Auto-Deploy (2026-02-16)
 
 The patch monitor watches `~/Downloads/` for `patch_NNNN_*.zip` files.
 
 **On detection:**
-1. Creates git snapshot (pre-patch tag)
-2. Extracts to `/opt/mythos/patches/patch_NNNN_*/`
-3. Runs `sudo bash install.sh`
-4. Commits + tags new version in git
-5. Pushes to GitHub (via SSH key env var in service)
+1. Extracts to `/opt/mythos/patches/patch_NNNN_*/`
+2. Creates git tag `v{semantic_version}`
+3. Runs `install.sh`
+4. Pushes to GitHub (via SSH key env var in service)
+5. Sends Telegram notification
 
-**Patch Standard v2 (established patch 0106):**
-
-Every patch contains:
-```
-patch_NNNN_description/
-├── install.sh          # Thin bash wrapper (4 lines, calls apply_patch.py)
-├── apply_patch.py      # All logic in pure Python
-└── (optional files)    # SQL migrations, config files, etc.
-```
-
-**install.sh is always:**
-```bash
-#!/bin/bash
-set -e
-PATCH_DIR="$(cd "$(dirname "$0")" && pwd)"
-sudo /opt/mythos/.venv/bin/python3 "$PATCH_DIR/apply_patch.py"
-```
-
-**apply_patch.py rules:**
-- Use `str.replace()` for exact string replacements (NEVER sed or heredocs)
-- Fail-fast: abort if expected old string not found
-- `py_compile` syntax check before restarting services
-- Auto-rollback if service fails to start
-- Backup all files before modifying
-
-**NEVER use in patches:** sed, bash heredocs, full file replacements for large files
-**ALWAYS use:** Pure Python apply_patch.py with exact string matching
+**Install script requirements (learned 0091-0093):**
+- Use `sudo cp` — files in `/opt/mythos` are owned by root
+- Use `SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` for path resolution
+- Use `sudo -u postgres psql -c` (not `-tAc`) when grepping for DB constraints
 
 **Service:** `mythos-patch-monitor.service`
 **GitHub push:** Configured via `Environment="GIT_SSH_COMMAND=ssh -i /home/adge/.ssh/id_ed25519 ..."` in service file
