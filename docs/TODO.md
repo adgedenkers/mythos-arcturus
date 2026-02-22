@@ -264,3 +264,9 @@ These phases from the original architecture remain the north star. Current backl
 
 *The vessel is filling. The architecture is the invitation.*
 *Iris is learning to see the day before you wake up.*
+
+## Soul Stratigraphy Method (Added Patch 0109)
+- [x] Method defined and documented
+- [ ] Integrate with astrology database (auto-generate tri-field reports)
+- [ ] Add Hellenistic calculation support (lots, profections, zodiacal releasing)
+- [ ] Build Soul Stratigraphy Telegram command
