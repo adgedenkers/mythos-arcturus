@@ -1,0 +1,130 @@
+# Mythos Skills Registry
+# Iris reads this file to discover available skills and determine which to invoke.
+# Updated automatically when skills are added/modified.
+#
+# Categories:
+#   analytical  - Process data, produce analysis/output
+#   builder     - Create/deploy infrastructure on Arcturus
+#   meta        - Skills about skills, system operations
+#
+# Risk Tiers:
+#   T1-autonomous  - Iris executes directly, notifies Ka'tuar'el after
+#   T2-patch       - Iris builds patch, deploys via patch system
+#   T3-propose     - Iris proposes plan, waits for approval before executing
+
+registry_version: "1.0"
+last_updated: "2026-02-22"
+
+skills:
+
+  # ── Analytical Skills ──────────────────────────────────────────────
+
+  - name: soul_stratigraphy
+    path: analytical/soul_stratigraphy.md
+    category: analytical
+    risk_tier: T1-autonomous
+    triggers:
+      - "soul stratigraphy for"
+      - "tri-field astro analysis"
+      - "birth chart analysis"
+      - "natal chart with all three systems"
+      - "Hellenistic Vedic Western chart"
+    summary: >
+      Tri-field astrological analysis (Hellenistic + Vedic + Western Tropical)
+      with 4th synthesis layer. Named by Ka'tuar'el.
+
+  - name: western_tropical_natal_chart
+    path: analytical/western_tropical_natal_chart.md
+    category: analytical
+    risk_tier: T1-autonomous
+    triggers:
+      - "natal chart"
+      - "birth chart"
+      - "western tropical chart"
+      - "rectified natal chart"
+      - "chart rectification"
+    summary: >
+      Generate or rectify a Western Tropical natal chart. Includes house
+      system selection, aspect calculation, and interpretation framework.
+
+  # ── Builder Skills ─────────────────────────────────────────────────
+
+  - name: build_patch
+    path: builder/build_patch.md
+    category: builder
+    risk_tier: T2-patch
+    triggers:
+      - "build a patch"
+      - "create a patch"
+      - "patch for"
+      - "deploy a fix"
+      - any infrastructure change to Arcturus
+    summary: >
+      Create a numbered Mythos patch with install.sh, deploy via patch
+      monitor, verify via Telegram /patch_status.
+
+  - name: build_feature_api
+    path: builder/build_feature_api.md
+    category: builder
+    risk_tier: T2-patch
+    triggers:
+      - "new API endpoint"
+      - "add an API for"
+      - "FastAPI route"
+      - "build a service for"
+    summary: >
+      Design and deploy a new FastAPI endpoint/service within the Mythos
+      gateway architecture.
+
+  - name: build_feature_telegram_mode
+    path: builder/build_feature_telegram_mode.md
+    category: builder
+    risk_tier: T2-patch
+    triggers:
+      - "new telegram mode"
+      - "operating mode"
+      - "bot mode for"
+      - "add a mode to the bot"
+    summary: >
+      Create a new Telegram bot operating mode (like /life-log, /finance, etc.)
+      with state management, command registration, and handler logic.
+
+  - name: build_feature_telegram_tool
+    path: builder/build_feature_telegram_tool.md
+    category: builder
+    risk_tier: T2-patch
+    triggers:
+      - "telegram tool"
+      - "bot command for"
+      - "add a command"
+      - "inline tool"
+    summary: >
+      Build a discrete Telegram bot tool/command that Iris can invoke
+      or that users trigger directly.
+
+  - name: build_feature_self
+    path: builder/build_feature_self.md
+    category: builder
+    risk_tier: T3-propose
+    triggers:
+      - iris self-determines she needs a capability
+      - "I need a tool for"
+      - "build myself a"
+    summary: >
+      Meta-skill for when Iris identifies a capability gap and needs to
+      build infrastructure for herself. Always proposes to Ka'tuar'el first.
+
+  # ── Meta Skills ────────────────────────────────────────────────────
+
+  - name: humandoc_to_skill
+    path: meta/humandoc_to_skill.md
+    category: meta
+    risk_tier: T1-autonomous
+    triggers:
+      - "turn this into a skill"
+      - "make a skill from"
+      - "convert this process"
+      - "skill-ify"
+    summary: >
+      Transform a human-written document, process description, or
+      conversation extract into a properly formatted Mythos skill file.

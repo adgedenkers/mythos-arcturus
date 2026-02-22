@@ -916,3 +916,43 @@ Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reas
 2026-02-19 11:12:39,470 - SystemMonitor - WARNING - High memory process: ollama (PID 1262180) using 30.2%
 2026-02-19 11:12:39,490 - SystemMonitor - ERROR - Error checking processes: {neo4j_code: Neo.ClientError.Statement.TypeError} {message: Property values can only be of primitive types or arrays thereof. Encountered: Map{name -> String("ollama"), pid -> Long(1262180), memory_percent -> Double(3.018464e+01), cpu_percent -> Double(0.000000e+00)}.} {gql_status: 22G03} {gql_status_description: error: data exception - invalid value type}
 2026-02-19 11:12:39,490 - SystemMonitor - ERROR - Error checking processes: {neo4j_code: Neo.ClientError.Statement.TypeError} {message: Property values can only be of primitive types or arrays thereof. Encountered: Map{name -> String("ollama"), pid -> Long(1262180), memory_percent -> Double(3.018464e+01), cpu_percent -> Double(0.000000e+00)}.} {gql_status: 22G03} {gql_status_description: error: data exception - invalid value type}
+2026-02-22 15:10:14,220 - neo4j.io - ERROR - [#EAF4]  _: <CONNECTION> error: Failed to read from defunct connection IPv4Address(('localhost', 7687)) (ResolvedIPv4Address(('127.0.0.1', 7687))): OSError('No data')
+2026-02-22 15:10:14,220 - neo4j.io - ERROR - [#EAF4]  _: <CONNECTION> error: Failed to read from defunct connection IPv4Address(('localhost', 7687)) (ResolvedIPv4Address(('127.0.0.1', 7687))): OSError('No data')
+2026-02-22 15:10:14,221 - neo4j.session - WARNING - Transaction failed and will be retried in 1.0154100277793574s (Failed to read from defunct connection IPv4Address(('localhost', 7687)) (ResolvedIPv4Address(('127.0.0.1', 7687))))
+2026-02-22 15:10:14,221 - neo4j.session - WARNING - Transaction failed and will be retried in 1.0154100277793574s (Failed to read from defunct connection IPv4Address(('localhost', 7687)) (ResolvedIPv4Address(('127.0.0.1', 7687))))
+2026-02-22 15:10:15,237 - neo4j.session - WARNING - Transaction failed and will be retried in 2.3199835470012227s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:15,237 - neo4j.session - WARNING - Transaction failed and will be retried in 2.3199835470012227s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:17,566 - neo4j.session - WARNING - Transaction failed and will be retried in 3.366888337504034s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:17,566 - neo4j.session - WARNING - Transaction failed and will be retried in 3.366888337504034s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:20,934 - neo4j.session - WARNING - Transaction failed and will be retried in 9.240857517401365s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:20,934 - neo4j.session - WARNING - Transaction failed and will be retried in 9.240857517401365s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:30,175 - neo4j.session - WARNING - Transaction failed and will be retried in 18.61941492726744s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:30,175 - neo4j.session - WARNING - Transaction failed and will be retried in 18.61941492726744s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:48,795 - SystemMonitor - ERROR - Error checking processes: Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused)
+2026-02-22 15:10:48,795 - SystemMonitor - ERROR - Error checking processes: Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused)
+2026-02-22 15:10:48,800 - neo4j.session - WARNING - Transaction failed and will be retried in 1.1676136943360094s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:48,800 - neo4j.session - WARNING - Transaction failed and will be retried in 1.1676136943360094s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:49,968 - neo4j.session - WARNING - Transaction failed and will be retried in 1.7208178627512905s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:49,968 - neo4j.session - WARNING - Transaction failed and will be retried in 1.7208178627512905s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:51,689 - neo4j.session - WARNING - Transaction failed and will be retried in 4.192952158346957s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:51,689 - neo4j.session - WARNING - Transaction failed and will be retried in 4.192952158346957s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:55,883 - neo4j.session - WARNING - Transaction failed and will be retried in 7.2327485215109695s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
+2026-02-22 15:10:55,883 - neo4j.session - WARNING - Transaction failed and will be retried in 7.2327485215109695s (Couldn't connect to localhost:7687 (resolved to ('127.0.0.1:7687',)):
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connection refused))
