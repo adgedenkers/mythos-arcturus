@@ -1,0 +1,21 @@
+[Unit]
+Description=Mythos Voice Memo Watcher
+Documentation=Voice memo incoming file watcher
+After=network.target redis.service
+Wants=mythos-transcription-worker.service
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/services/voice_watcher.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,67 @@
+{
+  "manifest_version": "1.0.0",
+  "patch": {
+    "number": "0112",
+    "semantic_version": "1.18.0",
+    "name": "voice_memo_pipeline",
+    "title": "Voice Memo Transcription Pipeline",
+    "description": "Complete pipeline: Syncthing file watcher → Redis task queue → GPU transcription (faster-whisper) → speaker diarization (pyannote) → PostgreSQL storage → Telegram notification. Includes voice_memos and voice_memo_segments tables, transcription worker for Redis Streams, and file watcher service.",
+    "date": "2026-02-22",
+    "author": "Claude"
+  },
+  "versioning": {
+    "current_system_version": "1.17.14",
+    "new_system_version": "1.18.0",
+    "version_increment": "minor",
+    "reason": "New major feature: voice memo transcription with diarization pipeline"
+  },
+  "dependencies": {
+    "required_patches": [],
+    "required_services": ["mythos-redis (Docker)", "postgresql"],
+    "python_packages": ["faster-whisper", "pyannote.audio (optional, for diarization)"],
+    "system_packages": ["ffmpeg", "syncthing"]
+  },
+  "changes": {
+    "files_added": [
+      "services/diarized_transcription.py",
+      "services/voice_watcher.py",
+      "workers/transcription_worker.py"
+    ],
+    "files_modified": [
+      "workers/worker.py (adds transcription worker type to registry)"
+    ],
+    "database_changes": [
+      "CREATE TABLE voice_memos",
+      "CREATE TABLE voice_memo_segments",
+      "Indexes for full-text search on transcripts"
+    ],
+    "services_affected": [
+      "mythos-voice-watcher.service (NEW)",
+      "mythos-transcription-worker.service (NEW)"
+    ]
+  },
+  "installation": {
+    "estimated_time_minutes": 5,
+    "requires_restart": false,
+    "requires_sudo": true,
+    "safe_mode": true
+  },
+  "testing": {
+    "verification_steps": [
+      "Check both services are running",
+      "Drop a test .m4a file into /opt/mythos/voice_memos/incoming/",
+      "Verify transcription appears in voice_memos table",
+      "Verify Telegram notification received"
+    ],
+    "verification_commands": [
+      "systemctl status mythos-voice-watcher.service",
+      "systemctl status mythos-transcription-worker.service",
+      "sudo -u postgres psql -d mythos -c \"SELECT id, filename, status, duration_seconds, speaker_count FROM voice_memos ORDER BY id DESC LIMIT 5;\""
+    ]
+  },
+  "rollback": {
+    "safe": true,
+    "complexity": "low",
+    "automated": false
+  }
+}

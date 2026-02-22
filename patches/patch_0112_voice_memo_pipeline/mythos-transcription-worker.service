@@ -1,0 +1,25 @@
+[Unit]
+Description=Mythos Transcription Worker
+Documentation=Voice memo transcription worker (faster-whisper + pyannote)
+After=network.target redis.service
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/workers/worker.py transcription
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# GPU access
+Environment=PYTHONUNBUFFERED=1
+Environment=CUDA_VISIBLE_DEVICES=0
+
+# Give it time to load models on first start
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target
