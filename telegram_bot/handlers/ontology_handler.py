@@ -10,7 +10,7 @@ Commands:
 """
 
 import os
-from datetime import datetime
+from datetime import datetime, UTC
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
 
@@ -25,8 +25,8 @@ def get_driver():
     return GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
 
-def handle_define(text: str) -> str:
-    """Handle /define command. Returns formatted response string."""
+def handle_define(text: str):
+    """Handle /define command. Returns str or (str, list) tuple."""
     if not text or not text.strip():
         return (
             "✦ Ontology — Mythos Glossary\n\n"
@@ -37,7 +37,7 @@ def handle_define(text: str) -> str:
             "Categories: Astrology, Numerology, Tarot, Mythos Core"
         )
 
-    parts = text.strip()
+    parts = text.strip().replace('_', ' ')
 
     # /define list [category]
     if parts.lower().startswith('list'):
@@ -48,15 +48,15 @@ def handle_define(text: str) -> str:
     if parts.lower().startswith('add '):
         return _add_term(parts[4:])
 
-    # /define <term> — lookup
+    # /define <term> — lookup (returns tuple)
     return _lookup_term(parts)
 
 
-def _lookup_term(query: str) -> str:
+def _lookup_term(query: str):
+    """Returns (text, related_names_list) tuple for inline buttons."""
     driver = get_driver()
     try:
         with driver.session() as session:
-            # Exact match first, then case-insensitive, then alias
             result = session.run("""
                 MATCH (t:OntologyTerm)
                 WHERE t.name = $q
@@ -69,7 +69,6 @@ def _lookup_term(query: str) -> str:
             record = result.single()
 
             if not record:
-                # Fuzzy: contains match
                 result = session.run("""
                     MATCH (t:OntologyTerm)
                     WHERE toLower(t.name) CONTAINS toLower($q)
@@ -80,15 +79,16 @@ def _lookup_term(query: str) -> str:
                 """, q=query)
                 records = list(result)
                 if not records:
-                    return f"✦ No term found for \"{query}\"\n\nUse /define add to create it."
+                    return (f"✦ No term found for \"{query}\"\n\nUse /define add to create it.", [])
                 if len(records) == 1:
                     record = records[0]
                 else:
                     lines = [f"✦ Multiple matches for \"{query}\":\n"]
+                    names = []
                     for r in records:
                         lines.append(f"  • {r['name']} [{r['category']}]")
-                    lines.append(f"\nUse /define <exact name> to see details.")
-                    return '\n'.join(lines)
+                        names.append(r['name'])
+                    return ('\n'.join(lines), names)
 
             name = record['name']
             defn = record['definition']
@@ -110,14 +110,16 @@ def _lookup_term(query: str) -> str:
                 RETURN o.name AS name, r.type AS type
             """, name=name)
             rel_list = list(rels)
+            related_names = []
             if rel_list:
-                lines.append("\n   Connected to:")
-                for r in rel_list[:8]:
-                    lines.append(f"   → {r['name']} ({r['type'].replace('_',' ')})")
-                if len(rel_list) > 8:
-                    lines.append(f"   … and {len(rel_list)-8} more")
+                seen = set()
+                for r in rel_list:
+                    if r['name'] not in seen:
+                        seen.add(r['name'])
+                        related_names.append(r['name'])
+                lines.append(f"\n   {len(related_names)} connected terms ↓")
 
-            return '\n'.join(lines)
+            return ('\n'.join(lines), related_names[:12])
     finally:
         driver.close()
 
@@ -132,7 +134,7 @@ def _add_term(text: str) -> str:
         return "✦ All three fields required: name, definition, category"
 
     driver = get_driver()
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(UTC).isoformat()
     try:
         with driver.session() as session:
             existing = session.run(

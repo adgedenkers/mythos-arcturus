@@ -15,10 +15,11 @@ sys.path.insert(0, '/opt/mythos')
 import logging
 import uuid
 from datetime import datetime
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
     CommandHandler,
+    CallbackQueryHandler,
     MessageHandler,
     filters,
     ContextTypes
@@ -27,6 +28,7 @@ from dotenv import load_dotenv
 import requests
 
 from handlers.review_handler import handle_review
+from handlers.ontology_handler import handle_define
 
 from handlers.checkin_handler import handle_checkin, handle_routines, handle_rdone, handle_rskip, handle_routine_add
 from handlers.calendar_handler import handle_calendar
@@ -300,7 +302,6 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Check for /setmodel override to show actual model
     try:
         from handlers.ollama_models import USER_MODEL_OVERRIDE
-from handlers.ontology_handler import handle_define
         override = USER_MODEL_OVERRIDE.get(telegram_id)
         if override:
             model = override
@@ -860,6 +861,54 @@ def main():
     application.add_handler(CommandHandler('transfers', cmd_transfers))
 
     application.add_handler(CommandHandler('weather', cmd_weather))
+
+    # Ontology
+    async def define_cmd(update, context):
+        text = " ".join(context.args) if context.args else ""
+        result = handle_define(text)
+        if isinstance(result, tuple):
+            text_msg, related = result
+            if related:
+                buttons = []
+                row = []
+                for name in related:
+                    row.append(InlineKeyboardButton(name, callback_data=f"def:{name[:60]}"))
+                    if len(row) == 2:
+                        buttons.append(row)
+                        row = []
+                if row:
+                    buttons.append(row)
+                await update.message.reply_text(text_msg, reply_markup=InlineKeyboardMarkup(buttons))
+            else:
+                await update.message.reply_text(text_msg)
+        else:
+            await update.message.reply_text(result)
+
+    async def define_callback(update, context):
+        query = update.callback_query
+        await query.answer()
+        term_name = query.data[4:]  # strip "def:"
+        result = handle_define(term_name)
+        if isinstance(result, tuple):
+            text_msg, related = result
+            if related:
+                buttons = []
+                row = []
+                for name in related:
+                    row.append(InlineKeyboardButton(name, callback_data=f"def:{name[:60]}"))
+                    if len(row) == 2:
+                        buttons.append(row)
+                        row = []
+                if row:
+                    buttons.append(row)
+                await query.message.reply_text(text_msg, reply_markup=InlineKeyboardMarkup(buttons))
+            else:
+                await query.message.reply_text(text_msg)
+        else:
+            await query.message.reply_text(result)
+
+    application.add_handler(CommandHandler("define", define_cmd))
+    application.add_handler(CallbackQueryHandler(define_callback, pattern="^def:"))
 
     # Message handlers
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))

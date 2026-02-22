@@ -14,6 +14,7 @@ import os
 import subprocess
 import json
 import logging
+import re
 from pathlib import Path
 from datetime import datetime
 from telegram import Update
@@ -116,6 +117,23 @@ def _get_recent_logs(limit: int = 5) -> list[dict]:
     return logs
 
 
+def _get_highest_patch_number(logs: list[dict]) -> str:
+    """
+    Find the highest real patch number across all logs.
+    Ignores test patches (9999) and returns the actual latest patch number.
+    """
+    highest = 0
+    for log in logs:
+        patch_name = log.get("patch", log.get("target_tag", ""))
+        m = re.search(r"patch_(\d{4})", str(patch_name))
+        if m:
+            num = int(m.group(1))
+            # Skip test patches (9999, 0000)
+            if num < 9000 and num > highest:
+                highest = num
+    return f"{highest:04d}" if highest > 0 else "?"
+
+
 # ============================================================
 # Command Handlers
 # ============================================================
@@ -159,8 +177,6 @@ async def patch_status_command(update: Update, context: ContextTypes.DEFAULT_TYP
     """
     /patch_status - Show current version and recent patches
     """
-    import re
-    
     user_id = update.effective_user.id
     
     if not _is_authorized(user_id):
@@ -169,17 +185,12 @@ async def patch_status_command(update: Update, context: ContextTypes.DEFAULT_TYP
     
     version = _get_current_version()
     tags = _get_recent_tags(5)
-    logs = _get_recent_logs(5)
+    logs = _get_recent_logs(20)  # Read more logs to find highest real patch
     
     has_remote, remote_url = _run_git("remote", "get-url", "origin")
     
-    latest_patch = "?"
-    for log in (logs or []):
-        patch_name = log.get("patch", log.get("target_tag", ""))
-        m = re.search(r"patch_(\d{4})", str(patch_name))
-        if m:
-            latest_patch = m.group(1)
-            break
+    # Find the highest real patch number (not test patches)
+    latest_patch = _get_highest_patch_number(logs)
     
     msg = "📊 <b>Patch Status</b>\n\n"
     msg += f"<b>Latest Patch:</b> <code>#{latest_patch}</code>\n"
@@ -187,17 +198,28 @@ async def patch_status_command(update: Update, context: ContextTypes.DEFAULT_TYP
     github = "✓ Connected" if has_remote else "✗ Not configured"
     msg += f"<b>GitHub:</b> {github}\n\n"
     
+    # Show recent patches, filtering out test patches from display
     msg += "<b>Recent Patches:</b>\n"
-    for log in (logs or [])[:5]:
-        status = "✓" if log.get("status") == "success" else "✗"
+    display_count = 0
+    for log in (logs or []):
+        if display_count >= 5:
+            break
         pname = log.get("patch", log.get("target_tag", "unknown"))
         m = re.search(r"patch_(\d{4})_(.+?)\.zip", str(pname))
         if m:
-            num = m.group(1)
+            num = int(m.group(1))
+            # Skip test patches from the display list
+            if num >= 9000:
+                continue
+            status = "✓" if log.get("status") == "success" else "✗"
             name = m.group(2).replace("_", " ")
-            msg += f"  {status} <code>#{num}</code> {name}\n"
+            msg += f"  {status} <code>#{m.group(1)}</code> {name}\n"
+            display_count += 1
         else:
+            # Non-standard patch name — show but don't count toward limit aggressively
+            status = "✓" if log.get("status") == "success" else "✗"
             msg += f"  {status} {pname}\n"
+            display_count += 1
     
     if tags:
         msg += "\n<b>Git Tags:</b>\n"
@@ -206,9 +228,9 @@ async def patch_status_command(update: Update, context: ContextTypes.DEFAULT_TYP
             tag_date = t["date"][:10]
             msg += f"  <code>{tag_name}</code> ({tag_date})\n"
     
-    msg += "\n<i>Patch # and git tags will be aligned soon.</i>"
-    
     await update.message.reply_text(msg, parse_mode="HTML")
+
+
 async def patch_list_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     /patch_list - List available patches
