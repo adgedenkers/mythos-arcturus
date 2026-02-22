@@ -1,0 +1,50 @@
+{
+  "patch_number": "0109",
+  "title": "Mythos Ontology",
+  "description": "Living glossary system — Neo4j-backed ontology with web UI, API, and Telegram /define command. Seeded with astrology, numerology, tarot, and Mythos Core terms with relationship mapping.",
+  "version": "1.18.0",
+  "version_bump": "MINOR",
+  "author": "Ka'tuar'el",
+  "created": "2026-02-22",
+  "dependencies": {
+    "services": ["neo4j", "mythos-api", "mythos-bot"],
+    "python_packages": ["neo4j"],
+    "patches": []
+  },
+  "files_created": [
+    "core/ontology_seed.py",
+    "api/routes/ontology.py",
+    "web/templates/ontology.html",
+    "telegram_bot/handlers/ontology_handler.py"
+  ],
+  "files_modified": [
+    "api/main.py",
+    "api/routes/web.py",
+    "web/templates/home.html",
+    "web/templates/dashboard.html",
+    "telegram_bot/mythos_bot.py"
+  ],
+  "neo4j_changes": {
+    "labels_added": ["OntologyTerm"],
+    "relationships_added": ["RELATED_TO", "DEFINES", "FUNCTION_OF", "DESCRIBES"],
+    "constraints": ["ontology_term_name UNIQUE"],
+    "indexes": ["ontology_term_category"]
+  },
+  "api_endpoints_added": [
+    "GET /api/ontology/terms",
+    "GET /api/ontology/terms/{name}",
+    "POST /api/ontology/terms",
+    "PATCH /api/ontology/terms/{name}",
+    "DELETE /api/ontology/terms/{name}",
+    "GET /api/ontology/categories",
+    "GET /api/ontology/graph",
+    "POST /api/ontology/relationships",
+    "DELETE /api/ontology/relationships"
+  ],
+  "web_routes_added": [
+    "GET /app/ontology/",
+    "GET /app/ontology"
+  ],
+  "telegram_commands_added": ["/define"],
+  "rollback": "Restore .bak files, remove ontology import/router from main.py, remove web route from web.py"
+}
