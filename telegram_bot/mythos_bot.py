@@ -300,6 +300,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Check for /setmodel override to show actual model
     try:
         from handlers.ollama_models import USER_MODEL_OVERRIDE
+from handlers.ontology_handler import handle_define
         override = USER_MODEL_OVERRIDE.get(telegram_id)
         if override:
             model = override

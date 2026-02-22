@@ -86,6 +86,13 @@ async def sessions_page(request: Request):
     return serve('sessions.html')
 
 
+# Ontology
+@router.get("/ontology/", response_class=HTMLResponse)
+@router.get("/ontology", response_class=HTMLResponse)
+async def ontology_page(request: Request):
+    return serve('ontology.html')
+
+
 # Registry
 @router.get("/registry/", response_class=HTMLResponse)
 @router.get("/registry", response_class=HTMLResponse)
