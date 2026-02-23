@@ -3,7 +3,7 @@
 # This file is AUTO-GENERATED from the database.
 # Static sections (People, Locations, Notes, Data Routing) are preserved.
 # Dynamic sections (Accounts, Bills, Routines) are rebuilt on DB changes.
-# Last rebuilt: 2026-02-20 16:53:36
+# Last rebuilt: 2026-02-23 06:44:29
 
 ## People
 - **Adge** (also: Ka'tuar'el, Adriaan, me, I) → the user speaking

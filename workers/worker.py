@@ -83,7 +83,13 @@ WORKER_TYPES = {
         "group": "summary_workers",
         "module": "summary_worker",
         "function": "process_summary"
-    }
+    },
+    "transcription": {
+        "stream": "mythos:assignments:transcription",
+        "group": "transcription_workers",
+        "module": "transcription_worker",
+        "function": "process_transcription"
+    },
 }
 
 
