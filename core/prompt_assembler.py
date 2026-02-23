@@ -450,6 +450,9 @@ def assemble_system_prompt(
 
     # ── Optional: Life Context ──
     life_ctx = ""
+    # Mode can disable life context (hearthfire doesn't need USAA balances in tarot answers)
+    if mode_config.get('include_life_context') is False:
+        include_life_context = False
     if include_life_context:
         try:
             from life_context import build_life_context as _build_life
@@ -458,8 +461,7 @@ def assemble_system_prompt(
                 # Wrap with instruction to only use when relevant
                 life_ctx = raw_life.replace(
                     "Use this awareness naturally.",
-                    "Reference ONLY when relevant to what he's asking about — "
-                    "if he's asking a knowledge question, do NOT bring up finances/routines/calendar."
+                    "CRITICAL: Only reference this life data when he asks about his life — schedules, finances, routines. Do NOT mention balances, bills, or appointments when he asks knowledge or spiritual questions."
                 )
         except Exception as e:
             logger.warning(f"Life context failed (non-fatal): {e}")
