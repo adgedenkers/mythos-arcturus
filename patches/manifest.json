@@ -1,7 +1,7 @@
 {
     "patch_number": 113,
     "name": "unified_prompts",
-    "version": "NEEDS_MNP_OUTPUT",
+    "version": "1.19.0",
     "description": "Unified prompt & personality system — replaces fragmented prompt sources with layered assembler, adds mode system, personality sliders, temporal awareness",
     "author": "Ka'tuar'el + Claude",
     "date": "2026-02-23",
