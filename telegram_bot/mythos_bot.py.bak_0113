@@ -608,86 +608,6 @@ async def personality_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     
     await update.message.reply_text("\n".join(lines), parse_mode='Markdown')
 
-
-
-async def personality_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /personality command — view/adjust personality sliders"""
-    telegram_id = update.effective_user.id
-    session = get_or_create_session(telegram_id)
-    
-    if not session:
-        await update.message.reply_text("❌ Session not found. Use /start to begin.")
-        return
-    
-    try:
-        import sys as _sys
-        _sys.path.insert(0, "/opt/mythos/core")
-        from prompt_assembler import get_resolved_personality
-    except Exception as e:
-        await update.message.reply_text(f"❌ Prompt assembler not available: {e}")
-        return
-    
-    iris_mode = session.get("iris_mode", "hearthfire")
-    user_info = session.get("user", {})
-    overrides = session.get("personality_overrides")
-    
-    if context.args:
-        args = context.args
-        
-        if args[0].lower() == "reset":
-            session["personality_overrides"] = None
-            await update.message.reply_text("🔄 Personality reset to defaults")
-            return
-        
-        if len(args) >= 2:
-            slider_name = args[0].lower()
-            try:
-                value = int(args[1])
-            except ValueError:
-                await update.message.reply_text(f"❌ Value must be a number (0-100)")
-                return
-            
-            value = max(0, min(100, value))
-            
-            valid_sliders = ['verbosity', 'warmth', 'humor', 'truth', 'speculation', 'autonomy', 'mystical', 'formality', 'challenge']
-            if slider_name not in valid_sliders:
-                await update.message.reply_text(f"❌ Unknown slider: {slider_name}\nAvailable: {', '.join(valid_sliders)}")
-                return
-            
-            if not session.get("personality_overrides"):
-                session["personality_overrides"] = {}
-            session["personality_overrides"][slider_name] = value
-            
-            await update.message.reply_text(f"🎛️ **{slider_name}** → {value}", parse_mode='Markdown')
-            return
-    
-    # Show current resolved values
-    resolved = get_resolved_personality(
-        mode=iris_mode,
-        user_info=user_info,
-        session_overrides=overrides
-    )
-    
-    slider_emojis = {
-        'verbosity': '📏', 'warmth': '🌡️', 'humor': '😏', 'truth': '⚡',
-        'speculation': '🔮', 'autonomy': '🧭', 'mystical': '✨', 'formality': '👔', 'challenge': '⚔️'
-    }
-    
-    lines = [f"🎛️ **Personality** (mode: {iris_mode})\n"]
-    for k, v in sorted(resolved.items()):
-        emoji = slider_emojis.get(k, '•')
-        bar = '█' * (v // 10) + '░' * (10 - v // 10)
-        override_mark = " *" if overrides and k in overrides else ""
-        lines.append(f"{emoji} `{k:12s}` {bar} {v}{override_mark}")
-    
-    lines.append("")
-    lines.append("`/personality <slider> <0-100>` to adjust")
-    lines.append("`/personality reset` to clear overrides")
-    if overrides:
-        lines.append("\n* = session override")
-    
-    await update.message.reply_text("\n".join(lines), parse_mode='Markdown')
-
 async def clear_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /clear command - reset chat context"""
     telegram_id = update.effective_user.id
@@ -1050,7 +970,6 @@ def main():
     application.add_handler(CommandHandler("help", help_command_handler))
     application.add_handler(CommandHandler("status", status_command))
     application.add_handler(CommandHandler("mode", mode_command))
-    application.add_handler(CommandHandler("personality", personality_command))
     application.add_handler(CommandHandler("personality", personality_command))
     application.add_handler(CommandHandler("personality", personality_command))
     application.add_handler(CommandHandler("model", model_command))

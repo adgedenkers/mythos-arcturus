@@ -1,0 +1,41 @@
+{
+    "patch_number": 113,
+    "name": "unified_prompts",
+    "version": "1.19.0",
+    "description": "Unified prompt & personality system — replaces fragmented prompt sources with layered assembler, adds mode system, personality sliders, temporal awareness",
+    "author": "Ka'tuar'el + Claude",
+    "date": "2026-02-23",
+    "changes": {
+        "new_files": [
+            "core/prompt_assembler.py",
+            "prompts/iris_identity.md",
+            "prompts/personality.yaml",
+            "prompts/voice.yaml",
+            "prompts/modes/hearthfire.yaml",
+            "prompts/modes/forge.yaml",
+            "prompts/modes/roots.yaml",
+            "prompts/modes/oracle.yaml",
+            "prompts/modes/scribe.yaml",
+            "prompts/modes/sentry.yaml",
+            "prompts/users/ka_tuar_el.yaml",
+            "prompts/users/seraphe.yaml",
+            "models/iris-thinking.Modelfile",
+            "docs/PROMPT_SYSTEM.md"
+        ],
+        "modified_files": [
+            "telegram_bot/handlers/chat_mode.py",
+            "assistants/chat_assistant.py",
+            "telegram_bot/mythos_bot.py"
+        ],
+        "other": [
+            "Rebuild iris-thinking model (parameters only, no baked SYSTEM)",
+            "Archive seraphe_system_prompt.txt"
+        ]
+    },
+    "dependencies": {
+        "requires_patches": [],
+        "pip_packages": [],
+        "system_packages": []
+    },
+    "rollback": "git checkout HEAD~1 -- telegram_bot/handlers/chat_mode.py telegram_bot/mythos_bot.py assistants/chat_assistant.py && sudo systemctl restart mythos-bot.service"
+}
