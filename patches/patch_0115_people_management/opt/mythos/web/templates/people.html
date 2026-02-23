@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mythos — People</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0e17; --bg-card:#111827; --bg-hover:#1a2332;
+  --border:#1e293b; --border-light:#293548;
+  --text:#e2e8f0; --text-dim:#64748b; --text-muted:#475569;
+  --green:#22c55e; --green-bg:rgba(34,197,94,0.08);
+  --red:#ef4444; --red-bg:rgba(239,68,68,0.08);
+  --amber:#f59e0b; --amber-bg:rgba(245,158,11,0.08);
+  --blue:#3b82f6; --blue-bg:rgba(59,130,246,0.08);
+  --cyan:#06b6d4; --cyan-bg:rgba(6,182,212,0.08);
+  --purple:#a855f7; --purple-bg:rgba(168,85,247,0.08);
+  --rose:#f43f5e; --rose-bg:rgba(244,63,94,0.08);
+  --gold:#d4a574;
+  --sidebar-w:200px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+
+/* ── Topbar ── */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;border-bottom:1px solid var(--border);background:var(--bg-card);flex-shrink:0;z-index:10;}
+.topbar-left{display:flex;align-items:center;gap:20px;}
+.topbar-nav{display:flex;gap:4px;}
+.topbar-nav a{padding:6px 14px;border-radius:6px;color:var(--text-dim);text-decoration:none;font-size:13px;font-weight:500;transition:all .15s;}
+.topbar-nav a:hover{color:var(--text);background:var(--bg-hover);}
+.topbar-nav a.active{color:var(--cyan);background:var(--cyan-bg);}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.user-info{font-size:12px;color:var(--text-dim);}
+.logout-btn{padding:5px 12px;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--text-muted);font-size:12px;cursor:pointer;text-decoration:none;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* ── Layout ── */
+.app-body{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:var(--sidebar-w);background:var(--bg-card);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;padding:16px 0;}
+.sidebar-section{padding:0 12px;margin-bottom:4px;}
+.sidebar-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);padding:8px 8px 4px;}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--text-dim);font-size:13px;font-weight:500;transition:all .15s;border:none;background:none;width:100%;text-align:left;}
+.sidebar-item:hover{color:var(--text);background:var(--bg-hover);}
+.sidebar-item.active{color:var(--rose);background:var(--rose-bg);}
+.sidebar-item .icon{font-size:15px;width:18px;text-align:center;}
+.sidebar-divider{border:none;border-top:1px solid var(--border);margin:8px 12px;}
+.sidebar-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);margin-left:auto;}
+.main{flex:1;overflow-y:auto;padding:24px;}
+
+/* ── Summary cards ── */
+.summary-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:24px;}
+.summary-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.summary-card .label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px;}
+.summary-card .value{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--rose);}
+
+/* ── Search bar ── */
+.search-bar{display:flex;gap:8px;margin-bottom:16px;align-items:center;}
+.search-input{flex:1;background:var(--bg);border:1px solid var(--border-light);color:var(--text);padding:8px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.search-input:focus{border-color:var(--rose);}
+.search-input::placeholder{color:var(--text-muted);}
+.btn{padding:6px 14px;border-radius:6px;border:1px solid var(--border-light);background:transparent;color:var(--text-muted);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'DM Sans',sans-serif;}
+.btn:hover{color:var(--cyan);border-color:var(--cyan);}
+.btn-primary{background:var(--rose-bg);border-color:rgba(244,63,94,0.4);color:var(--rose);}
+.btn-primary:hover{background:rgba(244,63,94,0.15);}
+.btn-save{border-color:rgba(34,197,94,0.4);background:var(--green-bg);color:var(--green);}
+.btn-save:hover{background:rgba(34,197,94,0.15);}
+.btn-danger{border-color:rgba(239,68,68,0.3);color:var(--red);}
+.btn-danger:hover{background:var(--red-bg);border-color:var(--red);}
+
+/* ── Table ── */
+.table-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.table-scroll{max-height:calc(100vh - 260px);overflow-y:auto;}
+table{width:100%;border-collapse:collapse;}
+th{padding:9px 13px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);border-bottom:1px solid var(--border);background:var(--bg);font-weight:500;white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0;z-index:2;}
+th:hover{color:var(--text-dim);}
+th.sorted{color:var(--rose);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg-hover);}
+tr{cursor:pointer;}
+.name-main{color:var(--text);font-size:13px;font-weight:500;}
+.name-known{font-size:12px;color:var(--rose);font-style:italic;margin-right:6px;}
+.name-sub{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.date-cell{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);white-space:nowrap;}
+.loc-cell{font-size:12px;color:var(--text-dim);}
+.notes-cell{font-size:12px;color:var(--text-muted);max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.empty{text-align:center;padding:60px;color:var(--text-muted);font-size:13px;}
+
+/* ── Detail view ── */
+.detail-back{display:inline-flex;align-items:center;gap:6px;color:var(--text-dim);font-size:13px;cursor:pointer;margin-bottom:20px;transition:color .15s;background:none;border:none;font-family:'DM Sans',sans-serif;}
+.detail-back:hover{color:var(--rose);}
+.detail-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;}
+.detail-name{font-family:'Cinzel',serif;font-size:24px;font-weight:600;letter-spacing:1px;color:var(--rose);}
+.detail-sub{font-size:13px;color:var(--text-dim);margin-top:4px;}
+.detail-actions{display:flex;gap:8px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+@media(max-width:768px){.detail-grid{grid-template-columns:1fr;}}
+.field-group{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:20px;}
+.field-group-title{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.field-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;min-height:32px;}
+.field-label{font-size:12px;color:var(--text-muted);flex-shrink:0;width:110px;}
+.field-value{font-size:13px;color:var(--text);text-align:right;flex:1;}
+.field-value.mono{font-family:'JetBrains Mono',monospace;font-size:12px;}
+.field-value.empty-val{color:var(--text-muted);font-style:italic;font-size:12px;}
+.field-input{background:var(--bg);border:1px solid var(--border-light);color:var(--text);padding:4px 8px;border-radius:5px;font-size:13px;font-family:'DM Sans',sans-serif;width:100%;max-width:200px;outline:none;text-align:right;}
+.field-input:focus{border-color:var(--rose);}
+.field-textarea{background:var(--bg);border:1px solid var(--border-light);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;width:100%;outline:none;resize:vertical;min-height:80px;}
+.field-textarea:focus{border-color:var(--rose);}
+.notes-section{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:20px;}
+.notes-section .field-group-title{margin-bottom:10px;}
+.notes-text{font-size:13px;color:var(--text-dim);line-height:1.7;white-space:pre-wrap;}
+
+/* ── Add form ── */
+.form-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:24px;max-width:700px;}
+.form-title{font-family:'Cinzel',serif;font-size:18px;font-weight:600;color:var(--rose);margin-bottom:20px;letter-spacing:1px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr;}}
+.form-field{display:flex;flex-direction:column;gap:4px;}
+.form-field.full{grid-column:1/-1;}
+.form-label{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);}
+.form-input{background:var(--bg);border:1px solid var(--border-light);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;}
+.form-input:focus{border-color:var(--rose);}
+.form-input::placeholder{color:var(--text-muted);}
+.form-textarea{background:var(--bg);border:1px solid var(--border-light);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;min-height:80px;}
+.form-textarea:focus{border-color:var(--rose);}
+.form-actions{display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:13px;z-index:999;animation:fadeIn .2s;display:none;}
+.toast.ok{border-color:rgba(34,197,94,0.4);color:var(--green);}
+.toast.err{border-color:rgba(239,68,68,0.4);color:var(--red);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.loading{text-align:center;padding:40px;color:var(--text-muted);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div style="font-family:'Cinzel',serif;font-size:16px;font-weight:600;letter-spacing:4px;color:#d4a574">MYTHOS</div>
+    <nav class="topbar-nav">
+      <a href="/app/">Home</a>
+      <a href="/app/finance/">Finance</a>
+      <a href="/app/people/" class="active">People</a>
+      <a href="/app/ontology/">Ontology</a>
+      <a href="/app/system/">System</a>
+      <a href="/app/sessions/">Sessions</a>
+      <a href="/app/registry/">Registry</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span class="user-info" id="user-info"></span>
+    <a href="/auth/logout" class="logout-btn">logout</a>
+  </div>
+</div>
+
+<div class="app-body">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">People</div>
+      <button class="sidebar-item active" onclick="showSection('directory')" id="nav-directory"><span class="icon">👤</span> Directory <span class="sidebar-count" id="count-badge">—</span></button>
+      <button class="sidebar-item" onclick="showSection('add')" id="nav-add"><span class="icon">＋</span> Add Person</button>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Stats</div>
+      <div style="padding:4px 10px;font-size:12px;color:var(--text-muted);">
+        <div style="display:flex;justify-content:space-between;margin:4px 0;"><span>Total</span><span id="stat-total" style="font-family:'JetBrains Mono',monospace;color:var(--rose);">—</span></div>
+        <div style="display:flex;justify-content:space-between;margin:4px 0;"><span>With DOB</span><span id="stat-dob" style="font-family:'JetBrains Mono',monospace;color:var(--text-dim);">—</span></div>
+        <div style="display:flex;justify-content:space-between;margin:4px 0;"><span>With Notes</span><span id="stat-notes" style="font-family:'JetBrains Mono',monospace;color:var(--text-dim);">—</span></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main" id="main"><div class="loading">Loading...</div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──
+let allPeople = [];
+let currentSort = 'last_name';
+let currentOrder = 'asc';
+let currentSection = 'directory';
+let editingPerson = null;
+let isEditing = false;
+
+// ── Init ──
+fetch('/auth/me').then(r=>{if(!r.ok)throw 'a';return r.json()}).then(d=>{
+  document.getElementById('user-info').textContent=d.name||d.email;
+}).catch(()=>{window.location.href='/app/login'});
+
+loadStats();
+loadPeople();
+
+// ── Data ──
+async function loadStats() {
+  try {
+    const r = await fetch('/api/people/stats');
+    const d = await r.json();
+    document.getElementById('stat-total').textContent = d.total;
+    document.getElementById('stat-dob').textContent = d.with_dob;
+    document.getElementById('stat-notes').textContent = d.with_notes;
+    document.getElementById('count-badge').textContent = d.total;
+  } catch(e) {}
+}
+
+async function loadPeople(search) {
+  try {
+    let url = `/api/people/?sort=${currentSort}&order=${currentOrder}&limit=500`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    const r = await fetch(url);
+    const d = await r.json();
+    allPeople = d.people;
+    if (currentSection === 'directory') renderDirectory();
+  } catch(e) {
+    document.getElementById('main').innerHTML = '<div class="empty">Failed to load people</div>';
+  }
+}
+
+// ── Navigation ──
+function showSection(section) {
+  currentSection = section;
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const nav = document.getElementById('nav-' + section);
+  if (nav) nav.classList.add('active');
+
+  if (section === 'directory') renderDirectory();
+  else if (section === 'add') renderAddForm();
+}
+
+function showDetail(id) {
+  currentSection = 'detail';
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  renderDetail(id);
+}
+
+// ── Render: Directory ──
+function renderDirectory() {
+  const main = document.getElementById('main');
+  let html = `
+    <div class="search-bar">
+      <input type="text" class="search-input" id="search-input" placeholder="Search by name..." oninput="debounceSearch(this.value)">
+      <button class="btn btn-primary" onclick="showSection('add')">＋ Add Person</button>
+    </div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="${currentSort==='last_name'?'sorted':''}" onclick="sortBy('last_name')">Name ${sortArrow('last_name')}</th>
+              <th class="${currentSort==='date_of_birth'?'sorted':''}" onclick="sortBy('date_of_birth')">Born ${sortArrow('date_of_birth')}</th>
+              <th>Birthplace</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+  if (allPeople.length === 0) {
+    html += '<tr><td colspan="4"><div class="empty">No people found</div></td></tr>';
+  } else {
+    for (const p of allPeople) {
+      const name = p.known_as
+        ? `<span class="name-known">${esc(p.known_as)}</span> <span class="name-main">${esc(p.first_name)} ${esc(p.last_name)}</span>`
+        : `<span class="name-main">${esc(p.first_name)} ${p.middle_name ? esc(p.middle_name)+' ' : ''}${esc(p.last_name)}</span>`;
+      const dob = p.date_of_birth ? formatDate(p.date_of_birth) : '—';
+      const age = p.date_of_birth ? calcAge(p.date_of_birth, p.date_of_death) : '';
+      const loc = [p.birth_city, p.birth_state].filter(Boolean).join(', ') || '—';
+      const notes = p.notes ? esc(p.notes.substring(0, 80)) + (p.notes.length > 80 ? '…' : '') : '—';
+
+      html += `<tr onclick="showDetail(${p.id})">
+        <td><div>${name}</div>${age ? `<div class="name-sub">Age ${age}${p.date_of_death ? ' · deceased' : ''}</div>` : ''}</td>
+        <td class="date-cell">${dob}</td>
+        <td class="loc-cell">${esc(loc)}</td>
+        <td class="notes-cell">${notes}</td>
+      </tr>`;
+    }
+  }
+
+  html += '</tbody></table></div></div>';
+  main.innerHTML = html;
+}
+
+// ── Render: Detail ──
+async function renderDetail(id) {
+  const main = document.getElementById('main');
+  main.innerHTML = '<div class="loading">Loading...</div>';
+
+  try {
+    const r = await fetch(`/api/people/${id}`);
+    if (!r.ok) throw 'not found';
+    const p = await r.json();
+    editingPerson = p;
+    isEditing = false;
+    renderDetailView(p);
+  } catch(e) {
+    main.innerHTML = '<div class="empty">Person not found</div>';
+  }
+}
+
+function renderDetailView(p) {
+  const main = document.getElementById('main');
+  const age = p.date_of_birth ? calcAge(p.date_of_birth, p.date_of_death) : null;
+  const displayName = p.display_text || `${p.first_name} ${p.last_name}`;
+
+  let html = `
+    <button class="detail-back" onclick="showSection('directory')">← Back to directory</button>
+    <div class="detail-header">
+      <div>
+        <div class="detail-name">${esc(displayName)}</div>
+        <div class="detail-sub">
+          ${p.canonical_id ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted)">${esc(p.canonical_id)}</span>` : ''}
+          ${age ? ` · Age ${age}` : ''}
+          ${p.date_of_death ? ' · Deceased' : ''}
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-primary" onclick="startEdit()" id="btn-edit">✎ Edit</button>
+        <button class="btn btn-danger" onclick="confirmDelete(${p.id},'${esc(displayName)}')">✕ Delete</button>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="field-group">
+        <div class="field-group-title">Identity</div>
+        ${fieldRow('Prefix', p.prefix)}
+        ${fieldRow('First Name', p.first_name)}
+        ${fieldRow('Middle Name', p.middle_name)}
+        ${fieldRow('Last Name', p.last_name)}
+        ${fieldRow('Suffix', p.suffix)}
+        ${fieldRow('Known As', p.known_as)}
+      </div>
+      <div class="field-group">
+        <div class="field-group-title">Birth</div>
+        ${fieldRow('Date of Birth', p.date_of_birth ? formatDate(p.date_of_birth) : null, 'mono')}
+        ${fieldRow('Time of Birth', p.time_of_birth, 'mono')}
+        ${fieldRow('City', p.birth_city)}
+        ${fieldRow('State', p.birth_state)}
+        ${fieldRow('ZIP', p.birth_zip)}
+        ${fieldRow('Country', p.birth_country)}
+      </div>
+    </div>
+    ${p.date_of_death ? `
+    <div style="margin-bottom:16px">
+      <div class="field-group" style="max-width:340px">
+        <div class="field-group-title">Death</div>
+        ${fieldRow('Date of Death', formatDate(p.date_of_death), 'mono')}
+      </div>
+    </div>` : ''}
+    <div class="notes-section">
+      <div class="field-group-title">Notes</div>
+      <div class="notes-text">${p.notes ? esc(p.notes) : '<span style="color:var(--text-muted);font-style:italic">No notes</span>'}</div>
+    </div>
+    <div style="margin-top:16px;font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">
+      Created: ${p.created_at ? formatDateTime(p.created_at) : '—'} · Updated: ${p.updated_at ? formatDateTime(p.updated_at) : '—'}
+    </div>`;
+
+  main.innerHTML = html;
+}
+
+function fieldRow(label, value, cls) {
+  const valClass = value ? (cls ? `field-value ${cls}` : 'field-value') : 'field-value empty-val';
+  return `<div class="field-row"><span class="field-label">${label}</span><span class="${valClass}">${value ? esc(String(value)) : '—'}</span></div>`;
+}
+
+// ── Edit Mode ──
+function startEdit() {
+  const p = editingPerson;
+  if (!p) return;
+  isEditing = true;
+  const main = document.getElementById('main');
+
+  let html = `
+    <button class="detail-back" onclick="cancelEdit()">← Cancel edit</button>
+    <div style="margin-bottom:20px">
+      <div class="detail-name" style="font-size:20px">Editing: ${esc(p.display_text || p.first_name + ' ' + p.last_name)}</div>
+    </div>
+    <div class="detail-grid">
+      <div class="field-group">
+        <div class="field-group-title">Identity</div>
+        ${editRow('prefix', 'Prefix', p.prefix)}
+        ${editRow('first_name', 'First Name', p.first_name)}
+        ${editRow('middle_name', 'Middle Name', p.middle_name)}
+        ${editRow('last_name', 'Last Name', p.last_name)}
+        ${editRow('suffix', 'Suffix', p.suffix)}
+        ${editRow('known_as', 'Known As', p.known_as)}
+      </div>
+      <div class="field-group">
+        <div class="field-group-title">Birth</div>
+        ${editRow('date_of_birth', 'Date of Birth', p.date_of_birth, 'date')}
+        ${editRow('time_of_birth', 'Time of Birth', p.time_of_birth, 'time')}
+        ${editRow('birth_city', 'City', p.birth_city)}
+        ${editRow('birth_state', 'State', p.birth_state)}
+        ${editRow('birth_zip', 'ZIP', p.birth_zip)}
+        ${editRow('birth_country', 'Country', p.birth_country)}
+      </div>
+    </div>
+    <div class="field-group" style="max-width:340px;margin-bottom:16px">
+      <div class="field-group-title">Death</div>
+      ${editRow('date_of_death', 'Date of Death', p.date_of_death, 'date')}
+    </div>
+    <div class="notes-section">
+      <div class="field-group-title">Notes</div>
+      <textarea class="field-textarea" id="edit-notes">${p.notes ? esc(p.notes) : ''}</textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="btn btn-save" onclick="saveEdit(${p.id})">✓ Save Changes</button>
+      <button class="btn" onclick="cancelEdit()">Cancel</button>
+    </div>`;
+
+  main.innerHTML = html;
+}
+
+function editRow(field, label, value, type) {
+  const inputType = type || 'text';
+  const val = value || '';
+  return `<div class="field-row">
+    <span class="field-label">${label}</span>
+    <input class="field-input" type="${inputType}" id="edit-${field}" value="${esc(String(val))}">
+  </div>`;
+}
+
+function cancelEdit() {
+  if (editingPerson) renderDetailView(editingPerson);
+  else showSection('directory');
+}
+
+async function saveEdit(id) {
+  const fields = ['prefix','first_name','middle_name','last_name','suffix','known_as',
+                   'date_of_birth','time_of_birth','birth_city','birth_state','birth_zip','birth_country','date_of_death'];
+  const body = {};
+  for (const f of fields) {
+    const el = document.getElementById('edit-' + f);
+    if (el) {
+      const v = el.value.trim();
+      body[f] = v || null;
+    }
+  }
+  const notesEl = document.getElementById('edit-notes');
+  if (notesEl) body.notes = notesEl.value.trim() || null;
+
+  try {
+    const r = await fetch(`/api/people/${id}`, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) { const e = await r.json(); throw e.detail || 'Save failed'; }
+    const updated = await r.json();
+    editingPerson = updated;
+    isEditing = false;
+    renderDetailView(updated);
+    toast('Person updated', 'ok');
+    loadStats();
+    loadPeople();
+  } catch(e) {
+    toast(String(e), 'err');
+  }
+}
+
+// ── Render: Add Form ──
+function renderAddForm() {
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="form-card">
+      <div class="form-title">✦ Add Person</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label">First Name *</label>
+          <input class="form-input" id="add-first_name" placeholder="First name" required>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Last Name *</label>
+          <input class="form-input" id="add-last_name" placeholder="Last name" required>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Middle Name</label>
+          <input class="form-input" id="add-middle_name" placeholder="Middle name">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Known As</label>
+          <input class="form-input" id="add-known_as" placeholder="Nickname / spiritual name">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Prefix</label>
+          <input class="form-input" id="add-prefix" placeholder="Dr., Rev., etc.">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Suffix</label>
+          <input class="form-input" id="add-suffix" placeholder="Jr., III, etc.">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Date of Birth</label>
+          <input class="form-input" type="date" id="add-date_of_birth">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Time of Birth</label>
+          <input class="form-input" type="time" id="add-time_of_birth">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Birth City</label>
+          <input class="form-input" id="add-birth_city" placeholder="City">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Birth State</label>
+          <input class="form-input" id="add-birth_state" placeholder="State / Province">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Birth ZIP</label>
+          <input class="form-input" id="add-birth_zip" placeholder="ZIP / Postal">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Birth Country</label>
+          <input class="form-input" id="add-birth_country" placeholder="Country" value="USA">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Date of Death</label>
+          <input class="form-input" type="date" id="add-date_of_death">
+        </div>
+        <div class="form-field"></div>
+        <div class="form-field full">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="add-notes" placeholder="Lineage, roles, spiritual identity, relationships..."></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-save" onclick="submitAdd()">✓ Create Person</button>
+        <button class="btn" onclick="showSection('directory')">Cancel</button>
+      </div>
+    </div>`;
+}
+
+async function submitAdd() {
+  const fields = ['prefix','first_name','middle_name','last_name','suffix','known_as',
+                   'date_of_birth','time_of_birth','birth_city','birth_state','birth_zip','birth_country','date_of_death'];
+  const body = {};
+  for (const f of fields) {
+    const el = document.getElementById('add-' + f);
+    if (el) {
+      const v = el.value.trim();
+      if (v) body[f] = v;
+    }
+  }
+  const notesEl = document.getElementById('add-notes');
+  if (notesEl && notesEl.value.trim()) body.notes = notesEl.value.trim();
+
+  if (!body.first_name || !body.last_name) {
+    toast('First and last name required', 'err');
+    return;
+  }
+
+  try {
+    const r = await fetch('/api/people/', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) { const e = await r.json(); throw e.detail || 'Create failed'; }
+    const created = await r.json();
+    toast(`Created: ${created.display_text}`, 'ok');
+    loadStats();
+    await loadPeople();
+    showDetail(created.id);
+  } catch(e) {
+    toast(String(e), 'err');
+  }
+}
+
+// ── Delete ──
+function confirmDelete(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  doDelete(id);
+}
+
+async function doDelete(id) {
+  try {
+    const r = await fetch(`/api/people/${id}`, { method: 'DELETE' });
+    if (!r.ok) throw 'Delete failed';
+    const d = await r.json();
+    toast(`Deleted: ${d.display_text}`, 'ok');
+    editingPerson = null;
+    loadStats();
+    await loadPeople();
+    showSection('directory');
+  } catch(e) {
+    toast(String(e), 'err');
+  }
+}
+
+// ── Sort ──
+function sortBy(field) {
+  if (currentSort === field) {
+    currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSort = field;
+    currentOrder = 'asc';
+  }
+  loadPeople(document.getElementById('search-input')?.value);
+}
+
+function sortArrow(field) {
+  if (currentSort !== field) return '';
+  return currentOrder === 'asc' ? '↑' : '↓';
+}
+
+// ── Search debounce ──
+let searchTimer = null;
+function debounceSearch(val) {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => loadPeople(val), 250);
+}
+
+// ── Helpers ──
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+}
+
+function formatDateTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function calcAge(dob, dod) {
+  const birth = new Date(dob + 'T00:00:00');
+  const end = dod ? new Date(dod + 'T00:00:00') : new Date();
+  let age = end.getFullYear() - birth.getFullYear();
+  const m = end.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && end.getDate() < birth.getDate())) age--;
+  return age;
+}
+
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + (type || '');
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+</script>
+</body>
+</html>
