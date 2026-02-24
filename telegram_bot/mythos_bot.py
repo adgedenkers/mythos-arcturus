@@ -183,6 +183,9 @@ def get_or_create_session(telegram_id):
             return None
     
     SESSIONS[telegram_id]["last_activity"] = datetime.now()
+    # Ensure chat_id is available for consciousness stream (Patch 0122)
+    if "chat_id" not in SESSIONS[telegram_id]:
+        SESSIONS[telegram_id]["chat_id"] = telegram_id  # Default: DM chat_id = telegram_id
     return SESSIONS[telegram_id]
 
 
