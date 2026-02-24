@@ -12,9 +12,6 @@ Manages ALL Person-type nodes in Neo4j:
 Endpoints:
     GET    /api/people/                - List people (filterable by type)
     GET    /api/people/stats           - Summary stats
-    GET    /api/people/rel-types       - List all relationship types in use
-    GET    /api/people/graph           - Graph data for visualization
-    GET    /api/people/search-nodes    - Search nodes for relationship target picker
     GET    /api/people/{eid}           - Get person + relationships by elementId
     POST   /api/people/               - Create a Person node
     PATCH  /api/people/{eid}           - Update person properties
@@ -22,7 +19,6 @@ Endpoints:
     GET    /api/people/{eid}/rels      - Get all relationships
     POST   /api/people/{eid}/rels      - Create a relationship
     DELETE /api/people/{eid}/rels      - Delete a relationship
-    GET    /api/people/{eid}/graph     - Ego graph for a specific person
 """
 import os
 from datetime import datetime, timezone
@@ -40,26 +36,31 @@ NEO4J_URI = os.getenv('NEO4J_URI', 'bolt://localhost:7687')
 NEO4J_USER = os.getenv('NEO4J_USER', 'neo4j')
 NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD', '')
 
-# Valid person_type values
-PERSON_TYPES = [
-    'Family', 'Personal', 'Contact', 'Business', 'School',
-    'Religious', 'Historical', 'Spiritual', 'Musical',
-    'Political', 'Literary', 'Scientific', 'Mythological',
-]
-
 
 def get_driver():
     return GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
 
+def neo4j_date_to_str(val):
+    """Convert neo4j date/datetime types to ISO strings."""
+    if val is None:
+        return None
+    if hasattr(val, 'isoformat'):
+        return val.isoformat()
+    return str(val)
+
+
 def node_to_dict(record, node_key='p'):
     """Convert a Neo4j result record to a serializable dict."""
     props = dict(record[node_key]) if record[node_key] else {}
+    # Convert special types
     for k, v in props.items():
         if hasattr(v, 'isoformat'):
             props[k] = v.isoformat()
         elif hasattr(v, 'x') and hasattr(v, 'y'):
+            # Point type (birth_coords)
             props[k] = {"lat": v.y, "lng": v.x}
+    # Add element_id and labels
     props['_element_id'] = record.get('eid', '')
     props['_labels'] = record.get('labels', [])
     props['_type'] = classify_labels(record.get('labels', []))
@@ -67,6 +68,7 @@ def node_to_dict(record, node_key='p'):
 
 
 def classify_labels(labels):
+    """Classify a node by its label combination."""
     labels_set = set(labels)
     if 'Soul' in labels_set and 'Person' in labels_set:
         return 'soul_person'
@@ -85,7 +87,6 @@ class PersonCreate(BaseModel):
     full_name: str
     display_name: Optional[str] = None
     canonical_id: Optional[str] = None
-    person_type: Optional[str] = None
     birth_date: Optional[str] = None
     birth_time: Optional[str] = None
     birth_location: Optional[str] = None
@@ -103,7 +104,6 @@ class PersonUpdate(BaseModel):
     display_name: Optional[str] = None
     name: Optional[str] = None
     canonical_id: Optional[str] = None
-    person_type: Optional[str] = None
     birth_date: Optional[str] = None
     birth_time: Optional[str] = None
     birth_location: Optional[str] = None
@@ -117,11 +117,13 @@ class PersonUpdate(BaseModel):
     given_name: Optional[str] = None
     surname: Optional[str] = None
     sex: Optional[str] = None
+    # Soul-specific
     spiritual_name: Optional[str] = None
     primary_role: Optional[str] = None
     gender: Optional[str] = None
     nationality: Optional[str] = None
     residence: Optional[str] = None
+    # Any other property as freeform
     extra: Optional[Dict[str, Any]] = None
 
 
@@ -140,6 +142,7 @@ class RelDelete(BaseModel):
 
 @router.get("/stats")
 async def people_stats():
+    """Summary stats across all person-type nodes."""
     driver = get_driver()
     try:
         with driver.session() as session:
@@ -157,177 +160,14 @@ async def people_stats():
                     count(CASE WHEN p.death_date IS NOT NULL THEN 1 END) AS deceased
             """).single()
             return {
-                "total": r['total'], "canonical": r['canonical'],
-                "entities": r['entities'], "souls": r['souls'],
-                "genealogy": r['genealogy'], "with_dob": r['with_dob'],
+                "total": r['total'],
+                "canonical": r['canonical'],
+                "entities": r['entities'],
+                "souls": r['souls'],
+                "genealogy": r['genealogy'],
+                "with_dob": r['with_dob'],
                 "deceased": r['deceased'],
-                "person_types": PERSON_TYPES,
             }
-    finally:
-        driver.close()
-
-
-@router.get("/rel-types")
-async def relationship_types():
-    """List all relationship types currently in use between person/soul nodes."""
-    driver = get_driver()
-    try:
-        with driver.session() as session:
-            results = session.run("""
-                MATCH (p)-[r]-(q)
-                WHERE ('Person' IN labels(p) OR 'Soul' IN labels(p))
-                RETURN DISTINCT type(r) AS rel_type, count(r) AS cnt
-                ORDER BY cnt DESC
-            """)
-            types = [{"type": r['rel_type'], "count": r['cnt']} for r in results]
-            return {"types": types}
-    finally:
-        driver.close()
-
-
-@router.get("/search-nodes")
-async def search_nodes(q: str = Query(..., min_length=1), limit: int = Query(20, ge=1, le=50)):
-    """Search all nodes for relationship target picker."""
-    driver = get_driver()
-    try:
-        with driver.session() as session:
-            results = session.run("""
-                MATCH (p)
-                WHERE ('Person' IN labels(p) OR 'Soul' IN labels(p) OR 'Incarnation' IN labels(p))
-                  AND (
-                    toLower(COALESCE(p.full_name, '')) CONTAINS toLower($q)
-                    OR toLower(COALESCE(p.display_name, '')) CONTAINS toLower($q)
-                    OR toLower(COALESCE(p.name, '')) CONTAINS toLower($q)
-                    OR toLower(COALESCE(p.canonical_id, '')) CONTAINS toLower($q)
-                    OR toLower(COALESCE(p.given_name, '')) CONTAINS toLower($q)
-                    OR toLower(COALESCE(p.spiritual_name, '')) CONTAINS toLower($q)
-                  )
-                RETURN elementId(p) AS eid,
-                       COALESCE(p.display_name, p.full_name, p.name, p.given_name) AS name,
-                       p.canonical_id AS canonical_id,
-                       labels(p) AS labels
-                ORDER BY name
-                LIMIT $limit
-            """, q=q, limit=limit)
-            nodes = [{
-                "eid": r['eid'], "name": r['name'],
-                "canonical_id": r['canonical_id'],
-                "labels": r['labels'],
-                "type": classify_labels(r['labels']),
-            } for r in results]
-            return {"nodes": nodes}
-    finally:
-        driver.close()
-
-
-@router.get("/graph")
-async def full_graph(
-    node_type: Optional[str] = Query(None),
-    limit: int = Query(100, ge=1, le=500),
-):
-    """Full graph data for visualization. Excludes GenPerson by default."""
-    driver = get_driver()
-    try:
-        with driver.session() as session:
-            where = "NOT 'GenPerson' IN labels(p)" if not node_type or node_type != 'genealogy' else "true"
-            if node_type and node_type != 'all' and node_type != 'genealogy':
-                type_filter = {
-                    'person': "NOT 'GenPerson' IN labels(p) AND NOT 'Entity' IN labels(p) AND NOT 'Soul' IN labels(p)",
-                    'entity': "'Entity' IN labels(p)",
-                    'soul': "'Soul' IN labels(p)",
-                }.get(node_type, "true")
-                where = type_filter
-
-            # Get nodes
-            nodes_result = session.run(f"""
-                MATCH (p)
-                WHERE ('Person' IN labels(p) OR 'Soul' IN labels(p))
-                  AND {where}
-                RETURN elementId(p) AS eid,
-                       COALESCE(p.display_name, p.full_name, p.name, p.given_name, 'Unknown') AS name,
-                       p.canonical_id AS canonical_id,
-                       p.person_type AS person_type,
-                       labels(p) AS labels
-                LIMIT $limit
-            """, limit=limit)
-            nodes = []
-            node_eids = set()
-            for r in nodes_result:
-                nodes.append({
-                    "eid": r['eid'], "name": r['name'],
-                    "canonical_id": r['canonical_id'],
-                    "person_type": r['person_type'],
-                    "type": classify_labels(r['labels']),
-                })
-                node_eids.add(r['eid'])
-
-            # Get edges between these nodes
-            edges_result = session.run(f"""
-                MATCH (a)-[r]->(b)
-                WHERE ('Person' IN labels(a) OR 'Soul' IN labels(a))
-                  AND ('Person' IN labels(b) OR 'Soul' IN labels(b) OR 'Incarnation' IN labels(b))
-                  AND {where.replace('labels(p)', 'labels(a)')}
-                RETURN elementId(a) AS source, elementId(b) AS target,
-                       type(r) AS rel_type
-                LIMIT 1000
-            """, limit=limit)
-            edges = []
-            for r in edges_result:
-                if r['source'] in node_eids or r['target'] in node_eids:
-                    edges.append({
-                        "source": r['source'], "target": r['target'],
-                        "type": r['rel_type'],
-                    })
-
-            return {"nodes": nodes, "edges": edges}
-    finally:
-        driver.close()
-
-
-@router.get("/{eid}/graph")
-async def ego_graph(eid: str, depth: int = Query(2, ge=1, le=3)):
-    """Get ego-centric graph (neighborhood) for a specific person."""
-    driver = get_driver()
-    try:
-        with driver.session() as session:
-            # Get the ego node + neighbors up to depth
-            results = session.run("""
-                MATCH path = (center)-[*1..""" + str(depth) + """]-()
-                WHERE elementId(center) = $eid
-                WITH nodes(path) AS ns, relationships(path) AS rs
-                UNWIND ns AS n
-                WITH DISTINCT n, rs
-                WHERE 'Person' IN labels(n) OR 'Soul' IN labels(n) OR 'Incarnation' IN labels(n) OR 'Alias' IN labels(n) OR 'Lineage' IN labels(n)
-                RETURN elementId(n) AS eid,
-                       COALESCE(n.display_name, n.full_name, n.name, n.given_name, 'Unknown') AS name,
-                       n.canonical_id AS canonical_id,
-                       n.person_type AS person_type,
-                       labels(n) AS labels
-            """, eid=eid)
-
-            nodes = []
-            node_eids = set()
-            for r in results:
-                nodes.append({
-                    "eid": r['eid'], "name": r['name'],
-                    "canonical_id": r['canonical_id'],
-                    "person_type": r['person_type'],
-                    "type": classify_labels(r['labels']),
-                    "is_center": r['eid'] == eid,
-                })
-                node_eids.add(r['eid'])
-
-            # Get edges between collected nodes
-            edges_result = session.run("""
-                MATCH (a)-[r]->(b)
-                WHERE elementId(a) IN $eids AND elementId(b) IN $eids
-                RETURN elementId(a) AS source, elementId(b) AS target,
-                       type(r) AS rel_type
-            """, eids=list(node_eids))
-
-            edges = [{"source": r['source'], "target": r['target'], "type": r['rel_type']} for r in edges_result]
-
-            return {"nodes": nodes, "edges": edges, "center": eid}
     finally:
         driver.close()
 
@@ -335,19 +175,21 @@ async def ego_graph(eid: str, depth: int = Query(2, ge=1, le=3)):
 @router.get("/")
 async def list_people(
     search: Optional[str] = Query(None),
-    node_type: Optional[str] = Query(None),
-    person_type: Optional[str] = Query(None),
-    sort: str = Query("name"),
+    node_type: Optional[str] = Query(None, description="person|entity|soul|soul_person|genealogy|all"),
+    sort: str = Query("name", description="Sort field"),
     order: str = Query("asc"),
     limit: int = Query(200, ge=1, le=2000),
     offset: int = Query(0, ge=0),
 ):
+    """List all person-type nodes, filterable by type."""
     driver = get_driver()
     try:
         with driver.session() as session:
+            # Build WHERE clause based on filters
             where_parts = []
             params = {"limit": limit, "offset": offset}
 
+            # Type filter
             if node_type and node_type != 'all':
                 if node_type == 'person':
                     where_parts.append("NOT 'GenPerson' IN labels(p) AND NOT 'Entity' IN labels(p) AND NOT 'Soul' IN labels(p) AND 'Person' IN labels(p)")
@@ -360,12 +202,10 @@ async def list_people(
                 elif node_type == 'genealogy':
                     where_parts.append("'GenPerson' IN labels(p)")
             else:
+                # Default: exclude genealogy (too many), show everything else
                 where_parts.append("NOT 'GenPerson' IN labels(p)")
 
-            if person_type:
-                where_parts.append("p.person_type = $person_type")
-                params["person_type"] = person_type
-
+            # Search filter
             if search:
                 where_parts.append("""(
                     toLower(COALESCE(p.full_name, '')) CONTAINS toLower($search)
@@ -381,11 +221,12 @@ async def list_people(
 
             where_clause = " AND ".join(where_parts) if where_parts else "true"
 
+            # Sort
             sort_map = {
                 'name': 'COALESCE(p.display_name, p.full_name, p.name, p.given_name, "")',
                 'birth_date': 'COALESCE(p.birth_date, "")',
                 'canonical_id': 'COALESCE(p.canonical_id, "")',
-                'person_type': 'COALESCE(p.person_type, "")',
+                'type': 'labels(p)[0]',
             }
             sort_expr = sort_map.get(sort, sort_map['name'])
             sort_dir = 'DESC' if order.lower() == 'desc' else 'ASC'
@@ -402,6 +243,7 @@ async def list_people(
                 ORDER BY {sort_expr} {sort_dir}
                 SKIP $offset LIMIT $limit
             """
+
             results = session.run(query, **params)
             people = []
             for rec in results:
@@ -410,6 +252,7 @@ async def list_people(
                 d['_rel_count'] = rec['rel_count']
                 people.append(d)
 
+            # Total count
             count_query = f"""
                 MATCH (p)
                 WHERE ('Person' IN labels(p) OR 'Soul' IN labels(p))
@@ -417,6 +260,7 @@ async def list_people(
                 RETURN count(p) AS total
             """
             total = session.run(count_query, **params).single()['total']
+
             return {"people": people, "total": total}
     finally:
         driver.close()
@@ -424,9 +268,11 @@ async def list_people(
 
 @router.get("/{eid}")
 async def get_person(eid: str):
+    """Get a single person by elementId, including all relationships."""
     driver = get_driver()
     try:
         with driver.session() as session:
+            # Get the node
             result = session.run("""
                 MATCH (p)
                 WHERE elementId(p) = $eid
@@ -442,6 +288,7 @@ async def get_person(eid: str):
             person = node_to_dict(rec, 'p')
             person['_aliases'] = rec['aliases']
 
+            # Get all relationships
             rels_result = session.run("""
                 MATCH (p)-[r]-(other)
                 WHERE elementId(p) = $eid
@@ -463,10 +310,13 @@ async def get_person(eid: str):
             relationships = []
             for r in rels_result:
                 rel = {
-                    "type": r['rel_type'], "direction": r['direction'],
+                    "type": r['rel_type'],
+                    "direction": r['direction'],
                     "properties": {k: str(v) for k, v in (r['rel_props'] or {}).items()},
-                    "target_eid": r['other_eid'], "target_labels": r['other_labels'],
-                    "target_name": r['other_name'], "target_canonical": r['other_canonical'],
+                    "target_eid": r['other_eid'],
+                    "target_labels": r['other_labels'],
+                    "target_name": r['other_name'],
+                    "target_canonical": r['other_canonical'],
                 }
                 relationships.append(rel)
 
@@ -478,34 +328,52 @@ async def get_person(eid: str):
 
 @router.post("/", status_code=201)
 async def create_person(body: PersonCreate):
+    """Create a new Person node."""
     driver = get_driver()
     now = datetime.now(timezone.utc).isoformat()
     try:
         with driver.session() as session:
+            # Build canonical_id if not provided
             canonical = body.canonical_id
             if not canonical:
                 canonical = "person-" + body.full_name.lower().replace(' ', '-').replace("'", '')
 
+            # Check for duplicate canonical_id
             existing = session.run(
-                "MATCH (p {canonical_id: $cid}) RETURN elementId(p) AS eid", cid=canonical
+                "MATCH (p {canonical_id: $cid}) RETURN elementId(p) AS eid",
+                cid=canonical
             ).single()
             if existing:
-                raise HTTPException(status_code=409, detail=f"Node with canonical_id '{canonical}' already exists")
+                raise HTTPException(status_code=409,
+                    detail=f"Node with canonical_id '{canonical}' already exists")
 
+            # Build properties
             props = {
                 "full_name": body.full_name,
                 "display_name": body.display_name or body.full_name,
                 "canonical_id": canonical,
                 "created_at": now,
             }
-            if body.person_type:
-                props["person_type"] = body.person_type
-            for field in ['birth_date', 'birth_time', 'birth_location', 'birth_place',
-                          'death_date', 'death_location', 'current_location', 'description', 'notes']:
-                val = getattr(body, field, None)
-                if val:
-                    props[field] = val
+            if body.birth_date:
+                props["birth_date"] = body.birth_date
+            if body.birth_time:
+                props["birth_time"] = body.birth_time
+            if body.birth_location:
+                props["birth_location"] = body.birth_location
+            if body.birth_place:
+                props["birth_place"] = body.birth_place
+            if body.death_date:
+                props["death_date"] = body.death_date
+            if body.death_location:
+                props["death_location"] = body.death_location
+            if body.current_location:
+                props["current_location"] = body.current_location
+            if body.description:
+                props["description"] = body.description
+            if body.notes:
+                props["notes"] = body.notes
 
+            # Create with appropriate labels
             label_str = ':'.join(body.labels)
             result = session.run(f"""
                 CREATE (p:{label_str} $props)
@@ -519,9 +387,11 @@ async def create_person(body: PersonCreate):
 
 @router.patch("/{eid}")
 async def update_person(eid: str, body: PersonUpdate):
+    """Update properties on a Person/Soul node."""
     driver = get_driver()
     try:
         with driver.session() as session:
+            # Verify exists
             existing = session.run("""
                 MATCH (p) WHERE elementId(p) = $eid
                   AND ('Person' IN labels(p) OR 'Soul' IN labels(p))
@@ -530,6 +400,7 @@ async def update_person(eid: str, body: PersonUpdate):
             if not existing:
                 raise HTTPException(status_code=404, detail="Person not found")
 
+            # Build SET clause from non-None fields
             updates = body.dict(exclude_unset=True, exclude_none=True)
             extra = updates.pop('extra', None)
             if extra:
@@ -559,27 +430,35 @@ async def update_person(eid: str, body: PersonUpdate):
 
 @router.delete("/{eid}")
 async def delete_person(eid: str, confirm: bool = Query(False)):
+    """Delete a Person node. Requires confirm=true for canonical nodes."""
     driver = get_driver()
     try:
         with driver.session() as session:
+            # Get node info first
             rec = session.run("""
                 MATCH (p) WHERE elementId(p) = $eid
                   AND ('Person' IN labels(p) OR 'Soul' IN labels(p))
                 RETURN COALESCE(p.display_name, p.full_name, p.name) AS name,
-                       p.canonical_id AS cid, labels(p) AS labels,
+                       p.canonical_id AS cid,
+                       labels(p) AS labels,
                        size([(p)-[]-() | 1]) AS rel_count
             """, eid=eid).single()
 
             if not rec:
                 raise HTTPException(status_code=404, detail="Person not found")
 
+            # Safety: require confirmation for canonical/soul nodes
             is_protected = rec['cid'] is not None or 'Soul' in rec['labels']
             if is_protected and not confirm:
                 raise HTTPException(status_code=400,
                     detail=f"Protected node ({rec['name']}, {rec['rel_count']} relationships). Pass confirm=true to delete.")
 
             session.run("MATCH (p) WHERE elementId(p) = $eid DETACH DELETE p", eid=eid)
-            return {"status": "deleted", "name": rec['name'], "relationships_removed": rec['rel_count']}
+            return {
+                "status": "deleted",
+                "name": rec['name'],
+                "relationships_removed": rec['rel_count']
+            }
     finally:
         driver.close()
 
@@ -588,6 +467,7 @@ async def delete_person(eid: str, confirm: bool = Query(False)):
 
 @router.get("/{eid}/rels")
 async def get_relationships(eid: str):
+    """Get all relationships for a person node."""
     driver = get_driver()
     try:
         with driver.session() as session:
@@ -596,18 +476,29 @@ async def get_relationships(eid: str):
                 WHERE elementId(p) = $eid
                 WITH r, other, elementId(r) AS rel_eid,
                      CASE WHEN startNode(r) = p THEN 'outgoing' ELSE 'incoming' END AS direction
-                RETURN rel_eid, type(r) AS rel_type, properties(r) AS rel_props,
-                       direction, elementId(other) AS other_eid, labels(other) AS other_labels,
+                RETURN rel_eid,
+                       type(r) AS rel_type,
+                       properties(r) AS rel_props,
+                       direction,
+                       elementId(other) AS other_eid,
+                       labels(other) AS other_labels,
                        COALESCE(other.display_name, other.full_name, other.name, other.given_name) AS other_name,
                        other.canonical_id AS other_canonical
                 ORDER BY rel_type, other_name
             """, eid=eid)
-            rels = [{
-                "rel_eid": r['rel_eid'], "type": r['rel_type'], "direction": r['direction'],
-                "properties": {k: str(v) for k, v in (r['rel_props'] or {}).items()},
-                "target_eid": r['other_eid'], "target_labels": r['other_labels'],
-                "target_name": r['other_name'], "target_canonical": r['other_canonical'],
-            } for r in results]
+
+            rels = []
+            for r in results:
+                rels.append({
+                    "rel_eid": r['rel_eid'],
+                    "type": r['rel_type'],
+                    "direction": r['direction'],
+                    "properties": {k: str(v) for k, v in (r['rel_props'] or {}).items()},
+                    "target_eid": r['other_eid'],
+                    "target_labels": r['other_labels'],
+                    "target_name": r['other_name'],
+                    "target_canonical": r['other_canonical'],
+                })
             return {"relationships": rels, "count": len(rels)}
     finally:
         driver.close()
@@ -615,17 +506,27 @@ async def get_relationships(eid: str):
 
 @router.post("/{eid}/rels", status_code=201)
 async def create_relationship(eid: str, body: RelCreate):
+    """Create a relationship from this person to another node."""
     driver = get_driver()
     try:
         with driver.session() as session:
-            source = session.run("MATCH (p) WHERE elementId(p) = $eid RETURN p", eid=eid).single()
+            # Verify both nodes exist
+            source = session.run(
+                "MATCH (p) WHERE elementId(p) = $eid RETURN p", eid=eid
+            ).single()
             if not source:
                 raise HTTPException(status_code=404, detail="Source node not found")
-            target = session.run("MATCH (t) WHERE elementId(t) = $teid RETURN t", teid=body.target_eid).single()
+
+            target = session.run(
+                "MATCH (t) WHERE elementId(t) = $teid RETURN t", teid=body.target_eid
+            ).single()
             if not target:
                 raise HTTPException(status_code=404, detail="Target node not found")
 
+            # Validate relationship type (SCREAMING_SNAKE_CASE)
             rel_type = body.rel_type.upper().replace(' ', '_')
+
+            # Build properties
             props = body.properties or {}
             props_str = ""
             params = {"eid": eid, "teid": body.target_eid}
@@ -644,18 +545,25 @@ async def create_relationship(eid: str, body: RelCreate):
                 CREATE (s)-[r:{rel_type}{props_str}]->(t)
                 RETURN type(r) AS rtype, elementId(r) AS rel_eid
             """, **params)
+
             rec = result.single()
-            return {"status": "created", "type": rec['rtype'], "rel_eid": rec['rel_eid']}
+            return {
+                "status": "created",
+                "type": rec['rtype'],
+                "rel_eid": rec['rel_eid'],
+            }
     finally:
         driver.close()
 
 
 @router.delete("/{eid}/rels")
 async def delete_relationship(eid: str, body: RelDelete):
+    """Delete a specific relationship between this person and a target."""
     driver = get_driver()
     try:
         with driver.session() as session:
             rel_type = body.rel_type.upper().replace(' ', '_')
+            # Try both directions
             result = session.run(f"""
                 MATCH (s)-[r:{rel_type}]-(t)
                 WHERE elementId(s) = $eid AND elementId(t) = $teid
