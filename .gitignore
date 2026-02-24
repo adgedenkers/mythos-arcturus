@@ -47,3 +47,65 @@ patches/logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# ============================================
+# Large files / media — NEVER commit these
+# ============================================
+
+# Photos and imports
+photos/
+intake/processed/
+
+# Video files
+*.MOV
+*.mov
+*.mp4
+*.MP4
+*.avi
+*.mkv
+*.m4v
+
+# Large archives
+*.zip
+*.tar
+*.tar.gz
+*.tar.bz2
+*.tgz
+*.rar
+*.7z
+
+# Images (large/raw)
+*.heic
+*.HEIC
+*.raw
+*.RAW
+*.tiff
+*.TIFF
+*.bmp
+
+# Debian packages / binaries
+*.deb
+*.rpm
+*.AppImage
+
+# Model files (Ollama, GGUF, etc)
+*.gguf
+*.bin
+*.safetensors
+*.onnx
+*.pt
+*.pth
+
+# Database dumps
+*.sql.gz
+*.dump
+*.pgdump
+
+# Misc large
+*.iso
+*.img
+*.dmg
+
+# Backup files from patches
+*.bak.*
+*.bak
