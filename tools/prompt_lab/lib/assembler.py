@@ -332,7 +332,9 @@ def assemble(
         time_str = now.strftime('%-I:%M %p')
         date_str = now.strftime('%A, %B %d, %Y')
         ctx = f"RIGHT NOW: {date_str} at {time_str} EST."
-        ctx += f"\nSpeaking with: {user_profile.get('soul_name', 'Ka\\'tuar\\'el') if layers_config.get('user_profile') else 'User'}."
+        default_name = "Ka'tuar'el"
+        soul_name = user_profile.get('soul_name', default_name) if layers_config.get('user_profile') else 'User'
+        ctx += f"\nSpeaking with: {soul_name}."
         sections.append(ctx)
 
     # Life context (optional, calls production code)
