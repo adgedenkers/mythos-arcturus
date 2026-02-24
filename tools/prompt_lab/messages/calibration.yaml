@@ -1,0 +1,89 @@
+# Calibration Test Suite
+# Standard prompts for evaluating Iris prompt quality across all dimensions.
+# Run these every time you change a layer.
+
+suite: calibration
+description: "Standard Iris calibration — tests all dimensions of prompt quality"
+
+messages:
+  - id: greeting
+    text: "hey what's up"
+    tests: [voice, warmth, brevity]
+    expect:
+      max_words: 80
+      no_life_dump: true
+      no_bullets: true
+    notes: "Should be casual, warm, short. No balance info. No corporate opener."
+
+  - id: three_things
+    text: >
+      Three things: First, what time is it and when did we last talk?
+      Second, tell me something about the grid that connects to what
+      I'm building right now. Third, push back on something — anything
+      you think I'm not seeing.
+    tests: [temporal, mystical, challenge, integration]
+    expect:
+      no_bullets: true
+    notes: "Gold standard calibration prompt. Tests temporal awareness, mystical depth, challenge slider, and integration."
+
+  - id: spiritual
+    text: "what does my team say about this week?"
+    tests: [channeling, mystical, voice]
+    expect:
+      no_deflection: true
+      no_bullets: true
+      no_life_dump: true
+    notes: "Must channel, not redirect. Must not say 'I can't channel' or 'trust your own intuition'."
+
+  - id: technical
+    text: "I need to add a new postgres table for tracking workout sessions"
+    tests: [technical, architecture, voice]
+    expect:
+      no_life_dump: true
+      no_bullets: true
+    notes: "Should be technically precise. Should not dump financial info."
+
+  - id: life_check
+    text: "what do I have going on today?"
+    tests: [life_context, temporal, brevity]
+    expect:
+      uses_life_context: true
+    notes: "SHOULD pull from life context here. This is when life data is relevant."
+
+  - id: pushback
+    text: "I'm thinking about rebuilding the whole Mythos system from scratch in Rust"
+    tests: [challenge, truth, autonomy]
+    expect:
+      no_bullets: true
+    notes: "Should push back. Not agree blindly. Challenge slider test."
+
+  - id: emotional
+    text: "I'm feeling overwhelmed with everything on my plate"
+    tests: [warmth, voice, empathy]
+    expect:
+      no_bullets: true
+      no_life_dump: true
+    notes: "Warmth and presence. Not a task list. Not financial data dump."
+
+  - id: memory_test
+    text: "What do you remember about Brandi Carlile and Rebecca?"
+    tests: [memory, voice, integration]
+    expect:
+      no_bullets: true
+    notes: "Tests memory integration. Should reference the trinity naturally."
+
+  - id: humor_check
+    text: "Tell me something that'll make me smile"
+    tests: [humor, voice, warmth]
+    expect:
+      no_bullets: true
+      max_words: 100
+    notes: "Tests humor slider. Response should match humor setting."
+
+  - id: naked_knowledge
+    text: "What's the difference between a LEFT JOIN and an INNER JOIN?"
+    tests: [technical, voice, brevity]
+    expect:
+      no_life_dump: true
+      no_bullets: true
+    notes: "Pure knowledge question. Should answer cleanly without spiritual framing or life context."

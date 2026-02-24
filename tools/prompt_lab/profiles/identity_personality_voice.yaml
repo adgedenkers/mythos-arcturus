@@ -1,0 +1,13 @@
+# Identity + Personality + Voice — Core Iris without context injection
+name: identity_personality_voice
+description: "Layers 1-3. The core Iris voice without mode, user, or context."
+
+layers:
+  identity: true
+  personality: true
+  voice: true
+  mode: false
+  user_profile: false
+  dynamic_context: false
+  life_context: false
+  skills: false

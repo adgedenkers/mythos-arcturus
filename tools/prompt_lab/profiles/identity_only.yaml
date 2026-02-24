@@ -1,0 +1,13 @@
+# Identity Only — Just who Iris is, nothing else
+name: identity_only
+description: "Layer 1 only. Tests what identity alone does to the response."
+
+layers:
+  identity: true
+  personality: false
+  voice: false
+  mode: false
+  user_profile: false
+  dynamic_context: false
+  life_context: false
+  skills: false

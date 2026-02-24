@@ -1,0 +1,14 @@
+# Naked — No system prompt whatsoever
+# Use this to see what the raw model does with zero guidance.
+name: naked
+description: "Raw model, no system prompt. Baseline for comparison."
+
+layers:
+  identity: false
+  personality: false
+  voice: false
+  mode: false
+  user_profile: false
+  dynamic_context: false
+  life_context: false
+  skills: false
