@@ -13,65 +13,8 @@ import os
 from datetime import datetime, UTC
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 load_dotenv('/opt/mythos/.env')
-
-
-# Category → emoji prefix for inline buttons
-CATEGORY_EMOJI = {
-    'lunar': '🌙',
-    'astrology': '✦',
-    'numerology': '🔢',
-    'tarot': '🎴',
-    'mythos core': '🔥',
-}
-
-
-def moon_term_buttons(moon_names: list[str], cols: int = 2) -> InlineKeyboardMarkup:
-    """
-    Given a list of moon names, return an InlineKeyboardMarkup
-    where each name is a tappable button that triggers /define lookup.
-
-    Usage from any handler:
-        from handlers.ontology_handler import moon_term_buttons
-        buttons = moon_term_buttons(["Wolf Moon", "Snow Moon"])
-        await update.message.reply_text("Current moons:", reply_markup=buttons)
-    """
-    keyboard = []
-    row = []
-    for name in moon_names:
-        row.append(InlineKeyboardButton(
-            text=f"🌙 {name}",
-            callback_data=f"def:{name}"
-        ))
-        if len(row) >= cols:
-            keyboard.append(row)
-            row = []
-    if row:
-        keyboard.append(row)
-    return InlineKeyboardMarkup(keyboard)
-
-
-def term_buttons(names: list[str], category: str = None, cols: int = 2) -> InlineKeyboardMarkup:
-    """
-    Generic version — picks emoji by category.
-    Falls back to '↗' if category unknown.
-    """
-    emoji = CATEGORY_EMOJI.get((category or '').lower(), '↗')
-    keyboard = []
-    row = []
-    for name in names:
-        row.append(InlineKeyboardButton(
-            text=f"{emoji} {name}",
-            callback_data=f"def:{name[:60]}"
-        ))
-        if len(row) >= cols:
-            keyboard.append(row)
-            row = []
-    if row:
-        keyboard.append(row)
-    return InlineKeyboardMarkup(keyboard)
 
 NEO4J_URI = os.getenv('NEO4J_URI', 'bolt://localhost:7687')
 NEO4J_USER = os.getenv('NEO4J_USER', 'neo4j')
@@ -212,8 +155,7 @@ def _add_term(text: str) -> str:
         driver.close()
 
 
-def _list_terms(category: str = None):
-    """Returns (str, names_list) tuple so define_cmd renders inline buttons."""
+def _list_terms(category: str = None) -> str:
     driver = get_driver()
     try:
         with driver.session() as session:
@@ -236,16 +178,13 @@ def _list_terms(category: str = None):
                 return f"✦ No terms found{' in ' + category if category else ''}."
 
             lines = [f"✦ Ontology{' — ' + category if category else ''} ({len(records)} terms)\n"]
-            names = []
             current_cat = None
             for r in records:
                 if r['category'] != current_cat:
                     current_cat = r['category']
                     lines.append(f"\n  [{current_cat}]")
                 lines.append(f"  • {r['name']}")
-                names.append(r['name'])
 
-            # Return tuple — define_cmd will render names as inline buttons
-            return ('\n'.join(lines), names[:12])
+            return '\n'.join(lines)
     finally:
         driver.close()
