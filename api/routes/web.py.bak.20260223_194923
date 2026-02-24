@@ -102,7 +102,18 @@ async def people_page(request: Request):
 
 
 # People
+@router.get("/people/", response_class=HTMLResponse)
+@router.get("/people", response_class=HTMLResponse)
+async def people_page(request: Request):
+    return serve('people.html')
+
+
 # People
+@router.get("/people/", response_class=HTMLResponse)
+@router.get("/people", response_class=HTMLResponse)
+async def people_page(request: Request):
+    return serve('people.html')
+
 # Registry
 @router.get("/registry/", response_class=HTMLResponse)
 @router.get("/registry", response_class=HTMLResponse)
