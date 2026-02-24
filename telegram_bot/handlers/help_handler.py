@@ -2,52 +2,135 @@
 """
 Comprehensive help system for Mythos Telegram Bot
 Provides detailed examples and guidance for each subsystem
-"""
 
+Patch 0124 — Full help rewrite covering all deployed features
+"""
 from telegram import Update
 from telegram.ext import ContextTypes
 
-
+# ---------------------------------------------------------------------------
 # Main help - overview with topic hints
+# ---------------------------------------------------------------------------
 HELP_MAIN = """🔮 **Mythos System Help**
 
-For detailed help on any topic, use:
+For detailed help on any topic:
 `/help <topic>`
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
+**💬 CHAT** → `/help chat`
+Talk with local AI (Iris)
+
 **📋 TASKS** → `/help tasks`
-Track your to-dos with due dates
+Track to-dos with due dates
 
 **💰 FINANCE** → `/help finance`
-Track spending, balances, bills
+Balances, spending, bills, forecasts
 
-**📦 SELL** → `/help sell`
-List items for sale with photos
+**📊 BRIEFING** → `/help briefing`
+Daily check-ins, routines, analysis
 
-**💬 CHAT** → `/help chat`
-Talk with local AI
-
-**🗄️ DATABASE** → `/help db`
-Query Neo4j and Postgres
+**🔭 ASTROLOGY** → `/help astrology`
+Natal charts, aspects, group analysis
 
 **👤 PEOPLE** → `/help people`
-Track people for astrology & lineage
+Track people for charts & lineage
 
 **✦ GLOSSARY** → `/help define`
 Mythos ontology & definitions
 
-**⚙️ SYSTEM** → `/help system`
-Patches, status, modes
-━━━━━━━━━━━━━━━━━━━━━━━━
+**📦 SELL** → `/help sell`
+List items for sale with photos
 
+**🔎 INSPECT** → `/help inspect`
+Browse files, query DBs from here
+
+**🔍 DIAG** → `/help diag`
+System diagnostics & health
+
+**⚙️ SYSTEM** → `/help system`
+Modes, models, patches, services
+
+━━━━━━━━━━━━━━━━━━━━━━━━
 **Quick Start:**
 Just type to chat! Or try:
-`/tasks` - See your task list
-`/balance` - Check finances
-`/status` - What's happening
+`/tasks` — your task list
+`/balance` — check finances
+`/checkin` — daily briefing
+`/inspect todo` — view TODO.md
+`/status` — what's happening
 """
 
+# ---------------------------------------------------------------------------
+# Chat
+# ---------------------------------------------------------------------------
+HELP_CHAT = """💬 **Chat & Iris Modes**
 
+Just type — no command needed. Context is maintained.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**IRIS MODES**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/mode` — see all available modes
+`/mode hearthfire` 🔥 Spiritual/personal
+`/mode forge` ⚒️ System admin
+`/mode roots` 🌳 Genealogy
+`/mode oracle` 🔮 Research/harmonics
+`/mode scribe` 📜 Writing
+`/mode sentry` 🛡️ Financial
+
+**Legacy modes:**
+`/mode db` — Direct database queries
+`/mode sell` — Item selling
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**MODEL SELECTION**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/model thinking` — qwen3:30b-a3b (default, deep reasoning)
+`/model deep` — qwen2.5:32b
+`/model fast` — llama3.2:3b (quick answers)
+`/model auto` — qwen2.5:32b
+
+**Advanced:**
+`/setmodel <exact_name>` — Use any installed model
+`/models` — List all installed Ollama models
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**PERSONALITY**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/personality` — View current personality sliders
+`/personality warmth 80` — Adjust a slider (0-100)
+`/personality reset` — Clear overrides
+
+Sliders: verbosity, warmth, humor, truth, speculation, autonomy, mystical, formality, challenge
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**CONTEXT & TRACKING**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/clear` — Reset conversation context
+`/status` — See recent topics discussed
+`/convo` — Start tracked conversation (saved to DB)
+`/endconvo` — End tracking
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**MEDIA**
+━━━━━━━━━━━━━━━━━━━━━━━━
+📸 Send a photo → AI vision analysis
+🎤 Send a voice message → Auto-transcribed
+🎬 Send a video → Audio extracted & transcribed
+`/photos` — View recent photos
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**TIPS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+• Context persists until `/clear`
+• Multi-chunk messages are auto-buffered
+• `/model thinking` for complex reasoning
+• `/model fast` for quick answers
+"""
+
+# ---------------------------------------------------------------------------
+# Tasks
+# ---------------------------------------------------------------------------
 HELP_TASKS = """📋 **Task Tracking**
 
 Manage your to-do list with priorities and due dates.
@@ -55,7 +138,6 @@ Manage your to-do list with priorities and due dates.
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **ADDING TASKS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
 **Basic:**
 `/task add Buy groceries`
 `/task add Call the dentist`
@@ -79,7 +161,6 @@ Manage your to-do list with priorities and due dates.
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **DUE DATE FORMATS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
 `today`, `tomorrow`, `tonight`
 `monday`, `tue`, `wed`, `thursday`, `fri`
 `10th`, `15th`, `1st`, `23rd`
@@ -88,341 +169,197 @@ Manage your to-do list with priorities and due dates.
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **VIEWING TASKS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/tasks` - List all open tasks
-`/task list` - Same as above
-`/task due` - Show only tasks with due dates
-`/task all` - Include completed/dropped
+`/tasks` — List all open tasks
+`/task list` — Same as above
+`/task due` — Show only tasks with due dates
+`/task all` — Include completed/dropped
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **COMPLETING TASKS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
-First run `/tasks` to see the list:
-```
-1 🔴 Fix server 📍 today
-2 🟡 Buy groceries 📅 Fri
-3 🟢 Organize desk
-```
-
-Then:
+First run `/tasks` to see the numbered list, then:
 `/task done 1` → ✅ Completes task #1
 `/task drop 2` → 🗑️ Removes task #2
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **TIPS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
 • Overdue tasks show ⚠️ and sort first
 • Tasks sort: overdue → due soon → priority
 • Use `/task due` for deadline focus
-• Quick add: `/task add thing` (no subcommand needed)
 """
 
-
+# ---------------------------------------------------------------------------
+# Finance
+# ---------------------------------------------------------------------------
 HELP_FINANCE = """💰 **Finance System**
 
-Track balances, spending, and bills.
+Track balances, spending, bills, and forecasts.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
-**QUICK COMMANDS**
+**AT A GLANCE**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/balance` - Current account balances
-`/finance` - Summary with recent activity
-`/spending` - Recent spending breakdown
-`/snapshot` - Full financial picture
+`/balance` — Current account balances
+`/finance` — Summary with recent activity
+`/spending` — Recent spending breakdown
+`/snapshot` — Full financial picture
+`/review` — Weekly financial review
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
-**EXAMPLES**
+**FORECASTING**
 ━━━━━━━━━━━━━━━━━━━━━━━━
+`/forecast` — Cash flow forecast (30 days)
+`/projection` — Balance projections
+`/bills` — Upcoming bills
+`/income` — Expected income
 
-**Check your balances:**
-`/balance`
-→ Shows each account's current balance
+━━━━━━━━━━━━━━━━━━━━━━━━
+**DETAILED VIEWS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/monthly` — Month-over-month comparison
+`/compare` — Category comparison
+`/top` — Top spending categories
+`/txn` — Recent transactions
+`/report` — Detailed report
 
-**See recent spending:**
-`/spending`
-→ Breakdown by category (groceries, gas, etc.)
-
-**Full picture:**
-`/snapshot`
-→ All accounts, recent transactions, upcoming bills
+━━━━━━━━━━━━━━━━━━━━━━━━
+**NAVIGATION**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/next` — Next page of results
+`/back` — Previous page
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **MANUAL UPDATES**
 ━━━━━━━━━━━━━━━━━━━━━━━━
+`/setbal` — Interactive balance update
+`/setbalance <account> <amount>` — Direct balance set
+`/spend <amount> <description>` — Log manual spend
 
-**Set a balance manually:**
-`/setbal`
-→ Interactive balance update
-
-**Update specific account:**
-`/setbalance <account> <amount>`
-→ Direct balance set
+━━━━━━━━━━━━━━━━━━━━━━━━
+**HOUSEHOLD VISIBILITY**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/pulse` — Household finance summary (shared view)
+Auto-sends weekly pulse reports.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **AUTO-IMPORT**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
-Bank CSVs are auto-imported when dropped in:
-`/opt/mythos/finance/imports/`
-
-The patch monitor detects new files and imports them automatically.
+Bank CSVs are auto-imported when dropped in the finance imports directory. Transactions are auto-categorized.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **TIPS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
-• Transactions are auto-categorized
 • `/snapshot` is the most comprehensive view
+• `/forecast` shows what's coming
+• `/pulse` gives both partners visibility
 • Check `/balance` daily for awareness
 """
 
+# ---------------------------------------------------------------------------
+# Briefing / Checkin / Routines
+# ---------------------------------------------------------------------------
+HELP_BRIEFING = """📊 **Daily Briefing & Routines**
 
-HELP_SELL = """📦 **Sell Mode**
-
-List items for sale using photo analysis.
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**WORKFLOW**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-**1. Enter sell mode:**
-`/mode sell`
-
-**2. Send 3 photos of your item**
-(different angles work best)
-
-**3. AI analyzes and creates listing**
-Title, description, suggested price
-
-**4. Repeat for more items, then:**
-`/done` - Exit sell mode
+Morning check-ins, routines, and AI-powered analysis.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
-**COMMANDS**
+**DAILY CHECK-IN**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
-**While in sell mode:**
-`/done` - Exit sell mode
-`/undo` - Remove last added item
-`/status` - See current session
-
-**Inventory management:**
-`/inventory` - View all items
-`/export` - Generate FB Marketplace listings
-
-**After listing/selling:**
-`/listed <id>` - Mark item as listed
-`/sold <id>` - Mark item as sold
+`/checkin` — Morning briefing
+Shows today's routines, tasks, calendar, weather.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
-**EXAMPLE SESSION**
+**ROUTINES**
 ━━━━━━━━━━━━━━━━━━━━━━━━
+`/routines` — Show today's routines & status
+`/rdone <N>` — Complete routine #N
+`/rskip <N>` — Skip routine #N
+`/routine_add` — Add a new routine (interactive)
 
-```
-You: /mode sell
-Bot: 📦 Sell mode activated!
+━━━━━━━━━━━━━━━━━━━━━━━━
+**AI ANALYSIS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/briefing` — Run AI analysis now (uses 32b model)
+`/analyze` — Same as briefing
+`/priorities` — Show current top priorities
+`/transfers` — Transfer recommendations
 
-[Send photo 1]
-Bot: 📸 Photo 1/3 received
+The analyst reviews your tasks, finances, routines, calendar, and recent check-ins to generate prioritized guidance.
 
-[Send photo 2]
-Bot: 📸 Photo 2/3 received
+━━━━━━━━━━━━━━━━━━━━━━━━
+**CALENDAR**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/calendar` — This week's events
+`/calendar today` — Today only
+`/calendar week` — Full week
+`/calendar month` — Monthly view
+`/calendar add` — Quick add an event
 
-[Send photo 3]
-Bot: 📸 Analyzing...
-Bot: ✅ Added: "Vintage Desk Lamp"
-     Suggested price: $45
-
-You: /done
-Bot: 📦 Sell mode ended. 1 item added.
-```
+━━━━━━━━━━━━━━━━━━━━━━━━
+**WEATHER**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/weather` — Oxford, NY (default)
+`/weather 13827` — By zip code
+`/weather Denver, CO` — By city/state
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **TIPS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
-• Good lighting = better analysis
-• Show any defects for honest listings
-• Use `/export` to get copy-paste FB posts
+• `/checkin` is your morning dashboard
+• Auto-briefings sent each morning
+• `/briefing` runs the full AI analyst on demand
+• `/rdone` and `/rskip` track routine completion
 """
 
+# ---------------------------------------------------------------------------
+# Astrology
+# ---------------------------------------------------------------------------
+HELP_ASTROLOGY = """🔭 **Astrology Commands**
 
-HELP_CHAT = """💬 **Chat Mode**
-
-Talk with the local AI (Ollama).
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**BASICS**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-Just type! No command needed.
-Context is maintained throughout the conversation.
-
-**Examples:**
-"What's the capital of France?"
-"Help me write an email to my boss"
-"Explain quantum computing simply"
+Natal charts, planetary positions, aspects, and group analysis.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
-**COMMANDS**
+**VIEW CHARTS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/clear` - Reset conversation context
-`/status` - See recent topics discussed
-`/model fast` - Use faster, lighter model
-`/model deep` - Use best quality model
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**MODES**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/mode chat` - General conversation (default)
-`/mode seraphe` - Cosmology & spiritual topics
-`/mode genealogy` - Bloodline research
+`/chart <name>` — Full natal chart
+`/chart <name1> <name2>` — Compare two charts
+`/planets <name>` — Planet positions only
+`/houses <name>` — House cusps only
+`/aspects <name>` — Major aspects only
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
-**TRACKED CONVERSATIONS**
+**GROUP ANALYSIS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
-For important conversations you want saved:
-
-`/convo` - Start tracked conversation
-(conversation is logged to database)
-`/endconvo` - End tracking
+`/group_planets <planet> <sign>` — Find everyone with that placement
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
-**TIPS**
+**EXAMPLES**
 ━━━━━━━━━━━━━━━━━━━━━━━━
+`/chart Ka`
+`/chart Ka Seraphe`
+`/planets Seraphe`
+`/aspects Fitz`
+`/group_planets Jupiter Cancer`
 
-• Context persists until `/clear`
-• Use `/status` to see what you've discussed
-• `/model deep` for complex reasoning
-• `/model fast` for quick answers
+━━━━━━━━━━━━━━━━━━━━━━━━
+**CHART NOTATION**
+━━━━━━━━━━━━━━━━━━━━━━━━
+R = Retrograde
+Dom = Domicile (dignity)
+Exa = Exaltation
+Det = Detriment
+Fal = Fall
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**ADDING PEOPLE FOR CHARTS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+Use `/people add` to add birth data. See `/help people`.
+Charts require: name, date of birth, time of birth, birth location.
 """
 
-
-HELP_DB = """🗄️ **Database Mode**
-
-Query Neo4j and PostgreSQL directly.
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**ENTERING DB MODE**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/mode db`
-
-Then just type natural language queries:
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**EXAMPLE QUERIES**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-**Neo4j (Graph):**
-"Show me all Soul nodes"
-"What relationships does Ka'tuar'el have?"
-"Find all Incarnation nodes"
-
-**PostgreSQL:**
-"How many transactions this month?"
-"Show recent chat messages"
-"List all accounts"
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**AVAILABLE DATA**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-**Neo4j:**
-• Soul, Person, Incarnation
-• Exchange, Conversation
-• GridNode, Entity, Theme
-
-**PostgreSQL:**
-• users, chat_messages
-• accounts, transactions
-• items_for_sale, sales
-• idea_backlog (tasks)
-• grid_activation_timeseries
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**TIPS**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-• Natural language is converted to queries
-• Be specific about what you want
-• Use `/mode chat` to return to chat
-"""
-
-
-HELP_SYSTEM = """⚙️ **System Commands**
-
-Patches, status, and administration.
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**STATUS**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/status` - Current mode, model, recent activity
-`/patch_status` - System version and recent patches
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**MODES**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/mode chat` - General AI chat (default)
-`/mode db` - Database queries
-`/mode sell` - Item selling
-`/mode seraphe` - Cosmology assistant
-`/mode genealogy` - Bloodline research
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**PATCH MANAGEMENT**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/patch_status` - Current version
-`/patch_list` - Recent patches
-`/patch_apply <n>` - Apply a patch
-`/patch_rollback` - Rollback last patch
-
-**Auto-deploy:**
-Drop patches in `~/Downloads` on Arcturus.
-The patch monitor auto-detects and installs.
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**SERVICES**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-Running on Arcturus:
-• `mythos-api` - FastAPI gateway (:8000)
-• `mythos-bot` - This Telegram bot
-• `mythos-worker-grid` - Grid analysis
-• `mythos-patch-monitor` - Auto-deploy
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**DIAGNOSTICS**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-On Arcturus, use:
-```
-sudo systemctl status mythos-bot
-journalctl -u mythos-bot -f
-```
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**HELP**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/help` - This overview
-`/help tasks` - Task tracking
-`/help finance` - Finance system
-`/help sell` - Selling items
-`/help chat` - Chat mode
-`/help db` - Database queries
-"""
-
-
+# ---------------------------------------------------------------------------
+# People
+# ---------------------------------------------------------------------------
 HELP_PEOPLE = """👤 **People Database**
 
 Track people for astrology, genealogy, and lineage work.
@@ -430,44 +367,34 @@ Track people for astrology, genealogy, and lineage work.
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **ADDING PEOPLE**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
-Fields are pipe-separated. Leave empty between pipes for unknown fields.
+Fields are pipe-separated. Leave empty between pipes for unknowns.
 
 `/people add <first> | <middle> | <last> | <known_as> | <DOB> | <time> | <city> | <state> | <country> | <DOD> | <notes>`
 
 **Examples:**
 `/people add John | Fitzgerald | Kennedy | JFK | 1917-05-29 | 15:00 | Brookline | Massachusetts | USA | 1963-11-22 | 35th US President`
 
-`/people add Aleister | Edward Alexander | Crowley | The Great Beast | 1875-10-12 | | Royal Leamington Spa | Warwickshire | England | 1947-12-01 | Occultist, founder of Thelema`
-
-**Partial data (no middle, no time, no death):**
-`/people add Marie | | Curie | | 1867-11-07 | | Warsaw | | Poland | | Physicist, Nobel laureate`
+**Partial data:**
+`/people add Marie | | Curie | | 1867-11-07 | | Warsaw | | Poland | | Physicist`
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **SEARCHING & VIEWING**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
 `/people list` — All records (summary)
-`/people search <query>` — Search by name, known\_as, or notes
-`/people view <id or name>` — Full detail for one person
+`/people search <query>` — Search by name/known\\_as/notes
+`/people view <id or name>` — Full detail
 `/people Kennedy` — Bare text also searches
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **EDITING**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
 `/people edit <id> <field> <value>`
 
-**Fields:** first\_name, middle\_name, last\_name, known\_as, date\_of\_birth, time\_of\_birth, birth\_city, birth\_state, birth\_country, date\_of\_death, notes
-
-**Examples:**
-`/people edit 4 time_of_birth 14:15`
-`/people edit 4 notes Eclipse-born, Scorpio rising`
+Fields: first\\_name, middle\\_name, last\\_name, known\\_as, date\\_of\\_birth, time\\_of\\_birth, birth\\_city, birth\\_state, birth\\_country, date\\_of\\_death, notes
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **DELETING**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
 `/people delete <id>`
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
@@ -475,11 +402,13 @@ Fields are pipe-separated. Leave empty between pipes for unknown fields.
 ━━━━━━━━━━━━━━━━━━━━━━━━
 • Date format: YYYY-MM-DD
 • Time format: HH:MM (24hr)
-• Use known\_as for spiritual names, stage names, etc.
-• People records feed into /chart for astrology
-• Leave fields empty (blank between pipes) for unknowns
+• Use known\\_as for spiritual/stage names
+• People records feed into `/chart` for astrology
 """
 
+# ---------------------------------------------------------------------------
+# Define / Ontology
+# ---------------------------------------------------------------------------
 HELP_DEFINE = """✦ **Ontology / Glossary**
 
 The living glossary of the Mythos system. Terms stored in Neo4j.
@@ -487,81 +416,345 @@ The living glossary of the Mythos system. Terms stored in Neo4j.
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **LOOKING UP TERMS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/define <term>` — Look up a term by name
+`/define <term>` — Look up a term
 `/define chakra` — Exact or fuzzy match
 `/define natal` — Partial matches shown as buttons
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **ADDING TERMS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
 `/define add <name> | <definition> | <category>`
 
-**Examples:**
-`/define add Thelema | Religious philosophy founded by Aleister Crowley based on The Book of the Law (1904) | Occult`
-
-`/define add Chitra Nakshatra | 14th lunar mansion, ruled by Mars, deity Vishvakarma the celestial architect | Astrology`
+**Example:**
+`/define add Thelema | Religious philosophy founded by Crowley | Occult`
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **LISTING TERMS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
 `/define list` — All terms, grouped by category
 `/define list Astrology` — Only astrology terms
-`/define list Occult` — Only occult terms
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **CATEGORIES**
 ━━━━━━━━━━━━━━━━━━━━━━━━
-
 Astrology, Numerology, Tarot, Mythos Core, History, Lineage, Theology, Occult, Music, Literature, Science, Philosophy
-
-(New categories are created automatically when you add a term)
+(New categories created automatically)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 **TIPS**
 ━━━━━━━━━━━━━━━━━━━━━━━━
 • Related terms show as clickable buttons
 • The glossary is shared across the whole system
-• Use it to build institutional knowledge
 """
 
+# ---------------------------------------------------------------------------
+# Sell
+# ---------------------------------------------------------------------------
+HELP_SELL = """📦 **Sell Mode**
+
+List items for sale using photo analysis.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**WORKFLOW**
+━━━━━━━━━━━━━━━━━━━━━━━━
+1. `/mode sell` — Enter sell mode
+2. Send 3 photos of your item
+3. AI analyzes and creates listing
+4. `/done` — Exit sell mode
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**COMMANDS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+**While in sell mode:**
+`/done` — Exit sell mode
+`/undo` — Remove last added item
+`/status` — See current session
+
+**Inventory management:**
+`/inventory` — View all items
+`/export` — Generate FB Marketplace listings
+
+**After listing/selling:**
+`/listed <id>` — Mark as listed
+`/sold <id>` — Mark as sold
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**TIPS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+• Good lighting = better analysis
+• Show any defects for honest listings
+• Use `/export` to get copy-paste FB posts
+"""
+
+# ---------------------------------------------------------------------------
+# Inspect
+# ---------------------------------------------------------------------------
+HELP_INSPECT = """🔎 **Mythos Inspector**
+
+Browse the filesystem and query databases — all from Telegram.
+Paths are relative to Mythos root. No `/opt/mythos/` needed.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**FILES**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/inspect cat <path>` — Read a file
+`/inspect head [N] <path>` — First N lines
+`/inspect tail [N] <path>` — Last N lines
+`/inspect wc <path>` — Line counts
+`/inspect ls [path]` — List directory
+`/inspect tree [path]` — Directory tree
+`/inspect find <pattern> [path]` — Find files
+`/inspect grep "text" <path>` — Search contents
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**GIT**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/inspect git log` — Recent commits
+`/inspect git status` — Working tree
+`/inspect git diff` — Diff summary
+`/inspect git tags` — Version tags
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**DATABASES**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/inspect sql "SELECT ..."` — PostgreSQL (read-only)
+`/inspect cypher "MATCH ..."` — Neo4j (read-only)
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**SYSTEM**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/inspect service <name>` — Service status (e.g. bot, api)
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**SHORTCUTS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/inspect todo` — TODO.md
+`/inspect arch` — ARCHITECTURE.md
+`/inspect schema` — All PG tables + rows
+`/inspect nodes` — Neo4j label counts
+`/inspect services` — All mythos-\\* units
+`/inspect patches` — Version & patches
+`/inspect env` — .env keys (redacted)
+`/inspect handlers` — Handler listing
+`/inspect version` — Current version
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**TIPS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+• `/inspect docs/TODO.md` works too (auto-detects cat vs ls)
+• .env and secrets are blocked
+• Large output sent as file attachment
+• SQL/Cypher write ops blocked — read-only only
+"""
+
+# ---------------------------------------------------------------------------
+# Diag
+# ---------------------------------------------------------------------------
+HELP_DIAG = """🔍 **System Diagnostics**
+
+Full system health checks returned as text files.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**USAGE**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/diag` — Full diagnostic (all blocks, as file)
+`/diag <blocks>` — Specific blocks only
+`/diag help` — List available blocks
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**AVAILABLE BLOCKS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`hw` — Disk, RAM, GPU, uptime
+`services` — All mythos-\\* systemd units
+`workers` — Worker services status
+`bot` — Bot service & logs
+`api` — FastAPI gateway
+`db` — PostgreSQL & Neo4j
+`docker` — Containers & Iris
+`ollama` — LLM models & VRAM
+`redis` — Redis keyspace & memory
+`net` — Listening ports
+`patches` — Version, tags, patches
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**COMBINING**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/diag bot db hw` — Run multiple blocks
+`/diag all` — Everything
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**TIPS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+• Single-block results under 4000 chars also shown inline
+• Full diag always sent as .txt file
+• Great for quick health checks from your phone
+"""
+
+# ---------------------------------------------------------------------------
+# System
+# ---------------------------------------------------------------------------
+HELP_SYSTEM = """⚙️ **System & Administration**
+
+Modes, models, patches, Iris, and services.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**STATUS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/status` — Current mode, model, recent activity
+`/patch_status` — System version
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**MODES** (see `/help chat`)
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/mode` — View all available modes
+`/mode hearthfire` — Spiritual/personal
+`/mode forge` — System admin
+`/mode roots` — Genealogy
+`/mode oracle` — Research/harmonics
+`/mode scribe` — Writing
+`/mode sentry` — Financial
+`/mode db` — Database queries
+`/mode sell` — Item selling
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**MODELS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/model thinking` — qwen3:30b-a3b (default)
+`/model deep` — qwen2.5:32b
+`/model fast` — llama3.2:3b
+`/models` — List all installed models
+`/setmodel <name>` — Use specific model
+`/pull <name>` — Download new model
+`/pulling` — Check download progress
+`/removemodel <name>` — Delete a model
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**IRIS CONSCIOUSNESS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/iris` — Iris status & info
+`/iris_test` — Run consciousness test
+`/iris_run <code>` — Execute code in Iris sandbox
+`/iris_task <goal>` — Queue a task for Iris
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**PATCH MANAGEMENT**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/patch_status` — Current version
+`/patch_list` — Recent patches
+`/patch_apply <n>` — Apply a patch
+`/patch_rollback` — Rollback last patch
+
+Auto-deploy: Drop patches in ~/Downloads on Arcturus.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**INSPECTION & DIAGNOSTICS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/inspect` — Browse files & DBs (see `/help inspect`)
+`/diag` — System health checks (see `/help diag`)
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**KEY SERVICES**
+━━━━━━━━━━━━━━━━━━━━━━━━
+• `mythos-bot` — This Telegram bot
+• `mythos-api` — FastAPI gateway (:8000)
+• `mythos-patch-monitor` — Auto-deploy
+• Various `mythos-worker-*` services
+
+Check with: `/inspect service bot` or `/diag services`
+"""
+
+# ---------------------------------------------------------------------------
+# DB mode
+# ---------------------------------------------------------------------------
+HELP_DB = """🗄️ **Database Mode**
+
+Query Neo4j and PostgreSQL directly.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**ENTERING DB MODE**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/mode db`
+Then type natural language queries.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**EXAMPLE QUERIES**
+━━━━━━━━━━━━━━━━━━━━━━━━
+"Show me all Soul nodes"
+"What relationships does Ka'tuar'el have?"
+"How many transactions this month?"
+"List all accounts"
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**DIRECT QUERIES (via /inspect)**
+━━━━━━━━━━━━━━━━━━━━━━━━
+`/inspect sql "SELECT * FROM accounts"` — PostgreSQL
+`/inspect cypher "MATCH (n:Soul) RETURN n"` — Neo4j
+`/inspect schema` — All tables + row counts
+`/inspect nodes` — Neo4j label counts
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+**TIPS**
+━━━━━━━━━━━━━━━━━━━━━━━━
+• Natural language is converted to queries in `/mode db`
+• For precise queries, use `/inspect sql` or `/inspect cypher`
+• Use `/mode chat` to return to chat
+"""
+
+# ---------------------------------------------------------------------------
 # Topic aliases for flexible matching
+# ---------------------------------------------------------------------------
 HELP_TOPICS = {
-    'astrology': """\nASTROLOGY COMMANDS\n\nView Charts:\n  /chart <name> - Show full natal chart\n  /chart <name1> <name2> - Compare two charts\n  /planets <name> - Planet positions only\n  /houses <name> - House cusps only\n  /aspects <name> - Major aspects only\n\nGroup Analysis:\n  /group_planets <planet> <sign> - Find all with placement\n\nExamples:\n  /chart Ka\n  /chart Ka Seraphe\n  /planets Seraphe\n  /aspects Fitz\n  /group_planets Jupiter Cancer\n\nChart Notation:\n  R = Retrograde\n  Dom = Domicile (dignity)\n  Exa = Exaltation\n  Det = Detriment\n  Fal = Fall\n\nAvailable charts: Ka'tuar'el, Seraphe, Fitz\n""",
+    # Chat & modes
+    'chat': HELP_CHAT,
+    'talk': HELP_CHAT,
+    'conversation': HELP_CHAT,
+    'ai': HELP_CHAT,
+    'iris': HELP_CHAT,
+    'modes': HELP_CHAT,
+    'mode': HELP_CHAT,
+    'models': HELP_CHAT,
+    'model': HELP_CHAT,
+    'personality': HELP_CHAT,
+    'voice': HELP_CHAT,
+    'media': HELP_CHAT,
+
     # Tasks
     'task': HELP_TASKS,
     'tasks': HELP_TASKS,
     'todo': HELP_TASKS,
     'todos': HELP_TASKS,
-    
+
     # Finance
     'finance': HELP_FINANCE,
     'money': HELP_FINANCE,
     'balance': HELP_FINANCE,
     'spending': HELP_FINANCE,
     'bills': HELP_FINANCE,
-    
-    # Sell
-    'sell': HELP_SELL,
-    'selling': HELP_SELL,
-    'inventory': HELP_SELL,
-    'items': HELP_SELL,
-    
-    # Chat
-    'chat': HELP_CHAT,
-    'talk': HELP_CHAT,
-    'conversation': HELP_CHAT,
-    'ai': HELP_CHAT,
-    
-    # Database
-    'db': HELP_DB,
-    'database': HELP_DB,
-    'query': HELP_DB,
-    'neo4j': HELP_DB,
-    'postgres': HELP_DB,
-    
+    'forecast': HELP_FINANCE,
+    'pulse': HELP_FINANCE,
+    'snapshot': HELP_FINANCE,
+    'report': HELP_FINANCE,
+
+    # Briefing / Routines
+    'briefing': HELP_BRIEFING,
+    'checkin': HELP_BRIEFING,
+    'routines': HELP_BRIEFING,
+    'routine': HELP_BRIEFING,
+    'calendar': HELP_BRIEFING,
+    'weather': HELP_BRIEFING,
+    'review': HELP_BRIEFING,
+    'analyze': HELP_BRIEFING,
+    'priorities': HELP_BRIEFING,
+
+    # Astrology
+    'astrology': HELP_ASTROLOGY,
+    'chart': HELP_ASTROLOGY,
+    'charts': HELP_ASTROLOGY,
+    'planets': HELP_ASTROLOGY,
+    'aspects': HELP_ASTROLOGY,
+    'houses': HELP_ASTROLOGY,
+    'natal': HELP_ASTROLOGY,
+
     # People
     'people': HELP_PEOPLE,
     'person': HELP_PEOPLE,
@@ -573,6 +766,34 @@ HELP_TOPICS = {
     'glossary': HELP_DEFINE,
     'terms': HELP_DEFINE,
 
+    # Sell
+    'sell': HELP_SELL,
+    'selling': HELP_SELL,
+    'inventory': HELP_SELL,
+    'items': HELP_SELL,
+
+    # Inspect
+    'inspect': HELP_INSPECT,
+    'files': HELP_INSPECT,
+    'browse': HELP_INSPECT,
+    'cat': HELP_INSPECT,
+    'tree': HELP_INSPECT,
+    'grep': HELP_INSPECT,
+    'sql': HELP_INSPECT,
+    'cypher': HELP_INSPECT,
+
+    # Diag
+    'diag': HELP_DIAG,
+    'diagnostics': HELP_DIAG,
+    'health': HELP_DIAG,
+
+    # Database
+    'db': HELP_DB,
+    'database': HELP_DB,
+    'query': HELP_DB,
+    'neo4j': HELP_DB,
+    'postgres': HELP_DB,
+
     # System
     'system': HELP_SYSTEM,
     'sys': HELP_SYSTEM,
@@ -580,45 +801,38 @@ HELP_TOPICS = {
     'patches': HELP_SYSTEM,
     'admin': HELP_SYSTEM,
     'status': HELP_SYSTEM,
-    'mode': HELP_SYSTEM,
-    'modes': HELP_SYSTEM,
+    'services': HELP_SYSTEM,
 }
+
+# All available topic names for the error message
+TOPIC_LIST = sorted(set([
+    'chat', 'tasks', 'finance', 'briefing', 'astrology',
+    'people', 'define', 'sell', 'inspect', 'diag', 'db', 'system',
+]))
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
-,
-
-,
-
     Handle /help command with optional topic
-    
+
     Usage:
-        /help - Main overview
-        /help tasks - Task tracking help
-        /help finance - Finance help
-        /help sell - Selling help
-        /help chat - Chat mode help
-        /help db - Database help
-        /help system - System/admin help
+        /help           - Main overview
+        /help <topic>   - Detailed help for that topic
     """
     args = context.args if context.args else []
-    
+
     if not args:
-        # No topic - show main help
         await update.message.reply_text(HELP_MAIN, parse_mode='Markdown')
         return
-    
+
     topic = args[0].lower()
-    
+
     if topic in HELP_TOPICS:
         await update.message.reply_text(HELP_TOPICS[topic], parse_mode='Markdown')
     else:
-        # Unknown topic - show main help with hint
         await update.message.reply_text(
             f"❓ Unknown topic: `{topic}`\n\n"
-            "Available topics:\n"
-            "`tasks`, `finance`, `sell`, `chat`, `db`, `people`, `define`, `astrology`, `system`\n\n"
+            f"Available: {', '.join(f'`{t}`' for t in TOPIC_LIST)}\n\n"
             "Use `/help` for overview.",
             parse_mode='Markdown'
         )
