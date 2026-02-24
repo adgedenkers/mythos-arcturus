@@ -1,0 +1,18 @@
+{
+  "patch_number": "0115",
+  "name": "clickable_ontology",
+  "version": "1.17.1",
+  "description": "Make ontology term lists clickable inline buttons in Telegram. /define list [category] now returns tappable buttons that trigger /define lookups. Moon terms get moon emoji prefix. Utility function moon_term_buttons() available for other handlers.",
+  "author": "Ka'tuar'el + Claude",
+  "created": "2026-02-23T17:00:00-05:00",
+  "depends_on": ["0114"],
+  "changes": [
+    {
+      "file": "/opt/mythos/telegram_bot/handlers/ontology_handler.py",
+      "action": "modify",
+      "description": "Add moon_term_buttons() utility, enhance _list_terms() to return (str, names) tuple for button rendering"
+    }
+  ],
+  "services_to_restart": ["mythos-bot.service"],
+  "rollback": "Restore ontology_handler.py from git"
+}
