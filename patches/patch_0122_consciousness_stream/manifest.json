@@ -1,0 +1,29 @@
+{
+    "patch": "0122",
+    "name": "consciousness_stream",
+    "version": "1.20.0",
+    "description": "Conversation Awareness Layer — floating subject tracking, conversation segmentation, warm cache, and prompt integration for Iris consciousness",
+    "author": "Claude (for Ka'tuar'el)",
+    "date": "2026-02-24",
+    "files": {
+        "new": [
+            "opt/mythos/core/subject_tracker.py",
+            "opt/mythos/core/segment_manager.py",
+            "opt/mythos/core/chat_mode_patch_0122.py",
+            "opt/mythos/workers/subject_worker.py",
+            "opt/mythos/migrations/migration_0122_consciousness_stream.sql",
+            "etc/systemd/system/mythos-segment-manager.service",
+            "etc/systemd/system/mythos-worker-subject.service"
+        ],
+        "modified": [
+            "opt/mythos/telegram_bot/handlers/chat_mode.py",
+            "opt/mythos/core/prompt_assembler.py",
+            "opt/mythos/workers/__init__.py"
+        ]
+    },
+    "requires": {
+        "postgresql": "conversation_subject_points, conversation_segments tables",
+        "redis": "mythos:assignments:subject stream"
+    },
+    "notes": "This patch adds the foundation for Iris's conversation awareness. Future patches will add Neo4j graph distillation (0123), personal pattern learning (0124), and memory tier queries (0125)."
+}

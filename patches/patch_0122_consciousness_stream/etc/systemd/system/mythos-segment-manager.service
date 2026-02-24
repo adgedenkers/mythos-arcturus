@@ -1,0 +1,17 @@
+[Unit]
+Description=Mythos Segment Manager
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/core/segment_manager.py
+Restart=on-failure
+RestartSec=30
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
