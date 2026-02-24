@@ -1,0 +1,15 @@
+{
+  "patch": "0121",
+  "version": "1.19.0",
+  "title": "System Diagnostics Command",
+  "description": "Adds /diag Telegram command for comprehensive system diagnostics. Modular blocks (hw, services, workers, bot, api, db, docker, ollama, redis, net, patches) can be run individually or combined. Results returned as .txt file attachment.",
+  "author": "claude",
+  "date": "2026-02-24",
+  "files": [
+    "opt/mythos/telegram_bot/handlers/diag_handler.py"
+  ],
+  "services_affected": [
+    "mythos-bot"
+  ],
+  "requires_restart": true
+}
