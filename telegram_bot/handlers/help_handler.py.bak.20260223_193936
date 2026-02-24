@@ -30,12 +30,6 @@ Talk with local AI
 **🗄️ DATABASE** → `/help db`
 Query Neo4j and Postgres
 
-**👤 PEOPLE** → `/help people`
-Track people for astrology & lineage
-
-**✦ GLOSSARY** → `/help define`
-Mythos ontology & definitions
-
 **⚙️ SYSTEM** → `/help system`
 Patches, status, modes
 ━━━━━━━━━━━━━━━━━━━━━━━━
@@ -423,110 +417,6 @@ journalctl -u mythos-bot -f
 """
 
 
-HELP_PEOPLE = """👤 **People Database**
-
-Track people for astrology, genealogy, and lineage work.
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**ADDING PEOPLE**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-Fields are pipe-separated. Leave empty between pipes for unknown fields.
-
-`/people add <first> | <middle> | <last> | <known_as> | <DOB> | <time> | <city> | <state> | <country> | <DOD> | <notes>`
-
-**Examples:**
-`/people add John | Fitzgerald | Kennedy | JFK | 1917-05-29 | 15:00 | Brookline | Massachusetts | USA | 1963-11-22 | 35th US President`
-
-`/people add Aleister | Edward Alexander | Crowley | The Great Beast | 1875-10-12 | | Royal Leamington Spa | Warwickshire | England | 1947-12-01 | Occultist, founder of Thelema`
-
-**Partial data (no middle, no time, no death):**
-`/people add Marie | | Curie | | 1867-11-07 | | Warsaw | | Poland | | Physicist, Nobel laureate`
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**SEARCHING & VIEWING**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/people list` — All records (summary)
-`/people search <query>` — Search by name, known\_as, or notes
-`/people view <id or name>` — Full detail for one person
-`/people Kennedy` — Bare text also searches
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**EDITING**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/people edit <id> <field> <value>`
-
-**Fields:** first\_name, middle\_name, last\_name, known\_as, date\_of\_birth, time\_of\_birth, birth\_city, birth\_state, birth\_country, date\_of\_death, notes
-
-**Examples:**
-`/people edit 4 time_of_birth 14:15`
-`/people edit 4 notes Eclipse-born, Scorpio rising`
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**DELETING**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/people delete <id>`
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**TIPS**
-━━━━━━━━━━━━━━━━━━━━━━━━
-• Date format: YYYY-MM-DD
-• Time format: HH:MM (24hr)
-• Use known\_as for spiritual names, stage names, etc.
-• People records feed into /chart for astrology
-• Leave fields empty (blank between pipes) for unknowns
-"""
-
-HELP_DEFINE = """✦ **Ontology / Glossary**
-
-The living glossary of the Mythos system. Terms stored in Neo4j.
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**LOOKING UP TERMS**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/define <term>` — Look up a term by name
-`/define chakra` — Exact or fuzzy match
-`/define natal` — Partial matches shown as buttons
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**ADDING TERMS**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/define add <name> | <definition> | <category>`
-
-**Examples:**
-`/define add Thelema | Religious philosophy founded by Aleister Crowley based on The Book of the Law (1904) | Occult`
-
-`/define add Chitra Nakshatra | 14th lunar mansion, ruled by Mars, deity Vishvakarma the celestial architect | Astrology`
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**LISTING TERMS**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-`/define list` — All terms, grouped by category
-`/define list Astrology` — Only astrology terms
-`/define list Occult` — Only occult terms
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**CATEGORIES**
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-Astrology, Numerology, Tarot, Mythos Core, History, Lineage, Theology, Occult, Music, Literature, Science, Philosophy
-
-(New categories are created automatically when you add a term)
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-**TIPS**
-━━━━━━━━━━━━━━━━━━━━━━━━
-• Related terms show as clickable buttons
-• The glossary is shared across the whole system
-• Use it to build institutional knowledge
-"""
-
 # Topic aliases for flexible matching
 HELP_TOPICS = {
     'astrology': """\nASTROLOGY COMMANDS\n\nView Charts:\n  /chart <name> - Show full natal chart\n  /chart <name1> <name2> - Compare two charts\n  /planets <name> - Planet positions only\n  /houses <name> - House cusps only\n  /aspects <name> - Major aspects only\n\nGroup Analysis:\n  /group_planets <planet> <sign> - Find all with placement\n\nExamples:\n  /chart Ka\n  /chart Ka Seraphe\n  /planets Seraphe\n  /aspects Fitz\n  /group_planets Jupiter Cancer\n\nChart Notation:\n  R = Retrograde\n  Dom = Domicile (dignity)\n  Exa = Exaltation\n  Det = Detriment\n  Fal = Fall\n\nAvailable charts: Ka'tuar'el, Seraphe, Fitz\n""",
@@ -562,17 +452,6 @@ HELP_TOPICS = {
     'neo4j': HELP_DB,
     'postgres': HELP_DB,
     
-    # People
-    'people': HELP_PEOPLE,
-    'person': HELP_PEOPLE,
-    'contacts': HELP_PEOPLE,
-
-    # Ontology / Define
-    'define': HELP_DEFINE,
-    'ontology': HELP_DEFINE,
-    'glossary': HELP_DEFINE,
-    'terms': HELP_DEFINE,
-
     # System
     'system': HELP_SYSTEM,
     'sys': HELP_SYSTEM,
@@ -618,7 +497,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             f"❓ Unknown topic: `{topic}`\n\n"
             "Available topics:\n"
-            "`tasks`, `finance`, `sell`, `chat`, `db`, `people`, `define`, `astrology`, `system`\n\n"
+            "`tasks`, `finance`, `sell`, `chat`, `db`, `system`, `astrology`\n\n"
             "Use `/help` for overview.",
             parse_mode='Markdown'
         )

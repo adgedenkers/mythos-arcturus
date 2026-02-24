@@ -29,7 +29,6 @@ import requests
 
 from handlers.review_handler import handle_review
 from handlers.ontology_handler import handle_define
-from handlers.people_handler import handle_people
 
 from handlers.checkin_handler import handle_checkin, handle_routines, handle_rdone, handle_rskip, handle_routine_add
 from handlers.calendar_handler import handle_calendar
@@ -1182,13 +1181,6 @@ def main():
 
     application.add_handler(CommandHandler("define", define_cmd))
     application.add_handler(CallbackQueryHandler(define_callback, pattern="^def:"))
-
-    # People database
-    async def people_cmd(update, context):
-        text = " ".join(context.args) if context.args else ""
-        result = handle_people(text)
-        await update.message.reply_text(result)
-    application.add_handler(CommandHandler("people", people_cmd))
 
     # Message handlers
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
