@@ -136,6 +136,7 @@ from handlers.help_handler import help_command as help_command_handler
 from handlers.pulse_handler import pulse_command, setup_pulse_scheduler
 from handlers.forecast_handler import forecast_command, projection_command, bills_command, income_command
 from handlers.diag_handler import handle_diag
+from handlers.inspect_handler import handle_inspect
 # Configuration
 API_URL = "https://mythos-api.denkers.co"
 API_KEY = os.getenv('API_KEY_TELEGRAM_BOT')
