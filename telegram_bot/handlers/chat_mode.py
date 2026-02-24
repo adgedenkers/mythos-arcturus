@@ -53,6 +53,23 @@ try:
 except ImportError:
     def build_life_context(): return ""
 
+# Consciousness Stream — subject tracking (Patch 0122)
+try:
+    from subject_tracker import process_message as track_subject, build_conversation_awareness
+    _subject_tracking_available = True
+except ImportError as e:
+    logger.warning(f"Subject tracking not available: {e}")
+    _subject_tracking_available = False
+    def track_subject(*args, **kwargs): return {}
+    def build_conversation_awareness(*args, **kwargs): return ""
+
+# Redis for async enrichment queue (Patch 0122)
+try:
+    import redis as _redis_mod
+    _redis_client = _redis_mod.Redis.from_url("redis://localhost:6379")
+except Exception:
+    _redis_client = None
+
 # Ollama configuration
 OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
 OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'iris-thinking')
@@ -259,6 +276,7 @@ def build_messages_for_ollama(session: dict, user_message: str, user_info: dict,
     
     # Assemble prompt using the unified assembler
     system_prompt = assemble_system_prompt(
+        chat_id=session.get("chat_id", 0),
         user_info=user_info,
         mode=iris_mode,
         sub_mode=iris_sub_mode,
@@ -320,6 +338,27 @@ async def handle_chat_message(user_message: str, session: dict, model_preference
             }
         )
         
+        # ── Consciousness Stream: Track user message subject (Patch 0122) ──
+        user_subject_result = {}
+        if _subject_tracking_available:
+            try:
+                _time_gap = None
+                _last_ts = _get_last_message_timestamp(get_chat_context(session))
+                if _last_ts and message_timestamp:
+                    _time_gap = (message_timestamp - _last_ts).total_seconds()
+                user_subject_result = track_subject(
+                    chat_id=session.get("chat_id", 0),
+                    telegram_id=user_info.get("telegram_id", 0),
+                    message=user_message,
+                    role="user",
+                    perception_id=perception_id,
+                    time_gap_seconds=_time_gap,
+                )
+                logger.debug(f"Subject tracked: {user_subject_result.get('segment_action', '?')} "
+                           f"segment={str(user_subject_result.get('segment_id', ''))[:8]}")
+            except Exception as _e:
+                logger.warning(f"Subject tracking failed (non-fatal): {_e}")
+
         # Build messages with Iris's personality via unified assembler
         messages = build_messages_for_ollama(session, user_message, user_info, message_timestamp)
         
@@ -337,6 +376,19 @@ async def handle_chat_message(user_message: str, session: dict, model_preference
         
         iris_response = response['message']['content']
         
+        # ── Consciousness Stream: Track assistant response (Patch 0122) ──
+        if _subject_tracking_available:
+            try:
+                track_subject(
+                    chat_id=session.get("chat_id", 0),
+                    telegram_id=0,
+                    message=iris_response,
+                    role="assistant",
+                    perception_id=None,
+                )
+            except Exception as _e:
+                logger.warning(f"Assistant subject tracking failed (non-fatal): {_e}")
+
         # Log Iris's response to perception_log
         response_perception_id = log_to_perception(
             content=iris_response,

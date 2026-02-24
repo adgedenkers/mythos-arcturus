@@ -23,6 +23,14 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
+# Consciousness Stream (Patch 0122)
+try:
+    from subject_tracker import build_conversation_awareness as _build_convo_awareness
+    _convo_awareness_available = True
+except ImportError:
+    _convo_awareness_available = False
+    def _build_convo_awareness(*args, **kwargs): return ""
+
 PROMPTS_DIR = Path("/opt/mythos/prompts")
 
 
@@ -392,6 +400,7 @@ def assemble_system_prompt(
     message_timestamp: datetime = None,
     last_message_timestamp: datetime = None,
     session_overrides: dict = None,
+    chat_id: int = 0,
     model_name: str = '',
     max_tokens: int = 6000
 ) -> str:
