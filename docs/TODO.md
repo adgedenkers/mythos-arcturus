@@ -270,3 +270,12 @@ These phases from the original architecture remain the north star. Current backl
 - [ ] Integrate with astrology database (auto-generate tri-field reports)
 - [ ] Add Hellenistic calculation support (lots, profections, zodiacal releasing)
 - [ ] Build Soul Stratigraphy Telegram command
+
+## Backlog: Unified Data Interface (UDI)
+
+**Reference:** `/opt/mythos/docs/UDI_BLUEPRINT.md`
+
+- [ ] **Phase 1 (0120–0125):** Graph as Index — HAS_FINANCE/HAS_CHART rels, /api/dossier endpoint, merge Postgres people into Neo4j
+- [ ] **Phase 2 (0126–0132):** Document Store — /opt/mythos/documents/, Document nodes, CRUD API, transcript import, basic full-text search
+- [ ] **Phase 3 (0133–0138):** Unified Search — /api/search, dossier view, timeline view, lazy-loading sections
+- [ ] **Phase 4 (0139+):** Intelligence Layer — Ollama auto-extraction, cross-domain correlation, spiral time overlay, graph analytics
