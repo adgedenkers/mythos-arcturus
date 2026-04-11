@@ -1,16 +1,17 @@
 # Mythos System State
-# Generated: 2026-04-10 03:00:25
+# Generated: 2026-04-11 03:00:23
 
 ## Patch & Version
 Current Patch:   0000
-Current Version: sys_0058
+Current Version: v0.0.0
 Next Patch:      0001
 Total Patches:   0
 
-## Services (22/24 healthy)
+## Services (22/25 healthy)
   ✅ mythos-api: active/running
   ✅ mythos-bot: active/running
   ✅ mythos-doc-watcher: active/running
+  ❌ mythos-jupyter: activating/auto-restart
   ✅ mythos-knowledge-map: active/running
   ❌ mythos-obs-graph: activating/auto-restart
   ✅ mythos-patch-monitor: active/running
@@ -34,6 +35,7 @@ Total Patches:   0
   ✅ mythos-youtube-queue: active/running
 
 ## Unhealthy Services
+  ⚠️  mythos-jupyter: activating/auto-restart
   ⚠️  mythos-obs-graph: activating/auto-restart
   ⚠️  mythos-photos: active/exited
 
@@ -41,6 +43,6 @@ Total Patches:   0
 PostgreSQL Tables: 126
 
 ## Disk
-Mythos Size:  327G
-Root Disk:    1.1T / 1.8T (60%)
-Available:    710G
+Mythos Size:  282G
+Root Disk:    1.1T / 1.8T (61%)
+Available:    695G

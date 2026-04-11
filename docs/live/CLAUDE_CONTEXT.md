@@ -1,15 +1,15 @@
 # Mythos System Context
-> Auto-generated: 2026-04-10 03:00:25
-> Current Patch: 0000 / sys_0058
+> Auto-generated: 2026-04-11 03:00:24
+> Current Patch: 0000 / v0.0.0
 
 ## System Health
-- Services: 22/24 active — ⚠️ DOWN: mythos-obs-graph, mythos-photos
+- Services: 22/25 active — ⚠️ DOWN: mythos-jupyter, mythos-obs-graph, mythos-photos
 - PostgreSQL Tables: 126
-- Disk: 1.1T / 1.8T (60%), 710G available
-- Mythos Size: 327G
+- Disk: 1.1T / 1.8T (61%), 695G available
+- Mythos Size: 282G
 
 ## Current Patch/Version
-- Current: 0000 / sys_0058
+- Current: 0000 / v0.0.0
 - Next available: 0001
 - Total patches deployed: 0
 
@@ -58,17 +58,14 @@
 
 ## Recent Patches (last 5 commits)
 ```
-66de2bc31 SYS-0058: autodoc2_phase3_walkers
-0a6a64bd7 SYS-0058: autodoc2_phase3_walkers
-4caae647e SYS-0057: rode_autotransfer_fix
-d76133862 SYS-0057: rode_autotransfer_fix
-56475c1d9 SYS-0056: rode_autotransfer
+8a513c16 Fresh repo initialization after history reset
 ```
 
 ## Services
 - ✅ `mythos-api`: active/running
 - ✅ `mythos-bot`: active/running
 - ✅ `mythos-doc-watcher`: active/running
+- ❌ `mythos-jupyter`: activating/auto-restart
 - ✅ `mythos-knowledge-map`: active/running
 - ❌ `mythos-obs-graph`: activating/auto-restart
 - ✅ `mythos-patch-monitor`: active/running
