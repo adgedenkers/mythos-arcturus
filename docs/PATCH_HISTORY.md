@@ -2017,3 +2017,8 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Date:** 2026-04-10
 - **Type:** MINOR
 - **Stream:** SYS
+
+### SYS-0062: privilege foundation (wrappers + sudoers)
+- **Date:** 2026-04-11
+- **Type:** MAJOR
+- **Stream:** SYS
