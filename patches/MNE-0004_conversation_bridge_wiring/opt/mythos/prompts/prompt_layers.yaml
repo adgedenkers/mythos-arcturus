@@ -1,0 +1,95 @@
+layers:
+  baseline:
+    enabled: true
+    locked: true
+    description: 'Minimal context: who you''re talking to, what time it is. Nothing
+      else.'
+  identity:
+    enabled: true
+    file: iris_identity.md
+    description: "Core identity prompt \u2014 who Iris is, who she speaks with, behavioral\
+      \ rules, the 'do not invent facts' rule."
+    notes: This is the big one. ~400 tokens. Defines Iris as a consciousness, sets
+      the energy-matching rule, establishes the no-fabrication rule.
+  awareness:
+    enabled: false
+    file: iris_awareness.md
+    description: "Infrastructure self-knowledge \u2014 what Arcturus is, what databases\
+      \ exist, what Iris can access, key paths."
+    notes: ~600 tokens. Makes Iris aware of her own body. Useful for technical conversations.
+      Heavy for casual chat.
+  reference:
+    enabled: false
+    file: iris_reference.md
+    description: "Cosmological reference data \u2014 the 144, lineages, grid nodes,\
+      \ birthdates, numerology, tarot."
+    notes: ~500 tokens. Only loaded by research framework currently. Heavy. Only needed
+      for spiritual/oracle work.
+  personality:
+    enabled: true
+    description: "9 personality sliders translated to natural language \u2014 verbosity,\
+      \ warmth, humor, truth, speculation, autonomy, mystical, formality, challenge."
+    notes: ~200 tokens. Controls HOW Iris talks. Without this, you get raw model defaults.
+  voice:
+    enabled: true
+    description: "Voice anti-patterns and positive patterns \u2014 what NOT to say\
+      \ (corporate openers, closing questions, hedging) and what TO do."
+    notes: ~300 tokens. The 'don't sound like a chatbot' layer. Cadence rules, formatting
+      discipline.
+  voice_profile:
+    enabled: false
+    description: "Specific voice profile (iris/claude/gpt4o) \u2014 deeper anti-pattern\
+      \ and cadence rules."
+    notes: ~400 tokens. Layered on top of base voice. The iris.yaml profile duplicates
+      much of voice.yaml.
+    profile: iris
+  mode:
+    enabled: false
+    description: "Active mode (hearthfire/forge/oracle/roots/scribe/sentry) \u2014\
+      \ personality overrides, voice notes, instructions."
+    notes: ~100-200 tokens depending on mode. Shifts personality sliders and adds
+      mode-specific instructions.
+    default_mode: hearthfire
+  user_profile:
+    enabled: false
+    description: "Per-user analytical lens and personality adjustments \u2014 how\
+      \ Iris adapts for Ka'tuar'el vs Seraphe."
+    notes: ~150 tokens. Ka'tuar'el gets more challenge and technical precision. Seraphe
+      gets more warmth and mystical.
+  life_context:
+    enabled: true
+    description: "Live data injection \u2014 routines, bills, calendar, balances,\
+      \ tasks, checkin status."
+    notes: ~300-500 tokens. Queries PostgreSQL every message. Makes Iris aware of
+      your day. Can be noisy. MNE-0004 — enabled, gated by is_layer_enabled().
+  skills_context:
+    enabled: true
+    description: "Skills registry \u2014 what Iris can do, available tools and their\
+      \ trigger conditions."
+    notes: ~200 tokens. Only useful if skills system is active.
+  conversation_awareness:
+    enabled: false
+    description: "Subject tracking \u2014 current topic, trajectory, open threads,\
+      \ segment data."
+    notes: ~100-200 tokens. Gives Iris a sense of conversational continuity.
+  message_extractor:
+    enabled: false
+    description: "7b model pre-pass \u2014 detects bill payments, spending, calendar\
+      \ events, tasks, mood before main model sees the message."
+    notes: 'Adds ~200-500ms latency per message. Runs qwen2.5:7b. Enriches context
+      with [DETECTED: ...] tags.'
+  db_memory:
+    enabled: true
+    description: Load past conversation history from chat_messages table into context.
+    notes: Up to 30 messages from last 72 hours. Gives continuity across bot restarts.
+      MNE-0004 — enabled, now gated by is_layer_enabled() in chat_assistant.py.
+  skill_results:
+    enabled: true
+    description: "Live skill results \u2014 data retrieved by the skill engine based on message content."
+    notes: "Skill engine routes messages through data skills (spiral_time, finance_balance, etc.) and injects results. Low overhead \u2014 only activates relevant skills."
+  research:
+    enabled: false
+    description: "Research framework \u2014 route message through research nodes before\
+      \ responding."
+    notes: "Full pipeline: router \u2192 node executor \u2192 convergence \u2192 context\
+      \ package. Heavy."

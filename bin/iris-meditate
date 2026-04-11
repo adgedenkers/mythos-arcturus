@@ -1,0 +1,240 @@
+#!/opt/mythos/.venv/bin/python3
+"""
+iris-meditate — render guided meditation scripts to OGG audio.
+
+Supports two input formats:
+  .txt   Simple flat format with [pause:N] markers (original format)
+  .yaml  Meditation Markup Format — full phase/speed/tone control
+
+Usage:
+    iris-meditate <script.txt>
+    iris-meditate <script.yaml>
+    iris-meditate <script.yaml> --title "Override Title"
+    iris-meditate --list
+    iris-meditate --estimate <script.txt|yaml>
+    iris-meditate --to-yaml <script.txt>   # convert .txt to .yaml skeleton
+
+YAML format:
+    meditation:
+      title: "My Meditation"
+      slug: "my_meditation"
+      defaults:
+        voice: af_heart
+        speed: 0.82
+        breath_gap: 0.4
+      phases:
+        - id: arrival
+          label: "Arrival"
+          speed: 0.85
+          tone: warm_grounding
+          segments:
+            - type: speech
+              text: "Close your eyes."
+            - type: pause
+              seconds: 4
+            - type: speech
+              text: "Settle in."
+              speed: 0.72   # optional segment-level override
+
+Voices: af_heart (default), af_bella, af_sarah, af_nova, af_sky, af_nicole
+"""
+
+import sys
+import os
+import argparse
+import logging
+from pathlib import Path
+
+sys.path.insert(0, "/opt/mythos")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(levelname)-7s  %(message)s",
+    datefmt="%H:%M:%S",
+)
+
+VOICES = ["af_heart", "af_bella", "af_sarah", "af_nova", "af_sky", "af_nicole"]
+
+
+def cmd_list():
+    from voice.meditation import list_meditations
+    items = list_meditations()
+    if not items:
+        print("No meditations in /opt/mythos/public/meditations/")
+        return
+    print(f"\n{'─'*74}")
+    print(f"  {'Title':<34} {'Size':>7}   Created")
+    print(f"{'─'*74}")
+    for m in items:
+        print(f"  {m['title']:<34} {m['size_kb']:>5} KB   {m['created'][:16]}")
+    print(f"{'─'*74}")
+    print(f"  {len(items)} meditation(s)\n")
+
+
+def cmd_estimate(script_file: str):
+    p = Path(script_file)
+    if not p.exists():
+        print(f"File not found: {script_file}"); sys.exit(1)
+
+    if p.suffix.lower() in (".yaml", ".yml"):
+        from voice.mmf import estimate_spec
+        e = estimate_spec(p)
+        print(f"\nEstimate: {e['title']} ({p.name})")
+        print(f"  Phases          : {', '.join(e['phases'])}")
+        print(f"  Speech segments : {e['n_speech']}")
+        print(f"  Pauses          : {e['n_pause']}  ({e['t_pause_s']}s total silence)")
+        print(f"  Speed range     : {e['speed_range']}")
+        print(f"  Estimated length: {e['total_min']} min ({e['total_s']}s)\n")
+    else:
+        from voice.meditation import estimate_duration, parse_script
+        script = p.read_text(encoding="utf-8")
+        segs = parse_script(script)
+        dur = estimate_duration(script)
+        n_s = sum(1 for s in segs if s["type"] == "speech")
+        n_p = sum(1 for s in segs if s["type"] == "pause")
+        t_p = sum(s["seconds"] for s in segs if s["type"] == "pause")
+        print(f"\nEstimate: {p.name}")
+        print(f"  Speech segments : {n_s}")
+        print(f"  Pauses          : {n_p}  ({t_p:.0f}s total)")
+        print(f"  Estimated length: {dur/60:.1f} min ({dur:.0f}s)\n")
+
+
+def cmd_to_yaml(txt_file: str):
+    """Convert a flat .txt meditation to a .yaml skeleton."""
+    p = Path(txt_file)
+    if not p.exists():
+        print(f"File not found: {txt_file}"); sys.exit(1)
+
+    from voice.meditation import parse_script
+    script = p.read_text(encoding="utf-8")
+    segments = parse_script(script)
+    slug = p.stem.lower().replace(" ", "_").replace("-", "_")
+
+    lines = [
+        f"meditation:",
+        f"  title: \"{p.stem.replace('_', ' ').title()}\"",
+        f"  slug: \"{slug}\"",
+        f"  author: \"\"",
+        f"  description: \"\"",
+        f"  version: \"1.0\"",
+        f"",
+        f"  defaults:",
+        f"    voice: af_heart",
+        f"    speed: 0.82",
+        f"    breath_gap: 0.4",
+        f"    output_format: ogg",
+        f"    sample_rate: 24000",
+        f"",
+        f"  phases:",
+        f"    - id: main",
+        f"      label: \"Main\"",
+        f"      speed: 0.82",
+        f"      tone: neutral",
+        f"      segments:",
+    ]
+    for seg in segments:
+        if seg["type"] == "pause":
+            lines.append(f"        - type: pause")
+            lines.append(f"          seconds: {int(seg['seconds'])}")
+        else:
+            lines.append(f"        - type: speech")
+            lines.append(f"          text: \"{seg['text'].replace(chr(34), chr(39))}\"")
+
+    out_path = p.with_suffix(".yaml")
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+    print(f"\n✓ Skeleton written: {out_path}")
+    print(f"  Edit phases, speeds, and tones, then render with:")
+    print(f"  iris-meditate {out_path}\n")
+
+
+def cmd_render(script_file: str, title: str, voice: str):
+    p = Path(script_file)
+    if not p.exists():
+        print(f"File not found: {script_file}"); sys.exit(1)
+    if voice not in VOICES:
+        print(f"Unknown voice '{voice}'. Options: {', '.join(VOICES)}"); sys.exit(1)
+
+    if p.suffix.lower() in (".yaml", ".yml"):
+        _render_yaml(p, title)
+    else:
+        _render_txt(p, title, voice)
+
+
+def _render_yaml(p: Path, title_override: str):
+    from voice.mmf import estimate_spec, render_spec, load_spec
+
+    spec = load_spec(p)
+    title = title_override or spec.get("title", p.stem)
+    e = estimate_spec(p)
+
+    print(f"\n🧘 Rendering (MMF): {title}")
+    print(f"   Spec       : {p}")
+    print(f"   Phases     : {', '.join(e['phases'])}")
+    print(f"   Speed range: {e['speed_range']}")
+    print(f"   Estimated  : {e['total_min']} min\n")
+
+    out = render_spec(p)
+    if out is None:
+        print("❌ Render failed — check logs above."); sys.exit(1)
+
+    size_kb = out.stat().st_size / 1024
+    print(f"\n✅ Done!")
+    print(f"   File      : {out.name}")
+    print(f"   Size      : {size_kb:.0f} KB")
+    print(f"   Duration  : ~{e['total_min']} min")
+    print(f"   Path      : {out}\n")
+
+
+def _render_txt(p: Path, title: str, voice: str):
+    from voice.meditation import estimate_duration, render_meditation
+
+    script = p.read_text(encoding="utf-8")
+    if not title:
+        title = p.stem.replace("_", " ").replace("-", " ")
+    est = estimate_duration(script)
+
+    print(f"\n🧘 Rendering (txt): {title}")
+    print(f"   Voice     : {voice}")
+    print(f"   Script    : {p}")
+    print(f"   Estimated : {est/60:.1f} min\n")
+
+    out = render_meditation(script, title=title, voice=voice)
+    if out is None:
+        print("❌ Render failed — check logs above."); sys.exit(1)
+
+    size_kb = out.stat().st_size / 1024
+    print(f"\n✅ Done!")
+    print(f"   File     : {out.name}")
+    print(f"   Size     : {size_kb:.0f} KB")
+    print(f"   Duration : ~{est/60:.1f} min")
+    print(f"   Path     : {out}\n")
+
+
+def main():
+    p = argparse.ArgumentParser(
+        description="Iris Meditation Renderer (.txt or .yaml MMF)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__,
+    )
+    p.add_argument("script", nargs="?", help="Meditation script (.txt or .yaml)")
+    p.add_argument("--title", default="", help="Title override")
+    p.add_argument("--voice", default="af_heart", help="Kokoro voice (txt format only)")
+    p.add_argument("--list", action="store_true", help="List rendered meditations")
+    p.add_argument("--estimate", metavar="SCRIPT", help="Estimate duration")
+    p.add_argument("--to-yaml", metavar="TXT", help="Convert .txt to .yaml skeleton")
+    args = p.parse_args()
+
+    if args.list:
+        cmd_list()
+    elif args.estimate:
+        cmd_estimate(args.estimate)
+    elif args.to_yaml:
+        cmd_to_yaml(args.to_yaml)
+    elif args.script:
+        cmd_render(args.script, args.title, args.voice)
+    else:
+        p.print_help(); sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

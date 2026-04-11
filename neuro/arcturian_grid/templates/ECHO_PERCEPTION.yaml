@@ -1,0 +1,62 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ECHO | Layer: PERCEPTION | ID: ECHO_PERCEPTION
+# Domain: Memory and pattern recognition
+# Depth: 1 (Perception)
+# Generated: 2026-03-02 21:50 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ECHO_PERCEPTION
+node: ECHO
+node_name: Echo
+node_domain: Memory and pattern recognition
+layer: PERCEPTION
+layer_name: Perception
+depth: 1
+model_tier: small
+runtime_models:
+- mistral:7b
+- qwen2.5:7b
+- nous-hermes2:latest
+processing: unconscious
+critical_path: false
+generated_at: '2026-03-02T21:50:47.727982'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze {user_message} and {assistant_response} for Echo node patterns. Extract ONLY literal repetitions: recurring
+  themes, behavioral patterns, cyclical topics, or exact language echoes from past exchanges. Do not interpret, infer, or
+  add context. Output only factual, concrete observations matching past exchanges. Example: ''Echoes Feb 3 car financing discussion;
+  same freeze trigger: financial uncertainty → paralysis.'''
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    matched_patterns:
+      type: array
+      items:
+        type: string
+    recurring_themes:
+      type: array
+      items:
+        type: string
+    cycle_indicators:
+      type: array
+      items:
+        type: string
+    echo_strength:
+      type: number
+      minimum: 0
+      maximum: 1
+  required:
+  - summary
+  - confidence
+  - flags

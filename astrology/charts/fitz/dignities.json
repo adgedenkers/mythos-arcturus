@@ -1,0 +1,45 @@
+{
+  "Sun": {
+    "Status": [
+      "Peregrine"
+    ],
+    "Sign": "Virgo"
+  },
+  "Moon": {
+    "Status": [
+      "Peregrine"
+    ],
+    "Sign": "Virgo"
+  },
+  "Mercury": {
+    "Status": [
+      "Domicile",
+      "Exaltation"
+    ],
+    "Sign": "Virgo"
+  },
+  "Venus": {
+    "Status": [
+      "Detriment"
+    ],
+    "Sign": "Scorpio"
+  },
+  "Mars": {
+    "Status": [
+      "Detriment"
+    ],
+    "Sign": "Libra"
+  },
+  "Jupiter": {
+    "Status": [
+      "Peregrine"
+    ],
+    "Sign": "Aries"
+  },
+  "Saturn": {
+    "Status": [
+      "Exaltation"
+    ],
+    "Sign": "Libra"
+  }
+}

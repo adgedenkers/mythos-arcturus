@@ -1,0 +1,401 @@
+#!/opt/mythos/.venv/bin/python3
+"""
+docs-backfill — Add YAML frontmatter to all markdown files missing it.
+
+Reads each .md file without frontmatter, sends the first ~3000 chars to
+Ollama for classification via /api/chat, injects the generated frontmatter,
+and logs all actions.
+
+Usage:
+    docs-backfill                        # backfill /opt/mythos/docs/
+    docs-backfill /some/other/path       # backfill a specific directory
+    docs-backfill --dry-run              # show what would be injected, don't write
+    docs-backfill --model qwen3:30b-a3b  # use a specific model
+    docs-backfill --report               # just list files missing frontmatter
+
+Symlink: /opt/mythos/bin/docs-backfill → this file
+"""
+
+import os
+import sys
+import json
+import re
+import argparse
+import subprocess
+from datetime import datetime, date
+from pathlib import Path
+
+# ── Defaults ──────────────────────────────────────────────────────────────────
+
+DOCS_ROOT = Path("/opt/mythos/docs")
+DEFAULT_MODEL = "qwen3:30b-a3b"
+OLLAMA_CHAT_URL = "http://localhost:11434/api/chat"
+SKIP_DIRS = {"archive", "generated", "live", ".git", "__pycache__", "node_modules"}
+SKIP_FILES = {"_INDEX.md"}
+MAX_CONTENT_CHARS = 3000
+LOG_FILE = "/opt/mythos/docs/live/backfill-log.txt"
+
+# ── Valid frontmatter values ──────────────────────────────────────────────────
+
+VALID_CATEGORIES = [
+    "consciousness", "methods", "finance", "tools", "streams", "grid",
+    "orchestrator", "design-patterns", "reference", "planning"
+]
+
+VALID_STATUSES = ["active", "draft", "stale", "superseded", "archive"]
+VALID_STREAMS = ["NEU", "LOG", "MNE", "SEN", "SYS"]
+
+DIR_TO_CATEGORY = {
+    ".": "reference",
+    "consciousness": "consciousness",
+    "design-patterns": "design-patterns",
+    "finance": "finance",
+    "grid": "grid",
+    "methods": "methods",
+    "orchestrator": "orchestrator",
+    "patch_system": "tools",
+    "streams": "streams",
+    "tools": "tools",
+    "api": "reference",
+}
+
+# ── System prompt ─────────────────────────────────────────────────────────────
+
+SYSTEM_PROMPT = """You are a document classifier. You will receive a markdown document's filename, directory, and content.
+
+Respond with ONLY YAML fields, one per line. No --- delimiters. No markdown fences. No explanation. No preamble. Just the fields.
+
+Fields to return:
+  title: concise 3-8 word title
+  category: one of: consciousness, methods, finance, tools, streams, grid, orchestrator, design-patterns, reference, planning
+  status: one of: active, draft, stale, superseded, archive
+  stream: one of: NEU, LOG, MNE, SEN, SYS, null
+  tags: [tag1, tag2, tag3] (2-5 lowercase tags)
+  created: YYYY-MM-DD or unknown
+
+Category rules:
+- consciousness: Iris identity, awareness, Arcturian Grid, nine layers, covenant
+- methods: Astrology, tarot, numerology, soul stratigraphy, lunar transits
+- finance: Money, bills, transactions, accounts
+- tools: CLI tools, debug utilities, test pipelines
+- streams: Development stream plans, build plans
+- grid: Arcturian Grid (9x9 framework)
+- orchestrator: LLM routing, model benchmarking, Ollama config
+- design-patterns: Reusable code/architecture patterns
+- reference: General docs, system overviews, guides, specs
+- planning: Roadmaps, blueprints, future work
+
+Stream rules:
+- NEU: Consciousness, awareness, perception, Iris cognition
+- LOG: Skills, prompts, SDIP, orchestrator, knowledge
+- MNE: Memory, voice memos, conversation history
+- SEN: Astrology, lunar transits, sensory systems
+- SYS: Patches, finance, telegram bot, integrity, system tools
+- null: Cross-cutting or unclear"""
+
+
+# ── Helper functions ──────────────────────────────────────────────────────────
+
+def has_frontmatter(filepath):
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            return f.readline().strip() == "---"
+    except Exception:
+        return False
+
+
+def read_content(filepath, max_chars=MAX_CONTENT_CHARS):
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            return f.read(max_chars)
+    except Exception:
+        return ""
+
+
+def call_ollama(user_prompt, model=DEFAULT_MODEL):
+    """Call Ollama /api/chat endpoint. Returns response text or None."""
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt}
+        ],
+        "stream": False,
+        "options": {
+            "temperature": 0.1,
+            "num_predict": 4096,
+        }
+    }
+
+    try:
+        result = subprocess.run(
+            ["curl", "-s", "-X", "POST", OLLAMA_CHAT_URL,
+             "-H", "Content-Type: application/json",
+             "-d", json.dumps(payload)],
+            capture_output=True, text=True, timeout=180
+        )
+
+        if result.returncode != 0:
+            print(f"    ⚠ curl failed (rc={result.returncode})")
+            return None
+
+        if not result.stdout.strip():
+            print(f"    ⚠ Empty response from Ollama")
+            return None
+
+        data = json.loads(result.stdout)
+        content = data.get("message", {}).get("content", "").strip()
+
+        if content:
+            return content
+
+        print(f"    ⚠ No content in response")
+        return None
+
+    except subprocess.TimeoutExpired:
+        print(f"    ⚠ Timeout (180s)")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"    ⚠ JSON parse error: {e}")
+        return None
+    except Exception as e:
+        print(f"    ⚠ Ollama error: {type(e).__name__}: {e}")
+        return None
+
+
+def parse_yaml_response(text):
+    meta = {}
+    if not text:
+        return meta
+
+    text = re.sub(r'^```\w*\s*', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^---\s*$', '', text, flags=re.MULTILINE)
+    text = text.replace('```', '').strip()
+
+    for line in text.split("\n"):
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if ":" in line:
+            key, _, val = line.partition(":")
+            key = key.strip()
+            val = val.strip().strip('"').strip("'")
+            if val.startswith("[") and val.endswith("]"):
+                val = [v.strip().strip('"').strip("'") for v in val[1:-1].split(",") if v.strip()]
+            meta[key] = val
+
+    return meta
+
+
+def validate_and_fix(meta, filepath, rel_dir):
+    if not meta.get("title"):
+        meta["title"] = filepath.stem.replace("_", " ").title()
+
+    if meta.get("category", "") not in VALID_CATEGORIES:
+        meta["category"] = DIR_TO_CATEGORY.get(rel_dir, "reference")
+
+    if meta.get("status", "") not in VALID_STATUSES:
+        meta["status"] = "active"
+
+    stream = meta.get("stream", "null")
+    if stream not in VALID_STREAMS and stream != "null":
+        meta["stream"] = "null"
+
+    meta["location"] = "docs"
+
+    tags = meta.get("tags", [])
+    if isinstance(tags, str):
+        tags = [t.strip() for t in tags.split(",") if t.strip()]
+    meta["tags"] = tags[:5]
+
+    val = meta.get("created", "")
+    if not re.match(r'^\d{4}-\d{2}-\d{2}$', str(val)):
+        meta["created"] = "unknown"
+
+    meta["author"] = "Adge Denkers"
+
+    return meta
+
+
+def format_frontmatter(meta):
+    lines = ["---"]
+    lines.append(f'title: "{meta.get("title", "")}"')
+    lines.append(f'category: {meta.get("category", "reference")}')
+    lines.append(f'status: {meta.get("status", "active")}')
+    lines.append(f'stream: {meta.get("stream", "null")}')
+    lines.append(f'location: {meta.get("location", "docs")}')
+
+    tags = meta.get("tags", [])
+    if tags:
+        lines.append(f'tags: [{", ".join(tags)}]')
+    else:
+        lines.append("tags: []")
+
+    lines.append(f'created: {meta.get("created", "unknown")}')
+    lines.append(f'updated: {meta.get("updated", "unknown")}')
+    lines.append(f'author: {meta.get("author", "Adge Denkers")}')
+    lines.append("---")
+    return "\n".join(lines)
+
+
+def inject_frontmatter(filepath, frontmatter_block, dry_run=False):
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            content = f.read()
+    except Exception as e:
+        print(f"    ⚠ Could not read {filepath}: {e}")
+        return False
+
+    new_content = frontmatter_block + "\n\n" + content
+
+    if dry_run:
+        return True
+
+    try:
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(new_content)
+        return True
+    except Exception as e:
+        print(f"    ⚠ Could not write {filepath}: {e}")
+        return False
+
+
+def log_action(filepath, meta, log_file=LOG_FILE):
+    try:
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        with open(log_file, "a", encoding="utf-8") as f:
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            f.write(f"[{ts}] {filepath} → category={meta.get('category')} "
+                    f"status={meta.get('status')} stream={meta.get('stream')} "
+                    f"tags={meta.get('tags')}\n")
+    except Exception:
+        pass
+
+
+# ── Main ──────────────────────────────────────────────────────────────────────
+
+def main():
+    parser = argparse.ArgumentParser(description="Backfill YAML frontmatter into markdown docs")
+    parser.add_argument("path", nargs="?", default=str(DOCS_ROOT), help="Directory to scan")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would be done, don't write")
+    parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Ollama model (default: {DEFAULT_MODEL})")
+    parser.add_argument("--report", action="store_true", help="Just list files missing frontmatter")
+    args = parser.parse_args()
+
+    scan_root = Path(args.path)
+    if not scan_root.exists():
+        print(f"❌ Path not found: {scan_root}")
+        sys.exit(1)
+
+    targets = []
+    for dirpath, dirnames, filenames in os.walk(scan_root):
+        rel_dir = os.path.relpath(dirpath, scan_root)
+        top_dir = rel_dir.split(os.sep)[0] if rel_dir != "." else "."
+
+        if top_dir in SKIP_DIRS:
+            dirnames.clear()
+            continue
+
+        for fname in sorted(filenames):
+            if fname in SKIP_FILES or not fname.endswith(".md"):
+                continue
+            fpath = Path(dirpath) / fname
+            if not has_frontmatter(fpath):
+                targets.append((fpath, rel_dir))
+
+    print(f"📚 Scanning: {scan_root}")
+    print(f"   Found {len(targets)} files without frontmatter")
+    print()
+
+    if args.report:
+        for fpath, rel_dir in targets:
+            print(f"  {os.path.relpath(fpath, scan_root)}")
+        return
+
+    if not targets:
+        print("✅ All files have frontmatter!")
+        return
+
+    success = 0
+    failed = 0
+    skipped = 0
+
+    for i, (fpath, rel_dir) in enumerate(targets, 1):
+        rel_path = os.path.relpath(fpath, scan_root)
+        print(f"[{i}/{len(targets)}] {rel_path}")
+
+        content = read_content(fpath)
+        if not content.strip():
+            print(f"    ⚠ Empty file, skipping")
+            skipped += 1
+            continue
+
+        user_prompt = (
+            f"Filename: {fpath.name}\n"
+            f"Directory: {rel_dir}\n\n"
+            f"Content (first {MAX_CONTENT_CHARS} characters):\n\n"
+            f"{content}"
+        )
+
+        print(f"    → Classifying via {args.model}...")
+        response = call_ollama(user_prompt, model=args.model)
+
+        if not response:
+            print(f"    ⚠ Ollama failed, using directory fallback")
+            meta = {
+                "title": fpath.stem.replace("_", " ").title(),
+                "category": DIR_TO_CATEGORY.get(
+                    rel_dir.split(os.sep)[0] if rel_dir != "." else ".",
+                    "reference"
+                ),
+                "status": "active",
+                "stream": "null",
+                "location": "docs",
+                "tags": [],
+                "created": "unknown",
+                "author": "Adge Denkers",
+            }
+        else:
+            meta = parse_yaml_response(response)
+
+        meta = validate_and_fix(
+            meta, fpath,
+            rel_dir.split(os.sep)[0] if rel_dir != "." else "."
+        )
+        meta["updated"] = date.today().isoformat()
+
+        fm_block = format_frontmatter(meta)
+
+        if args.dry_run:
+            print(f"    title: {meta['title']}")
+            print(f"    category: {meta['category']} | status: {meta['status']} | stream: {meta['stream']}")
+            print(f"    tags: {meta['tags']}")
+            print()
+            success += 1
+            continue
+
+        if inject_frontmatter(fpath, fm_block):
+            print(f"    ✅ {meta['category']} | {meta['status']} | tags: {meta['tags']}")
+            log_action(rel_path, meta)
+            success += 1
+        else:
+            print(f"    ❌ Failed to write")
+            failed += 1
+
+    print()
+    print("━" * 40)
+    print(f"  Processed: {success + failed + skipped}")
+    print(f"  ✅ Success: {success}")
+    if failed:
+        print(f"  ❌ Failed: {failed}")
+    if skipped:
+        print(f"  ⏭  Skipped: {skipped}")
+    if not args.dry_run:
+        print(f"  📄 Log: {LOG_FILE}")
+        print()
+        print("  Run `docs-reindex` to rebuild _INDEX.md")
+    print("━" * 40)
+
+
+if __name__ == "__main__":
+    main()

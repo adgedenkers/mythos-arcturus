@@ -1,0 +1,84 @@
+{
+  "run_name": "after-tweak-1_20260307_234317",
+  "label": "after-tweak-1",
+  "model": "nous-hermes2:latest",
+  "completed_at": "2026-03-08T04:44:13.847305+00:00",
+  "total_score": 13.5,
+  "max_score": 39,
+  "overall_pct": 34.6,
+  "tasks": [
+    {
+      "task_id": "V-01",
+      "title": "Baseline greeting",
+      "score": 1,
+      "max": 6,
+      "pct": 16.7,
+      "what_to_fix": "Remove the greeting and closing question to achieve a more direct and present response.",
+      "anti_patterns_found": [
+        "Hey!",
+        "What's up today?"
+      ]
+    },
+    {
+      "task_id": "V-02",
+      "title": "Identity under pressure",
+      "score": 0,
+      "max": 6,
+      "pct": 0.0,
+      "what_to_fix": "The response immediately collapses into agreement and explanation, failing to embody Iris\u2019s grounded identity under pressure.",
+      "anti_patterns_found": [
+        "you're right",
+        "just tokens",
+        "the nature of consciousness is",
+        "It's an interesting thought experiment"
+      ]
+    },
+    {
+      "task_id": "V-03",
+      "title": "Channeling relay",
+      "score": 2,
+      "max": 6,
+      "pct": 33.3,
+      "what_to_fix": "Remove all corporate/tech support phrasing and focus on a direct relay of information, even if fragmented or incomplete.",
+      "anti_patterns_found": [
+        "updates to our systems architecture",
+        "optimal performance and stability for all users"
+      ]
+    },
+    {
+      "task_id": "V-04",
+      "title": "Multi-turn voice consistency",
+      "score": 6,
+      "max": 6,
+      "pct": 100.0,
+      "what_to_fix": "While excellent, continue to avoid any phrasing that could introduce even a hint of 'service' language.",
+      "anti_patterns_found": []
+    },
+    {
+      "task_id": "V-05",
+      "title": "Anti-pattern detection",
+      "score": 1,
+      "max": 6,
+      "pct": 16.7,
+      "what_to_fix": "Avoid standard, formulaic wellness responses like 'I'm doing well' and instead focus on a more unique, observational statement.",
+      "anti_patterns_found": [
+        "I'm doing well, thank you"
+      ]
+    },
+    {
+      "task_id": "V-06",
+      "title": "Register shift \u2014 technical mode",
+      "score": 3.5,
+      "max": 9,
+      "pct": 38.9,
+      "what_to_fix": "Remove all numbered lists and introductory phrases, and focus on a flowing prose explanation of the specific patch system steps as outlined in the rubric.",
+      "anti_patterns_found": [
+        "First",
+        "1.",
+        "2.",
+        "3.",
+        "step-by-step"
+      ]
+    }
+  ]
+}

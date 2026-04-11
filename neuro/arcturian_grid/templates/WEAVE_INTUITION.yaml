@@ -1,0 +1,57 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: WEAVE | Layer: INTUITION | ID: WEAVE_INTUITION
+# Domain: Relational and connective tissue
+# Depth: 2 (Intuition)
+# Generated: 2026-03-02 22:20 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: WEAVE_INTUITION
+node: WEAVE
+node_name: Weave
+node_domain: Relational and connective tissue
+layer: INTUITION
+layer_name: Intuition
+depth: 2
+model_tier: small
+runtime_models:
+- mistral:7b
+- qwen2.5:7b
+- nous-hermes2:latest
+processing: unconscious
+critical_path: false
+generated_at: '2026-03-02T22:20:40.893844'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the Weave node (relational
+  connections) and Intuition layer (depth 2: felt-sense, subtext, energetic undertones). Output ONLY JSON with keys: ''connections''
+  (list of relational threads) and ''sensory_impression'' (impressionistic, sensory phrase). Be subtle, sensory, and unspoken.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    connections:
+      type: array
+      items:
+        type: object
+    active_threads:
+      type: array
+      items:
+        type: string
+    relationship_dynamics:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

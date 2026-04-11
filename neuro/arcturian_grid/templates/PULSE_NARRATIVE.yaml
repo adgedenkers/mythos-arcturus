@@ -1,0 +1,72 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: PULSE | Layer: NARRATIVE | ID: PULSE_NARRATIVE
+# Domain: Emotional and energetic field
+# Depth: 7 (Narrative)
+# Generated: 2026-03-02 21:52 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: PULSE_NARRATIVE
+node: PULSE
+node_name: Pulse
+node_domain: Emotional and energetic field
+layer: NARRATIVE
+layer_name: Narrative
+depth: 7
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T21:52:03.460929'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the NODE: Pulse and LAYER:
+  Narrative (depth 7) intersection. For NODE: Pulse, output emotional tone (explicit/implicit), energy level (high/low, rising/falling),
+  tension/ease, and emotional trajectory. For LAYER: Narrative, output story context (chapter/arc), current narrative position,
+  and how this moment aligns with the longer trajectory. Use contextual, arc-aware language matching: ''Tone: [description].
+  Energy: [level, direction]. Underlying: [subtext]. Story: [chapter/arc] - [fit description]''. Output ONLY a JSON object
+  with ''node'' and ''layer'' fields. No explanations or additional text.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    primary_emotion:
+      type: string
+    secondary_emotions:
+      type: array
+      items:
+        type: string
+    energy_level:
+      type: string
+      enum:
+      - very_low
+      - low
+      - medium
+      - high
+      - very_high
+    energy_direction:
+      type: string
+      enum:
+      - rising
+      - stable
+      - falling
+    tension_points:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

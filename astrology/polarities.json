@@ -1,0 +1,19 @@
+[
+    {
+      "Polarity": "Positive",
+      "Also Called": ["Masculine", "Yang"],
+      "Signs": ["Aries", "Gemini", "Leo", "Libra", "Sagittarius", "Aquarius"],
+      "Keywords": ["Outgoing", "Active", "Expressive"],
+      "Meaning": "Positive signs project energy outward. They tend to be assertive, confident, and energized by interaction.",
+      "Example": "Positive polarity is like the Sun — always radiating energy outward, lighting up everything it touches."
+    },
+    {
+      "Polarity": "Negative",
+      "Also Called": ["Feminine", "Yin"],
+      "Signs": ["Taurus", "Cancer", "Virgo", "Scorpio", "Capricorn", "Pisces"],
+      "Keywords": ["Receptive", "Introspective", "Empathic"],
+      "Meaning": "Negative signs draw energy inward. They tend to be reflective, emotionally deep, and oriented toward inner processing.",
+      "Example": "Negative polarity is like the Moon — inward, intuitive, and receptive to subtle influences."
+    }
+  ]
+  

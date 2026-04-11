@@ -1,0 +1,24 @@
+[
+  {
+    "Object": "South Node",
+    "Object_Longitude": 353.314,
+    "Star": "Markab",
+    "Star_Longitude": 353.2021,
+    "Star_J2000": 353.497,
+    "Magnitude": 2.49,
+    "Constellation": "Pegasus",
+    "Orb": 0.1118,
+    "Significance": "Sorrow, destructiveness; spiritual guidance through trials"
+  },
+  {
+    "Object": "Pluto",
+    "Object_Longitude": 198.1974,
+    "Star": "Zubeneschamali",
+    "Star_Longitude": 198.8721,
+    "Star_J2000": 199.167,
+    "Magnitude": 2.61,
+    "Constellation": "Libra",
+    "Orb": 0.6748,
+    "Significance": "Social reform; good fortune; keen intellect"
+  }
+]

@@ -1,0 +1,49 @@
+{
+  "Chain": {
+    "Sun": "Mercury",
+    "Moon": "Mercury",
+    "Mercury": "Mercury",
+    "Venus": "Mars",
+    "Mars": "Venus",
+    "Jupiter": "Mars",
+    "Saturn": "Venus",
+    "Uranus": "Jupiter",
+    "Neptune": "Saturn",
+    "Pluto": "Saturn"
+  },
+  "Final Dispositors": [
+    "Mercury"
+  ],
+  "Mutual Receptions": [
+    [
+      "Mars",
+      "Venus"
+    ]
+  ],
+  "Circular Loops": [
+    [
+      "Mars",
+      "Venus"
+    ]
+  ],
+  "Classical Mutual Receptions": [
+    {
+      "Planets": [
+        "Mars",
+        "Venus"
+      ],
+      "Type": "Classical (Sign)",
+      "Description": "Mars in Venus's sign, Venus in Mars's sign"
+    }
+  ],
+  "Modern Mutual Receptions": [
+    {
+      "Planets": [
+        "Saturn",
+        "Venus"
+      ],
+      "Type": "Modern (Sign+House)",
+      "Description": "Saturn in Libra (ruled by Venus), Venus in house 10 (ruled by Saturn)"
+    }
+  ]
+}

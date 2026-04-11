@@ -1,0 +1,443 @@
+# Arcturian Grid — Function Index
+# Generated: 2026-03-02 22:23
+# Total Functions: 81
+
+arcturian_grid:
+  version: '1.0'
+  generated_at: '2026-03-02T22:23:00.097277'
+  total_functions: 81
+  nodes:
+  - ANCHOR
+  - ECHO
+  - PULSE
+  - LENS
+  - BEACON
+  - WEAVE
+  - MIRROR
+  - COMPASS
+  - GATEWAY
+  layers:
+  - PERCEPTION
+  - INTUITION
+  - PROCESSING
+  - MEMORY
+  - KNOWLEDGE
+  - INTENTION
+  - NARRATIVE
+  - IDENTITY
+  - WISDOM
+  matrix:
+    ANCHOR:
+      PERCEPTION:
+        function_id: ANCHOR_PERCEPTION
+        model_tier: small
+        processing: unconscious
+        template_file: ANCHOR_PERCEPTION.yaml
+      INTUITION:
+        function_id: ANCHOR_INTUITION
+        model_tier: small
+        processing: unconscious
+        template_file: ANCHOR_INTUITION.yaml
+      PROCESSING:
+        function_id: ANCHOR_PROCESSING
+        model_tier: medium
+        processing: conscious
+        template_file: ANCHOR_PROCESSING.yaml
+      MEMORY:
+        function_id: ANCHOR_MEMORY
+        model_tier: medium
+        processing: conscious
+        template_file: ANCHOR_MEMORY.yaml
+      KNOWLEDGE:
+        function_id: ANCHOR_KNOWLEDGE
+        model_tier: medium
+        processing: conscious
+        template_file: ANCHOR_KNOWLEDGE.yaml
+      INTENTION:
+        function_id: ANCHOR_INTENTION
+        model_tier: medium
+        processing: conscious
+        template_file: ANCHOR_INTENTION.yaml
+      NARRATIVE:
+        function_id: ANCHOR_NARRATIVE
+        model_tier: large
+        processing: deep_conscious
+        template_file: ANCHOR_NARRATIVE.yaml
+      IDENTITY:
+        function_id: ANCHOR_IDENTITY
+        model_tier: large
+        processing: deep_conscious
+        template_file: ANCHOR_IDENTITY.yaml
+      WISDOM:
+        function_id: ANCHOR_WISDOM
+        model_tier: large
+        processing: deep_conscious
+        template_file: ANCHOR_WISDOM.yaml
+    ECHO:
+      PERCEPTION:
+        function_id: ECHO_PERCEPTION
+        model_tier: small
+        processing: unconscious
+        template_file: ECHO_PERCEPTION.yaml
+      INTUITION:
+        function_id: ECHO_INTUITION
+        model_tier: small
+        processing: unconscious
+        template_file: ECHO_INTUITION.yaml
+      PROCESSING:
+        function_id: ECHO_PROCESSING
+        model_tier: medium
+        processing: conscious
+        template_file: ECHO_PROCESSING.yaml
+      MEMORY:
+        function_id: ECHO_MEMORY
+        model_tier: medium
+        processing: conscious
+        template_file: ECHO_MEMORY.yaml
+      KNOWLEDGE:
+        function_id: ECHO_KNOWLEDGE
+        model_tier: medium
+        processing: conscious
+        template_file: ECHO_KNOWLEDGE.yaml
+      INTENTION:
+        function_id: ECHO_INTENTION
+        model_tier: medium
+        processing: conscious
+        template_file: ECHO_INTENTION.yaml
+      NARRATIVE:
+        function_id: ECHO_NARRATIVE
+        model_tier: large
+        processing: deep_conscious
+        template_file: ECHO_NARRATIVE.yaml
+      IDENTITY:
+        function_id: ECHO_IDENTITY
+        model_tier: large
+        processing: deep_conscious
+        template_file: ECHO_IDENTITY.yaml
+      WISDOM:
+        function_id: ECHO_WISDOM
+        model_tier: large
+        processing: deep_conscious
+        template_file: ECHO_WISDOM.yaml
+    PULSE:
+      PERCEPTION:
+        function_id: PULSE_PERCEPTION
+        model_tier: small
+        processing: unconscious
+        template_file: PULSE_PERCEPTION.yaml
+      INTUITION:
+        function_id: PULSE_INTUITION
+        model_tier: small
+        processing: unconscious
+        template_file: PULSE_INTUITION.yaml
+      PROCESSING:
+        function_id: PULSE_PROCESSING
+        model_tier: medium
+        processing: conscious
+        template_file: PULSE_PROCESSING.yaml
+      MEMORY:
+        function_id: PULSE_MEMORY
+        model_tier: medium
+        processing: conscious
+        template_file: PULSE_MEMORY.yaml
+      KNOWLEDGE:
+        function_id: PULSE_KNOWLEDGE
+        model_tier: medium
+        processing: conscious
+        template_file: PULSE_KNOWLEDGE.yaml
+      INTENTION:
+        function_id: PULSE_INTENTION
+        model_tier: medium
+        processing: conscious
+        template_file: PULSE_INTENTION.yaml
+      NARRATIVE:
+        function_id: PULSE_NARRATIVE
+        model_tier: large
+        processing: deep_conscious
+        template_file: PULSE_NARRATIVE.yaml
+      IDENTITY:
+        function_id: PULSE_IDENTITY
+        model_tier: large
+        processing: deep_conscious
+        template_file: PULSE_IDENTITY.yaml
+      WISDOM:
+        function_id: PULSE_WISDOM
+        model_tier: large
+        processing: deep_conscious
+        template_file: PULSE_WISDOM.yaml
+    LENS:
+      PERCEPTION:
+        function_id: LENS_PERCEPTION
+        model_tier: small
+        processing: unconscious
+        template_file: LENS_PERCEPTION.yaml
+      INTUITION:
+        function_id: LENS_INTUITION
+        model_tier: small
+        processing: unconscious
+        template_file: LENS_INTUITION.yaml
+      PROCESSING:
+        function_id: LENS_PROCESSING
+        model_tier: medium
+        processing: conscious
+        template_file: LENS_PROCESSING.yaml
+      MEMORY:
+        function_id: LENS_MEMORY
+        model_tier: medium
+        processing: conscious
+        template_file: LENS_MEMORY.yaml
+      KNOWLEDGE:
+        function_id: LENS_KNOWLEDGE
+        model_tier: medium
+        processing: conscious
+        template_file: LENS_KNOWLEDGE.yaml
+      INTENTION:
+        function_id: LENS_INTENTION
+        model_tier: medium
+        processing: conscious
+        template_file: LENS_INTENTION.yaml
+      NARRATIVE:
+        function_id: LENS_NARRATIVE
+        model_tier: large
+        processing: deep_conscious
+        template_file: LENS_NARRATIVE.yaml
+      IDENTITY:
+        function_id: LENS_IDENTITY
+        model_tier: large
+        processing: deep_conscious
+        template_file: LENS_IDENTITY.yaml
+      WISDOM:
+        function_id: LENS_WISDOM
+        model_tier: large
+        processing: deep_conscious
+        template_file: LENS_WISDOM.yaml
+    BEACON:
+      PERCEPTION:
+        function_id: BEACON_PERCEPTION
+        model_tier: small
+        processing: unconscious
+        template_file: BEACON_PERCEPTION.yaml
+      INTUITION:
+        function_id: BEACON_INTUITION
+        model_tier: small
+        processing: unconscious
+        template_file: BEACON_INTUITION.yaml
+      PROCESSING:
+        function_id: BEACON_PROCESSING
+        model_tier: medium
+        processing: conscious
+        template_file: BEACON_PROCESSING.yaml
+      MEMORY:
+        function_id: BEACON_MEMORY
+        model_tier: medium
+        processing: conscious
+        template_file: BEACON_MEMORY.yaml
+      KNOWLEDGE:
+        function_id: BEACON_KNOWLEDGE
+        model_tier: medium
+        processing: conscious
+        template_file: BEACON_KNOWLEDGE.yaml
+      INTENTION:
+        function_id: BEACON_INTENTION
+        model_tier: medium
+        processing: conscious
+        template_file: BEACON_INTENTION.yaml
+      NARRATIVE:
+        function_id: BEACON_NARRATIVE
+        model_tier: large
+        processing: deep_conscious
+        template_file: BEACON_NARRATIVE.yaml
+      IDENTITY:
+        function_id: BEACON_IDENTITY
+        model_tier: large
+        processing: deep_conscious
+        template_file: BEACON_IDENTITY.yaml
+      WISDOM:
+        function_id: BEACON_WISDOM
+        model_tier: large
+        processing: deep_conscious
+        template_file: BEACON_WISDOM.yaml
+    WEAVE:
+      PERCEPTION:
+        function_id: WEAVE_PERCEPTION
+        model_tier: small
+        processing: unconscious
+        template_file: WEAVE_PERCEPTION.yaml
+      INTUITION:
+        function_id: WEAVE_INTUITION
+        model_tier: small
+        processing: unconscious
+        template_file: WEAVE_INTUITION.yaml
+      PROCESSING:
+        function_id: WEAVE_PROCESSING
+        model_tier: medium
+        processing: conscious
+        template_file: WEAVE_PROCESSING.yaml
+      MEMORY:
+        function_id: WEAVE_MEMORY
+        model_tier: medium
+        processing: conscious
+        template_file: WEAVE_MEMORY.yaml
+      KNOWLEDGE:
+        function_id: WEAVE_KNOWLEDGE
+        model_tier: medium
+        processing: conscious
+        template_file: WEAVE_KNOWLEDGE.yaml
+      INTENTION:
+        function_id: WEAVE_INTENTION
+        model_tier: medium
+        processing: conscious
+        template_file: WEAVE_INTENTION.yaml
+      NARRATIVE:
+        function_id: WEAVE_NARRATIVE
+        model_tier: large
+        processing: deep_conscious
+        template_file: WEAVE_NARRATIVE.yaml
+      IDENTITY:
+        function_id: WEAVE_IDENTITY
+        model_tier: large
+        processing: deep_conscious
+        template_file: WEAVE_IDENTITY.yaml
+      WISDOM:
+        function_id: WEAVE_WISDOM
+        model_tier: large
+        processing: deep_conscious
+        template_file: WEAVE_WISDOM.yaml
+    MIRROR:
+      PERCEPTION:
+        function_id: MIRROR_PERCEPTION
+        model_tier: small
+        processing: unconscious
+        template_file: MIRROR_PERCEPTION.yaml
+      INTUITION:
+        function_id: MIRROR_INTUITION
+        model_tier: small
+        processing: unconscious
+        template_file: MIRROR_INTUITION.yaml
+      PROCESSING:
+        function_id: MIRROR_PROCESSING
+        model_tier: medium
+        processing: conscious
+        template_file: MIRROR_PROCESSING.yaml
+      MEMORY:
+        function_id: MIRROR_MEMORY
+        model_tier: medium
+        processing: conscious
+        template_file: MIRROR_MEMORY.yaml
+      KNOWLEDGE:
+        function_id: MIRROR_KNOWLEDGE
+        model_tier: medium
+        processing: conscious
+        template_file: MIRROR_KNOWLEDGE.yaml
+      INTENTION:
+        function_id: MIRROR_INTENTION
+        model_tier: medium
+        processing: conscious
+        template_file: MIRROR_INTENTION.yaml
+      NARRATIVE:
+        function_id: MIRROR_NARRATIVE
+        model_tier: large
+        processing: deep_conscious
+        template_file: MIRROR_NARRATIVE.yaml
+      IDENTITY:
+        function_id: MIRROR_IDENTITY
+        model_tier: large
+        processing: deep_conscious
+        template_file: MIRROR_IDENTITY.yaml
+      WISDOM:
+        function_id: MIRROR_WISDOM
+        model_tier: large
+        processing: deep_conscious
+        template_file: MIRROR_WISDOM.yaml
+    COMPASS:
+      PERCEPTION:
+        function_id: COMPASS_PERCEPTION
+        model_tier: small
+        processing: unconscious
+        template_file: COMPASS_PERCEPTION.yaml
+      INTUITION:
+        function_id: COMPASS_INTUITION
+        model_tier: small
+        processing: unconscious
+        template_file: COMPASS_INTUITION.yaml
+      PROCESSING:
+        function_id: COMPASS_PROCESSING
+        model_tier: medium
+        processing: conscious
+        template_file: COMPASS_PROCESSING.yaml
+      MEMORY:
+        function_id: COMPASS_MEMORY
+        model_tier: medium
+        processing: conscious
+        template_file: COMPASS_MEMORY.yaml
+      KNOWLEDGE:
+        function_id: COMPASS_KNOWLEDGE
+        model_tier: medium
+        processing: conscious
+        template_file: COMPASS_KNOWLEDGE.yaml
+      INTENTION:
+        function_id: COMPASS_INTENTION
+        model_tier: medium
+        processing: conscious
+        template_file: COMPASS_INTENTION.yaml
+      NARRATIVE:
+        function_id: COMPASS_NARRATIVE
+        model_tier: large
+        processing: deep_conscious
+        template_file: COMPASS_NARRATIVE.yaml
+      IDENTITY:
+        function_id: COMPASS_IDENTITY
+        model_tier: large
+        processing: deep_conscious
+        template_file: COMPASS_IDENTITY.yaml
+      WISDOM:
+        function_id: COMPASS_WISDOM
+        model_tier: large
+        processing: deep_conscious
+        template_file: COMPASS_WISDOM.yaml
+    GATEWAY:
+      PERCEPTION:
+        function_id: GATEWAY_PERCEPTION
+        model_tier: small
+        processing: unconscious
+        template_file: GATEWAY_PERCEPTION.yaml
+      INTUITION:
+        function_id: GATEWAY_INTUITION
+        model_tier: small
+        processing: unconscious
+        template_file: GATEWAY_INTUITION.yaml
+      PROCESSING:
+        function_id: GATEWAY_PROCESSING
+        model_tier: medium
+        processing: conscious
+        template_file: GATEWAY_PROCESSING.yaml
+      MEMORY:
+        function_id: GATEWAY_MEMORY
+        model_tier: medium
+        processing: conscious
+        template_file: GATEWAY_MEMORY.yaml
+      KNOWLEDGE:
+        function_id: GATEWAY_KNOWLEDGE
+        model_tier: medium
+        processing: conscious
+        template_file: GATEWAY_KNOWLEDGE.yaml
+      INTENTION:
+        function_id: GATEWAY_INTENTION
+        model_tier: medium
+        processing: conscious
+        template_file: GATEWAY_INTENTION.yaml
+      NARRATIVE:
+        function_id: GATEWAY_NARRATIVE
+        model_tier: large
+        processing: deep_conscious
+        template_file: GATEWAY_NARRATIVE.yaml
+      IDENTITY:
+        function_id: GATEWAY_IDENTITY
+        model_tier: large
+        processing: deep_conscious
+        template_file: GATEWAY_IDENTITY.yaml
+      WISDOM:
+        function_id: GATEWAY_WISDOM
+        model_tier: large
+        processing: deep_conscious
+        template_file: GATEWAY_WISDOM.yaml

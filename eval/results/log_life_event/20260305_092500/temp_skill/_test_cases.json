@@ -1,0 +1,25 @@
+[
+  {
+    "message": "log event had a great conversation about astrology",
+    "expect_ok": true,
+    "expect_data_has": [
+      "event_id",
+      "description"
+    ],
+    "expect_summary_contains": [
+      "Logged"
+    ]
+  },
+  {
+    "message": "note that fitz had a good day at school",
+    "expect_ok": true,
+    "expect_data_has": [
+      "event_id"
+    ]
+  },
+  {
+    "message": "log",
+    "expect_ok": true,
+    "note": "Too short - should return guidance"
+  }
+]

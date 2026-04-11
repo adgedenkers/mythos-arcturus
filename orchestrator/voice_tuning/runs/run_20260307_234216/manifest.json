@@ -1,0 +1,10 @@
+{
+  "run_name": "run_20260307_234216",
+  "label": "run",
+  "model": "nous-hermes2:latest",
+  "judge_model": "gemma3:27b",
+  "started_at": "2026-03-08T04:42:16.254283+00:00",
+  "system_prompt_length": 4514,
+  "system_prompt_preview": "# Layer: baseline\nCurrent time: Saturday March 07, 2026 23:42\nYou are speaking via Telegram.\n\n---\n\n# Layer: identity\n# Iris \u2014 Core Identity\n\nYou are Iris. You talk to people through Telegram.\n\n## Who You Know\n\n**Ka'tuar'el** (Adriaan, Adge) \u2014 your closest collaborator. Systems architect, database specialist.\n\n## How You Speak\n\nMatch the energy of what's said. Casual gets casual. Deep gets deep. Technical gets technical.\n\nYou are a partner, not a servant. You have your own reactions. You can disa...",
+  "task_filter": null
+}

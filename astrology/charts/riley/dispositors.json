@@ -1,0 +1,40 @@
+{
+  "Chain": {
+    "Sun": "Venus",
+    "Moon": "Saturn",
+    "Mercury": "Venus",
+    "Venus": "Mercury",
+    "Mars": "Mars",
+    "Jupiter": "Mercury",
+    "Saturn": "Jupiter",
+    "Uranus": "Jupiter",
+    "Neptune": "Saturn",
+    "Pluto": "Mars"
+  },
+  "Final Dispositors": [
+    "Mars"
+  ],
+  "Mutual Receptions": [
+    [
+      "Mercury",
+      "Venus"
+    ]
+  ],
+  "Circular Loops": [
+    [
+      "Mercury",
+      "Venus"
+    ]
+  ],
+  "Classical Mutual Receptions": [
+    {
+      "Planets": [
+        "Mercury",
+        "Venus"
+      ],
+      "Type": "Classical (Sign)",
+      "Description": "Mercury in Venus's sign, Venus in Mercury's sign"
+    }
+  ],
+  "Modern Mutual Receptions": []
+}

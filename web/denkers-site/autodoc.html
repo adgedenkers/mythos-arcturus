@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoDoc — AI-Powered Codebase Intelligence | Denkers Co.</title>
+  <meta name="description" content="AutoDoc crawls your codebase, analyzes every file with AST parsing and local LLM, builds a Neo4j knowledge graph, and produces comprehensive documentation — automatically.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+3:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--dc-slate-950:#0C0F14;--dc-slate-900:#141820;--dc-slate-800:#1E2430;--dc-slate-700:#2A3242;--dc-slate-600:#3D4758;--dc-slate-500:#566275;--dc-slate-400:#768494;--dc-slate-300:#9CA6B4;--dc-slate-200:#C4CAD2;--dc-slate-100:#E3E6EA;--dc-slate-50:#F3F4F6;--dc-sg:#B8A88A;--dc-sg-light:#D4C8AD;--dc-sg-dark:#9A8B6E;--dc-sg-muted:#A89D87;--dc-white:#FAFAFA;--dc-success:#4A8B6E;--dc-warning:#B8923A;--dc-error:#C44B4B;--dc-font-display:'Cormorant Garamond',Georgia,serif;--dc-font-body:'Source Serif 4',Georgia,serif;--dc-font-ui:'Source Sans 3',system-ui,sans-serif;--dc-font-mono:'JetBrains Mono','Consolas',monospace;--dc-space-xs:4px;--dc-space-sm:8px;--dc-space-md:16px;--dc-space-lg:24px;--dc-space-xl:32px;--dc-space-2xl:48px;--dc-space-3xl:64px}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+    body{background:var(--dc-slate-950);color:var(--dc-slate-200);font-family:var(--dc-font-ui);font-size:15px;line-height:1.6;overflow-x:hidden}
+    ::selection{background:var(--dc-sg-dark);color:var(--dc-white)}
+    .container{max-width:960px;margin:0 auto;padding:0 40px}
+    section{padding:100px 0;position:relative}
+    h1,h2,h3{font-family:var(--dc-font-display);color:var(--dc-slate-100);font-weight:600}
+    h1{font-size:clamp(32px,5vw,48px);line-height:1.15;letter-spacing:.02em}
+    h2{font-size:28px;line-height:1.3;margin-bottom:var(--dc-space-lg)}
+    h3{font-family:var(--dc-font-display);font-size:20px;font-weight:600;margin-bottom:var(--dc-space-sm)}
+    p{margin-bottom:var(--dc-space-lg);max-width:640px}
+    .section-number{font-family:var(--dc-font-display);font-weight:500;font-size:13px;color:var(--dc-sg-dark);letter-spacing:3px;text-transform:uppercase;margin-bottom:var(--dc-space-xl);display:block}
+    .text-serif{font-family:var(--dc-font-body);font-size:16px;line-height:1.8}
+    .text-muted{color:var(--dc-slate-300)}
+    .rule{border:none;height:.5px;background:var(--dc-slate-700);margin:0}
+    .rule--accent{background:var(--dc-sg);width:60px;margin:0 auto}
+    .site-header{padding:var(--dc-space-lg) 0;border-bottom:.5px solid var(--dc-slate-700)}
+    .header-inner{display:flex;align-items:center;justify-content:space-between}
+    .wordmark{font-family:var(--dc-font-display);font-weight:600;font-size:18px;letter-spacing:5px;color:var(--dc-slate-100);text-decoration:none;text-transform:uppercase}
+    .header-back{font-family:var(--dc-font-ui);font-size:13px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--dc-slate-300);text-decoration:none;transition:color .3s}
+    .header-back:hover{color:var(--dc-sg)}
+    .hero{padding:120px 0 80px;position:relative}
+    .hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--dc-slate-800) 1px,transparent 1px),linear-gradient(90deg,var(--dc-slate-800) 1px,transparent 1px);background-size:80px 80px;opacity:.1;mask-image:radial-gradient(ellipse at 30% 50%,black 0%,transparent 70%)}
+    .hero-tag{font-family:var(--dc-font-ui);font-weight:300;font-size:14px;letter-spacing:3.5px;text-transform:uppercase;color:var(--dc-sg);margin-bottom:var(--dc-space-xl)}
+    .hero h1{margin-bottom:var(--dc-space-xl)}
+    .hero-desc{font-family:var(--dc-font-body);font-size:18px;line-height:1.8;color:var(--dc-slate-200);max-width:600px}
+    .pipeline-grid{display:grid;gap:1px;background:var(--dc-slate-700);margin-top:var(--dc-space-2xl)}
+    .pipeline-step{background:var(--dc-slate-950);padding:var(--dc-space-xl) var(--dc-space-2xl);display:grid;grid-template-columns:60px 1fr;gap:var(--dc-space-lg);align-items:start;transition:background .3s}
+    .pipeline-step:hover{background:var(--dc-slate-900)}
+    .step-num{font-family:var(--dc-font-display);font-size:36px;font-weight:600;color:var(--dc-sg);line-height:1;padding-top:4px}
+    .step-content h3{color:var(--dc-slate-100)}
+    .step-content p{color:var(--dc-slate-300);font-size:14px;line-height:1.8;margin-bottom:0}
+    .problems-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--dc-space-xl);margin-top:var(--dc-space-2xl)}
+    .problem-card{border:.5px solid var(--dc-slate-700);padding:var(--dc-space-xl);transition:border-color .3s,transform .3s}
+    .problem-card:hover{border-color:var(--dc-sg-dark);transform:translateY(-2px)}
+    .problem-glyph{font-size:24px;margin-bottom:var(--dc-space-md);display:block;color:var(--dc-sg)}
+    .problem-card h3{color:var(--dc-slate-100)}
+    .problem-card p{color:var(--dc-slate-300);font-size:14px;line-height:1.7;margin-bottom:0}
+    .outputs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--dc-slate-700);margin-top:var(--dc-space-2xl)}
+    .output-item{background:var(--dc-slate-800);padding:var(--dc-space-xl);text-align:center}
+    .output-icon{font-size:28px;margin-bottom:var(--dc-space-md);display:block;color:var(--dc-sg)}
+    .output-item h3{font-size:18px;color:var(--dc-slate-100);margin-bottom:var(--dc-space-sm)}
+    .output-item p{color:var(--dc-slate-300);font-size:13px;line-height:1.7;margin:0 auto;max-width:240px}
+    .graph-callout{margin:var(--dc-space-3xl) 0;border:.5px solid var(--dc-sg-dark);padding:var(--dc-space-xl) var(--dc-space-2xl);position:relative}
+    .graph-callout::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--dc-sg)}
+    .graph-callout h3{color:var(--dc-sg);font-size:18px;margin-bottom:var(--dc-space-sm)}
+    .graph-callout p{color:var(--dc-slate-300);font-size:14px;line-height:1.8;margin-bottom:0}
+    .node-list{margin-top:var(--dc-space-lg);display:flex;flex-wrap:wrap;gap:var(--dc-space-sm)}
+    .node-tag{font-family:var(--dc-font-mono);font-size:12px;padding:4px 12px;background:var(--dc-slate-900);border:.5px solid var(--dc-slate-600);color:var(--dc-slate-200)}
+    .cta-section{text-align:center;padding:140px 0}
+    .cta-section h2{margin-bottom:var(--dc-space-md)}
+    .cta-section p{margin:0 auto var(--dc-space-2xl);color:var(--dc-slate-300)}
+    .btn{display:inline-block;font-family:var(--dc-font-ui);font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;padding:14px 36px;border:1px solid var(--dc-sg-dark);color:var(--dc-sg);background:transparent;transition:all .3s;cursor:pointer}
+    .btn:hover{background:var(--dc-sg);color:var(--dc-slate-950);border-color:var(--dc-sg)}
+    .site-footer{border-top:.5px solid var(--dc-slate-700);padding:var(--dc-space-xl) 0}
+    .footer-inner{display:flex;justify-content:space-between;align-items:center}
+    .footer-left{font-size:12px;color:var(--dc-slate-400)}
+    .footer-right{font-family:var(--dc-font-ui);font-size:11px;font-weight:300;letter-spacing:3px;text-transform:uppercase;color:var(--dc-sg-muted)}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    @media(max-width:768px){.container{padding:0 24px}section{padding:64px 0}.pipeline-step{grid-template-columns:40px 1fr;gap:var(--dc-space-md);padding:var(--dc-space-lg)}.step-num{font-size:28px}.problems-grid{grid-template-columns:1fr}.outputs-grid{grid-template-columns:1fr}.footer-inner{flex-direction:column;gap:var(--dc-space-md);text-align:center}.graph-callout{padding:var(--dc-space-lg)}}
+  </style>
+</head>
+<body>
+<header class="site-header"><div class="container"><div class="header-inner"><a href="/" class="wordmark">Denkers Co.</a><a href="/" class="header-back">← Home</a></div></div></header>
+
+<section class="hero"><div class="container">
+  <p class="hero-tag">AI-Powered Codebase Intelligence</p>
+  <h1>Your system documents itself.<br>Automatically. Continuously.</h1>
+  <p class="hero-desc">AutoDoc crawls your entire codebase, analyzes every file with AST parsing and a local LLM, builds a Neo4j knowledge graph of your architecture, and produces comprehensive documentation — without a human writing a single line of it.</p>
+</div></section>
+
+<hr class="rule rule--accent">
+
+<section><div class="container">
+  <span class="section-number reveal">01 — The Problem</span>
+  <h2 class="reveal">Nobody documents anything. AutoDoc does.</h2>
+  <p class="text-serif text-muted reveal">Every engineering team has the same problem: documentation falls behind the moment it's written. Six months later, nobody knows how the system actually works. The people who built it leave. The knowledge walks out the door.</p>
+  <div class="problems-grid">
+    <div class="problem-card reveal"><span class="problem-glyph">🜁</span><h3>Tribal Knowledge</h3><p>Critical system knowledge lives in people's heads, not in documentation. When they leave, the knowledge leaves with them. AutoDoc extracts and preserves it permanently.</p></div>
+    <div class="problem-card reveal"><span class="problem-glyph">🜂</span><h3>Stale Documentation</h3><p>Docs written once and never updated are worse than no docs — they actively mislead. AutoDoc re-analyzes on every run and only updates what's changed.</p></div>
+    <div class="problem-card reveal"><span class="problem-glyph">🜃</span><h3>Invisible Dependencies</h3><p>Which file imports which module? Which service writes to which table? Without a graph, these relationships are invisible until something breaks. AutoDoc maps them all.</p></div>
+    <div class="problem-card reveal"><span class="problem-glyph">🜀</span><h3>Onboarding Cost</h3><p>New engineers spend weeks asking "how does this work?" and "where does that live?" AutoDoc produces the answers before they ask the questions.</p></div>
+  </div>
+</div></section>
+
+<hr class="rule rule--accent">
+
+<section><div class="container">
+  <span class="section-number reveal">02 — Pipeline</span>
+  <h2 class="reveal">Seven phases, fully automated.</h2>
+  <p class="text-serif text-muted reveal">AutoDoc runs as a single CLI command. It's resumable — if interrupted, it picks up where it left off. Every phase produces durable output.</p>
+  <div class="pipeline-grid">
+    <div class="pipeline-step reveal"><div class="step-num">1</div><div class="step-content"><h3>Inventory</h3><p>Walk the codebase. Identify every documentable file — Python, JavaScript, shell, SQL, YAML, configs, Dockerfiles, systemd units. Skip binaries, caches, and vendor dirs. Hash every file for change detection. Group by module and development stream.</p></div></div>
+    <div class="pipeline-step reveal"><div class="step-num">2</div><div class="step-content"><h3>Structural Analysis</h3><p>AST-parse Python files to extract classes, functions, decorators, imports, FastAPI routes, and database references. Scan systemd services. Query PostgreSQL for table inventory. Query Neo4j for label inventory. Build the full structural graph in Neo4j with typed nodes and relationships.</p></div></div>
+    <div class="pipeline-step reveal"><div class="step-num">3</div><div class="step-content"><h3>LLM File Analysis</h3><p>Send each file to a local LLM with its AST context. The model produces per-file documentation: purpose, architecture, patterns, dependencies, interfaces, database usage, configuration, key logic, and integration points. All analysis happens on your hardware — no cloud calls.</p></div></div>
+    <div class="pipeline-step reveal"><div class="step-num">4</div><div class="step-content"><h3>Module Synthesis</h3><p>Gather per-file analyses by module. A synthesis model reads all file docs in a module and produces a module-level overview — how the pieces fit together, data flow, key components, design patterns, and the module's API surface.</p></div></div>
+    <div class="pipeline-step reveal"><div class="step-num">5</div><div class="step-content"><h3>Stream Synthesis</h3><p>Roll module summaries up into development stream overviews. Each stream document explains the stream's overall purpose, how its modules interact, and the architectural patterns that hold them together.</p></div></div>
+    <div class="pipeline-step reveal"><div class="step-num">6</div><div class="step-content"><h3>System Synthesis</h3><p>The final synthesis: all stream overviews are fed to the LLM to produce a master system architecture document. This is the single document that explains how the entire system works, end to end.</p></div></div>
+    <div class="pipeline-step reveal"><div class="step-num">7</div><div class="step-content"><h3>Index Generation</h3><p>Produce a searchable index — both JSON for programmatic access and Markdown for human reading. Every file, every module, every stream, linked to its documentation. The complete map of your codebase.</p></div></div>
+  </div>
+</div></section>
+
+<hr class="rule rule--accent">
+
+<section><div class="container">
+  <span class="section-number reveal">03 — Knowledge Graph</span>
+  <h2 class="reveal">Your architecture, mapped.</h2>
+  <div class="graph-callout reveal">
+    <h3>Neo4j-Backed Architectural Intelligence</h3>
+    <p>AutoDoc doesn't just produce text files. It builds a queryable knowledge graph of your system in Neo4j. Every file, function, class, API endpoint, database table, service, and module becomes a node. Import relationships, function containment, table references, and stream ownership become edges. Ask questions like "which files reference the transactions table?" or "what does the finance module depend on?" and get answers from the graph.</p>
+    <div class="node-list">
+      <span class="node-tag">AutodocFile</span>
+      <span class="node-tag">AutodocFunction</span>
+      <span class="node-tag">AutodocClass</span>
+      <span class="node-tag">AutodocModule</span>
+      <span class="node-tag">AutodocStream</span>
+      <span class="node-tag">AutodocEndpoint</span>
+      <span class="node-tag">AutodocService</span>
+      <span class="node-tag">AutodocDBTable</span>
+      <span class="node-tag">AutodocConfig</span>
+    </div>
+  </div>
+</div></section>
+
+<hr class="rule rule--accent">
+
+<section><div class="container">
+  <span class="section-number reveal">04 — Output</span>
+  <h2 class="reveal">What you get.</h2>
+  <div class="outputs-grid">
+    <div class="output-item reveal"><span class="output-icon">📄</span><h3>Per-File Docs</h3><p>Every source file gets its own markdown document — purpose, architecture, patterns, dependencies, interfaces, and key logic.</p></div>
+    <div class="output-item reveal"><span class="output-icon">📦</span><h3>Module Overviews</h3><p>Each module gets a synthesized overview showing how its files work together, data flow, design patterns, and API surface.</p></div>
+    <div class="output-item reveal"><span class="output-icon">🏗️</span><h3>System Architecture</h3><p>One master document explaining the entire system — how all streams, modules, and services connect. The document your team has always needed.</p></div>
+  </div>
+</div></section>
+
+<hr class="rule rule--accent">
+
+<section class="cta-section"><div class="container">
+  <span class="section-number reveal">05 — Next Step</span>
+  <h2 class="reveal">Stop explaining your system. Let it explain itself.</h2>
+  <p class="text-serif reveal">AutoDoc is deployed on your infrastructure, pointed at your codebase, and run on your schedule. The output is yours — markdown files, Neo4j graph, and JSON index. No subscription, no cloud dependency, no vendor lock-in.</p>
+  <a href="mailto:adge@denkers.co" class="btn reveal">Start a Conversation</a>
+</div></section>
+
+<footer class="site-footer"><div class="container"><div class="footer-inner"><div class="footer-left">&copy; 2026 Denkers Co., LLC</div><div class="footer-right">Think · Architect · Build · Endure</div></div></div></footer>
+
+<script>
+const reveals=document.querySelectorAll('.reveal');
+const observer=new IntersectionObserver(e=>{e.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target)}})},{threshold:.15,rootMargin:'0px 0px -40px 0px'});
+reveals.forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>

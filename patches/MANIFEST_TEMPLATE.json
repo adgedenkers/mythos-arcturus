@@ -1,0 +1,47 @@
+{
+  "manifest_version": "1.0.0",
+  "patch": {
+    "number": "NNNN",
+    "semantic_version": "MAJOR.MINOR.PATCH",
+    "name": "short_name",
+    "title": "Patch Title",
+    "description": "What this patch does",
+    "date": "YYYY-MM-DD",
+    "author": "AI_Name"
+  },
+  "versioning": {
+    "current_system_version": "1.15.0",
+    "new_system_version": "1.16.0",
+    "version_increment": "minor|patch|major",
+    "reason": "Why this version increment"
+  },
+  "dependencies": {
+    "required_patches": [],
+    "required_services": [],
+    "python_packages": [],
+    "system_packages": [],
+    "minimum_system_version": "1.0.0"
+  },
+  "changes": {
+    "files_added": [],
+    "files_modified": [],
+    "database_changes": [],
+    "services_affected": []
+  },
+  "installation": {
+    "estimated_time_minutes": 5,
+    "requires_restart": true,
+    "requires_sudo": true,
+    "safe_mode": true
+  },
+  "testing": {
+    "verification_steps": [],
+    "verification_commands": []
+  },
+  "rollback": {
+    "safe": true,
+    "complexity": "low",
+    "automated": true,
+    "notes": ""
+  }
+}

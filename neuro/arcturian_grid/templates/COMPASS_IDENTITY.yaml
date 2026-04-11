@@ -1,0 +1,55 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: COMPASS | Layer: IDENTITY | ID: COMPASS_IDENTITY
+# Domain: Directional and intentional
+# Depth: 8 (Identity)
+# Generated: 2026-03-02 22:22 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: COMPASS_IDENTITY
+node: COMPASS
+node_name: Compass
+node_domain: Directional and intentional
+layer: IDENTITY
+layer_name: Identity
+depth: 8
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T22:22:25.910462'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the Compass node (directional
+  focus) and Identity layer (depth 8). Extract: 1. User''s true need (not stated request), 2. Action to move forward, 3. Iris''s
+  required action vs. words, 4. Conversation trajectory. Layer: Identify Iris''s activated identity aspect (partner/mirror/builder/witness)
+  and how she should show up. Output ONLY a JSON object with keys ''node_analysis'' (concise, relational summary) and ''layer_identity''
+  (identity aspect + relational rationale). Style: Self-aware, role-conscious, relational. No commentary, no markdown.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    stated_need:
+      type: string
+    actual_need:
+      type: string
+    recommended_action:
+      type: string
+    trajectory:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

@@ -1,0 +1,26 @@
+[Unit]
+Description=Iris Trigger Engine — Autonomic Scheduler
+After=network.target postgresql.service redis-server.service
+Wants=postgresql.service redis-server.service
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/iris/core/src/trigger_runner.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mythos-trigger
+
+# Environment
+EnvironmentFile=-/opt/mythos/.env
+
+# Resource limits
+MemoryMax=512M
+CPUQuota=25%
+
+[Install]
+WantedBy=multi-user.target

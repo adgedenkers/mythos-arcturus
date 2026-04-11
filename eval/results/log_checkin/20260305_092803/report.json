@@ -1,0 +1,167 @@
+{
+  "plan_id": "log_checkin",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_092803",
+  "total_passes": 5,
+  "total_ollama_calls": 9,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": false,
+    "errors": [
+      "Expected ok=True, got False (error: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: fe_sendauth: no password supplied\n)",
+      "summary missing 'Check-in': ",
+      "data missing 'checkin_id': []",
+      "data missing 'mood': []",
+      "summary empty",
+      "Expected ok=True, got False (error: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: fe_sendauth: no password supplied\n)",
+      "data missing 'mood': []",
+      "summary empty"
+    ],
+    "passed": 2,
+    "failed": 8,
+    "total": 10
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: os, logging, psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 1.73,
+      "final_code_lines": 47
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_mood(). Lowercase message. Remove triggers LONGEST FIRST: 'status update', 'im feeling', 'i feel', 'doing well', 'doing great', 'doing bad', 'check in', 'checkin', 'feeling', 'mood'. Normalize whitespace between each. The remaining text IS the mood/status. Common moods to recognize: 'happy', 'sad', 'tired', 'anxious', 'stressed', 'energized', 'grateful', 'frustrated', 'calm', 'excited'. If cleaned text is a known mood word, use it directly. Otherwise use the full cleaned text as a freeform mood. Return the mood string.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.69,
+      "final_code_lines": 100
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _insert_checkin(). Use _get_conn(). INSERT INTO checkin_log (mood, notes, person) VALUES (%s, %s, %s) RETURNING id. Params: (mood, notes, person). conn.commit(). Return the new id. try/finally close. If the INSERT fails because columns don't match, catch the error and return -1.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.0,
+      "final_code_lines": 106
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement execute(). Extract mood from message. If mood is empty or < 2 chars: return SkillResponse(skill_name=self.name, data={}, summary='How are you feeling? Tell me your mood or status.', confidence=0.3, sources=[]). Call _insert_checkin(mood=mood, notes=request.message, person='adge'). If id == -1: return SkillResponse with error. Return SkillResponse(skill_name=self.name, data={'checkin_id': new_id, 'mood': mood}, summary=f'Check-in recorded: {mood}', confidence=0.95, sources=['mythos.checkin_log']). try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.56,
+      "final_code_lines": 126
+    },
+    {
+      "pass": 5,
+      "instruction": "Review. _get_conn uses POSTGRES_HOST. conn.commit() after INSERT. SkillResponse uses ONLY valid kwargs. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: column \"mood\" of relation \"checkin_log\" does not exist\nLINE 1: INSERT INTO checkin_log (mood, notes, person) VALUES ('great...\n                                 ^\n)",
+            "summary missing 'Check-in': ",
+            "data missing 'checkin_id': []",
+            "data missing 'mood': []",
+            "summary empty",
+            "Expected ok=True, got False (error: column \"mood\" of relation \"checkin_log\" does not exist\nLINE 1: INSERT INTO checkin_log (mood, notes, person) VALUES ('tired...\n                                 ^\n)",
+            "data missing 'mood': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: column \"mood\" of relation \"checkin_log\" does not exist\nLINE 1: INSERT INTO checkin_log (mood, notes, person) VALUES ('great...\n                                 ^\n)",
+            "summary missing 'Check-in': ",
+            "data missing 'checkin_id': []",
+            "data missing 'mood': []",
+            "summary empty",
+            "Expected ok=True, got False (error: column \"mood\" of relation \"checkin_log\" does not exist\nLINE 1: INSERT INTO checkin_log (mood, notes, person) VALUES ('tired...\n                                 ^\n)",
+            "data missing 'mood': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: column \"mood\" of relation \"checkin_log\" does not exist\nLINE 1: INSERT INTO checkin_log (mood, notes, person) VALUES ('great...\n                                 ^\n)",
+            "summary missing 'Check-in': ",
+            "data missing 'checkin_id': []",
+            "data missing 'mood': []",
+            "summary empty",
+            "Expected ok=True, got False (error: column \"mood\" of relation \"checkin_log\" does not exist\nLINE 1: INSERT INTO checkin_log (mood, notes, person) VALUES ('tired...\n                                 ^\n)",
+            "data missing 'mood': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 4,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: column \"mood\" of relation \"checkin_log\" does not exist\nLINE 1: INSERT INTO checkin_log (mood, notes, person) VALUES ('great...\n                                 ^\n)",
+            "summary missing 'Check-in': ",
+            "data missing 'checkin_id': []",
+            "data missing 'mood': []",
+            "summary empty",
+            "Expected ok=True, got False (error: column \"mood\" of relation \"checkin_log\" does not exist\nLINE 1: INSERT INTO checkin_log (mood, notes, person) VALUES ('tired...\n                                 ^\n)",
+            "data missing 'mood': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 5,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: column \"mood\" of relation \"checkin_log\" does not exist\nLINE 1: INSERT INTO checkin_log (mood, notes, person) VALUES ('great...\n                                 ^\n)",
+            "summary missing 'Check-in': ",
+            "data missing 'checkin_id': []",
+            "data missing 'mood': []",
+            "summary empty",
+            "Expected ok=True, got False (error: column \"mood\" of relation \"checkin_log\" does not exist\nLINE 1: INSERT INTO checkin_log (mood, notes, person) VALUES ('tired...\n                                 ^\n)",
+            "data missing 'mood': []",
+            "summary empty"
+          ]
+        }
+      ],
+      "elapsed_seconds": 22.94,
+      "final_code_lines": 126
+    }
+  ]
+}

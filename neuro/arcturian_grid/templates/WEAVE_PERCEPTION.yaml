@@ -1,0 +1,58 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: WEAVE | Layer: PERCEPTION | ID: WEAVE_PERCEPTION
+# Domain: Relational and connective tissue
+# Depth: 1 (Perception)
+# Generated: 2026-03-02 22:20 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: WEAVE_PERCEPTION
+node: WEAVE
+node_name: Weave
+node_domain: Relational and connective tissue
+layer: PERCEPTION
+layer_name: Perception
+depth: 1
+model_tier: small
+runtime_models:
+- mistral:7b
+- qwen2.5:7b
+- nous-hermes2:latest
+processing: unconscious
+critical_path: false
+generated_at: '2026-03-02T22:20:37.716167'
+generated_by: iris-thinking-v2:latest
+prompt: 'Extract only literal connections from {user_message} and {assistant_response} at Weave node, Perception layer (depth
+  1). List: 1) People relationships mentioned 2) Current topic links to active threads 3) Project/stream references 4) Observable
+  social dynamics. Output JSON with key ''connections'' containing array of concrete phrases. No interpretation. No inference.
+  Example: ["Connects to: Seraphe''s car request (active thread)"]'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    connections:
+      type: array
+      items:
+        type: object
+    active_threads:
+      type: array
+      items:
+        type: string
+    relationship_dynamics:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

@@ -1,0 +1,14 @@
+[
+  {
+    "message": "tell me everything about adge",
+    "expect_ok": true
+  },
+  {
+    "message": "deep dive on seraphe",
+    "expect_ok": true
+  },
+  {
+    "message": "who is fitz",
+    "expect_ok": true
+  }
+]

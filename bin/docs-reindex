@@ -1,0 +1,386 @@
+#!/opt/mythos/.venv/bin/python3
+"""
+docs-reindex — Regenerate /opt/mythos/docs/_INDEX.md from directory state.
+
+Walks the docs tree, reads YAML frontmatter from .md files where present,
+and builds a complete index. Files without frontmatter are listed in an
+"Unindexed" section so they're visible but flagged.
+
+Usage:
+    docs-reindex              # rebuild _INDEX.md
+    docs-reindex --dry-run    # print to stdout, don't write
+    docs-reindex --json       # dump index data as JSON
+
+Symlink: /opt/mythos/bin/docs-reindex → this file
+"""
+
+import os
+import sys
+import json
+import re
+from datetime import datetime
+from pathlib import Path
+from collections import defaultdict
+
+DOCS_ROOT = Path("/opt/mythos/docs")
+INDEX_FILE = DOCS_ROOT / "_INDEX.md"
+
+# Directories to skip entirely
+SKIP_DIRS = {"archive", "generated", "live", ".git", "__pycache__", "node_modules"}
+
+# Subdirectories with known purposes (used when files lack frontmatter)
+DIR_DESCRIPTIONS = {
+    ".": "Root — living references and domain docs",
+    "consciousness": "Iris Consciousness Architecture",
+    "design-patterns": "Reusable Architectural Patterns",
+    "finance": "Finance System",
+    "grid": "Arcturian Grid",
+    "methods": "Methodologies & Interpretive Frameworks",
+    "orchestrator": "Model Orchestrator & Benchmarking",
+    "patch_system": "Patch System Guides",
+    "streams": "Development Stream Plans",
+    "tools": "Developer Tools",
+    "api": "API Documentation",
+}
+
+# Files to always exclude from the index
+EXCLUDE_FILES = {"_INDEX.md"}
+
+
+def parse_frontmatter(filepath):
+    """Extract YAML frontmatter from a markdown file. Returns dict or None."""
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            content = f.read(4096)  # Only need the top
+    except Exception:
+        return None
+
+    if not content.startswith("---"):
+        return None
+
+    end = content.find("---", 3)
+    if end == -1:
+        return None
+
+    yaml_block = content[3:end].strip()
+    # Simple YAML parser — no pyyaml dependency needed for flat key: value
+    meta = {}
+    for line in yaml_block.split("\n"):
+        line = line.strip()
+        if ":" in line:
+            key, _, val = line.partition(":")
+            key = key.strip()
+            val = val.strip().strip('"').strip("'")
+            if val.startswith("[") and val.endswith("]"):
+                # Parse simple list: [a, b, c]
+                val = [v.strip().strip('"').strip("'") for v in val[1:-1].split(",") if v.strip()]
+            meta[key] = val
+    return meta if meta else None
+
+
+def infer_purpose(filepath):
+    """Best-effort purpose inference from filename when no frontmatter exists."""
+    name = filepath.stem
+    # Strip ALL_CAPS_SNAKE to readable
+    readable = name.replace("_", " ").title()
+    return readable
+
+
+def get_first_heading(filepath):
+    """Try to extract the first markdown heading from a file."""
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            in_frontmatter = False
+            for line in f:
+                stripped = line.strip()
+                if stripped == "---":
+                    in_frontmatter = not in_frontmatter
+                    continue
+                if in_frontmatter:
+                    continue
+                if stripped.startswith("# "):
+                    return stripped.lstrip("# ").strip()
+                if stripped and not stripped.startswith("<!--"):
+                    break  # First non-empty, non-comment, non-heading line — give up
+    except Exception:
+        pass
+    return None
+
+
+def scan_docs():
+    """Walk the docs tree and collect file metadata."""
+    indexed = defaultdict(list)   # dir_key → list of file info dicts
+    unindexed = defaultdict(list)
+    data_files = defaultdict(list)
+
+    for dirpath, dirnames, filenames in os.walk(DOCS_ROOT):
+        rel_dir = os.path.relpath(dirpath, DOCS_ROOT)
+        if rel_dir == ".":
+            dir_key = "."
+        else:
+            top_dir = rel_dir.split(os.sep)[0]
+            if top_dir in SKIP_DIRS:
+                dirnames.clear()
+                continue
+            dir_key = rel_dir
+
+        # Skip deeper than 2 levels (streams/active/*, streams/completed/*, etc.)
+        depth = 0 if rel_dir == "." else rel_dir.count(os.sep) + 1
+        if depth > 2:
+            continue
+
+        for fname in sorted(filenames):
+            if fname in EXCLUDE_FILES:
+                continue
+            if fname.startswith("."):
+                continue
+
+            fpath = Path(dirpath) / fname
+            rel_path = os.path.relpath(fpath, DOCS_ROOT)
+
+            if fname.endswith(".md"):
+                meta = parse_frontmatter(fpath)
+                heading = get_first_heading(fpath)
+
+                info = {
+                    "file": fname,
+                    "path": rel_path,
+                    "title": None,
+                    "purpose": None,
+                    "status": None,
+                    "stream": None,
+                    "has_frontmatter": meta is not None,
+                }
+
+                if meta:
+                    info["title"] = meta.get("title", heading or infer_purpose(fpath))
+                    info["purpose"] = meta.get("category", "")
+                    info["status"] = meta.get("status", "active")
+                    info["stream"] = meta.get("stream", "")
+                    indexed[dir_key].append(info)
+                else:
+                    info["title"] = heading or infer_purpose(fpath)
+                    info["purpose"] = ""
+                    unindexed[dir_key].append(info)
+
+            elif fname.endswith((".json", ".yaml", ".yml", ".sql", ".cypher", ".sh", ".py")):
+                data_files[dir_key].append({
+                    "file": fname,
+                    "path": rel_path,
+                })
+
+    return indexed, unindexed, data_files
+
+
+def count_archive():
+    """Count files in archive subdirectories."""
+    archive_path = DOCS_ROOT / "archive"
+    counts = {}
+    if archive_path.exists():
+        for sub in sorted(archive_path.iterdir()):
+            if sub.is_dir():
+                count = sum(1 for _ in sub.iterdir() if _.is_file())
+                counts[sub.name] = count
+            elif sub.is_file():
+                counts["(root)"] = counts.get("(root)", 0) + 1
+    return counts
+
+
+def count_generated():
+    """Count files in generated subdirectories."""
+    gen_path = DOCS_ROOT / "generated"
+    counts = {}
+    if gen_path.exists():
+        for sub in sorted(gen_path.iterdir()):
+            if sub.is_dir():
+                count = sum(1 for _ in sub.iterdir() if _.is_file())
+                counts[sub.name] = count
+            elif sub.is_file():
+                counts["(root)"] = counts.get("(root)", 0) + 1
+    return counts
+
+
+def count_live():
+    """Count files in live directory."""
+    live_path = DOCS_ROOT / "live"
+    if live_path.exists():
+        return sum(1 for f in live_path.iterdir() if f.is_file())
+    return 0
+
+
+def build_index(indexed, unindexed, data_files):
+    """Generate the _INDEX.md content."""
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    archive_counts = count_archive()
+    generated_counts = count_generated()
+    live_count = count_live()
+
+    lines = []
+    w = lines.append
+
+    w("# _INDEX — Mythos Documentation Library")
+    w("")
+    w("> **This file is the master index for `/opt/mythos/docs/`.**")
+    w("> Any LLM or human entering this directory should read this file first.")
+    w("> Underscore prefix ensures it sorts to the top of the directory listing.")
+    w(f"> Auto-generated by `docs-reindex` on {now}.")
+    w("")
+    w("---")
+    w("")
+
+    # --- Stats ---
+    total_indexed = sum(len(v) for v in indexed.values())
+    total_unindexed = sum(len(v) for v in unindexed.values())
+    total_data = sum(len(v) for v in data_files.values())
+    total_archived = sum(archive_counts.values())
+
+    w(f"**Library Stats:** {total_indexed} indexed docs · "
+      f"{total_unindexed} unindexed · {total_data} data files · "
+      f"{total_archived} archived · {live_count} live state files · "
+      f"{sum(generated_counts.values())} generated")
+    w("")
+    w("---")
+    w("")
+
+    # --- Render each directory section ---
+    # Root first, then subdirectories alphabetically
+    all_dirs = set(list(indexed.keys()) + list(unindexed.keys()) + list(data_files.keys()))
+    ordered = ["."] if "." in all_dirs else []
+    ordered += sorted(d for d in all_dirs if d != ".")
+
+    for dir_key in ordered:
+        desc = DIR_DESCRIPTIONS.get(dir_key, dir_key.replace("/", " / ").title())
+
+        if dir_key == ".":
+            w("## Root Documents")
+        else:
+            w(f"## `{dir_key}/` — {desc}")
+        w("")
+
+        # Indexed files (have frontmatter)
+        idx_files = indexed.get(dir_key, [])
+        unidx_files = unindexed.get(dir_key, [])
+        dat_files = data_files.get(dir_key, [])
+
+        if idx_files:
+            w("| File | Title | Status | Stream |")
+            w("|------|-------|--------|--------|")
+            for f in sorted(idx_files, key=lambda x: x["file"]):
+                status = f["status"] or ""
+                stream = f["stream"] or ""
+                title = f["title"] or ""
+                w(f"| `{f['file']}` | {title} | {status} | {stream} |")
+            w("")
+
+        if unidx_files:
+            if idx_files:
+                w("**Unindexed** (no frontmatter):")
+                w("")
+            w("| File | Inferred Title |")
+            w("|------|---------------|")
+            for f in sorted(unidx_files, key=lambda x: x["file"]):
+                title = f["title"] or f["file"]
+                w(f"| `{f['file']}` | {title} |")
+            w("")
+
+        if dat_files:
+            dat_list = ", ".join(f"`{d['file']}`" for d in sorted(dat_files, key=lambda x: x["file"]))
+            w(f"**Data files:** {dat_list}")
+            w("")
+
+        w("---")
+        w("")
+
+    # --- Archive summary ---
+    if archive_counts:
+        w("## `archive/` — Archived Documents")
+        w("")
+        w("Superseded, stale, and backup files preserved for reference.")
+        w("")
+        w("| Subdirectory | File Count |")
+        w("|-------------|-----------|")
+        for sub, count in sorted(archive_counts.items()):
+            w(f"| `{sub}/` | {count} |")
+        w("")
+        w("---")
+        w("")
+
+    # --- Generated summary ---
+    if generated_counts:
+        w("## `generated/` — Auto-Generated Documentation")
+        w("")
+        w("Output from integrity scanner and system archaeology. Do not hand-edit.")
+        w("")
+        w("| Subdirectory | File Count |")
+        w("|-------------|-----------|")
+        for sub, count in sorted(generated_counts.items()):
+            w(f"| `{sub}/` | {count} |")
+        w("")
+        w("---")
+        w("")
+
+    # --- Live summary ---
+    if live_count:
+        w("## `live/` — Live System State")
+        w("")
+        w(f"Runtime state files, logs, and reports. {live_count} files. Updated by services and cron.")
+        w("")
+        w("---")
+        w("")
+
+    # --- For Iris ---
+    w("## For Iris (Autonomous Task Context)")
+    w("")
+    w("When this directory is scanned as part of an autonomous task:")
+    w("")
+    w("1. **Start here** — read this `_INDEX.md` to understand the library")
+    w("2. **Check TODO.md** — for current priorities and active work")
+    w("3. **Check ARCHITECTURE.md** — for what actually exists on the system")
+    w("4. **Check STREAMS.md** — for stream ownership before making changes")
+    w("5. **Never modify `generated/`** — those files are auto-regenerated")
+    w("6. **Never modify `live/`** — those files are updated by services")
+    w("7. **Files without frontmatter** — queue for review with Ka'tuar'el via Telegram")
+    w("")
+    w("---")
+    w("")
+    w(f"*Auto-generated by `docs-reindex` on {now}*")
+
+    return "\n".join(lines)
+
+
+def main():
+    dry_run = "--dry-run" in sys.argv
+    as_json = "--json" in sys.argv
+
+    print("Scanning /opt/mythos/docs/...")
+    indexed, unindexed, data_files = scan_docs()
+
+    total_indexed = sum(len(v) for v in indexed.values())
+    total_unindexed = sum(len(v) for v in unindexed.values())
+    total_data = sum(len(v) for v in data_files.values())
+
+    print(f"  Found: {total_indexed} indexed, {total_unindexed} unindexed, {total_data} data files")
+
+    if as_json:
+        output = {
+            "indexed": {k: v for k, v in indexed.items()},
+            "unindexed": {k: v for k, v in unindexed.items()},
+            "data_files": {k: v for k, v in data_files.items()},
+        }
+        print(json.dumps(output, indent=2))
+        return
+
+    content = build_index(indexed, unindexed, data_files)
+
+    if dry_run:
+        print("\n--- DRY RUN — would write to _INDEX.md: ---\n")
+        print(content)
+    else:
+        with open(INDEX_FILE, "w", encoding="utf-8") as f:
+            f.write(content)
+        print(f"  Wrote: {INDEX_FILE}")
+        print(f"  Done ✓")
+
+
+if __name__ == "__main__":
+    main()

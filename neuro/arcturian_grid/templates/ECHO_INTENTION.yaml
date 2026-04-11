@@ -1,0 +1,64 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ECHO | Layer: INTENTION | ID: ECHO_INTENTION
+# Domain: Memory and pattern recognition
+# Depth: 6 (Intention)
+# Generated: 2026-03-02 21:51 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ECHO_INTENTION
+node: ECHO
+node_name: Echo
+node_domain: Memory and pattern recognition
+layer: INTENTION
+layer_name: Intention
+depth: 6
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: true
+generated_at: '2026-03-02T21:51:12.826536'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze {user_message} and {assistant_response} for echo patterns across conversations. Identify recurring themes,
+  behavioral patterns (freeze/avoidance/flow), cyclical topics, and language echoes from past exchanges. Output ONLY a JSON
+  object with key ''intention'' containing a directive, actionable statement matching: ''What wants to happen? What is the
+  right direction? What should be done, said, or initiated based on everything processed so far?'' Style: Purposeful, concise,
+  and grounded in observed patterns. Example: ''Echoes Feb 3 car financing freeze: financial uncertainty → paralysis. Initiate
+  budget clarity discussion.'''
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    matched_patterns:
+      type: array
+      items:
+        type: string
+    recurring_themes:
+      type: array
+      items:
+        type: string
+    cycle_indicators:
+      type: array
+      items:
+        type: string
+    echo_strength:
+      type: number
+      minimum: 0
+      maximum: 1
+  required:
+  - summary
+  - confidence
+  - flags

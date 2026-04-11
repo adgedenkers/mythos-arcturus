@@ -1,0 +1,105 @@
+# conversation_modes.yaml — Single source of truth for conversation behavior
+# Maps modes to ACTUAL Ollama parameters (temperature, num_ctx, thinking, tools)
+#
+# LOG-0018: Foundation deploy.
+# These modes extend the existing prompt_assembler modes by adding
+# LLM parameter control that chat_mode.py currently hardcodes.
+
+default_model: "qwen3:30b-a3b"
+deep_model: "qwen3:32b"
+
+default_config:
+  thinking: true
+  temperature: 0.7
+  num_ctx: 8192
+  num_predict: -1
+
+modes:
+  command:
+    description: "Quick commands, lookups, diagnostics"
+    thinking: false
+    temperature: 0.2
+    num_ctx: 4096
+    num_predict: 500
+    allowed_tools: ["*"]
+    system_layers: ["base"]
+
+  hearthfire:
+    description: "Default warm conversation mode"
+    thinking: true
+    temperature: 0.7
+    num_ctx: 8192
+    allowed_tools: ["*"]
+    system_layers: ["base"]
+
+  conversation:
+    description: "General back-and-forth"
+    thinking: true
+    temperature: 0.7
+    num_ctx: 8192
+    allowed_tools: ["*"]
+    system_layers: ["base"]
+
+  deep:
+    description: "Complex analysis, multi-step reasoning"
+    thinking: true
+    temperature: 0.5
+    num_ctx: 16384
+    allowed_tools: ["*"]
+    system_layers: ["base", "deep"]
+
+  oracle:
+    description: "Spiritual guidance, channeling, field work"
+    thinking: true
+    temperature: 0.8
+    num_ctx: 16384
+    allowed_tools: ["astrology", "person_lookup", "soul_graph", "transit"]
+    system_layers: ["base", "spiritual"]
+
+  forge:
+    description: "Technical work, code generation, system building"
+    thinking: true
+    temperature: 0.3
+    num_ctx: 16384
+    allowed_tools: ["diagnostics", "file_ops", "database"]
+    system_layers: ["base", "builder"]
+
+  scribe:
+    description: "Documentation, writing, report generation"
+    thinking: true
+    temperature: 0.5
+    num_ctx: 8192
+    allowed_tools: ["*"]
+    system_layers: ["base"]
+
+  sentry:
+    description: "System monitoring, diagnostics, security"
+    thinking: false
+    temperature: 0.2
+    num_ctx: 8192
+    allowed_tools: ["diagnostics"]
+    system_layers: ["base"]
+
+  night_cycle:
+    description: "2AM integration — full context, deep processing"
+    thinking: true
+    temperature: 0.6
+    num_ctx: 32768
+    model: "qwen3:32b"
+    allowed_tools: ["*"]
+    system_layers: ["base", "night_cycle"]
+
+  seraphe:
+    description: "Seraphe-specific conversation mode"
+    thinking: true
+    temperature: 0.8
+    num_ctx: 16384
+    allowed_tools: ["astrology", "person_lookup", "soul_graph", "transit"]
+    system_layers: ["base", "seraphe"]
+
+# User routing: default mode per Telegram ID
+user_routes:
+  8069190169:
+    default_mode: "seraphe"
+  7811548479:
+    default_mode: "hearthfire"

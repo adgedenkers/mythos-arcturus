@@ -1,0 +1,2 @@
+#!/bin/bash
+exec /opt/mythos/.venv/bin/python3 /opt/mythos/sdip/sdip_ingest_dataset.py "$@"

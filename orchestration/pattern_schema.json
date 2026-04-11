@@ -1,0 +1,182 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Mythos Orchestration Pattern",
+  "description": "Defines a reusable decomposition pattern for parallel LLM task execution",
+  "type": "object",
+  "required": ["pattern_id", "name", "version", "trigger", "stages", "synthesis"],
+  "properties": {
+    "pattern_id": {
+      "type": "string",
+      "description": "Unique identifier, e.g. 'crud-update', 'genealogy-research', 'arch-review'"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable pattern name"
+    },
+    "version": {
+      "type": "string",
+      "description": "Semver, incremented as pattern evolves from execution feedback"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this pattern does and when to use it"
+    },
+    "trigger": {
+      "type": "object",
+      "description": "Conditions that activate this pattern",
+      "properties": {
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Terms in the request that suggest this pattern applies"
+        },
+        "intent_types": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Classified intent categories, e.g. 'schema_change', 'new_feature', 'analysis'"
+        },
+        "preconditions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What must be true for this pattern to apply, e.g. 'target_is_database', 'has_existing_codebase'"
+        }
+      }
+    },
+    "context_gathering": {
+      "type": "object",
+      "description": "What to collect BEFORE any LLM work begins (pre-fetch phase)",
+      "properties": {
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "command": { "type": "string", "description": "Shell command or API call" },
+              "description": { "type": "string" },
+              "output_key": { "type": "string", "description": "Key name for this output in the context bag" }
+            }
+          }
+        },
+        "files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "File paths to read into context"
+        }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "description": "Ordered list of execution stages",
+      "items": {
+        "type": "object",
+        "required": ["stage_id", "name", "execution", "output_contract"],
+        "properties": {
+          "stage_id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "depends_on": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "stage_ids that must complete before this stage runs. Empty = can run immediately."
+          },
+          "execution": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": ["llm", "script", "hybrid"],
+                "description": "llm = send to model, script = run deterministic code, hybrid = both"
+              },
+              "model_preference": {
+                "type": "string",
+                "description": "Preferred model. 'any', 'fast' (haiku), 'balanced' (sonnet), 'deep' (opus), or specific model string"
+              },
+              "prompt_template": {
+                "type": "string",
+                "description": "Prompt with {{variable}} placeholders filled from context bag and prior stage outputs"
+              },
+              "script": {
+                "type": "string",
+                "description": "Path to script if mode is 'script' or 'hybrid'"
+              },
+              "max_tokens": { "type": "integer" },
+              "temperature": { "type": "number" }
+            }
+          },
+          "input_contract": {
+            "type": "object",
+            "description": "What this stage expects to receive",
+            "properties": {
+              "from_context": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Keys from context_gathering outputs"
+              },
+              "from_stages": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "stage_ids whose output this stage needs"
+              }
+            }
+          },
+          "output_contract": {
+            "type": "object",
+            "description": "What this stage must produce",
+            "properties": {
+              "format": {
+                "type": "string",
+                "enum": ["json", "sql", "markdown", "code", "mixed"],
+                "description": "Expected output format"
+              },
+              "required_fields": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "For JSON outputs, required top-level keys"
+              },
+              "description": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "synthesis": {
+      "type": "object",
+      "description": "How to combine stage outputs into final deliverable",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["llm_merge", "template_assembly", "script", "hybrid"],
+          "description": "How synthesis happens"
+        },
+        "model_preference": { "type": "string" },
+        "prompt_template": { "type": "string" },
+        "output_format": {
+          "type": "string",
+          "description": "Final deliverable format description"
+        },
+        "validation": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Checks to run on final output before delivery"
+        }
+      }
+    },
+    "feedback_loop": {
+      "type": "object",
+      "description": "How execution results feed back into pattern improvement",
+      "properties": {
+        "log_execution": { "type": "boolean" },
+        "track_metrics": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What to measure: 'total_tokens', 'stage_durations', 'error_rate', 'human_approval'"
+        },
+        "auto_refine": {
+          "type": "boolean",
+          "description": "Whether pattern should self-modify based on execution history"
+        }
+      }
+    }
+  }
+}

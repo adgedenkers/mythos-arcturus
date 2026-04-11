@@ -1,0 +1,29 @@
+{
+  "plan_id": "financial_overview",
+  "version": "1.0",
+  "description": "Composite skill combining account balances, upcoming bills, and recent transactions",
+  "pattern": "composite_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "mandatory_patterns": {
+      "no_database": "Composite. No _get_conn, no psycopg2. Uses importlib.",
+      "import_pattern": "importlib.import_module then getattr then await cls().run(request)",
+      "no_unicode": "ASCII only.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name, data, summary, confidence, sources, error."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: logging, importlib, engine.base. Class FinancialOverviewSkill with name='financial_overview', triggers=['financial overview', 'money overview', 'full finance', 'how are my finances', 'financial status', 'finance report']. Define SUB_SKILLS:\n\nSUB_SKILLS = {\n    'balances': ('data.finance_balance', 'FinanceBalanceSkill'),\n    'bills': ('data.query_bills_due', 'QueryBillsDueSkill'),\n    'transactions': ('data.query_transactions', 'QueryTransactionsSkill'),\n}\n\nMethods: execute, _run_skill, _build_overview. All 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _run_skill (same pattern as daily_briefing: importlib, getattr, await run, try/except). Implement _build_overview: collect summaries from ok responses in order [balances, bills, transactions], join with ' | '. Default: 'No financial data available.' Return string.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement execute(). Run all three sub-skills. Build overview. Merge data. Return SkillResponse(skill_name=self.name, data=merged, summary=overview, confidence=0.9, sources=['financial_overview']). try/except.", "test": "import_check"},
+    {"pass": 4, "instruction": "Review. No database imports. All three sub-skills referenced correctly. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "give me a financial overview", "expect_ok": true},
+    {"message": "how are my finances", "expect_ok": true},
+    {"message": "finance report", "expect_ok": true}
+  ]
+}

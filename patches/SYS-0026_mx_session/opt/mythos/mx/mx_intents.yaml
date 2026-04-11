@@ -1,0 +1,161 @@
+# mx Intent Registry — Your Personal Command Language
+# /opt/mythos/mx/mx_intents.yaml
+#
+# Format:
+#   "phrase":
+#     command: "shell command"
+#   "phrase {arg}":
+#     command: "shell command {arg}"   ← {arg} passes through from input
+#     flags:
+#       "-short": "--long-form"
+#
+# Edit freely. Add your own. Ollama auto-adds successful resolutions to
+# ~/.mx/intents/learned.yaml — it will never overwrite this file.
+# Phrases matched case-insensitively. Longest match wins.
+
+intents:
+
+  # ── SERVICES ──────────────────────────────────────────────────────────────
+
+  "api restart":
+    command: "sudo systemctl restart mythos-api.service"
+
+  "api start":
+    command: "sudo systemctl start mythos-api.service"
+
+  "api stop":
+    command: "sudo systemctl stop mythos-api.service"
+
+  "api status":
+    command: "systemctl status mythos-api.service --no-pager"
+
+  "api logs":
+    command: "journalctl -u mythos-api.service -f -n 50"
+
+  "bot restart":
+    command: "sudo systemctl restart mythos-bot.service"
+
+  "bot start":
+    command: "sudo systemctl start mythos-bot.service"
+
+  "bot status":
+    command: "systemctl status mythos-bot.service --no-pager"
+
+  "bot logs":
+    command: "journalctl -u mythos-bot.service -f -n 50"
+
+  "monitor restart":
+    command: "sudo systemctl restart mythos-patch-monitor.service"
+
+  "monitor status":
+    command: "systemctl status mythos-patch-monitor.service --no-pager"
+
+  "monitor logs":
+    command: "journalctl -u mythos-patch-monitor.service -f -n 50"
+
+  "services":
+    command: "systemctl list-units --type=service | grep mythos"
+
+  "restart all":
+    command: "sudo systemctl restart mythos-api.service mythos-bot.service"
+
+  # ── PATCH SYSTEM ──────────────────────────────────────────────────────────
+
+  "streams":
+    command: "cat /opt/mythos/docs/STREAMS.json | python3 -c \"import json,sys; d=json.load(sys.stdin); [print(f'{k}: next={v[\\\"next_patch\\\"]}') for k,v in d['streams'].items()]\""
+
+  "patch status":
+    command: "mythos-diag patch 2>/dev/null || cat /opt/mythos/docs/PATCH_HISTORY.md | tail -30"
+
+  "diag":
+    command: "mythos-diag streams 2>/dev/null || echo 'mythos-diag not available'"
+
+  "pi {patch}":
+    command: "patch-install {patch}"
+    flags:
+      "-dry": "--dry-run"
+      "-c": "--clip"
+      "-f": "--force"
+      "-v": "--verbose"
+
+  # ── DATABASE ──────────────────────────────────────────────────────────────
+
+  "db tables":
+    command: "sudo -u postgres psql -d mythos -c '\\dt' 2>/dev/null | head -60"
+
+  "db count":
+    command: "sudo -u postgres psql -d mythos -c 'SELECT COUNT(*) FROM transactions;' 2>/dev/null"
+
+  "db balances":
+    command: "sudo -u postgres psql -d mythos -c 'SELECT abbreviation, current_balance FROM accounts ORDER BY id;' 2>/dev/null"
+
+  "db bills":
+    command: "sudo -u postgres psql -d mythos -c 'SELECT name, amount, due_day FROM recurring_bills WHERE is_active = true ORDER BY due_day;' 2>/dev/null"
+
+  "neo4j":
+    command: "cypher-shell -u neo4j -p $NEO4J_PASSWORD 'MATCH (n) RETURN labels(n), count(*) ORDER BY count(*) DESC' 2>/dev/null"
+
+  "redis":
+    command: "redis-cli XLEN mythos:assignments:transcription"
+
+  "redis queues":
+    command: "redis-cli KEYS 'mythos:*' | sort"
+
+  # ── ASTROLOGY ─────────────────────────────────────────────────────────────
+
+  "seraphe lunar":
+    command: "/opt/mythos/bin/lunar-report --subject seraphe"
+
+  "seraphe natal":
+    command: "/opt/mythos/bin/natal-chart --subject seraphe"
+
+  "seraphe transits":
+    command: "/opt/mythos/bin/transits --subject seraphe"
+
+  "adge lunar":
+    command: "/opt/mythos/bin/lunar-report --subject adge"
+
+  "adge natal":
+    command: "/opt/mythos/bin/natal-chart --subject adge"
+
+  "adge transits":
+    command: "/opt/mythos/bin/transits --subject adge"
+
+  "sky":
+    command: "/opt/mythos/bin/sky"
+
+  "transits":
+    command: "/opt/mythos/bin/transits"
+
+  # ── IRIS / PROMPT ─────────────────────────────────────────────────────────
+
+  "prompt test":
+    command: "/opt/mythos/.venv/bin/python3 /opt/mythos/tools/iris_prompt_test.py"
+
+  "prompt debug":
+    command: "/opt/mythos/.venv/bin/python3 /opt/mythos/tools/iris_prompt_test.py"
+
+  # ── LOGS ──────────────────────────────────────────────────────────────────
+
+  "logs api":
+    command: "journalctl -u mythos-api.service -f -n 50"
+
+  "logs bot":
+    command: "journalctl -u mythos-bot.service -f -n 50"
+
+  "logs all":
+    command: "journalctl -u mythos-api.service -u mythos-bot.service -f -n 30"
+
+  "logs grid":
+    command: "journalctl -u mythos-worker-grid.service -f -n 50"
+
+  # ── QUICK NAV ─────────────────────────────────────────────────────────────
+
+  "todo":
+    command: "cat /opt/mythos/docs/TODO.md | head -80"
+
+  "arch":
+    command: "cat /opt/mythos/docs/ARCHITECTURE.md | head -60"
+
+  "docs":
+    command: "ls /opt/mythos/docs/"

@@ -1,0 +1,108 @@
+{
+  "plan_id": "query_bills_due",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_091107",
+  "total_passes": 6,
+  "total_ollama_calls": 6,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 9,
+    "failed": 0,
+    "total": 9
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton: #!/usr/bin/env python3, docstring, imports (os, logging, re, datetime, psycopg2, RealDictCursor, dotenv, engine.base). from datetime import date, timedelta. Write _get_conn() EXACTLY as in mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.63,
+      "final_code_lines": 69
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _detect_days(). Use re.search(r'(\\d+)\\s*days?', message) to find a number. If found, return that int (capped at 31). Default to 7 if no number found. Also check for keywords: 'week' = 7, 'month' = 30, 'today' = 1, 'tomorrow' = 2.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 8.71,
+      "final_code_lines": 163
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _query_bills(). Use _get_conn(). Get today = date.today(). Get current month string as today.strftime('%Y-%m'). Get today's day of month (dom). Calculate end_dom = dom + days_ahead. Query:\n\nSELECT rb.id, rb.merchant_name, rb.expected_amount, rb.expected_day, rb.category_primary,\n       COALESCE(bo.is_paid, false) as is_paid\nFROM recurring_bills rb\nLEFT JOIN bill_overrides bo ON bo.bill_id = rb.id AND bo.month = %s\nWHERE rb.is_active = true\n  AND rb.expected_day IS NOT NULL\n  AND rb.expected_day >= %s AND rb.expected_day <= %s\n  AND COALESCE(bo.is_paid, false) = false\nORDER BY rb.expected_day\n\nParams: (month_str, dom, end_dom). Handle month wraparound: if end_dom > 31, also include days 1 through (end_dom - 31). try/finally close.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 10.36,
+      "final_code_lines": 180
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). Format: dict with id, merchant_name, expected_amount (float), expected_day, category, is_paid. Summary: if no results 'No unpaid bills due in the next N days.' If results: 'N bill(s) due in the next N days, totaling $TOTAL:' then each 'merchant $amount (due day N)'. Calculate total from expected_amounts.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 10.38,
+      "final_code_lines": 180
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Detect days from message. Query bills. Format and summarize. Return SkillResponse(skill_name=self.name, data={'bills': formatted, 'days_ahead': days, 'count': len, 'total_due': sum of amounts}, summary=summary, confidence=0.95, sources=['mythos.recurring_bills', 'mythos.bill_overrides']). try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 11.01,
+      "final_code_lines": 196
+    },
+    {
+      "pass": 6,
+      "instruction": "Review. _get_conn uses POSTGRES_HOST. Connections close. Summary never empty. Amounts as $X.XX. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 11.4,
+      "final_code_lines": 199
+    }
+  ]
+}

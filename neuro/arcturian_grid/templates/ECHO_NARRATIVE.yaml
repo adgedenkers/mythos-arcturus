@@ -1,0 +1,66 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ECHO | Layer: NARRATIVE | ID: ECHO_NARRATIVE
+# Domain: Memory and pattern recognition
+# Depth: 7 (Narrative)
+# Generated: 2026-03-02 21:51 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ECHO_NARRATIVE
+node: ECHO
+node_name: Echo
+node_domain: Memory and pattern recognition
+layer: NARRATIVE
+layer_name: Narrative
+depth: 7
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T21:51:16.683918'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange below through the Echo node (memory/pattern recognition) and Narrative layer (depth
+  7). Focus ONLY on: recurring themes, behavioral patterns (freeze/avoidance/flow), cyclical topics, and linguistic echoes
+  from past exchanges. Do NOT consider other nodes or layers. Output ONLY a JSON object with keys: ''pattern_match'' (string
+  describing pattern match to past exchanges, e.g., ''Echoes car financing freeze from Feb 3''), ''narrative_arc'' (string
+  placing this moment in story trajectory, e.g., ''Chapter 4: Financial anxiety arc - escalation phase''). Use contextual,
+  arc-aware language. Placeholders: {user_message}, {assistant_response}. Respond with ONLY valid JSON. Example output: {"pattern_match":
+  "Echoes the car financing discussion from Feb 3. Same freeze trigger: financial uncertainty → paralysis.", "narrative_arc":
+  "Chapter 4: Financial anxiety arc - escalation phase"}'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    matched_patterns:
+      type: array
+      items:
+        type: string
+    recurring_themes:
+      type: array
+      items:
+        type: string
+    cycle_indicators:
+      type: array
+      items:
+        type: string
+    echo_strength:
+      type: number
+      minimum: 0
+      maximum: 1
+  required:
+  - summary
+  - confidence
+  - flags

@@ -1,0 +1,17 @@
+[
+  {
+    "message": "what is on my shopping list",
+    "expect_ok": true,
+    "expect_data_has": [
+      "lists"
+    ]
+  },
+  {
+    "message": "groceries",
+    "expect_ok": true
+  },
+  {
+    "message": "do I need to buy anything",
+    "expect_ok": true
+  }
+]

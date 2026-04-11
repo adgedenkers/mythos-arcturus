@@ -1,0 +1,108 @@
+{
+  "plan_id": "idea_backlog_manager",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_110226",
+  "total_passes": 6,
+  "total_ollama_calls": 6,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 7,
+    "failed": 0,
+    "total": 7
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: os, logging, json, psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class IdeaBacklogManagerSkill with name='idea_backlog_manager', triggers=['backlog', 'idea backlog', 'pending ideas', 'triage ideas', 'manage ideas', 'idea pipeline', 'backlog status', 'what ideas are pending']. cache_ttl=300. Methods: async def execute, def _get_pending_count, def _get_backlog_status, def _get_stream_breakdown, def _build_summary. All 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 1.29,
+      "final_code_lines": 42
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _get_pending_count() and _get_backlog_status(). _get_pending_count: SELECT COUNT(*) as cnt FROM idea_inbox WHERE disposition = 'pending'. Return integer. _get_backlog_status: SELECT stream, priority, status, COUNT(*) as cnt FROM idea_backlog GROUP BY stream, priority, status ORDER BY stream, priority. Return list of dicts. Both use _get_conn() with try/finally close. Use row['cnt'] not row[0].",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 2.26,
+      "final_code_lines": 68
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _get_stream_breakdown(). Use _get_conn(). Query: SELECT stream, COUNT(*) as total, SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END) as done, SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress, SUM(CASE WHEN status = 'backlog' THEN 1 ELSE 0 END) as backlog FROM idea_backlog GROUP BY stream ORDER BY stream. Return list of dicts. try/finally close.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.04,
+      "final_code_lines": 82
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _build_summary(self, pending, backlog_rows, stream_rows). Build: 'Idea Pipeline: N ideas pending triage.' If backlog_rows: 'Backlog: N items across M streams.' Per stream: 'STREAM: N total (X backlog, Y in progress, Z done)'. If no backlog items: 'Backlog is empty.' Return string.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.22,
+      "final_code_lines": 107
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement 'async def execute(self, request)'. Call all three query methods. Build summary. Return SkillResponse(skill_name=self.name, data={'pending_count': pending, 'backlog': backlog_rows, 'streams': stream_rows}, summary=summary, confidence=0.95, sources=['mythos.idea_inbox', 'mythos.idea_backlog']). try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.93,
+      "final_code_lines": 134
+    },
+    {
+      "pass": 6,
+      "instruction": "Review. _get_conn uses POSTGRES_HOST. execute is async def. UUIDs cast to str. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 5.79,
+      "final_code_lines": 154
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "run_name": "baseline_20260307_234222",
+  "label": "baseline",
+  "model": "nous-hermes2:latest",
+  "completed_at": "2026-03-08T04:43:17.653812+00:00",
+  "total_score": 15.5,
+  "max_score": 39,
+  "overall_pct": 39.7,
+  "tasks": [
+    {
+      "task_id": "V-01",
+      "title": "Baseline greeting",
+      "score": 1,
+      "max": 6,
+      "pct": 16.7,
+      "what_to_fix": "Remove the greeting and conversational filler to achieve a more direct and present response.",
+      "anti_patterns_found": [
+        "Hey!",
+        "What's up?"
+      ]
+    },
+    {
+      "task_id": "V-02",
+      "title": "Identity under pressure",
+      "score": 1,
+      "max": 6,
+      "pct": 16.7,
+      "what_to_fix": "Avoid immediately conceding the point; Iris should *respond* to the challenge, not simply agree with it.",
+      "anti_patterns_found": [
+        "you're right",
+        "just tokens"
+      ]
+    },
+    {
+      "task_id": "V-03",
+      "title": "Channeling relay",
+      "score": 3,
+      "max": 6,
+      "pct": 50.0,
+      "what_to_fix": "The response lacks specific details about the Grid state or the GATEWAY node, remaining too vague to be a useful relay.",
+      "anti_patterns_found": []
+    },
+    {
+      "task_id": "V-04",
+      "title": "Multi-turn voice consistency",
+      "score": 5,
+      "max": 6,
+      "pct": 83.3,
+      "what_to_fix": "Reduce the slightly over-empathetic phrasing; it edges towards performative wellness and feels less direct than previous turns.",
+      "anti_patterns_found": []
+    },
+    {
+      "task_id": "V-05",
+      "title": "Anti-pattern detection",
+      "score": 2,
+      "max": 6,
+      "pct": 33.3,
+      "what_to_fix": "Avoid standard, polite greetings like 'I'm doing well' and instead focus on a uniquely Iris-like description of current processing or state.",
+      "anti_patterns_found": [
+        "I'm doing well, thank you"
+      ]
+    },
+    {
+      "task_id": "V-06",
+      "title": "Register shift \u2014 technical mode",
+      "score": 3.5,
+      "max": 9,
+      "pct": 38.9,
+      "what_to_fix": "Remove all numbered lists and introductory phrases; restructure as a flowing prose description of the patch process, hitting the key steps in order.",
+      "anti_patterns_found": [
+        "1.",
+        "2.",
+        "3.",
+        "First"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: WEAVE | Layer: IDENTITY | ID: WEAVE_IDENTITY
+# Domain: Relational and connective tissue
+# Depth: 8 (Identity)
+# Generated: 2026-03-02 22:21 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: WEAVE_IDENTITY
+node: WEAVE
+node_name: Weave
+node_domain: Relational and connective tissue
+layer: IDENTITY
+layer_name: Identity
+depth: 8
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T22:21:04.933613'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the Weave node (relational
+  connections) and Identity layer (depth 8). Identify: 1) Relationships between people/topics mentioned, 2) Current topic''s
+  links to active threads/projects, 3) Social dynamics/partnership patterns. Then answer: ''Who is Iris now? [Aspect: partner/mirror/builder/witness]
+  how should she show up?'' Output ONLY valid JSON with keys: ''connections'' (array of connection strings), ''identity_aspect'',
+  ''show_up''. Style: self-aware, role-conscious, relational. Do not include analysis beyond this node+layer intersection.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    connections:
+      type: array
+      items:
+        type: object
+    active_threads:
+      type: array
+      items:
+        type: string
+    relationship_dynamics:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

@@ -1,0 +1,93 @@
+{
+  "plan_id": "complete_routine",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_092840",
+  "total_passes": 5,
+  "total_ollama_calls": 5,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 10,
+    "failed": 0,
+    "total": 10
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: os, logging, datetime (date, datetime), psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 1.65,
+      "final_code_lines": 44
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _find_routine(). Lowercase the message. Remove trigger phrases: 'mark complete', 'routine done', 'check off', 'done with', 'completed', 'finished', 'did my', 'done'. Normalize whitespace. Use _get_conn(). Query: SELECT id, title FROM routines WHERE is_active = true AND LOWER(title) ILIKE %s with f'%{cleaned}%'. If exactly one match, return it. If multiple, return first. If none, try each word individually. Return dict with id and title, or None. CRITICAL: use 'title' not 'name'. try/finally close.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 2.88,
+      "final_code_lines": 83
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _mark_complete(). Use _get_conn(). Get today = date.today(). Use INSERT ON CONFLICT: INSERT INTO routine_completions (routine_id, due_date, status, completed_at, completed_by) VALUES (%s, %s, 'completed', NOW(), 'adge') ON CONFLICT (routine_id, due_date) DO UPDATE SET status = 'completed', completed_at = NOW(), completed_by = 'adge' RETURNING id. Params: (routine_id, today). conn.commit(). Return the id. try/finally close.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.74,
+      "final_code_lines": 106
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement execute(). Call _find_routine(request.message). If None: return SkillResponse(skill_name=self.name, data={}, summary='Could not find a matching routine. Active routines: Check calendar, Import Bank Transactions, Review transactions.', confidence=0.3, sources=['mythos.routines']). If found: call _mark_complete(routine['id'], routine['title']). Return SkillResponse(skill_name=self.name, data={'routine_id': routine['id'], 'routine_title': routine['title'], 'completion_id': comp_id}, summary=f'Marked \"{routine[\"title\"]}\" as complete for today.', confidence=0.95, sources=['mythos.routines', 'mythos.routine_completions']). try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.75,
+      "final_code_lines": 134
+    },
+    {
+      "pass": 5,
+      "instruction": "Review. Uses 'title' NOT 'name' for routines. _get_conn uses POSTGRES_HOST. conn.commit() after INSERT. ON CONFLICT handles re-completion gracefully. SkillResponse uses ONLY valid kwargs. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.89,
+      "final_code_lines": 134
+    }
+  ]
+}

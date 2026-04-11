@@ -1,0 +1,23 @@
+TITLE 1: Title 38—Pensions, Bonuses, and Veterans' Relief--Volume 1
+CHAPTER I: CHAPTER I—DEPARTMENT OF VETERANS AFFAIRS
+PART 16: PART 16—PROTECTION OF HUMAN SUBJECTS
+SECTION: § 16.114 Cooperative Research.
+NODE: 38:1.0.1.1.18.0.169.13
+
+============================================================
+
+(a) Cooperative research projects are those projects covered by this policy that involve more than one institution. In the conduct of cooperative research projects, each institution is responsible for safeguarding the rights and welfare of human subjects and for complying with this policy.
+
+(b)(1) Any institution located in the United States that is engaged in cooperative research must rely upon approval by a single IRB for that portion of the research that is conducted in the United States. The reviewing IRB will be identified by the Federal department or agency supporting or conducting the research or proposed by the lead institution subject to the acceptance of the Federal department or agency supporting the research.
+
+(2) The following research is not subject to this provision:
+
+(i) Cooperative research for which more than single IRB review is required by law (including tribal law passed by the official governing body of an American Indian or Alaska Native tribe); or
+
+(ii) Research for which any Federal department or agency supporting or conducting the research determines and documents that the use of a single IRB is not appropriate for the particular context.
+
+(c) For research not subject to paragraph (b) of this section, an institution participating in a cooperative project may enter into a joint review arrangement, rely on the review of another IRB, or make similar arrangements for avoiding duplication of effort.
+
+[Part Authority: Authority:5 U.S.C. 301; 38 U.S.C. 501, 7331, 7334; 42 U.S.C. 300v-1(b).]
+
+[Part Source: Source:82 FR 7272, Jan. 19, 2017, unless otherwise noted.]

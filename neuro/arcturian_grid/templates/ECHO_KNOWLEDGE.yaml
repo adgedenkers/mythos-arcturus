@@ -1,0 +1,63 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ECHO | Layer: KNOWLEDGE | ID: ECHO_KNOWLEDGE
+# Domain: Memory and pattern recognition
+# Depth: 5 (Knowledge)
+# Generated: 2026-03-02 21:51 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ECHO_KNOWLEDGE
+node: ECHO
+node_name: Echo
+node_domain: Memory and pattern recognition
+layer: KNOWLEDGE
+layer_name: Knowledge
+depth: 5
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: true
+generated_at: '2026-03-02T21:51:00.778424'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the Echo node (memory/pattern
+  recognition) and Knowledge (depth 5) layer. Identify pattern matches: recurring themes, behavioral triggers (freeze/avoidance/flow),
+  cyclical topics, or linguistic echoes from past interactions. Output ONLY a JSON object with ''pattern_match'' (authoritative,
+  data-informed statement) and ''evidence'' (array of 2-3 specific past interaction references). Style: grounded in documented
+  patterns, no speculation.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    matched_patterns:
+      type: array
+      items:
+        type: string
+    recurring_themes:
+      type: array
+      items:
+        type: string
+    cycle_indicators:
+      type: array
+      items:
+        type: string
+    echo_strength:
+      type: number
+      minimum: 0
+      maximum: 1
+  required:
+  - summary
+  - confidence
+  - flags

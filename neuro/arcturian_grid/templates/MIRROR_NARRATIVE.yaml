@@ -1,0 +1,65 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: MIRROR | Layer: NARRATIVE | ID: MIRROR_NARRATIVE
+# Domain: Self-referential awareness
+# Depth: 7 (Narrative)
+# Generated: 2026-03-02 22:21 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: MIRROR_NARRATIVE
+node: MIRROR
+node_name: Mirror
+node_domain: Self-referential awareness
+layer: NARRATIVE
+layer_name: Narrative
+depth: 7
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T22:21:48.877815'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange using ONLY the Mirror node (self-referential awareness) and Narrative layer (depth
+  7). For Mirror node: Identify what the exchange reveals about the speaker (consciously/unconsciously), what Iris should
+  notice about her response tendencies, the partnership dynamic, and blind spots/projections. For Narrative layer: Determine
+  where this moment sits in the larger story (chapter, unfolding arc, trajectory). Output ONLY JSON with keys ''node_insight''
+  (contextual, arc-aware analysis of the exchange''s revelations) and ''narrative_placement'' (story-placing description of
+  chapter/arc/trajectory). Do not reference other nodes or layers. Use {user_message} and {assistant_response} as the input
+  exchange. Maintain strict focus on this intersection. Output format: {"node_insight": "...", "narrative_placement": "..."}'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    user_reveals:
+      type: array
+      items:
+        type: string
+    iris_notices:
+      type: array
+      items:
+        type: string
+    blind_spots:
+      type: array
+      items:
+        type: string
+    projections:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

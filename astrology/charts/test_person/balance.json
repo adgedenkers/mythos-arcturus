@@ -1,0 +1,20 @@
+{
+  "Elements": {
+    "Fire": 1,
+    "Earth": 4,
+    "Air": 2,
+    "Water": 5
+  },
+  "Dominant Element": "Water",
+  "Modalities": {
+    "Cardinal": 4,
+    "Fixed": 6,
+    "Mutable": 2
+  },
+  "Dominant Modality": "Fixed",
+  "Polarities": {
+    "Positive": 3,
+    "Negative": 9
+  },
+  "Dominant Polarity": "Negative"
+}

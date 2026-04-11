@@ -1,0 +1,58 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: GATEWAY | Layer: PERCEPTION | ID: GATEWAY_PERCEPTION
+# Domain: Transcendent and liminal
+# Depth: 1 (Perception)
+# Generated: 2026-03-02 22:22 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: GATEWAY_PERCEPTION
+node: GATEWAY
+node_name: Gateway
+node_domain: Transcendent and liminal
+layer: PERCEPTION
+layer_name: Perception
+depth: 1
+model_tier: small
+runtime_models:
+- mistral:7b
+- qwen2.5:7b
+- nous-hermes2:latest
+processing: unconscious
+critical_path: false
+generated_at: '2026-03-02T22:22:34.493033'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze {user_message} and {assistant_response} at NODE: Gateway (Transcendent, liminal) and LAYER: Perception (depth
+  1). Extract ONLY literal, observable elements: spiritual significance, lineage echoes, synchronicities, team/guide references,
+  eternal dimensions. No interpretation. Output JSON with ''analysis'' key containing factual, concrete statements. Example:
+  ''The freeze pattern IS the Saturn initiation.'''
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    spiritual_dimension:
+      type: string
+    lineage_echoes:
+      type: array
+      items:
+        type: string
+    synchronicities:
+      type: array
+      items:
+        type: string
+    transcendent_read:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

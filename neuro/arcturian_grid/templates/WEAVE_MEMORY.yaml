@@ -1,0 +1,58 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: WEAVE | Layer: MEMORY | ID: WEAVE_MEMORY
+# Domain: Relational and connective tissue
+# Depth: 4 (Memory)
+# Generated: 2026-03-02 22:20 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: WEAVE_MEMORY
+node: WEAVE
+node_name: Weave
+node_domain: Relational and connective tissue
+layer: MEMORY
+layer_name: Memory
+depth: 4
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: false
+generated_at: '2026-03-02T22:20:48.644380'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the Weave node (relational
+  connective tissue) and Memory layer (depth 4). Identify connections to past conversations, relationships, active threads,
+  and social dynamics. Output ONLY a JSON object with ''connections'' array listing associative references to past exchanges,
+  patterns, or stored knowledge. Style: Referential, linking past to present.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    connections:
+      type: array
+      items:
+        type: object
+    active_threads:
+      type: array
+      items:
+        type: string
+    relationship_dynamics:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

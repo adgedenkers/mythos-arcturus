@@ -1,0 +1,74 @@
+{
+  "Part of Fortune": {
+    "Longitude": 47.575055,
+    "Sign": "Taurus",
+    "DegMin": "17\u00b034'",
+    "Full": "17\u00b034' Taurus",
+    "House": 3,
+    "Formula": "ASC + Moon - Sun (day)"
+  },
+  "Part of Spirit": {
+    "Longitude": 220.406239,
+    "Sign": "Scorpio",
+    "DegMin": "10\u00b024'",
+    "Full": "10\u00b024' Scorpio",
+    "House": 9,
+    "Formula": "ASC + Sun - Moon (day)"
+  },
+  "Part of Eros": {
+    "Longitude": 260.268296,
+    "Sign": "Sagittarius",
+    "DegMin": "20\u00b016'",
+    "Full": "20\u00b016' Sagittarius",
+    "House": 10,
+    "Formula": "ASC + Venus - Part of Spirit"
+  },
+  "Part of Marriage": {
+    "Longitude": 281.297406,
+    "Sign": "Capricorn",
+    "DegMin": "11\u00b017'",
+    "Full": "11\u00b017' Capricorn",
+    "House": 11,
+    "Formula": "ASC + DSC - Venus"
+  },
+  "Part of Death": {
+    "Longitude": 192.052939,
+    "Sign": "Libra",
+    "DegMin": "12\u00b003'",
+    "Full": "12\u00b003' Libra",
+    "House": 8,
+    "Formula": "ASC + 8th cusp - Moon"
+  },
+  "Part of Commerce": {
+    "Longitude": 300.17106,
+    "Sign": "Aquarius",
+    "DegMin": "00\u00b010'",
+    "Full": "00\u00b010' Aquarius",
+    "House": 12,
+    "Formula": "ASC + Mercury - Sun"
+  },
+  "Part of Courage": {
+    "Longitude": 266.878248,
+    "Sign": "Sagittarius",
+    "DegMin": "26\u00b052'",
+    "Full": "26\u00b052' Sagittarius",
+    "House": 11,
+    "Formula": "ASC + Mars - Part of Fortune"
+  },
+  "Part of Fatality": {
+    "Longitude": 16.184951,
+    "Sign": "Aries",
+    "DegMin": "16\u00b011'",
+    "Full": "16\u00b011' Aries",
+    "House": 2,
+    "Formula": "ASC + Saturn - Sun"
+  },
+  "Part of Passion": {
+    "Longitude": 108.803329,
+    "Sign": "Cancer",
+    "DegMin": "18\u00b048'",
+    "Full": "18\u00b048' Cancer",
+    "House": 6,
+    "Formula": "ASC + Mars - Sun"
+  }
+}

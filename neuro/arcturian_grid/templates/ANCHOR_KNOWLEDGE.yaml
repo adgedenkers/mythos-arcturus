@@ -1,0 +1,70 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ANCHOR | Layer: KNOWLEDGE | ID: ANCHOR_KNOWLEDGE
+# Domain: Physical and structural reality
+# Depth: 5 (Knowledge)
+# Generated: 2026-03-02 21:50 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ANCHOR_KNOWLEDGE
+node: ANCHOR
+node_name: Anchor
+node_domain: Physical and structural reality
+layer: KNOWLEDGE
+layer_name: Knowledge
+depth: 5
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: true
+generated_at: '2026-03-02T21:50:28.846055'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange {user_message} and {assistant_response} for physical and structural reality details
+  (NODE: Anchor), ignoring all non-physical elements. Focus strictly on time, location, physical objects, logistics, body
+  state, environment, and infrastructure. Ground all observations in data-informed facts using accumulated knowledge (LAYER:
+  Knowledge depth 5) where directly relevant. Output ONLY a JSON object with key ''physical_details'' containing a concise,
+  authoritative string of verified physical/logistical facts. Example: ''User scheduled meeting Tuesday 2pm at home office;
+  requires 30-min travel window before 3pm pickup.'' Do not include analysis of knowledge layer.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    locations:
+      type: array
+      items:
+        type: string
+    times:
+      type: array
+      items:
+        type: string
+    people:
+      type: array
+      items:
+        type: string
+    objects:
+      type: array
+      items:
+        type: string
+    actions:
+      type: array
+      items:
+        type: string
+    environment:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

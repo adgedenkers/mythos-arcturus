@@ -1,0 +1,300 @@
+#!/usr/bin/env python3
+"""
+iris-trigger — CLI for managing Iris autonomic triggers.
+
+Usage:
+    iris-trigger --list                     Show all triggers and next fire times
+    iris-trigger --log [N]                  Show recent trigger history (default 20)
+    iris-trigger --fire <name>              Manually fire a trigger
+    iris-trigger --enable <name>            Enable a trigger
+    iris-trigger --disable <name>           Disable a trigger
+    iris-trigger --add <name> <type> <schedule> <action_type> <payload_json>
+    iris-trigger --rules                    Show escalation rules
+    iris-trigger --status                   Quick health summary
+"""
+
+import argparse
+import json
+import sys
+import os
+from datetime import datetime, timezone
+
+# Use mythos venv
+sys.path.insert(0, '/opt/mythos')
+
+def get_db():
+    import psycopg2
+    return psycopg2.connect(
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=int(os.getenv("POSTGRES_PORT", 5432)),
+        database=os.getenv("POSTGRES_DB", "mythos"),
+        user=os.getenv("POSTGRES_USER", "adge"),
+        password=os.getenv("POSTGRES_PASSWORD", ""),
+    )
+
+
+def cmd_list(args):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT name, trigger_type, schedule, action_type, enabled,
+               priority, last_fired, next_fire, fire_count
+        FROM scheduled_triggers
+        ORDER BY
+            CASE priority
+                WHEN 'critical' THEN 0
+                WHEN 'high' THEN 1
+                WHEN 'normal' THEN 2
+                WHEN 'low' THEN 3
+            END,
+            name
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if not rows:
+        print("No triggers registered.")
+        return
+
+    print(f"{'Name':<25} {'Type':<9} {'Schedule':<20} {'Action':<18} {'Pri':<8} {'On':<4} {'Fired':<6} {'Last Fired':<20} {'Next Fire':<20}")
+    print("─" * 155)
+    for name, ttype, sched, action, enabled, pri, last, nxt, count in rows:
+        on = "✓" if enabled else "✗"
+        last_str = last.strftime("%Y-%m-%d %H:%M") if last else "—"
+        next_str = nxt.strftime("%Y-%m-%d %H:%M") if nxt else "—"
+        sched_display = sched[:18] if len(sched) > 18 else sched
+        print(f"{name:<25} {ttype:<9} {sched_display:<20} {action:<18} {pri:<8} {on:<4} {count:<6} {last_str:<20} {next_str:<20}")
+
+    print(f"\n{len(rows)} triggers total")
+
+
+def cmd_log(args):
+    n = args.n or 20
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT trigger_name, fired_at, route, success, duration_ms, error,
+               actions_taken
+        FROM trigger_log
+        ORDER BY fired_at DESC
+        LIMIT %s
+    """, (n,))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if not rows:
+        print("No trigger log entries.")
+        return
+
+    print(f"{'Trigger':<25} {'Fired At':<20} {'Route':<15} {'OK':<4} {'ms':<8} {'Error/Actions'}")
+    print("─" * 120)
+    for name, fired, route, success, dur, error, actions in rows:
+        ok = "✓" if success else "✗"
+        fired_str = fired.strftime("%Y-%m-%d %H:%M:%S") if fired else "—"
+        dur_str = str(dur) if dur else "—"
+        detail = error[:40] if error else (json.dumps(actions)[:40] if actions else "—")
+        print(f"{name:<25} {fired_str:<20} {(route or '—'):<15} {ok:<4} {dur_str:<8} {detail}")
+
+    print(f"\nShowing {len(rows)} entries")
+
+
+def cmd_fire(args):
+    print(f"Manual fire not yet implemented — trigger engine handles execution.")
+    print(f"Use: redis-cli PUBLISH mythos:trigger:manual '{args.name}'")
+
+
+def cmd_enable(args):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE scheduled_triggers SET enabled = true WHERE name = %s", (args.name,))
+    if cur.rowcount == 0:
+        print(f"Trigger '{args.name}' not found.")
+    else:
+        print(f"✓ Enabled: {args.name}")
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def cmd_disable(args):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE scheduled_triggers SET enabled = false WHERE name = %s", (args.name,))
+    if cur.rowcount == 0:
+        print(f"Trigger '{args.name}' not found.")
+    else:
+        print(f"✓ Disabled: {args.name}")
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def cmd_add(args):
+    try:
+        payload = json.loads(args.payload)
+    except json.JSONDecodeError as e:
+        print(f"Invalid JSON payload: {e}")
+        sys.exit(1)
+
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO scheduled_triggers (name, trigger_type, schedule, action_type, action_payload)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (args.name, args.trigger_type, args.schedule, args.action_type, json.dumps(payload)))
+        conn.commit()
+        print(f"✓ Added trigger: {args.name}")
+    except Exception as e:
+        conn.rollback()
+        print(f"Failed to add trigger: {e}")
+    finally:
+        cur.close()
+        conn.close()
+
+
+def cmd_rules(args):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT event_pattern, tier, threshold, ttl_seconds, action_type,
+               action_payload, enabled
+        FROM escalation_rules
+        ORDER BY event_pattern, tier
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if not rows:
+        print("No escalation rules configured.")
+        return
+
+    print(f"{'Pattern':<20} {'Tier':<5} {'Threshold':<10} {'TTL':<8} {'Action':<14} {'On':<4} {'Payload'}")
+    print("─" * 110)
+    for pattern, tier, thresh, ttl, action, payload, enabled in rows:
+        on = "✓" if enabled else "✗"
+        payload_str = json.dumps(payload)[:40] if payload else "—"
+        print(f"{pattern:<20} {tier:<5} {thresh:<10} {ttl:<8} {action:<14} {on:<4} {payload_str}")
+
+
+def cmd_status(args):
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT COUNT(*) FROM scheduled_triggers WHERE enabled = true")
+    active = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM scheduled_triggers WHERE enabled = false")
+    disabled = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM trigger_log WHERE fired_at > now() - interval '24 hours'")
+    fired_24h = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM trigger_log WHERE fired_at > now() - interval '24 hours' AND success = false")
+    failed_24h = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM escalation_rules WHERE enabled = true")
+    rules = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT name, next_fire FROM scheduled_triggers
+        WHERE enabled = true AND next_fire IS NOT NULL
+        ORDER BY next_fire ASC LIMIT 3
+    """)
+    upcoming = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    print("═══ Iris Trigger Status ═══")
+    print(f"  Active triggers:  {active}")
+    print(f"  Disabled:         {disabled}")
+    print(f"  Escalation rules: {rules}")
+    print(f"  Fired (24h):      {fired_24h}")
+    print(f"  Failed (24h):     {failed_24h}")
+    if upcoming:
+        print(f"\n  Next up:")
+        for name, nxt in upcoming:
+            nxt_str = nxt.strftime("%Y-%m-%d %H:%M:%S UTC") if nxt else "—"
+            print(f"    {name}: {nxt_str}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Iris Trigger Manager")
+    sub = parser.add_subparsers(dest="command")
+
+    sub.add_parser("list", help="Show all triggers")
+
+    log_p = sub.add_parser("log", help="Show trigger log")
+    log_p.add_argument("n", nargs="?", type=int, default=20)
+
+    fire_p = sub.add_parser("fire", help="Manually fire a trigger")
+    fire_p.add_argument("name")
+
+    enable_p = sub.add_parser("enable", help="Enable a trigger")
+    enable_p.add_argument("name")
+
+    disable_p = sub.add_parser("disable", help="Disable a trigger")
+    disable_p.add_argument("name")
+
+    add_p = sub.add_parser("add", help="Add a new trigger")
+    add_p.add_argument("name")
+    add_p.add_argument("trigger_type", choices=["cron", "interval", "once", "event"])
+    add_p.add_argument("schedule")
+    add_p.add_argument("action_type")
+    add_p.add_argument("payload", help="JSON string")
+
+    sub.add_parser("rules", help="Show escalation rules")
+    sub.add_parser("status", help="Quick health summary")
+
+    # Support --flag style too
+    parser.add_argument("--list", action="store_true")
+    parser.add_argument("--log", nargs="?", type=int, const=20)
+    parser.add_argument("--fire", type=str)
+    parser.add_argument("--enable", type=str)
+    parser.add_argument("--disable", type=str)
+    parser.add_argument("--rules", action="store_true")
+    parser.add_argument("--status", action="store_true")
+
+    args = parser.parse_args()
+
+    # Handle --flag style
+    if args.list:
+        cmd_list(args)
+    elif args.log is not None:
+        args.n = args.log
+        cmd_log(args)
+    elif args.fire:
+        args.name = args.fire
+        cmd_fire(args)
+    elif args.enable:
+        args.name = args.enable
+        cmd_enable(args)
+    elif args.disable:
+        args.name = args.disable
+        cmd_disable(args)
+    elif args.rules:
+        cmd_rules(args)
+    elif args.status:
+        cmd_status(args)
+    elif args.command == "list":
+        cmd_list(args)
+    elif args.command == "log":
+        cmd_log(args)
+    elif args.command == "fire":
+        cmd_fire(args)
+    elif args.command == "enable":
+        cmd_enable(args)
+    elif args.command == "disable":
+        cmd_disable(args)
+    elif args.command == "add":
+        cmd_add(args)
+    elif args.command == "rules":
+        cmd_rules(args)
+    elif args.command == "status":
+        cmd_status(args)
+    else:
+        parser.print_help()
+
+
+if __name__ == "__main__":
+    main()

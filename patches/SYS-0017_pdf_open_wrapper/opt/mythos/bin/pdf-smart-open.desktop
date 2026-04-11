@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=PDF Smart Open
+Exec=/opt/mythos/bin/pdf-open-wrapper.sh %F
+MimeType=application/pdf;
+NoDisplay=true

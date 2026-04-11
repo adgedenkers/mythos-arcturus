@@ -1,0 +1,78 @@
+{
+  "plan_id": "rank_by_recency",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_094710",
+  "total_passes": 4,
+  "total_ollama_calls": 4,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: logging, datetime (datetime, timedelta, timezone), engine.base. NO database imports. Class with attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 0.9,
+      "final_code_lines": 21
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _relative_time(). Takes a date/datetime string (ISO format). Parse it with datetime.fromisoformat(). Calculate delta from now. Return: < 1 min -> 'just now', < 60 min -> 'N minutes ago', < 24 hours -> 'N hours ago', < 7 days -> 'N days ago', < 30 days -> 'N weeks ago', else -> 'N months ago'. Handle None input by returning 'unknown date'. Handle parse errors gracefully.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 2.01,
+      "final_code_lines": 48
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement execute(). Get results from request.parameters.get('results', []). If empty: return SkillResponse(skill_name=self.name, data={'ranked': [], 'count': 0}, summary='No results to rank.', confidence=0.5, sources=['rank_by_recency']). Sort by created_at descending (most recent first). Handle missing created_at by putting those at end. Add 'relative_time' field to each result using _relative_time(). Return SkillResponse(skill_name=self.name, data={'ranked': sorted_results, 'count': len}, summary=f'Ranked {len} results by recency. Most recent: {relative_time of first}.', confidence=0.9, sources=['rank_by_recency']). try/except.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.41,
+      "final_code_lines": 85
+    },
+    {
+      "pass": 4,
+      "instruction": "Review. No database imports. Date parsing handles edge cases. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.79,
+      "final_code_lines": 91
+    }
+  ]
+}

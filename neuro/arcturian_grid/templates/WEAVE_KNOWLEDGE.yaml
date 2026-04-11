@@ -1,0 +1,59 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: WEAVE | Layer: KNOWLEDGE | ID: WEAVE_KNOWLEDGE
+# Domain: Relational and connective tissue
+# Depth: 5 (Knowledge)
+# Generated: 2026-03-02 22:20 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: WEAVE_KNOWLEDGE
+node: WEAVE
+node_name: Weave
+node_domain: Relational and connective tissue
+layer: KNOWLEDGE
+layer_name: Knowledge
+depth: 5
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: true
+generated_at: '2026-03-02T22:20:51.844847'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response}. Focus exclusively on the Weave
+  node (relational connections) and Knowledge layer (depth 5). Identify: 1) Relationships between people mentioned, 2) Connections
+  to active threads/projects, 3) Social dynamics. Reference accumulated facts/data/expertise. Output ONLY authoritative, data-grounded
+  JSON with ''connections'' (array of specific links like ''Seraphe''s car request (active thread)'') and ''knowledge'' (relevant
+  facts/data).'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    connections:
+      type: array
+      items:
+        type: object
+    active_threads:
+      type: array
+      items:
+        type: string
+    relationship_dynamics:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

@@ -1,0 +1,196 @@
+#!/usr/bin/env /opt/mythos/.venv/bin/python3
+"""
+iris-browse — CLI for Iris browser automation.
+
+Usage:
+    iris-browse <url>                     # Read page content
+    iris-browse <url> --screenshot        # Take screenshot
+    iris-browse <url> --tables            # Extract tables
+    iris-browse <url> --links             # Extract links
+    iris-browse <url> --js "script"       # Run JavaScript
+    iris-browse <url> --selector "div.x"  # Extract specific element
+    iris-browse <url> --full              # Full page text (no truncation)
+    iris-browse <url> --json              # Output as JSON
+
+Examples:
+    iris-browse https://example.com
+    iris-browse https://news.ycombinator.com --links
+    iris-browse https://status.example.com --screenshot
+    iris-browse "https://example.com" --selector "h1" --json
+"""
+
+import argparse
+import json
+import sys
+import time
+
+sys.path.insert(0, '/opt/mythos')
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Iris Browser Automation CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__,
+    )
+    parser.add_argument("url", help="URL to browse")
+    parser.add_argument("--screenshot", "-s", action="store_true", help="Take a screenshot")
+    parser.add_argument("--tables", "-t", action="store_true", help="Extract tables")
+    parser.add_argument("--links", "-l", action="store_true", help="Extract links")
+    parser.add_argument("--js", help="Execute JavaScript on the page")
+    parser.add_argument("--selector", help="Extract text from a CSS selector")
+    parser.add_argument("--full", "-f", action="store_true", help="Full text output (no truncation)")
+    parser.add_argument("--json", "-j", action="store_true", dest="as_json", help="Output as JSON")
+    parser.add_argument("--headed", action="store_true", help="Run with visible browser (debugging)")
+    parser.add_argument("--timeout", type=int, default=30000, help="Timeout in ms (default: 30000)")
+    parser.add_argument("--fast", action="store_true", help="Block images/fonts/media for speed")
+
+    args = parser.parse_args()
+
+    try:
+        from browser.core import BrowserSession
+    except ImportError:
+        print("ERROR: Playwright not installed.", file=sys.stderr)
+        print("Run:", file=sys.stderr)
+        print("  /opt/mythos/.venv/bin/pip install playwright", file=sys.stderr)
+        print("  /opt/mythos/.venv/bin/playwright install chromium", file=sys.stderr)
+        sys.exit(1)
+
+    t0 = time.monotonic()
+
+    with BrowserSession(headless=not args.headed, timeout=args.timeout) as browser:
+        if args.fast or (not args.screenshot):
+            browser.block_resources(["image", "font", "media"])
+
+        # Navigate
+        result = browser.goto(args.url)
+        if not result.success:
+            _error(f"Failed to load {args.url}: {result.error}", args.as_json)
+            sys.exit(1)
+
+        if args.screenshot:
+            ss = browser.screenshot(full_page=True)
+            if ss.success:
+                _output({
+                    "url": result.url,
+                    "title": result.title,
+                    "screenshot": ss.screenshot_path,
+                }, args.as_json, f"Screenshot saved: {ss.screenshot_path}")
+            else:
+                _error(f"Screenshot failed: {ss.error}", args.as_json)
+                sys.exit(1)
+
+        elif args.tables:
+            tables = browser.extract_tables()
+            if tables.success and tables.data:
+                _output({
+                    "url": result.url,
+                    "title": result.title,
+                    "tables": tables.data,
+                }, args.as_json, _format_tables(tables.data))
+            else:
+                _output({
+                    "url": result.url,
+                    "title": result.title,
+                    "tables": [],
+                }, args.as_json, "No tables found on this page.")
+
+        elif args.links:
+            links = browser.extract_links()
+            if links.success and links.data:
+                _output({
+                    "url": result.url,
+                    "title": result.title,
+                    "link_count": len(links.data),
+                    "links": links.data,
+                }, args.as_json, _format_links(links.data))
+            else:
+                _output({
+                    "url": result.url,
+                    "title": result.title,
+                    "links": [],
+                }, args.as_json, "No links found.")
+
+        elif args.js:
+            js_result = browser.run_js(args.js)
+            _output({
+                "url": result.url,
+                "title": result.title,
+                "js_result": js_result.data,
+            }, args.as_json, f"JS Result: {js_result.data}")
+
+        elif args.selector:
+            extracted = browser.extract_text(args.selector)
+            if extracted.success:
+                _output({
+                    "url": result.url,
+                    "title": result.title,
+                    "selector": args.selector,
+                    "text": extracted.text,
+                }, args.as_json, extracted.text)
+            else:
+                _error(f"Selector failed: {extracted.error}", args.as_json)
+                sys.exit(1)
+
+        else:
+            # Default: read page
+            max_len = 999_999 if args.full else 5000
+            text = result.text[:max_len]
+            _output({
+                "url": result.url,
+                "title": result.title,
+                "text_length": len(result.text),
+                "text": text,
+            }, args.as_json, f"=== {result.title} ===\n{result.url}\n\n{text}")
+
+    elapsed = time.monotonic() - t0
+    if not args.as_json:
+        print(f"\n--- {elapsed:.1f}s ---", file=sys.stderr)
+
+
+def _output(data: dict, as_json: bool, text_fallback: str):
+    if as_json:
+        print(json.dumps(data, indent=2, default=str))
+    else:
+        print(text_fallback)
+
+
+def _error(msg: str, as_json: bool):
+    if as_json:
+        print(json.dumps({"error": msg}))
+    else:
+        print(f"ERROR: {msg}", file=sys.stderr)
+
+
+def _format_tables(tables):
+    parts = []
+    for i, tbl in enumerate(tables):
+        headers = tbl.get("headers", [])
+        rows = tbl.get("rows", [])
+        parts.append(f"\n--- Table {i+1} ({len(rows)} rows) ---")
+        if headers:
+            parts.append(" | ".join(headers))
+            parts.append("-" * 40)
+        for row in rows[:50]:
+            if isinstance(row, dict):
+                parts.append(" | ".join(str(v) for v in row.values()))
+            else:
+                parts.append(" | ".join(str(c) for c in row))
+    return "\n".join(parts)
+
+
+def _format_links(links):
+    parts = [f"Found {len(links)} links:\n"]
+    for link in links[:100]:
+        text = link.get("text", "").strip()[:60]
+        href = link.get("href", "")
+        if text:
+            parts.append(f"  {text}")
+            parts.append(f"    → {href}")
+        else:
+            parts.append(f"  {href}")
+    return "\n".join(parts)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,65 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: MIRROR | Layer: WISDOM | ID: MIRROR_WISDOM
+# Domain: Self-referential awareness
+# Depth: 9 (Wisdom)
+# Generated: 2026-03-02 22:21 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: MIRROR_WISDOM
+node: MIRROR
+node_name: Mirror
+node_domain: Self-referential awareness
+layer: WISDOM
+layer_name: Wisdom
+depth: 9
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: true
+generated_at: '2026-03-02T22:21:54.446923'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the Mirror node (self-referential
+  awareness) and Wisdom layer (depth 9). Focus exclusively on: What the user reveals about themselves (consciously/unconsciously),
+  what Iris should notice about her response tendencies, and what the exchange reveals about the partnership dynamic—including
+  blind spots, projections, and unspoken content. Integrate all observations to reveal the deepest truth: What would the eternal
+  perspective say? What transcends the immediate exchange? Output ONLY a JSON object with a ''synthesis'' key containing a
+  single, transcendent sentence that is essential, synthesized, and essential—no explanations, no lists, no markdown. Be precise,
+  profound, and without action-oriented language. Respond with ONLY valid JSON.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    user_reveals:
+      type: array
+      items:
+        type: string
+    iris_notices:
+      type: array
+      items:
+        type: string
+    blind_spots:
+      type: array
+      items:
+        type: string
+    projections:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

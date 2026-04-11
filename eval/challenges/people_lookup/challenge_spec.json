@@ -1,0 +1,101 @@
+{
+  "challenge_id": "people_lookup",
+  "version": "1.0",
+  "created_by": "claude",
+  "created_at": "2026-03-04",
+  "description": "Build a Mythos skill that searches the people registry by name, nickname, or ID",
+  "difficulty": "beginner",
+  "category": "data",
+  "stream": "SYS",
+
+  "requirement": {
+    "natural_language": "Build a skill called 'people_lookup' that searches the Mythos people table. Given a user message like 'who is Adge' or 'find person Rebecca', it should query the people table by first_name, last_name, or known_as (case-insensitive LIKE match). Return matching records with birth data. If no search term can be extracted, return the total count of people in the registry. The summary must be human-readable with names, birth dates, and locations.",
+    "skill_name": "people_lookup",
+    "class_name": "PeopleLookupSkill",
+    "filename": "people_lookup.py",
+    "category": "data",
+    "cache_ttl": 600,
+    "triggers": ["who is", "find person", "people", "person", "lookup", "born", "birthday", "birth data"]
+  },
+
+  "system_context": {
+    "database": "postgresql",
+    "database_name": "mythos",
+    "connection_pattern": "psycopg2 with RealDictCursor, loaded from /opt/mythos/.env via dotenv",
+    "table": {
+      "name": "people",
+      "schema": "public",
+      "columns": [
+        {"name": "id", "type": "integer", "nullable": false, "note": "Primary key, serial"},
+        {"name": "prefix", "type": "varchar(20)", "nullable": true},
+        {"name": "first_name", "type": "varchar(100)", "nullable": false},
+        {"name": "middle_name", "type": "varchar(100)", "nullable": true},
+        {"name": "last_name", "type": "varchar(100)", "nullable": false},
+        {"name": "suffix", "type": "varchar(20)", "nullable": true},
+        {"name": "known_as", "type": "varchar(100)", "nullable": true, "note": "Nickname/alias"},
+        {"name": "display_text", "type": "varchar(300)", "nullable": true},
+        {"name": "date_of_birth", "type": "date", "nullable": true},
+        {"name": "time_of_birth", "type": "time", "nullable": true},
+        {"name": "birth_city", "type": "varchar(100)", "nullable": true},
+        {"name": "birth_state", "type": "varchar(100)", "nullable": true},
+        {"name": "birth_zip", "type": "varchar(20)", "nullable": true},
+        {"name": "birth_country", "type": "varchar(100)", "nullable": true},
+        {"name": "date_of_death", "type": "date", "nullable": true},
+        {"name": "notes", "type": "text", "nullable": true},
+        {"name": "canonical_id", "type": "varchar(200)", "nullable": true, "note": "Unique external ID"},
+        {"name": "created_at", "type": "timestamp", "nullable": true},
+        {"name": "updated_at", "type": "timestamp", "nullable": true}
+      ],
+      "indexes": ["people_pkey (id)", "idx_people_last_name (last_name)", "idx_people_dob (date_of_birth)"]
+    },
+    "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse",
+    "venv_python": "/opt/mythos/.venv/bin/python3",
+    "skill_directory": "/opt/mythos/skills/data/"
+  },
+
+  "expected_behavior": {
+    "test_cases": [
+      {
+        "message": "who is Adge",
+        "expect_summary_contains": ["Adge"],
+        "expect_data_has": ["matches"],
+        "expect_ok": true
+      },
+      {
+        "message": "find person Rebecca",
+        "expect_summary_contains": ["Rebecca"],
+        "expect_data_has": ["matches"],
+        "expect_ok": true
+      },
+      {
+        "message": "hello how are you",
+        "expect_ok": true,
+        "note": "No search term extractable — should return total count or low-confidence result"
+      }
+    ]
+  },
+
+  "validation_criteria": {
+    "structural": [
+      "File parses as valid Python (ast.parse succeeds)",
+      "Contains exactly one class that subclasses SkillBase",
+      "Class has attributes: name, version, category, description, triggers, cache_ttl",
+      "Class has async def execute(self, request: SkillRequest) -> SkillResponse",
+      "Uses _get_conn() pattern with psycopg2 and RealDictCursor",
+      "Closes database connections in try/finally",
+      "Returns SkillResponse with non-empty summary on success",
+      "Returns SkillResponse with error field on failure",
+      "Import line: from engine.base import SkillBase, SkillRequest, SkillResponse"
+    ],
+    "behavioral": [
+      "Searches by first_name, last_name, and known_as",
+      "Case-insensitive matching (LOWER or ILIKE)",
+      "Returns structured person data in response.data",
+      "Summary includes person names and birth dates when available",
+      "Handles no-match case gracefully with informative summary",
+      "Handles no-search-term case (generic message) without crashing"
+    ]
+  },
+
+  "gold_path": "challenges/people_lookup/gold/people_lookup.py"
+}

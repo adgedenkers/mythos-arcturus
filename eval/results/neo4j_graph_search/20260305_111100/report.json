@@ -1,0 +1,140 @@
+{
+  "plan_id": "neo4j_graph_search",
+  "model": "gemma3:27b",
+  "timestamp": "20260305_111100",
+  "total_passes": 6,
+  "total_ollama_calls": 10,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": false,
+    "errors": [
+      "data missing 'ontology': []"
+    ],
+    "passed": 6,
+    "failed": 1,
+    "total": 7
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: os, logging, dotenv (load_dotenv from /opt/mythos/.env), engine.base, neo4j (GraphDatabase). NO psycopg2. Define _get_driver():\n\ndef _get_driver():\n    return GraphDatabase.driver(\n        os.getenv('NEO4J_URI', 'bolt://localhost:7687'),\n        auth=(os.getenv('NEO4J_USER', 'neo4j'), os.getenv('NEO4J_PASSWORD', ''))\n    )\n\nClass Neo4jGraphSearchSkill with name='neo4j_graph_search', triggers=['ontology', 'graph', 'soul', 'souls', 'lineage', 'spiritual concept', 'term', 'definition', 'what does mean', 'define']. cache_ttl=600. Methods: async def execute, def _extract_search_term, def _search_ontology, def _search_nodes, def _build_summary. All 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.86,
+      "final_code_lines": 33
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_term(self, message). Lowercase, remove triggers: 'spiritual concept', 'what does mean', 'ontology', 'define', 'definition', 'graph', 'lineage', 'search for', 'search', 'find', 'about', 'what', 'the'. Normalize whitespace between each removal. Remove single-char words. Return if >= 2 chars.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 7.51,
+      "final_code_lines": 44
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _search_ontology(self, term). Use _get_driver(). With driver.session() as session: run Cypher: MATCH (t:OntologyTerm) WHERE toLower(t.name) CONTAINS toLower($term) RETURN t.name as name, t.definition as definition, t.category as category LIMIT 10. Params: {'term': term}. Convert records to list of dicts. driver.close() in finally. Return list.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 9.68,
+      "final_code_lines": 59
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _search_nodes(self, term). Use _get_driver(). Run Cypher: MATCH (n) WHERE any(label IN labels(n) WHERE label IN ['Person', 'Soul', 'SpiritualConcept']) AND toLower(n.name) CONTAINS toLower($term) RETURN labels(n) as labels, n.name as name, n.canonical_id as canonical_id LIMIT 10. Convert to list of dicts with 'type' = first label, 'name', 'canonical_id'. driver.close() in finally.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 12.55,
+      "final_code_lines": 74
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement 'async def execute(self, request)'. Extract search term. If empty: return SkillResponse with summary 'Search the knowledge graph by providing a term or concept.' Otherwise: call _search_ontology and _search_nodes. Combine results. Build summary: if ontology matches 'Found N ontology term(s): name (category) - definition'. If node matches: 'Found N graph node(s): Type: name'. Return SkillResponse(skill_name=self.name, data={'ontology': ontology_results, 'nodes': node_results, 'search_term': term}, summary=summary, confidence=0.9, sources=['neo4j']). try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 18.15,
+      "final_code_lines": 98
+    },
+    {
+      "pass": 6,
+      "instruction": "Review. Uses neo4j driver NOT psycopg2. Driver closed in finally. execute is async def. Cypher uses $param syntax. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "data missing 'ontology': []"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "data missing 'ontology': []"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "data missing 'ontology': []"
+          ]
+        },
+        {
+          "attempt": 4,
+          "test_pass": false,
+          "errors": [
+            "data missing 'ontology': []"
+          ]
+        },
+        {
+          "attempt": 5,
+          "test_pass": false,
+          "errors": [
+            "data missing 'ontology': []"
+          ]
+        }
+      ],
+      "elapsed_seconds": 92.82,
+      "final_code_lines": 98
+    }
+  ]
+}

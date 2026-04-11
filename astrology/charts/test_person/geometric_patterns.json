@@ -1,0 +1,37 @@
+[
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Moon",
+      "South Node",
+      "Venus"
+    ],
+    "Aspects": [
+      "Venus-South Node (Opposition)",
+      "Venus-Moon (Square)",
+      "South Node-Moon (Square)"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Pluto",
+      "South Node",
+      "Venus"
+    ],
+    "Aspects": [
+      "Venus-South Node (Opposition)",
+      "Venus-Pluto (Square)",
+      "South Node-Pluto (Square)"
+    ]
+  },
+  {
+    "Type": "Yod",
+    "Points": [
+      "Ascendant",
+      "Saturn",
+      "Sun"
+    ],
+    "Apex": "Ascendant"
+  }
+]

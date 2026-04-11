@@ -1,0 +1,431 @@
+==============================================================================
+  SERAPHE — LUNAR TRANSIT MAP — MARCH 2026
+  Transiting Moon aspects to all natal points
+  Birth: August 19, 1978 · 2:02 PM EDT · Norwich, NY
+  Times shown in EDT (UTC-4)
+==============================================================================
+
+──────────────────────────────────────────────────────────────────────────────
+  ⚡ KEY WINDOWS THIS MONTH
+──────────────────────────────────────────────────────────────────────────────
+  🔴 EMOTIONAL RESET WINDOW (IC → Natal Moon)
+     2026-03-17 03:24 PM
+     Moon transits 11°-16° Pisces. Maximum permeability. Magdalene channel widest. NOT a day for armor or the outside world.
+
+  🟠 PSYCHIC FLOODING (Moon ☌ Neptune)
+     2026-03-10 07:01 PM
+     Moon conjuncts natal Neptune at 15° Sagittarius. Activates Moon-Neptune square. Boundary dissolution. Psychic antenna on full blast.
+
+  💚 HEART OPENING (Moon ☌ Venus)
+     2026-03-05 01:45 PM
+     Sweetest transit of the month. Love, connection, beauty, tenderness. Heart leads. Good for partnership and creativity.
+
+  🔴 LUNAR RETURN
+     2026-03-17 09:33 PM
+     Transiting Moon conjuncts natal Moon. Monthly emotional reset. Everything resets. Maximum permeability. Day for receiving and transmitting.
+
+──────────────────────────────────────────────────────────────────────────────
+  📅 DAY-BY-DAY TRANSIT LOG
+──────────────────────────────────────────────────────────────────────────────
+
+  Sun Mar 01  ·  Moon in ♌ Leo (Fire)
+  Can feel agitating — restless, hot, scattered
+  Intensity: ███████████████ (15)
+
+    01:18 AM  ⚹ Moon sextile      Venus          (12°10' Libra)  orb 0.00°  [HEART & DRIVE]
+    02:11 AM  □ Moon square       Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+    05:45 AM  ⚻ Moon quincunx     Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    05:47 AM  ⚹ Moon sextile      Pluto          (14°45' Libra)  orb 0.00°  [PSYCHIC AXIS]
+    07:11 AM  △ Moon trine        Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+    11:17 PM  ☌ Moon conjunction  Mercury        (24°44' Leo)  orb 0.00°  [THE LIGHTS]
+
+  Mon Mar 02  ·  Moon in ♍ Virgo (Earth)
+  Temporary grounding — some relief from the flood
+  Intensity: ███████████████ (15)
+
+    01:57 AM  □ Moon square       Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    01:57 AM  □ Moon square       Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    02:11 AM  ☌ Moon conjunction  Sun            (26°23' Leo)  orb 0.00°  [THE LIGHTS]
+    03:11 AM  ⚻ Moon quincunx     South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+    01:51 PM  ☌ Moon conjunction  Saturn         (2°58' Virgo)  orb 0.00°  [HEAVYWEIGHTS]
+
+  Tue Mar 03  ·  Moon in ♍ Virgo (Earth)
+  Temporary grounding — some relief from the flood
+  Intensity: ████████████████████ (20)
+
+    04:40 AM  ☌ Moon conjunction  MC             (11°15' Virgo)  orb 0.00°  [ANGLES]
+    04:40 AM  ☍ Moon opposition   IC             (11°15' Pisces)  orb 0.00°  [LUNAR CORE]
+    07:15 AM  ⚹ Moon sextile      Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+    10:57 AM  ☍ Moon opposition   Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    12:27 PM  □ Moon square       Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+
+  Wed Mar 04  ·  Moon in ♍ Virgo (Earth)
+  Temporary grounding — some relief from the flood
+  Intensity: ████████████ (12)
+
+    03:47 AM  ⚹ Moon sextile      Lilith         (23°58' Cancer)  orb 0.00°  [SHADOW]
+    08:01 AM  ⚹ Moon sextile      Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    08:01 AM  △ Moon trine        Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    08:45 AM  ⚹ Moon sextile      Jupiter        (26°40' Cancer)  orb 0.00°  [HEAVYWEIGHTS]
+    09:18 AM  ☌ Moon conjunction  North Node     (26°57' Virgo)  orb 0.00°  [SHADOW]
+    09:18 AM  ☍ Moon opposition   South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+
+  Thu Mar 05  ·  Moon in ♎ Libra (Air)
+  Scatters emotionally — thoughts race, feelings diffuse
+  Intensity: ████████████████████ (20)
+
+    08:58 AM  ☌ Moon conjunction  Mars           (9°38' Libra)  orb 0.00°  [HEART & DRIVE]
+    12:01 PM  ⚻ Moon quincunx     IC             (11°15' Pisces)  orb 0.00°  [LUNAR CORE]
+    01:45 PM  ☌ Moon conjunction  Venus          (12°10' Libra)  orb 0.00°  [HEART & DRIVE]
+    06:37 PM  ⚻ Moon quincunx     Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    06:39 PM  ☌ Moon conjunction  Pluto          (14°45' Libra)  orb 0.00°  [PSYCHIC AXIS]
+    08:11 PM  ⚹ Moon sextile      Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+
+  Fri Mar 06  ·  Moon in ♎ Libra (Air)
+  Scatters emotionally — thoughts race, feelings diffuse
+  Intensity: ████████████ (12)
+
+    12:18 PM  □ Moon square       Lilith         (23°58' Cancer)  orb 0.00°  [SHADOW]
+    01:49 PM  ⚹ Moon sextile      Mercury        (24°44' Leo)  orb 0.00°  [THE LIGHTS]
+    04:45 PM  ⚻ Moon quincunx     Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    05:00 PM  ⚹ Moon sextile      Sun            (26°23' Leo)  orb 0.00°  [THE LIGHTS]
+    05:32 PM  □ Moon square       Jupiter        (26°40' Cancer)  orb 0.00°  [HEAVYWEIGHTS]
+    06:07 PM  ⚻ Moon quincunx     South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+
+  Sat Mar 07  ·  Moon in ♏ Scorpio (Water)
+  Amplifies permeability — psychic channel wide open
+  Intensity: ██████████ (10)
+
+    05:50 AM  ⚹ Moon sextile      Saturn         (2°58' Virgo)  orb 0.00°  [HEAVYWEIGHTS]
+    10:08 PM  ⚹ Moon sextile      MC             (11°15' Virgo)  orb 0.00°  [ANGLES]
+    10:08 PM  △ Moon trine        IC             (11°15' Pisces)  orb 0.00°  [LUNAR CORE]
+
+  Sun Mar 08  ·  Moon in ♏ Scorpio (Water)
+  Amplifies permeability — psychic channel wide open
+  Intensity: ███████████████ (15)
+
+    12:58 AM  ☌ Moon conjunction  Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+    05:02 AM  △ Moon trine        Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    11:28 PM  △ Moon trine        Lilith         (23°58' Cancer)  orb 0.00°  [SHADOW]
+
+  Mon Mar 09  ·  Moon in ♐ Sagittarius (Fire)
+  Can feel agitating — restless, hot, scattered
+  Intensity: ███████████████ (15)
+
+    01:03 AM  □ Moon square       Mercury        (24°44' Leo)  orb 0.00°  [THE LIGHTS]
+    04:05 AM  ☌ Moon conjunction  Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    04:05 AM  ☍ Moon opposition   Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    04:21 AM  □ Moon square       Sun            (26°23' Leo)  orb 0.00°  [THE LIGHTS]
+    04:54 AM  △ Moon trine        Jupiter        (26°40' Cancer)  orb 0.00°  [HEAVYWEIGHTS]
+    05:30 AM  ⚹ Moon sextile      North Node     (26°57' Virgo)  orb 0.00°  [SHADOW]
+    05:30 AM  △ Moon trine        South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+    05:37 PM  □ Moon square       Saturn         (2°58' Virgo)  orb 0.00°  [HEAVYWEIGHTS]
+
+  Tue Mar 10  ·  Moon in ♐ Sagittarius (Fire)
+  Can feel agitating — restless, hot, scattered
+  Intensity: █████████████████████████ (25)
+
+    07:04 AM  ⚹ Moon sextile      Mars           (9°38' Libra)  orb 0.00°  [HEART & DRIVE]
+    10:19 AM  □ Moon square       MC             (11°15' Virgo)  orb 0.00°  [ANGLES]
+    10:19 AM  □ Moon square       IC             (11°15' Pisces)  orb 0.00°  [LUNAR CORE]
+    12:11 PM  ⚹ Moon sextile      Venus          (12°10' Libra)  orb 0.00°  [HEART & DRIVE]
+    05:21 PM  □ Moon square       Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    05:23 PM  ⚹ Moon sextile      Pluto          (14°45' Libra)  orb 0.00°  [PSYCHIC AXIS]
+    07:01 PM  ☌ Moon conjunction  Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+
+  Wed Mar 11  ·  Moon in ♐ Sagittarius (Fire)
+  Can feel agitating — restless, hot, scattered
+  Intensity: ████████████ (12)
+
+    11:59 AM  ⚻ Moon quincunx     Lilith         (23°58' Cancer)  orb 0.00°  [SHADOW]
+    01:33 PM  △ Moon trine        Mercury        (24°44' Leo)  orb 0.00°  [THE LIGHTS]
+    04:36 PM  ⚻ Moon quincunx     Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    04:52 PM  △ Moon trine        Sun            (26°23' Leo)  orb 0.00°  [THE LIGHTS]
+    05:25 PM  ⚻ Moon quincunx     Jupiter        (26°40' Cancer)  orb 0.00°  [HEAVYWEIGHTS]
+    06:01 PM  □ Moon square       North Node     (26°57' Virgo)  orb 0.00°  [SHADOW]
+    06:01 PM  □ Moon square       South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+
+  Thu Mar 12  ·  Moon in ♑ Capricorn (Earth)
+  Temporary grounding — some relief from the flood
+  Intensity: ████████████ (12)
+
+    06:05 AM  △ Moon trine        Saturn         (2°58' Virgo)  orb 0.00°  [HEAVYWEIGHTS]
+    07:23 PM  □ Moon square       Mars           (9°38' Libra)  orb 0.00°  [HEART & DRIVE]
+    10:34 PM  △ Moon trine        MC             (11°15' Virgo)  orb 0.00°  [ANGLES]
+    10:34 PM  ⚹ Moon sextile      IC             (11°15' Pisces)  orb 0.00°  [LUNAR CORE]
+
+  Fri Mar 13  ·  Moon in ♑ Capricorn (Earth)
+  Temporary grounding — some relief from the flood
+  Intensity: ████████████████ (16)
+
+    12:23 AM  □ Moon square       Venus          (12°10' Libra)  orb 0.00°  [HEART & DRIVE]
+    01:24 AM  ⚹ Moon sextile      Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+    05:27 AM  ⚹ Moon sextile      Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    05:29 AM  □ Moon square       Pluto          (14°45' Libra)  orb 0.00°  [PSYCHIC AXIS]
+    11:33 PM  ☍ Moon opposition   Lilith         (23°58' Cancer)  orb 0.00°  [SHADOW]
+
+  Sat Mar 14  ·  Moon in ♒ Aquarius (Air)
+  Scatters emotionally — thoughts race, feelings diffuse
+  Intensity: ████████████ (12)
+
+    01:04 AM  ⚻ Moon quincunx     Mercury        (24°44' Leo)  orb 0.00°  [THE LIGHTS]
+    04:00 AM  ⚹ Moon sextile      Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    04:00 AM  △ Moon trine        Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    04:15 AM  ⚻ Moon quincunx     Sun            (26°23' Leo)  orb 0.00°  [THE LIGHTS]
+    04:47 AM  ☍ Moon opposition   Jupiter        (26°40' Cancer)  orb 0.00°  [HEAVYWEIGHTS]
+    05:22 AM  △ Moon trine        North Node     (26°57' Virgo)  orb 0.00°  [SHADOW]
+    05:22 AM  ⚹ Moon sextile      South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+    04:56 PM  ⚻ Moon quincunx     Saturn         (2°58' Virgo)  orb 0.00°  [HEAVYWEIGHTS]
+
+  Sun Mar 15  ·  Moon in ♒ Aquarius (Air)
+  Scatters emotionally — thoughts race, feelings diffuse
+  Intensity: ████████████ (12)
+
+    05:37 AM  △ Moon trine        Mars           (9°38' Libra)  orb 0.00°  [HEART & DRIVE]
+    08:39 AM  ⚻ Moon quincunx     MC             (11°15' Virgo)  orb 0.00°  [ANGLES]
+    10:22 AM  △ Moon trine        Venus          (12°10' Libra)  orb 0.00°  [HEART & DRIVE]
+    11:20 AM  □ Moon square       Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+    03:12 PM  △ Moon trine        Pluto          (14°45' Libra)  orb 0.00°  [PSYCHIC AXIS]
+    04:43 PM  ⚹ Moon sextile      Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+
+  Mon Mar 16  ·  Moon in ♒ Aquarius (Air)
+  Scatters emotionally — thoughts race, feelings diffuse
+  Intensity: ████████████ (12)
+
+    08:16 AM  ⚻ Moon quincunx     Lilith         (23°58' Cancer)  orb 0.00°  [SHADOW]
+    09:42 AM  ☍ Moon opposition   Mercury        (24°44' Leo)  orb 0.00°  [THE LIGHTS]
+    12:28 PM  □ Moon square       Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    12:28 PM  □ Moon square       Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    12:42 PM  ☍ Moon opposition   Sun            (26°23' Leo)  orb 0.00°  [THE LIGHTS]
+    01:12 PM  ⚻ Moon quincunx     Jupiter        (26°40' Cancer)  orb 0.00°  [HEAVYWEIGHTS]
+    01:44 PM  ⚻ Moon quincunx     North Node     (26°57' Virgo)  orb 0.00°  [SHADOW]
+
+  Tue Mar 17  ·  Moon in ♓ Pisces (Water)
+  Amplifies permeability — psychic channel wide open
+  Intensity: █████████████████████████ (25)
+
+    12:38 AM  ☍ Moon opposition   Saturn         (2°58' Virgo)  orb 0.00°  [HEAVYWEIGHTS]
+    12:33 PM  ⚻ Moon quincunx     Mars           (9°38' Libra)  orb 0.00°  [HEART & DRIVE]
+    03:24 PM  ☍ Moon opposition   MC             (11°15' Virgo)  orb 0.00°  [ANGLES]
+    03:24 PM  ☌ Moon conjunction  IC             (11°15' Pisces)  orb 0.00°  [LUNAR CORE]
+    05:02 PM  ⚻ Moon quincunx     Venus          (12°10' Libra)  orb 0.00°  [HEART & DRIVE]
+    05:56 PM  △ Moon trine        Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+    09:33 PM  ☌ Moon conjunction  Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    09:35 PM  ⚻ Moon quincunx     Pluto          (14°45' Libra)  orb 0.00°  [PSYCHIC AXIS]
+    11:00 PM  □ Moon square       Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+
+  Wed Mar 18  ·  Moon in ♓ Pisces (Water)
+  Amplifies permeability — psychic channel wide open
+  Intensity: ███████████████ (15)
+
+    01:39 PM  △ Moon trine        Lilith         (23°58' Cancer)  orb 0.00°  [SHADOW]
+    03:00 PM  ⚻ Moon quincunx     Mercury        (24°44' Leo)  orb 0.00°  [THE LIGHTS]
+    05:37 PM  △ Moon trine        Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    05:37 PM  ⚹ Moon sextile      Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    05:50 PM  ⚻ Moon quincunx     Sun            (26°23' Leo)  orb 0.00°  [THE LIGHTS]
+    06:19 PM  △ Moon trine        Jupiter        (26°40' Cancer)  orb 0.00°  [HEAVYWEIGHTS]
+    06:49 PM  ☍ Moon opposition   North Node     (26°57' Virgo)  orb 0.00°  [SHADOW]
+    06:49 PM  ☌ Moon conjunction  South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+
+  Thu Mar 19  ·  Moon in ♈ Aries (Fire)
+  Can feel agitating — restless, hot, scattered
+  Intensity: ████████████ (12)
+
+    05:08 AM  ⚻ Moon quincunx     Saturn         (2°58' Virgo)  orb 0.00°  [HEAVYWEIGHTS]
+    04:28 PM  ☍ Moon opposition   Mars           (9°38' Libra)  orb 0.00°  [HEART & DRIVE]
+    07:12 PM  ⚻ Moon quincunx     MC             (11°15' Virgo)  orb 0.00°  [ANGLES]
+    08:45 PM  ☍ Moon opposition   Venus          (12°10' Libra)  orb 0.00°  [HEART & DRIVE]
+    09:37 PM  ⚻ Moon quincunx     Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+
+  Fri Mar 20  ·  Moon in ♈ Aries (Fire)
+  Can feel agitating — restless, hot, scattered
+  Intensity: ████████████████ (16)
+
+    01:05 AM  ☍ Moon opposition   Pluto          (14°45' Libra)  orb 0.00°  [PSYCHIC AXIS]
+    02:27 AM  △ Moon trine        Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+    04:32 PM  □ Moon square       Lilith         (23°58' Cancer)  orb 0.00°  [SHADOW]
+    05:50 PM  △ Moon trine        Mercury        (24°44' Leo)  orb 0.00°  [THE LIGHTS]
+    08:22 PM  ⚻ Moon quincunx     Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    08:34 PM  △ Moon trine        Sun            (26°23' Leo)  orb 0.00°  [THE LIGHTS]
+    09:02 PM  □ Moon square       Jupiter        (26°40' Cancer)  orb 0.00°  [HEAVYWEIGHTS]
+    09:32 PM  ⚻ Moon quincunx     North Node     (26°57' Virgo)  orb 0.00°  [SHADOW]
+
+  Sat Mar 21  ·  Moon in ♉ Taurus (Earth)
+  Temporary grounding — some relief from the flood
+  Intensity: ████████████ (12)
+
+    07:32 AM  △ Moon trine        Saturn         (2°58' Virgo)  orb 0.00°  [HEAVYWEIGHTS]
+    06:35 PM  ⚻ Moon quincunx     Mars           (9°38' Libra)  orb 0.00°  [HEART & DRIVE]
+    09:15 PM  △ Moon trine        MC             (11°15' Virgo)  orb 0.00°  [ANGLES]
+    09:15 PM  ⚹ Moon sextile      IC             (11°15' Pisces)  orb 0.00°  [LUNAR CORE]
+    10:46 PM  ⚻ Moon quincunx     Venus          (12°10' Libra)  orb 0.00°  [HEART & DRIVE]
+    11:37 PM  ☍ Moon opposition   Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+
+  Sun Mar 22  ·  Moon in ♉ Taurus (Earth)
+  Temporary grounding — some relief from the flood
+  Intensity: ███████████████ (15)
+
+    03:01 AM  ⚹ Moon sextile      Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    03:03 AM  ⚻ Moon quincunx     Pluto          (14°45' Libra)  orb 0.00°  [PSYCHIC AXIS]
+    04:23 AM  ⚻ Moon quincunx     Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+    06:18 PM  ⚹ Moon sextile      Lilith         (23°58' Cancer)  orb 0.00°  [SHADOW]
+    07:36 PM  □ Moon square       Mercury        (24°44' Leo)  orb 0.00°  [THE LIGHTS]
+    10:06 PM  ☍ Moon opposition   Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    10:06 PM  ☌ Moon conjunction  Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    10:19 PM  □ Moon square       Sun            (26°23' Leo)  orb 0.00°  [THE LIGHTS]
+    10:47 PM  ⚹ Moon sextile      Jupiter        (26°40' Cancer)  orb 0.00°  [HEAVYWEIGHTS]
+    11:16 PM  △ Moon trine        North Node     (26°57' Virgo)  orb 0.00°  [SHADOW]
+    11:16 PM  ⚹ Moon sextile      South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+
+  Mon Mar 23  ·  Moon in ♊ Gemini (Air)
+  Scatters emotionally — thoughts race, feelings diffuse
+  Intensity: ████████████████████ (20)
+
+    09:15 AM  □ Moon square       Saturn         (2°58' Virgo)  orb 0.00°  [HEAVYWEIGHTS]
+    08:21 PM  △ Moon trine        Mars           (9°38' Libra)  orb 0.00°  [HEART & DRIVE]
+    11:02 PM  □ Moon square       MC             (11°15' Virgo)  orb 0.00°  [ANGLES]
+    11:02 PM  □ Moon square       IC             (11°15' Pisces)  orb 0.00°  [LUNAR CORE]
+
+  Tue Mar 24  ·  Moon in ♊ Gemini (Air)
+  Scatters emotionally — thoughts race, feelings diffuse
+  Intensity: ████████████████████ (20)
+
+    12:34 AM  △ Moon trine        Venus          (12°10' Libra)  orb 0.00°  [HEART & DRIVE]
+    01:25 AM  ⚻ Moon quincunx     Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+    04:51 AM  □ Moon square       Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    04:53 AM  △ Moon trine        Pluto          (14°45' Libra)  orb 0.00°  [PSYCHIC AXIS]
+    06:14 AM  ☍ Moon opposition   Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+    09:40 PM  ⚹ Moon sextile      Mercury        (24°44' Leo)  orb 0.00°  [THE LIGHTS]
+
+  Wed Mar 25  ·  Moon in ♋ Cancer (Water)
+  Amplifies permeability — psychic channel wide open
+  Intensity: ████████████ (12)
+
+    12:13 AM  ⚻ Moon quincunx     Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    12:26 AM  ⚹ Moon sextile      Sun            (26°23' Leo)  orb 0.00°  [THE LIGHTS]
+    01:24 AM  □ Moon square       North Node     (26°57' Virgo)  orb 0.00°  [SHADOW]
+    01:24 AM  □ Moon square       South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+    11:36 AM  ⚹ Moon sextile      Saturn         (2°58' Virgo)  orb 0.00°  [HEAVYWEIGHTS]
+    10:58 PM  □ Moon square       Mars           (9°38' Libra)  orb 0.00°  [HEART & DRIVE]
+
+  Thu Mar 26  ·  Moon in ♋ Cancer (Water)
+  Amplifies permeability — psychic channel wide open
+  Intensity: ████████████████ (16)
+
+    01:43 AM  ⚹ Moon sextile      MC             (11°15' Virgo)  orb 0.00°  [ANGLES]
+    01:43 AM  △ Moon trine        IC             (11°15' Pisces)  orb 0.00°  [LUNAR CORE]
+    03:18 AM  □ Moon square       Venus          (12°10' Libra)  orb 0.00°  [HEART & DRIVE]
+    04:10 AM  △ Moon trine        Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+    07:41 AM  △ Moon trine        Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    07:43 AM  □ Moon square       Pluto          (14°45' Libra)  orb 0.00°  [PSYCHIC AXIS]
+    09:07 AM  ⚻ Moon quincunx     Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+    11:39 PM  ☌ Moon conjunction  Lilith         (23°58' Cancer)  orb 0.00°  [SHADOW]
+
+  Fri Mar 27  ·  Moon in ♌ Leo (Fire)
+  Can feel agitating — restless, hot, scattered
+  Intensity: ███████████████ (15)
+
+    03:38 AM  △ Moon trine        Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    03:38 AM  ⚹ Moon sextile      Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    04:21 AM  ☌ Moon conjunction  Jupiter        (26°40' Cancer)  orb 0.00°  [HEAVYWEIGHTS]
+    04:52 AM  ⚹ Moon sextile      North Node     (26°57' Virgo)  orb 0.00°  [SHADOW]
+    04:52 AM  △ Moon trine        South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+
+  Sat Mar 28  ·  Moon in ♌ Leo (Fire)
+  Can feel agitating — restless, hot, scattered
+  Intensity: ███████████████ (15)
+
+    03:08 AM  ⚹ Moon sextile      Mars           (9°38' Libra)  orb 0.00°  [HEART & DRIVE]
+    05:59 AM  ⚻ Moon quincunx     IC             (11°15' Pisces)  orb 0.00°  [LUNAR CORE]
+    07:36 AM  ⚹ Moon sextile      Venus          (12°10' Libra)  orb 0.00°  [HEART & DRIVE]
+    08:31 AM  □ Moon square       Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+    12:09 PM  ⚻ Moon quincunx     Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    12:11 PM  ⚹ Moon sextile      Pluto          (14°45' Libra)  orb 0.00°  [PSYCHIC AXIS]
+    01:38 PM  △ Moon trine        Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+
+  Sun Mar 29  ·  Moon in ♌ Leo (Fire)
+  Can feel agitating — restless, hot, scattered
+  Intensity: ███████████████ (15)
+
+    06:04 AM  ☌ Moon conjunction  Mercury        (24°44' Leo)  orb 0.00°  [THE LIGHTS]
+    08:48 AM  □ Moon square       Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    08:48 AM  □ Moon square       Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    09:02 AM  ☌ Moon conjunction  Sun            (26°23' Leo)  orb 0.00°  [THE LIGHTS]
+    10:04 AM  ⚻ Moon quincunx     South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+    08:57 PM  ☌ Moon conjunction  Saturn         (2°58' Virgo)  orb 0.00°  [HEAVYWEIGHTS]
+
+  Mon Mar 30  ·  Moon in ♍ Virgo (Earth)
+  Temporary grounding — some relief from the flood
+  Intensity: ████████████████████ (20)
+
+    12:04 PM  ☌ Moon conjunction  MC             (11°15' Virgo)  orb 0.00°  [ANGLES]
+    12:04 PM  ☍ Moon opposition   IC             (11°15' Pisces)  orb 0.00°  [LUNAR CORE]
+    02:41 PM  ⚹ Moon sextile      Uranus         (12°41' Scorpio)  orb 0.00°  [HEAVYWEIGHTS]
+    06:28 PM  ☍ Moon opposition   Moon           (14°44' Pisces)  orb 0.00°  [LUNAR CORE]
+    07:59 PM  □ Moon square       Neptune        (15°33' Sagittarius)  orb 0.00°  [PSYCHIC AXIS]
+
+  Tue Mar 31  ·  Moon in ♍ Virgo (Earth)
+  Temporary grounding — some relief from the flood
+  Intensity: ████████████ (12)
+
+    11:33 AM  ⚹ Moon sextile      Lilith         (23°58' Cancer)  orb 0.00°  [SHADOW]
+    03:51 PM  ⚹ Moon sextile      Ascendant      (26°15' Scorpio)  orb 0.00°  [ANGLES]
+    03:51 PM  △ Moon trine        Descendant     (26°15' Taurus)  orb 0.00°  [ANGLES]
+    04:36 PM  ⚹ Moon sextile      Jupiter        (26°40' Cancer)  orb 0.00°  [HEAVYWEIGHTS]
+    05:09 PM  ☌ Moon conjunction  North Node     (26°57' Virgo)  orb 0.00°  [SHADOW]
+    05:09 PM  ☍ Moon opposition   South Node     (26°57' Pisces)  orb 0.00°  [LUNAR CORE]
+
+──────────────────────────────────────────────────────────────────────────────
+  📍 NATAL POINTS REFERENCE
+──────────────────────────────────────────────────────────────────────────────
+
+  LUNAR CORE
+    Moon            14°44' Pisces         ★★★★★
+    South Node      26°57' Pisces         ★★★☆☆
+    IC              11°15' Pisces         ★★★★★
+
+  PSYCHIC AXIS
+    Neptune         15°33' Sagittarius    ★★★★★
+    Pluto           14°45' Libra          ★★★★☆
+
+  ANGLES
+    Ascendant       26°15' Scorpio        ★★★☆☆
+    MC              11°15' Virgo          ★★★☆☆
+    Descendant      26°15' Taurus         ★★☆☆☆
+
+  THE LIGHTS
+    Sun             26°23' Leo            ★★★☆☆
+    Mercury         24°44' Leo            ★★☆☆☆
+
+  HEART & DRIVE
+    Venus           12°10' Libra          ★★★☆☆
+    Mars            9°38' Libra           ★★★☆☆
+
+  HEAVYWEIGHTS
+    Jupiter         26°40' Cancer         ★★★☆☆
+    Saturn          2°58' Virgo           ★★★☆☆
+    Uranus          12°41' Scorpio        ★★★☆☆
+
+  SHADOW
+    North Node      26°57' Virgo          ★★☆☆☆
+    Lilith          23°58' Cancer         ★★★☆☆
+
+──────────────────────────────────────────────────────────────────────────────
+  📊 MONTH SUMMARY
+──────────────────────────────────────────────────────────────────────────────
+  Total exact aspects: 194
+    ☌ conjunction   : 22
+    ☍ opposition    : 20
+    □ square        : 38
+    △ trine         : 36
+    ⚹ sextile       : 41
+    ⚻ quincunx      : 37
+
+  Highest intensity days:
+    Tue Mar 17: 130 total intensity
+    Tue Mar 10: 87 total intensity
+    Sun Mar 22: 87 total intensity
+    Thu Mar 26: 87 total intensity
+    Thu Mar 05: 85 total intensity
+
+==============================================================================

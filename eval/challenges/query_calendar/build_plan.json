@@ -1,0 +1,34 @@
+{
+  "plan_id": "query_calendar",
+  "version": "1.0",
+  "description": "Show today's calendar events and upcoming schedule",
+  "pattern": "data_query_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "table_schema": "Table: calendar_events\nColumns:\n  - id (integer, PK)\n  - title (text, NOT NULL)\n  - description (text)\n  - event_date (date, NOT NULL)\n  - start_time (time) -- can be NULL for all-day events\n  - end_time (time)\n  - location (text)\n  - person (varchar(50), default 'adge')\n  - is_recurring (boolean, default false)\n  - source (varchar(50), default 'manual')\n  - is_active (boolean, default true)\n\nIndexes: idx_calendar_events_date (event_date), idx_calendar_events_person (person)",
+    "scaffold": "class QueryCalendarSkill(SkillBase):\n    name = 'query_calendar'\n    version = '1.0'\n    category = 'data'\n    description = 'Show calendar events for today or upcoming days'\n    triggers = ['calendar', 'schedule', 'events', 'what is on', 'whats on', 'plans', 'upcoming', 'agenda', 'do I have anything', 'any events', 'appointments']\n    cache_ttl = 300\n\n    async def execute(self, request) -> SkillResponse:\n        # 1. Detect date range from message (today, this week, next N days)\n        # 2. Query calendar_events for that range\n        # 3. Format and summarize\n        pass\n\n    def _detect_range(self, message) -> tuple:\n        # Return (start_date, end_date)\n        # Default: today only\n        # 'week'/'this week' = today through 7 days\n        # 'tomorrow' = tomorrow only\n        # 'next N days' = today + N\n        pass\n\n    def _query_events(self, start_date, end_date) -> list:\n        pass\n\n    def _format_results(self, rows) -> list:\n        pass\n\n    def _build_summary(self, results, start_date, end_date) -> str:\n        pass",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "connection_cleanup": "Always try/except/finally. Close cursor and connection in finally.",
+      "no_unicode": "ASCII only in comments."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: os, logging, re, datetime (date, timedelta), psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _detect_range(). Get today = date.today(). Lowercase the message. Check keywords: 'tomorrow' -> (today + 1 day, today + 1 day). 'this week' or 'week' -> (today, today + 7 days). 'next N days' using re.search(r'next\\s+(\\d+)\\s*days?', msg) -> (today, today + N days). 'month' or 'this month' -> (today, today + 30 days). Default: (today, today) meaning just today. Return tuple of (start_date, end_date).", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement _query_events(). Use _get_conn(). Query:\n\nSELECT id, title, description, event_date, start_time, end_time, location, person\nFROM calendar_events\nWHERE is_active = true\n  AND event_date >= %s AND event_date <= %s\nORDER BY event_date, start_time NULLS LAST\n\nParams: (start_date, end_date). try/finally close.", "test": "parse_check"},
+    {"pass": 4, "instruction": "Implement _format_results() and _build_summary(). Format: dict with id, title, event_date (ISO str), start_time (str 'HH:MM' or 'all day' if None), end_time (str or None), location (or None), person. Summary: if no events and range is just today: 'No events scheduled for today.' If no events and range is multiple days: 'No events in the next N days.' If events: group by date. For each date: 'DATE: title at TIME (location)' or 'DATE: title (all day)'. Keep summary concise -- max 5 events shown, then 'and N more'.", "test": "parse_check"},
+    {"pass": 5, "instruction": "Implement execute(). Detect range from message. Query events. Format and summarize. Return SkillResponse(skill_name=self.name, data={'events': formatted, 'count': len, 'start_date': str(start), 'end_date': str(end)}, summary=summary, confidence=0.95, sources=['mythos.calendar_events']). try/except/finally.", "test": "import_check"},
+    {"pass": 6, "instruction": "Review. _get_conn uses POSTGRES_HOST. Connections close. Summary never empty. Times formatted cleanly. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "what is on my calendar today", "expect_ok": true, "expect_data_has": ["events"]},
+    {"message": "any upcoming events this week", "expect_ok": true, "expect_data_has": ["events"]},
+    {"message": "schedule", "expect_ok": true}
+  ]
+}

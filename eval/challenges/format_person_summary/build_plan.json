@@ -1,0 +1,28 @@
+{
+  "plan_id": "format_person_summary",
+  "version": "1.0",
+  "description": "Format a person record into a standard human-readable display",
+  "pattern": "format_summary",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "scaffold": "class FormatPersonSummarySkill(SkillBase):\n    name = 'format_person_summary'\n    version = '1.0'\n    category = 'meta'\n    description = 'Format person data into a standard readable summary'\n    triggers = ['format person', 'person summary', 'who is']\n    cache_ttl = 0\n\n    async def execute(self, request) -> SkillResponse:\n        # Expects request.parameters['person'] as a dict with people table fields\n        pass\n\n    def _format(self, person) -> str:\n        # Build: 'Name (aka Nickname), born DATE in CITY, STATE'\n        pass",
+    "mandatory_patterns": {
+      "no_database": "No database. Pure formatting.",
+      "no_unicode": "ASCII only.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name, data, summary, confidence, sources, error."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: logging, engine.base. NO database imports. Class with attributes. Methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _format(). Takes a person dict. Build display name from parts: prefix, first_name, middle_name, last_name, suffix (skip None/empty). If known_as exists, append ' (aka KNOWN_AS)'. If date_of_birth: append ', born DATE'. If birth_city or birth_state: append ' in CITY, STATE' (skip if both empty, skip state if same as country). If date_of_death: append ', died DATE'. If notes and len < 100: append '. Notes: NOTES'. Return the complete string.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement execute(). Get person from request.parameters.get('person', {}). If empty: return SkillResponse(skill_name=self.name, data={}, summary='No person data to format.', confidence=0.3, sources=[]). Call _format(person). Return SkillResponse(skill_name=self.name, data={'formatted': formatted, 'person_id': person.get('id')}, summary=formatted, confidence=0.95, sources=['format_person_summary']). try/except.", "test": "import_check"},
+    {"pass": 4, "instruction": "Review. No database imports. Handles missing fields gracefully. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "format person", "expect_ok": true, "expect_data_has": ["formatted"]},
+    {"message": "who is this person", "expect_ok": true}
+  ]
+}

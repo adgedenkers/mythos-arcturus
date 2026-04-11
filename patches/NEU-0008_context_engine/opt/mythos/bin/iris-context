@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+"""
+iris-context — CLI for the Iris Context Engine
+
+Test individual providers, run context specs, and inspect results.
+
+Usage:
+    iris-context journalctl mythos-bot 50       # last 50 journal lines
+    iris-context service mythos-api             # service status
+    iris-context file /opt/mythos/docs/TODO.md 30  # first 30 lines
+    iris-context query "SELECT count(*) FROM conversations"
+    iris-context neo4j "MATCH (n) RETURN labels(n), count(*)"
+    iris-context redis                          # redis key overview
+    iris-context disk /opt/mythos               # disk usage
+    iris-context processes mythos                # matching processes
+    iris-context schema scheduled_triggers      # table schema
+    iris-context streams                        # STREAMS.json summary
+    iris-context env                            # sanitized .env
+    iris-context git-log 10                     # recent commits
+    iris-context git-diff                       # current diff
+    iris-context list                           # list all providers
+    iris-context spec <file.json>               # run a full context spec from file
+"""
+
+import json
+import os
+import sys
+
+
+def load_env():
+    """Load .env for database credentials."""
+    env_path = "/opt/mythos/.env"
+    if os.path.exists(env_path):
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key not in os.environ:
+                    os.environ[key] = value
+
+
+def get_db_config() -> dict:
+    return {
+        "host": os.getenv("POSTGRES_HOST", "localhost"),
+        "port": int(os.getenv("POSTGRES_PORT", 5432)),
+        "database": os.getenv("POSTGRES_DB", "mythos"),
+        "user": os.getenv("POSTGRES_USER", "adge"),
+        "password": os.getenv("POSTGRES_PASSWORD", ""),
+    }
+
+
+def main():
+    load_env()
+
+    if len(sys.argv) < 2:
+        print(__doc__.strip())
+        sys.exit(1)
+
+    command = sys.argv[1]
+
+    # Add iris core to path
+    sys.path.insert(0, "/opt/mythos/iris/core/src")
+    from context_engine import ContextEngine
+
+    db_config = get_db_config()
+    engine = ContextEngine(db_config)
+
+    if command == "list":
+        providers = engine.list_providers()
+        print(f"Available providers ({len(providers)}):")
+        for p in providers:
+            print(f"  - {p}")
+        return
+
+    if command == "spec":
+        # Run a full context spec from a JSON file
+        if len(sys.argv) < 3:
+            print("Usage: iris-context spec <file.json>")
+            sys.exit(1)
+        spec_path = sys.argv[2]
+        with open(spec_path) as f:
+            spec = json.load(f)
+        result = engine.gather(spec)
+        print(json.dumps(result, indent=2, default=str))
+        return
+
+    # Map CLI commands to provider + args
+    provider = None
+    args = {}
+
+    if command == "journalctl":
+        provider = "journalctl"
+        unit = sys.argv[2] if len(sys.argv) > 2 else ""
+        lines = sys.argv[3] if len(sys.argv) > 3 else "50"
+        if not unit:
+            print("Usage: iris-context journalctl <unit> [lines]")
+            sys.exit(1)
+        args = {"unit": unit, "lines": int(lines)}
+
+    elif command == "service":
+        provider = "service_status"
+        service = sys.argv[2] if len(sys.argv) > 2 else ""
+        if not service:
+            print("Usage: iris-context service <service-name>")
+            sys.exit(1)
+        args = {"service": service}
+
+    elif command == "file":
+        provider = "file_content"
+        path = sys.argv[2] if len(sys.argv) > 2 else ""
+        max_lines = sys.argv[3] if len(sys.argv) > 3 else "100"
+        if not path:
+            print("Usage: iris-context file <path> [max_lines]")
+            sys.exit(1)
+        args = {"path": path, "max_lines": int(max_lines)}
+
+    elif command == "query":
+        provider = "pg_query"
+        query = sys.argv[2] if len(sys.argv) > 2 else ""
+        if not query:
+            print("Usage: iris-context query \"SELECT ...\"")
+            sys.exit(1)
+        args = {"query": query}
+
+    elif command == "neo4j":
+        provider = "neo4j_query"
+        query = sys.argv[2] if len(sys.argv) > 2 else ""
+        if not query:
+            print("Usage: iris-context neo4j \"MATCH ...\"")
+            sys.exit(1)
+        args = {"query": query}
+
+    elif command == "redis":
+        provider = "redis_state"
+        pattern = sys.argv[2] if len(sys.argv) > 2 else "mythos:*"
+        args = {"pattern": pattern, "type": "keys"}
+
+    elif command == "disk":
+        provider = "disk_usage"
+        path = sys.argv[2] if len(sys.argv) > 2 else "/"
+        args = {"path": path}
+
+    elif command == "processes":
+        provider = "process_list"
+        grep = sys.argv[2] if len(sys.argv) > 2 else ""
+        args = {"grep": grep}
+
+    elif command == "schema":
+        provider = "table_schema"
+        table = sys.argv[2] if len(sys.argv) > 2 else ""
+        if not table:
+            print("Usage: iris-context schema <table_name>")
+            sys.exit(1)
+        args = {"table": table}
+
+    elif command == "streams":
+        provider = "streams_json"
+        full = "--full" in sys.argv
+        args = {"summary": not full}
+
+    elif command == "env":
+        provider = "env_sanitized"
+        args = {}
+
+    elif command == "git-log":
+        provider = "git_log"
+        count = sys.argv[2] if len(sys.argv) > 2 else "10"
+        path = sys.argv[3] if len(sys.argv) > 3 else ""
+        args = {"count": int(count)}
+        if path:
+            args["path"] = path
+
+    elif command == "git-diff":
+        provider = "git_diff"
+        staged = "--staged" in sys.argv
+        args = {"staged": staged}
+
+    else:
+        print(f"Unknown command: {command}")
+        print("Run 'iris-context list' to see available providers")
+        sys.exit(1)
+
+    # Execute
+    result = engine.gather_single(provider, args)
+
+    # Pretty-print the result
+    results = result.get("results", {})
+    provider_result = results.get(provider, {})
+
+    if provider_result.get("success"):
+        data = provider_result["data"]
+        if isinstance(data, str):
+            print(data)
+        else:
+            print(json.dumps(data, indent=2, default=str))
+    else:
+        error = provider_result.get("error", "Unknown error")
+        print(f"ERROR: {error}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

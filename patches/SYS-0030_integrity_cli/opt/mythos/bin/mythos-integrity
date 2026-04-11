@@ -1,0 +1,5 @@
+#!/bin/bash
+# Mythos Integrity Scanner
+# Scans /opt/mythos/ tree, syncs hashes + structure into Neo4j
+cd /opt/mythos
+/opt/mythos/.venv/bin/python3 -m integrity "$@"

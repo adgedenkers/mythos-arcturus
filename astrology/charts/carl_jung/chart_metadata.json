@@ -1,0 +1,13 @@
+{
+  "Name": "Carl Jung",
+  "Birth": {
+    "Date": "1875-07-26",
+    "Time": "19:24",
+    "Place": "Kesswil, Bezirk Arbon, Thurgau, 8593, Schweiz/Suisse/Svizzera/Svizra",
+    "Latitude": 47.593192,
+    "Longitude": 9.317435,
+    "Timezone": "Europe/Zurich"
+  },
+  "noon_chart": false,
+  "person_id": 10
+}

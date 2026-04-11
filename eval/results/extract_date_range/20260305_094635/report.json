@@ -1,0 +1,78 @@
+{
+  "plan_id": "extract_date_range",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_094635",
+  "total_passes": 4,
+  "total_ollama_calls": 4,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 12,
+    "failed": 0,
+    "total": 12
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: logging, re, datetime (date, timedelta), calendar, engine.base (SkillBase, SkillRequest, SkillResponse). NO psycopg2, NO os, NO dotenv. Class with all attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 2.95,
+      "final_code_lines": 24
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _parse_dates(). Lowercase the message. Check patterns in this order (first match wins): 'today' -> (today, today, 'today'). 'yesterday' -> (today-1, today-1, 'yesterday'). 'this week' -> (monday of this week, today, 'this week'). 'last week' -> (monday of last week, sunday of last week, 'last week'). 'this month' -> (1st of this month, today, 'this month'). 'last month' -> (1st of last month, last day of last month, 'last month'). Use re.search(r'past (\\d+) days?', msg) or r'last (\\d+) days?' -> (today - N, today, f'past N days'). Use re.search(r'(\\d+) days? ago', msg) -> (today - N, today - N, f'N days ago'). Check month names: re.search(r'in (january|february|march|april|may|june|july|august|september|october|november|december)', msg) -> (1st of that month this year, last day of that month, f'in Month'). If nothing matches, return (None, None, 'no date detected').",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.8,
+      "final_code_lines": 106
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement execute(). Call _parse_dates(request.message). If start_date is None: return SkillResponse(skill_name=self.name, data={'start_date': None, 'end_date': None, 'detected': False}, summary='No date reference detected in message.', confidence=0.3, sources=['extract_date_range']). Otherwise: return SkillResponse(skill_name=self.name, data={'start_date': str(start), 'end_date': str(end), 'description': desc, 'detected': True}, summary=f'Date range: {desc} ({start} to {end})', confidence=0.9, sources=['extract_date_range']). try/except.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 6.0,
+      "final_code_lines": 130
+    },
+    {
+      "pass": 4,
+      "instruction": "Review. No database imports. All date math correct \u2014 especially week boundaries (Monday=0 in weekday()). Month names handled. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 6.09,
+      "final_code_lines": 130
+    }
+  ]
+}

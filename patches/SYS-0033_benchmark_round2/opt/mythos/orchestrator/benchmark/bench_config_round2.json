@@ -1,0 +1,27 @@
+{
+  "run_id_prefix": "round2",
+  "models": [
+    "qwen3:30b-a3b",
+    "qwen2.5:32b",
+    "command-r:35b",
+    "mistral-small:24b",
+    "gemma2:27b",
+    "nous-hermes2:latest",
+    "phi4:14b",
+    "qwen3:14b",
+    "yi:34b-chat"
+  ],
+  "timeouts": {
+    "reasoning":  120,
+    "code":       120,
+    "mythos":     120,
+    "narrative":  180,
+    "tool_use":    90,
+    "voice":       90
+  },
+  "judge_model": "qwen2.5:32b",
+  "judge_timeout": 120,
+  "max_retries": 1,
+  "ollama_host": "http://localhost:11434",
+  "notes": "Round 2 — 9-model run. Control: qwen2.5:32b. New entrants: qwen3:30b-a3b, command-r:35b, mistral-small:24b, gemma2:27b, nous-hermes2, phi4:14b, qwen3:14b, yi:34b-chat. deepseek-r1:32b to be run separately when download completes."
+}

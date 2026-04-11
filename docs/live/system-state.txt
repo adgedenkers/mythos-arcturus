@@ -1,0 +1,46 @@
+# Mythos System State
+# Generated: 2026-04-10 03:00:25
+
+## Patch & Version
+Current Patch:   0000
+Current Version: sys_0058
+Next Patch:      0001
+Total Patches:   0
+
+## Services (22/24 healthy)
+  ✅ mythos-api: active/running
+  ✅ mythos-bot: active/running
+  ✅ mythos-doc-watcher: active/running
+  ✅ mythos-knowledge-map: active/running
+  ❌ mythos-obs-graph: activating/auto-restart
+  ✅ mythos-patch-monitor: active/running
+  ❌ mythos-photos: active/exited
+  ✅ mythos-planetary-engine: active/running
+  ✅ mythos-print-watcher: active/running
+  ✅ mythos-segment-manager: active/running
+  ✅ mythos-seismic-ingest: active/running
+  ✅ mythos-solar-ingest: active/running
+  ✅ mythos-transcription-worker: active/running
+  ✅ mythos-trigger: active/running
+  ✅ mythos-voice-watcher: active/running
+  ✅ mythos-worker-embedding: active/running
+  ✅ mythos-worker-entity: active/running
+  ✅ mythos-worker-grid: active/running
+  ✅ mythos-worker-lunar: active/running
+  ✅ mythos-worker-summary: active/running
+  ✅ mythos-worker-temporal: active/running
+  ✅ mythos-worker-vision: active/running
+  ✅ mythos-youtube-monitor: active/running
+  ✅ mythos-youtube-queue: active/running
+
+## Unhealthy Services
+  ⚠️  mythos-obs-graph: activating/auto-restart
+  ⚠️  mythos-photos: active/exited
+
+## Database
+PostgreSQL Tables: 126
+
+## Disk
+Mythos Size:  327G
+Root Disk:    1.1T / 1.8T (60%)
+Available:    710G

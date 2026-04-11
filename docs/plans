@@ -1,0 +1,2016 @@
+# Mythos Privilege Foundation — Execution Plan (FINAL)
+
+**Handoff for fresh conversation execution**
+**Authored:** 2026-04-10
+**Status:** Approved by Jeff Thinking, incorporates round 1 feedback from Castor (Gemini)
+**Target server:** Arcturus (adge's Ubuntu 24.04 home server running Mythos)
+
+---
+
+## How to use this document
+
+This document is **self-contained and ready to execute**. When you (a fresh
+Claude session) receive this, your job is to:
+
+1. Verify prerequisites (Section 2)
+2. Request a diagnostic dump from adge
+3. Build and ship SYS-0063 (Sections 6-9)
+4. After SYS-0063 lands successfully, build and ship SYS-0064 (Section 10)
+5. After SYS-0064 lands successfully, build and ship SYS-0065 (Section 11)
+
+The design has already been peer-reviewed twice. **Do not redesign the
+approach.** If you see something you think should be different, consult
+adge before making architectural changes. Implementation details (exact
+bash syntax, exact timeouts, exact error messages) are your call.
+
+---
+
+## 1. Executive summary
+
+**Problem:** Mythos patches currently prompt adge for his sudo password
+one or more times per install. This breaks monitor-triggered installs
+(no TTY), causes mid-patch hangs when the 5-minute sudo timestamp expires,
+and creates multi-terminal friction.
+
+**Solution:** Three-patch sequence that installs a **privilege foundation**
+(root-owned wrapper scripts + narrow sudoers drop-in), **migrates the
+framework** to use it, and **updates the skill** to codify the new rules.
+
+**End state:**
+- No password prompts during patch installs
+- Monitor-triggered installs work without human interaction
+- Each new privileged operation is added via a code-reviewable wrapper
+- The sudoers file stays stable (wrappers grow, not the sudoers rules)
+- Patches that need new privileges ship paired wrapper+allowlist updates
+
+---
+
+## 2. Prerequisites (verify before building anything)
+
+Before doing ANY work, confirm all of the following:
+
+### 2.1 System state
+
+- [ ] SYS-0062 (git_repo_slim) has completed successfully
+- [ ] `.git/` size is under 5 GB (ideally under 2 GB)
+- [ ] `git log origin/main..HEAD` returns empty (origin is in sync)
+- [ ] `git rev-parse HEAD` matches `git rev-parse origin/main`
+- [ ] `mythos-patch-monitor.service` is active
+- [ ] No patch zips sitting in `~/Downloads/SYS-*.zip`
+- [ ] No partial extractions under `/opt/mythos/patches/SYS-00{63,64,65}*`
+- [ ] SYS stream counter is at **63** (check with `mythos-diag streams`)
+
+### 2.2 Required infrastructure absent (SYS-0063 is fresh install)
+
+- [ ] `/usr/local/libexec/mythos/` does NOT exist yet
+- [ ] `/etc/sudoers.d/mythos-patches` does NOT exist yet
+- [ ] `/etc/mythos/allowed-units.txt` does NOT exist yet
+
+If any of these DO exist, stop and ask adge — it means a previous attempt
+at SYS-0063 left state behind that needs to be investigated before retrying.
+
+### 2.3 Required tools present
+
+- [ ] `visudo` command available (ships with sudo package, should be there)
+- [ ] `install` command available (ships with coreutils, should be there)
+- [ ] `/usr/local/libexec/` directory exists (parent path for wrappers)
+- [ ] Python 3 at `/opt/mythos/.venv/bin/python3`
+- [ ] PatchBase at `/opt/mythos/patches/scripts/patch_base.py`
+
+### 2.4 Verification diagnostic
+
+Request this from adge before building anything:
+
+```bash
+D=~/diag_sys0063_prereq.txt; > "$D"; {
+  echo "=== SYS COUNTER ==="
+  cat /opt/mythos/docs/STREAMS.json | python3 -c "import json,sys; d=json.load(sys.stdin); print('SYS next_patch:', d['streams']['SYS']['next_patch'])" 2>&1
+
+  echo; echo "=== GIT STATE ==="
+  du -sh /opt/mythos/.git 2>&1
+  cd /opt/mythos && git log --oneline origin/main..HEAD 2>&1 | head -5
+  echo "---ahead count---"
+  cd /opt/mythos && git rev-list --count origin/main..HEAD 2>&1
+  cd /opt/mythos && git rev-parse HEAD 2>&1
+  cd /opt/mythos && git rev-parse origin/main 2>&1
+
+  echo; echo "=== MONITOR STATE ==="
+  systemctl is-active mythos-patch-monitor.service 2>&1
+
+  echo; echo "=== ~/DOWNLOADS FOR SYS-* ZIPS ==="
+  ls -la ~/Downloads/SYS-*.zip 2>&1 || echo "(none)"
+
+  echo; echo "=== PARTIAL EXTRACTIONS ==="
+  ls -d /opt/mythos/patches/SYS-006{3,4,5}* 2>&1 || echo "(none)"
+
+  echo; echo "=== INFRASTRUCTURE THAT SHOULD NOT EXIST YET ==="
+  ls -la /usr/local/libexec/mythos/ 2>&1 || echo "(correctly absent)"
+  ls -la /etc/sudoers.d/mythos-patches 2>&1 || echo "(correctly absent)"
+  ls -la /etc/mythos/allowed-units.txt 2>&1 || echo "(correctly absent)"
+
+  echo; echo "=== REQUIRED TOOLS ==="
+  which visudo 2>&1
+  which install 2>&1
+  ls -d /usr/local/libexec 2>&1
+  ls /opt/mythos/.venv/bin/python3 2>&1
+  ls /opt/mythos/patches/scripts/patch_base.py 2>&1
+
+  echo; echo "=== MYTHOS SERVICES RUNNING (for post-install verification) ==="
+  systemctl is-active mythos-bot.service 2>&1 || true
+  systemctl is-active mythos-api.service 2>&1 || true
+} >> "$D" 2>&1; cat "$D" | xclip -selection clipboard && echo "✓ Copied ($(wc -l < $D) lines)"
+```
+
+If any prerequisite fails, stop and discuss with adge before proceeding.
+
+---
+
+## 3. Design provenance
+
+This plan is the result of two rounds of peer review:
+
+- **Round 1 reviewer 1 (Castor/Gemini):** Caught GTFOBins in `find` and
+  `tar`, recommended `install` over `cp`, suggested wrapper-script pattern
+  as optional
+- **Round 1 reviewer 2 (Jeff Thinking):** Confirmed all of Castor's catches,
+  pushed wrapper-script pattern as mandatory, insisted on splitting the
+  patch into three phases
+- **Round 2 reviewer (Jeff Thinking):** Approved final design with minor
+  hardening — allowlist file instead of prefix matching, strict argument
+  counts, installed-unit guard for enable/start, expanded verification
+  coverage, file integrity checks
+
+**Do not re-litigate these decisions.** The design is locked. This document
+captures the final form.
+
+---
+
+## 4. Architecture overview
+
+### 4.1 Wrapper scripts
+
+Eight root-owned scripts at `/usr/local/libexec/mythos/`, mode 0755,
+owner root:root:
+
+| Wrapper | Purpose | Arguments |
+|---|---|---|
+| `mythos-servicectl` | systemctl on approved units | `<action> [unit]` |
+| `mythos-install-unit` | Deploy systemd unit file | `<basename.service\|timer>` |
+| `mythos-install-cloudflared-config` | Deploy cloudflared config | none |
+| `mythos-fix-ownership` | Recursive chown /opt/mythos | none |
+| `mythos-scan-perms` | Count non-adge-owned files | none |
+| `mythos-backup-git` | Create .git/ tar.gz in /tmp | none |
+| `mythos-clean-tmp-pack` | Remove stale tmp_pack_* | none |
+| `mythos-allowlist-append` | Append unit to allowed-units.txt | `<unit>` |
+
+### 4.2 Configuration file
+
+`/etc/mythos/allowed-units.txt` — root-owned (0644), plain text, one
+unit name per line, comments with `#`, blank lines ignored.
+
+Initial content:
+```
+# Mythos allowed-units list
+# Managed by SYS patches. Root-owned. Read by mythos-servicectl.
+# One unit name per line. Blank lines and # comments ignored.
+# To add a unit: use mythos-allowlist-append, or ship a SYS patch that
+# updates this file via the wrapper.
+
+mythos-bot.service
+mythos-api.service
+mythos-patch-monitor.service
+mythos-jupyter.service
+cloudflared.service
+```
+
+### 4.3 Sudoers drop-in
+
+`/etc/sudoers.d/mythos-patches` — root-owned (0440):
+
+```sudoers
+# /etc/sudoers.d/mythos-patches
+# Installed by SYS-0063. Do not edit manually.
+# Validated with visudo -c before install.
+#
+# Each entry points at a root-owned wrapper script that validates
+# its own arguments. The wrapper is the security boundary, not sudoers.
+
+adge ALL=(root) NOPASSWD: /usr/local/libexec/mythos/mythos-servicectl *
+adge ALL=(root) NOPASSWD: /usr/local/libexec/mythos/mythos-install-unit *
+adge ALL=(root) NOPASSWD: /usr/local/libexec/mythos/mythos-install-cloudflared-config
+adge ALL=(root) NOPASSWD: /usr/local/libexec/mythos/mythos-fix-ownership
+adge ALL=(root) NOPASSWD: /usr/local/libexec/mythos/mythos-scan-perms
+adge ALL=(root) NOPASSWD: /usr/local/libexec/mythos/mythos-backup-git
+adge ALL=(root) NOPASSWD: /usr/local/libexec/mythos/mythos-clean-tmp-pack
+adge ALL=(root) NOPASSWD: /usr/local/libexec/mythos/mythos-allowlist-append *
+```
+
+Eight lines. Three have trailing wildcards (servicectl, install-unit,
+allowlist-append) because those wrappers take arguments. The wrappers
+themselves do all argument validation; sudoers never parses user input.
+
+---
+
+## 5. Wrapper script full source
+
+**Every wrapper starts with:**
+```bash
+#!/bin/bash
+set -euo pipefail
+```
+
+### 5.1 `mythos-servicectl`
+
+```bash
+#!/bin/bash
+# /usr/local/libexec/mythos/mythos-servicectl
+# Root-owned wrapper for systemctl operations on approved Mythos services.
+# Installed by SYS-0063.
+
+set -euo pipefail
+
+ALLOWLIST_FILE="/etc/mythos/allowed-units.txt"
+
+ACTION="${1:-}"
+UNIT="${2:-}"
+
+# Validate action
+case "$ACTION" in
+    start|stop|restart|reload|is-active|is-enabled|enable|disable|daemon-reload)
+        ;;
+    *)
+        echo "usage: mythos-servicectl <action> [unit]" >&2
+        echo "  actions: start stop restart reload is-active is-enabled enable disable daemon-reload" >&2
+        exit 2
+        ;;
+esac
+
+# daemon-reload takes no unit
+if [[ "$ACTION" == "daemon-reload" ]]; then
+    if [[ $# -ne 1 ]]; then
+        echo "error: daemon-reload takes no unit argument" >&2
+        exit 2
+    fi
+    exec /bin/systemctl daemon-reload
+fi
+
+# All other actions require exactly 2 arguments
+if [[ $# -ne 2 ]]; then
+    echo "error: expected 'mythos-servicectl <action> <unit>', got $# args" >&2
+    exit 2
+fi
+
+if [[ -z "$UNIT" ]]; then
+    echo "error: unit name required for '$ACTION'" >&2
+    exit 2
+fi
+
+# Reject shell metacharacters and path separators
+if [[ "$UNIT" =~ [^a-zA-Z0-9._-] ]]; then
+    echo "error: invalid characters in unit name: $UNIT" >&2
+    exit 2
+fi
+
+# Allowlist check
+if [[ ! -f "$ALLOWLIST_FILE" ]]; then
+    echo "error: allowlist file missing: $ALLOWLIST_FILE" >&2
+    exit 2
+fi
+
+if ! /bin/grep -qxF "$UNIT" <(/usr/bin/sed -e 's/#.*//' -e '/^[[:space:]]*$/d' "$ALLOWLIST_FILE"); then
+    echo "error: unit not in allowlist: $UNIT" >&2
+    echo "  (to add: mythos-allowlist-append <unit>)" >&2
+    exit 2
+fi
+
+# Guard against enable/start of not-yet-installed units
+if [[ "$ACTION" == "enable" || "$ACTION" == "start" ]]; then
+    if [[ ! -f "/etc/systemd/system/$UNIT" && ! -f "/lib/systemd/system/$UNIT" && ! -f "/usr/lib/systemd/system/$UNIT" ]]; then
+        echo "error: cannot $ACTION unit that is not installed: $UNIT" >&2
+        echo "  (install it first with mythos-install-unit)" >&2
+        exit 2
+    fi
+fi
+
+exec /bin/systemctl "$ACTION" "$UNIT"
+```
+
+### 5.2 `mythos-install-unit`
+
+```bash
+#!/bin/bash
+# /usr/local/libexec/mythos/mythos-install-unit
+# Deploy a systemd unit file from /opt/mythos/systemd/ to /etc/systemd/system/.
+
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+    echo "usage: mythos-install-unit <basename.service|basename.timer>" >&2
+    exit 2
+fi
+
+UNIT_BASENAME="$1"
+
+# Basename only — reject any path component
+if [[ "$UNIT_BASENAME" == */* ]]; then
+    echo "error: basename only, no paths: $UNIT_BASENAME" >&2
+    exit 2
+fi
+
+# Reject shell metacharacters
+if [[ "$UNIT_BASENAME" =~ [^a-zA-Z0-9._-] ]]; then
+    echo "error: invalid characters: $UNIT_BASENAME" >&2
+    exit 2
+fi
+
+# Must match mythos-*.service or mythos-*.timer
+if [[ ! "$UNIT_BASENAME" =~ ^mythos-[a-zA-Z0-9_-]+\.(service|timer)$ ]]; then
+    echo "error: unit must match mythos-*.service or mythos-*.timer: $UNIT_BASENAME" >&2
+    exit 2
+fi
+
+SOURCE="/opt/mythos/systemd/$UNIT_BASENAME"
+DEST="/etc/systemd/system/$UNIT_BASENAME"
+
+if [[ ! -f "$SOURCE" ]]; then
+    echo "error: source does not exist: $SOURCE" >&2
+    exit 2
+fi
+
+# systemd-analyze verify — warning only, don't block on failure
+if ! /bin/systemd-analyze verify "$SOURCE" 2>&1; then
+    echo "" >&2
+    echo "warning: systemd-analyze verify reported issues with $SOURCE" >&2
+    echo "         proceeding with install anyway (verify can be strict)" >&2
+    echo "" >&2
+fi
+
+/usr/bin/install -m 0644 -o root -g root "$SOURCE" "$DEST"
+/bin/systemctl daemon-reload
+
+echo "installed: $DEST"
+```
+
+### 5.3 `mythos-install-cloudflared-config`
+
+```bash
+#!/bin/bash
+# /usr/local/libexec/mythos/mythos-install-cloudflared-config
+# Deploy /opt/mythos/cloudflared/config.yml to /etc/cloudflared/config.yml
+
+set -euo pipefail
+
+if [[ $# -ne 0 ]]; then
+    echo "usage: mythos-install-cloudflared-config (no arguments)" >&2
+    exit 2
+fi
+
+SOURCE="/opt/mythos/cloudflared/config.yml"
+DEST="/etc/cloudflared/config.yml"
+
+if [[ ! -f "$SOURCE" ]]; then
+    echo "error: source does not exist: $SOURCE" >&2
+    exit 2
+fi
+
+# Basic YAML sanity: first non-empty line should look YAML-ish
+if ! /usr/bin/head -20 "$SOURCE" | /bin/grep -qE '^[a-zA-Z#]'; then
+    echo "error: source does not look like valid YAML" >&2
+    exit 2
+fi
+
+/usr/bin/install -m 0644 -o root -g root "$SOURCE" "$DEST"
+
+echo "installed: $DEST"
+```
+
+### 5.4 `mythos-fix-ownership`
+
+```bash
+#!/bin/bash
+# /usr/local/libexec/mythos/mythos-fix-ownership
+# Recursive chown /opt/mythos to adge:adge. Recovery operation for
+# cases where legacy patch framework bugs left root-owned files.
+
+set -euo pipefail
+
+if [[ $# -ne 0 ]]; then
+    echo "usage: mythos-fix-ownership (no arguments)" >&2
+    exit 2
+fi
+
+TARGET="/opt/mythos"
+
+if [[ ! -d "$TARGET" ]]; then
+    echo "error: $TARGET does not exist" >&2
+    exit 2
+fi
+
+# Signature file check — don't chown something that isn't Mythos
+for sig in "$TARGET/patches/scripts/patch_base.py" "$TARGET/docs/STREAMS.json" "$TARGET/.env"; do
+    if [[ ! -f "$sig" ]]; then
+        echo "error: signature file missing: $sig — not a Mythos tree" >&2
+        exit 2
+    fi
+done
+
+/bin/chown -R adge:adge "$TARGET/"
+
+echo "chowned: $TARGET/ to adge:adge"
+```
+
+### 5.5 `mythos-scan-perms`
+
+```bash
+#!/bin/bash
+# /usr/local/libexec/mythos/mythos-scan-perms
+# Count files under /opt/mythos NOT owned by adge:adge.
+# Default behavior is quiet (count to stdout only).
+# Pass --verbose as an argument to dump up to 20 sample paths to stderr.
+
+set -euo pipefail
+
+VERBOSE=0
+if [[ $# -eq 1 && "$1" == "--verbose" ]]; then
+    VERBOSE=1
+elif [[ $# -ne 0 ]]; then
+    echo "usage: mythos-scan-perms [--verbose]" >&2
+    exit 2
+fi
+
+TARGET="/opt/mythos"
+
+if [[ ! -d "$TARGET" ]]; then
+    echo "error: $TARGET does not exist" >&2
+    exit 2
+fi
+
+COUNT=$(/usr/bin/find "$TARGET" \( -not -user adge -o -not -group adge \) -print 2>/dev/null | /usr/bin/wc -l)
+echo "$COUNT"
+
+if [[ "$VERBOSE" -eq 1 && "$COUNT" -gt 0 ]]; then
+    echo "---sample (first 20)---" >&2
+    /usr/bin/find "$TARGET" \( -not -user adge -o -not -group adge \) -print 2>/dev/null | /usr/bin/head -20 >&2
+fi
+
+exit 0
+```
+
+### 5.6 `mythos-backup-git`
+
+```bash
+#!/bin/bash
+# /usr/local/libexec/mythos/mythos-backup-git
+# Create a timestamped tar.gz of /opt/mythos/.git in /tmp/.
+# Outputs the resulting path to stdout.
+
+set -euo pipefail
+
+# Tight default permissions on created files
+umask 077
+
+if [[ $# -ne 0 ]]; then
+    echo "usage: mythos-backup-git (no arguments)" >&2
+    exit 2
+fi
+
+if [[ ! -d "/opt/mythos/.git" ]]; then
+    echo "error: /opt/mythos/.git does not exist" >&2
+    exit 2
+fi
+
+TIMESTAMP=$(/bin/date +%Y%m%d_%H%M%S)
+BACKUP_PATH="/tmp/mythos_git_backup_${TIMESTAMP}.tar.gz"
+
+/bin/tar czf "$BACKUP_PATH" -C /opt/mythos .git
+
+echo "$BACKUP_PATH"
+```
+
+### 5.7 `mythos-clean-tmp-pack`
+
+```bash
+#!/bin/bash
+# /usr/local/libexec/mythos/mythos-clean-tmp-pack
+# Remove stale tmp_pack_* files from /opt/mythos/.git/objects/pack/.
+# Safe no-op if there are none.
+
+set -euo pipefail
+
+if [[ $# -ne 0 ]]; then
+    echo "usage: mythos-clean-tmp-pack (no arguments)" >&2
+    exit 2
+fi
+
+PACK_DIR="/opt/mythos/.git/objects/pack"
+
+if [[ ! -d "$PACK_DIR" ]]; then
+    echo "error: $PACK_DIR does not exist" >&2
+    exit 2
+fi
+
+REMOVED=0
+while IFS= read -r -d '' f; do
+    /bin/rm -f "$f"
+    REMOVED=$((REMOVED + 1))
+done < <(/usr/bin/find "$PACK_DIR" -maxdepth 1 -type f -name "tmp_pack_*" -print0 2>/dev/null)
+
+echo "removed: $REMOVED file(s)"
+```
+
+### 5.8 `mythos-allowlist-append`
+
+```bash
+#!/bin/bash
+# /usr/local/libexec/mythos/mythos-allowlist-append
+# Append a unit name to /etc/mythos/allowed-units.txt.
+# Idempotent: if the unit is already present, exits cleanly with a message.
+
+set -euo pipefail
+
+ALLOWLIST_FILE="/etc/mythos/allowed-units.txt"
+
+if [[ $# -ne 1 ]]; then
+    echo "usage: mythos-allowlist-append <unit>" >&2
+    exit 2
+fi
+
+UNIT="$1"
+
+# Reject shell metacharacters and path separators
+if [[ "$UNIT" =~ [^a-zA-Z0-9._-] ]]; then
+    echo "error: invalid characters in unit: $UNIT" >&2
+    exit 2
+fi
+
+# Must end with .service or .timer
+if [[ ! "$UNIT" =~ ^[a-zA-Z0-9_-]+\.(service|timer)$ ]]; then
+    echo "error: unit must match <name>.service or <name>.timer: $UNIT" >&2
+    exit 2
+fi
+
+if [[ ! -f "$ALLOWLIST_FILE" ]]; then
+    echo "error: allowlist file missing: $ALLOWLIST_FILE" >&2
+    exit 2
+fi
+
+# Check for duplicate (exact match, ignoring comments and blanks)
+if /bin/grep -qxF "$UNIT" <(/usr/bin/sed -e 's/#.*//' -e '/^[[:space:]]*$/d' "$ALLOWLIST_FILE"); then
+    echo "already in allowlist: $UNIT"
+    exit 0
+fi
+
+# Atomic append via flock
+(
+    /usr/bin/flock -x 200
+    echo "$UNIT" >> "$ALLOWLIST_FILE"
+) 200<"$ALLOWLIST_FILE"
+
+echo "appended: $UNIT"
+```
+
+---
+
+## 6. SYS-0063 build instructions
+
+### 6.1 Directory structure
+
+```
+/home/claude/SYS-0063_privilege_foundation/
+├── install.sh              (4-line bash stub)
+├── apply_patch.py          (main patch logic)
+└── wrappers/
+    ├── mythos-servicectl
+    ├── mythos-install-unit
+    ├── mythos-install-cloudflared-config
+    ├── mythos-fix-ownership
+    ├── mythos-scan-perms
+    ├── mythos-backup-git
+    ├── mythos-clean-tmp-pack
+    └── mythos-allowlist-append
+```
+
+Each wrapper in `wrappers/` contains the full source from Section 5.
+
+### 6.2 `install.sh`
+
+```bash
+#!/bin/bash
+set -e
+PATCH_DIR="$(cd "$(dirname "$0")" && pwd)"
+/opt/mythos/.venv/bin/python3 "$PATCH_DIR/apply_patch.py"
+```
+
+### 6.3 `apply_patch.py` structure
+
+Must be a complete Python script that:
+
+1. **TTY check FIRST** (before anything else, before even PatchBase import):
+   ```python
+   import sys
+   if not sys.stdin.isatty():
+       print("ERROR: SYS-0063 must be run from an interactive terminal.", file=sys.stderr)
+       print("Do NOT drop this patch into ~/Downloads/ — the patch monitor", file=sys.stderr)
+       print("cannot provide a TTY and SYS-0063 needs interactive sudo.", file=sys.stderr)
+       print("", file=sys.stderr)
+       print("Run manually:  patch-install SYS-0063", file=sys.stderr)
+       sys.exit(2)
+   ```
+
+2. **Standard PatchBase initialization:**
+   ```python
+   sys.path.insert(0, '/opt/mythos/patches/scripts')
+   from patch_base import PatchBase
+
+   patch = PatchBase(
+       stream='SYS',
+       number=63,
+       description='privilege foundation (wrappers + sudoers)',
+       patch_type='MAJOR',
+   )
+   patch.begin()
+   ```
+
+3. **Main execution with committed-at-verification semantics:**
+   ```python
+   sudoers_committed = False
+
+   try:
+       # ... install steps (see 6.4) ...
+       if verification_passed:
+           sudoers_committed = True
+   finally:
+       if not sudoers_committed:
+           # Pre-verification rollback — remove partial install
+           cleanup_partial_install()
+
+   patch.finish()
+   ```
+
+4. **Comprehensive summary banner** at the end documenting what was
+   installed, what's next, and next patch number (SYS-0064).
+
+### 6.4 Install steps in `apply_patch.py`
+
+```
+Step 1:  Refresh sudo cache (interactive — last password prompt ever)
+Step 2:  Verify target system
+         - Ubuntu 24.04 check (optional but nice)
+         - /usr/local/libexec exists
+         - visudo present
+         - /opt/mythos/patches/scripts/patch_base.py exists
+         - /etc/sudoers.d/ exists and is writable by root
+
+Step 3:  Stop mythos-patch-monitor.service
+         - Direct sudo call (wrappers don't exist yet)
+         - Interactive if needed
+
+Step 4:  Backup /etc/sudoers.d/ listing
+         - ls -la /etc/sudoers.d/ > /tmp/sudoers.d.backup.<ts>.txt
+         - So we can see what was there before
+
+Step 5:  Create /etc/mythos/ directory
+         - sudo install -d -m 0755 -o root -g root /etc/mythos
+
+Step 6:  Create /usr/local/libexec/mythos/ directory
+         - sudo install -d -m 0755 -o root -g root /usr/local/libexec/mythos
+
+Step 7:  Install the allowed-units.txt file
+         - Write content to /tmp/allowed-units.<ts>.txt
+         - sudo install -m 0644 -o root -g root /tmp/allowed-units.<ts>.txt /etc/mythos/allowed-units.txt
+         - Verify it landed with correct mode/owner
+
+Step 8:  Install each wrapper script
+         - For each wrapper in EXPECTED_WRAPPERS:
+           - Source: patch directory + "wrappers/" + wrapper_name
+           - Tempfile: /tmp/<wrapper_name>.<ts>
+           - Copy source to tempfile
+           - sudo install -m 0755 -o root -g root <tempfile> /usr/local/libexec/mythos/<wrapper>
+         - Verify each installed wrapper (see 6.5)
+
+Step 9:  Write sudoers content to tempfile
+         - Content generated from template, not hand-edited
+         - Tempfile: /tmp/mythos-patches.sudoers.<ts>
+
+Step 10: visudo -c -f /tmp/mythos-patches.sudoers.<ts>
+         - CRITICAL gate — MUST pass before install
+         - If this fails, abort entirely
+
+Step 11: Content linting on the tempfile
+         - See 6.6 for lint rules
+         - Reject with clear error on any failure
+
+Step 12: Atomic install of sudoers file
+         - sudo install -m 0440 -o root -g root /tmp/mythos-patches.sudoers.<ts> /etc/sudoers.d/mythos-patches
+
+Step 13: Post-install verification
+         - See 6.7 for verification commands
+         - If any fail → pre-commit failure → trigger rollback
+
+Step 14: COMMIT POINT
+         - Set sudoers_committed = True
+         - Log: "privilege foundation committed — will not be rolled back"
+
+Step 15: Update patch validations
+         - patch.validations.append("wrappers installed at /usr/local/libexec/mythos/")
+         - patch.validations.append("sudoers drop-in at /etc/sudoers.d/mythos-patches")
+         - patch.validations.append("allowlist at /etc/mythos/allowed-units.txt")
+
+Step 16: patch.finish()
+```
+
+### 6.5 Wrapper installation verification
+
+After installing each wrapper (step 8), verify:
+
+```python
+def verify_wrapper_installed(wrapper_name):
+    path = f"/usr/local/libexec/mythos/{wrapper_name}"
+
+    # 1. Must exist
+    if not os.path.exists(path):
+        raise InstallError(f"{path} does not exist after install")
+
+    # 2. Must be a regular file (not symlink, not directory)
+    if os.path.islink(path):
+        raise InstallError(f"{path} is a symlink")
+    if not os.path.isfile(path):
+        raise InstallError(f"{path} is not a regular file")
+
+    # 3. Must start with #!/bin/bash
+    with open(path, 'rb') as f:
+        first_line = f.readline()
+    if not first_line.startswith(b'#!/bin/bash'):
+        raise InstallError(f"{path} does not start with #!/bin/bash")
+
+    # 4. Must have mode 0755
+    stat = os.stat(path)
+    mode = stat.st_mode & 0o7777
+    if mode != 0o755:
+        raise InstallError(f"{path} has wrong mode: {oct(mode)} (expected 0o755)")
+
+    # 5. Must be root-owned
+    if stat.st_uid != 0:
+        raise InstallError(f"{path} is not owned by root (uid={stat.st_uid})")
+    if stat.st_gid != 0:
+        raise InstallError(f"{path} is not in group root (gid={stat.st_gid})")
+```
+
+### 6.6 Sudoers content linting
+
+Before atomic install (step 12), lint the tempfile content:
+
+```python
+EXPECTED_WRAPPERS = {
+    "mythos-servicectl",
+    "mythos-install-unit",
+    "mythos-install-cloudflared-config",
+    "mythos-fix-ownership",
+    "mythos-scan-perms",
+    "mythos-backup-git",
+    "mythos-clean-tmp-pack",
+    "mythos-allowlist-append",
+}
+
+# Wrappers that take arguments (trailing * allowed)
+WRAPPERS_WITH_ARGS = {
+    "mythos-servicectl",
+    "mythos-install-unit",
+    "mythos-allowlist-append",
+}
+
+DANGEROUS_TOKENS = [
+    "bash", "sh", "perl", "python", "awk", "sed", "vim", "less", "more",
+    "cp", "mv", "dd", "nc", "find", "tar", "chmod", "chown", "mount",
+]
+
+def lint_sudoers_content(tempfile_path):
+    # 1. File must be small
+    size = os.path.getsize(tempfile_path)
+    if size > 2048:
+        raise LintError(f"sudoers file too large: {size} bytes")
+
+    with open(tempfile_path, 'r') as f:
+        content = f.read()
+
+    # 2. Must end with newline
+    if not content.endswith('\n'):
+        raise LintError("sudoers file does not end with newline")
+
+    seen_wrappers = set()
+
+    for lineno, line in enumerate(content.splitlines(), 1):
+        stripped = line.strip()
+
+        # Blank lines and comments are fine
+        if not stripped or stripped.startswith('#'):
+            continue
+
+        # 3. Every rule line must match exact pattern
+        # adge ALL=(root) NOPASSWD: /usr/local/libexec/mythos/<wrapper>( *)?
+        import re
+        pattern = re.compile(
+            r'^adge ALL=\(root\) NOPASSWD: /usr/local/libexec/mythos/([a-z-]+)( \*)?$'
+        )
+        m = pattern.match(stripped)
+        if not m:
+            raise LintError(f"line {lineno}: does not match expected sudoers rule pattern: {stripped}")
+
+        wrapper_name = m.group(1)
+        has_wildcard = m.group(2) is not None
+
+        # 4. Wrapper name must be in expected set
+        if wrapper_name not in EXPECTED_WRAPPERS:
+            raise LintError(f"line {lineno}: unknown wrapper: {wrapper_name}")
+
+        # 5. Wildcard must match wrapper's expected arg behavior
+        if has_wildcard and wrapper_name not in WRAPPERS_WITH_ARGS:
+            raise LintError(f"line {lineno}: wrapper {wrapper_name} should not have trailing wildcard")
+        if not has_wildcard and wrapper_name in WRAPPERS_WITH_ARGS:
+            raise LintError(f"line {lineno}: wrapper {wrapper_name} needs trailing wildcard")
+
+        seen_wrappers.add(wrapper_name)
+
+    # 6. All expected wrappers must be present
+    missing = EXPECTED_WRAPPERS - seen_wrappers
+    if missing:
+        raise LintError(f"missing sudoers rules for: {missing}")
+
+    # 7. Dangerous tokens check (defense in depth)
+    for token in DANGEROUS_TOKENS:
+        # Check for the token as a standalone word outside /usr/local/libexec/mythos/ path
+        # This is conservative — we're looking for any raw dangerous command
+        import re
+        token_pattern = re.compile(rf'(?<![/a-zA-Z-])\b{re.escape(token)}\b')
+        for lineno, line in enumerate(content.splitlines(), 1):
+            # Skip comments
+            if line.strip().startswith('#'):
+                continue
+            # Allow the wrapper path itself
+            cleaned = line.replace('/usr/local/libexec/mythos/mythos-', '')
+            if token_pattern.search(cleaned):
+                raise LintError(f"line {lineno}: dangerous token '{token}' found")
+```
+
+### 6.7 Post-install verification (step 13)
+
+Four wrappers tested covering both argument-taking and no-argument patterns:
+
+```python
+def verify_wrappers_work():
+    checks = []
+
+    # Check 1: arg-taking wrapper, service class
+    result = subprocess.run(
+        ["sudo", "-n", "/usr/local/libexec/mythos/mythos-servicectl",
+         "is-active", "mythos-bot.service"],
+        check=False, capture_output=True, text=True, timeout=5,
+    )
+    # Note: is-active exits with 0 for active, 3 for inactive — both are "worked"
+    # What we're verifying is that sudo -n doesn't prompt for a password
+    if "a password is required" in (result.stderr or "").lower():
+        raise VerificationError("mythos-servicectl: sudo prompted for password")
+    checks.append("mythos-servicectl: OK")
+
+    # Check 2: no-arg wrapper, returns count
+    result = subprocess.run(
+        ["sudo", "-n", "/usr/local/libexec/mythos/mythos-scan-perms"],
+        check=True, capture_output=True, text=True, timeout=30,
+    )
+    # Must output a number
+    try:
+        count = int(result.stdout.strip())
+    except ValueError:
+        raise VerificationError(f"mythos-scan-perms did not return a number: {result.stdout!r}")
+    checks.append(f"mythos-scan-perms: OK (count={count})")
+
+    # Check 3: no-arg wrapper, safe no-op
+    result = subprocess.run(
+        ["sudo", "-n", "/usr/local/libexec/mythos/mythos-clean-tmp-pack"],
+        check=True, capture_output=True, text=True, timeout=30,
+    )
+    if "removed:" not in result.stdout:
+        raise VerificationError(f"mythos-clean-tmp-pack unexpected output: {result.stdout!r}")
+    checks.append("mythos-clean-tmp-pack: OK")
+
+    # Check 4: arg-taking, idempotent (already in allowlist)
+    result = subprocess.run(
+        ["sudo", "-n", "/usr/local/libexec/mythos/mythos-allowlist-append",
+         "mythos-bot.service"],
+        check=True, capture_output=True, text=True, timeout=5,
+    )
+    if "already in allowlist" not in result.stdout:
+        raise VerificationError(f"mythos-allowlist-append did not detect duplicate: {result.stdout!r}")
+    checks.append("mythos-allowlist-append: OK")
+
+    return checks
+```
+
+### 6.8 Rollback behavior
+
+```python
+finally:
+    if not sudoers_committed:
+        # Pre-verification failure — clean up partial install
+        patch.logger.log("rolling back partial privilege foundation install...")
+        cleanup_commands = [
+            ["sudo", "rm", "-f", "/etc/sudoers.d/mythos-patches"],
+            # Don't remove the wrappers directory yet — do it carefully
+        ]
+        for wrapper in EXPECTED_WRAPPERS:
+            cleanup_commands.append(
+                ["sudo", "rm", "-f", f"/usr/local/libexec/mythos/{wrapper}"]
+            )
+        cleanup_commands.append(
+            ["sudo", "rm", "-f", "/etc/mythos/allowed-units.txt"]
+        )
+        # Remove directories if empty
+        cleanup_commands.append(
+            ["sudo", "rmdir", "--ignore-fail-on-non-empty", "/usr/local/libexec/mythos"]
+        )
+        cleanup_commands.append(
+            ["sudo", "rmdir", "--ignore-fail-on-non-empty", "/etc/mythos"]
+        )
+
+        for cmd in cleanup_commands:
+            try:
+                subprocess.run(cmd, check=False, capture_output=True, timeout=10)
+            except Exception as e:
+                patch.logger.log(f"cleanup warning: {cmd}: {e}")
+```
+
+### 6.9 Zip build and delivery
+
+```bash
+cd /home/claude
+chmod +x SYS-0063_privilege_foundation/install.sh
+chmod +x SYS-0063_privilege_foundation/wrappers/*
+python3 -m py_compile SYS-0063_privilege_foundation/apply_patch.py
+rm -rf SYS-0063_privilege_foundation/__pycache__
+rm -f /mnt/user-data/outputs/SYS-0063_privilege_foundation.zip
+zip -rq /mnt/user-data/outputs/SYS-0063_privilege_foundation.zip \
+    SYS-0063_privilege_foundation/ \
+    -x "*__pycache__*" "*.pyc"
+unzip -l /mnt/user-data/outputs/SYS-0063_privilege_foundation.zip
+```
+
+Present the file and instruct adge:
+
+> **IMPORTANT: SYS-0063 must be run from an interactive terminal.**
+> **Do NOT drop this zip in ~/Downloads/** — the patch monitor cannot
+> provide a TTY and the patch requires interactive sudo for bootstrap.
+>
+> Run manually: `patch-install SYS-0063`
+
+---
+
+## 7. SYS-0063 expected output
+
+```
+🔍 Stream patch: SYS-0063
+📦 Found in Downloads: SYS-0063_privilege_foundation.zip
+  → Archived to /opt/mythos/patches/archive/
+📂 Extracting...
+🚀 Running install.sh...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[SYS-0063] privilege foundation (wrappers + sudoers)
+=======================================================
+
+[1/16] Refreshing sudo cache
+  → this is the last time SYS patches will prompt for a password
+[sudo] password for adge: 
+  ✓ sudo credentials cached
+
+[2/16] Verifying target system
+  ✓ Ubuntu 24.04
+  ✓ visudo present
+  ✓ /usr/local/libexec/ exists
+  ✓ /etc/sudoers.d/ writable by root
+  ✓ PatchBase present
+
+[3/16] Stopping patch monitor
+  ✓ stopped mythos-patch-monitor.service
+
+[4/16] Backing up /etc/sudoers.d/ listing
+  ✓ backup at /tmp/sudoers.d.backup.<ts>.txt
+
+[5/16] Creating /etc/mythos/
+  ✓ /etc/mythos/ created (root:root 0755)
+
+[6/16] Creating /usr/local/libexec/mythos/
+  ✓ /usr/local/libexec/mythos/ created (root:root 0755)
+
+[7/16] Installing allowed-units.txt
+  ✓ /etc/mythos/allowed-units.txt (root:root 0644, 5 units)
+
+[8/16] Installing wrapper scripts
+  → mythos-servicectl
+  → mythos-install-unit
+  → mythos-install-cloudflared-config
+  → mythos-fix-ownership
+  → mythos-scan-perms
+  → mythos-backup-git
+  → mythos-clean-tmp-pack
+  → mythos-allowlist-append
+  ✓ all 8 wrappers installed and verified (root:root 0755)
+
+[9/16] Writing sudoers tempfile
+  ✓ /tmp/mythos-patches.sudoers.<ts>
+
+[10/16] Validating with visudo -c
+  ✓ visudo validation passed
+
+[11/16] Content linting
+  ✓ file size: 634 bytes
+  ✓ 8 rules, all match expected pattern
+  ✓ all 8 expected wrappers present
+  ✓ no dangerous tokens
+  ✓ linting passed
+
+[12/16] Atomic install to /etc/sudoers.d/mythos-patches
+  ✓ installed (root:root 0440)
+
+[13/16] Post-install verification
+  ✓ mythos-servicectl: OK
+  ✓ mythos-scan-perms: OK (count=0)
+  ✓ mythos-clean-tmp-pack: OK
+  ✓ mythos-allowlist-append: OK
+  ✓ all 4 verification checks passed
+
+[14/16] COMMIT POINT
+  ✓ privilege foundation committed — will not be rolled back
+
+[15/16] Recording validations
+  ✓ wrappers installed
+  ✓ sudoers drop-in installed
+  ✓ allowlist file installed
+
+[16/16] Restarting patch monitor
+  ✓ started mythos-patch-monitor.service
+
+=======================================================
+  SYS-0063: PRIVILEGE FOUNDATION INSTALLED
+=======================================================
+  ✓ 8 wrappers at /usr/local/libexec/mythos/
+  ✓ sudoers drop-in at /etc/sudoers.d/mythos-patches
+  ✓ allowlist at /etc/mythos/allowed-units.txt
+
+  From now on:
+  • No password prompts during patch installs
+  • Monitor-triggered installs work without TTY
+  • New privileged ops ship via new wrappers
+
+  Next: SYS-0064 — framework migration (patch_base.py)
+=======================================================
+
+── Post-install pipeline ──
+  ⟳ Integrity scan...
+  ✓ Integrity scan: N updated
+  ⟳ Git commit...
+  ✓ Git commit: SYS-0063: privilege foundation
+  ✓ Git tag: sys_0063
+  ✓ Git push
+  ⟳ Graph update...
+  ✓ Graph: Patch node + relationships
+  ⟳ Telegram notify...
+  ✓ Telegram notification sent
+── Pipeline: 4/4 steps completed ──
+
+[SYS-0063] Complete ✓
+```
+
+---
+
+## 8. SYS-0063 verification by adge
+
+After the install completes, adge should verify:
+
+```bash
+# 1. All wrappers exist and are root-owned
+ls -la /usr/local/libexec/mythos/
+
+# 2. Sudoers file is in place
+sudo ls -la /etc/sudoers.d/mythos-patches
+sudo cat /etc/sudoers.d/mythos-patches
+
+# 3. Allowlist file is in place
+cat /etc/mythos/allowed-units.txt
+
+# 4. sudo -n works on a wrapper (no password prompt)
+sudo -n /usr/local/libexec/mythos/mythos-servicectl is-active mythos-bot.service
+sudo -n /usr/local/libexec/mythos/mythos-scan-perms
+
+# 5. Allowlist append works idempotently
+sudo -n /usr/local/libexec/mythos/mythos-allowlist-append mythos-bot.service
+# Expected output: "already in allowlist: mythos-bot.service"
+
+# 6. Disallowed unit is blocked
+sudo -n /usr/local/libexec/mythos/mythos-servicectl restart sshd.service
+# Expected: "error: unit not in allowlist: sshd.service"
+
+# 7. GTFOBins attempt is blocked by sudoers (not just the wrapper)
+sudo -n /usr/bin/find /opt/mythos -exec /bin/sh \;
+# Expected: "sudo: a password is required" or "command not allowed"
+```
+
+If all seven checks pass, SYS-0063 is fully verified.
+
+---
+
+## 9. Between SYS-0063 and SYS-0064
+
+**Do not proceed to SYS-0064 until adge confirms all verification checks
+passed.** Ask him explicitly.
+
+Between patches, it is safe to let adge test the new wrappers in normal
+operation. Nothing in the framework uses them yet — SYS-0064 does that —
+so the wrappers just sit there idle. That's fine.
+
+---
+
+## 10. SYS-0064: Framework migration
+
+### 10.1 Scope
+
+Update `/opt/mythos/patches/scripts/patch_base.py` to use the new wrappers
+instead of direct sudo calls. Deprecate the old helpers. Add a sanity
+check at `PatchBase.begin()`.
+
+### 10.2 Prerequisites
+
+- [ ] SYS-0063 has landed successfully and been verified by adge
+- [ ] `/usr/local/libexec/mythos/mythos-servicectl` exists and is executable
+- [ ] `sudo -n` works on the wrappers without prompting
+- [ ] SYS stream counter is at **64**
+
+### 10.3 Changes to `patch_base.py`
+
+**Add these imports at the top if not already present:**
+```python
+import os
+import subprocess
+```
+
+**Add new method `sudo_wrapper()` on the PatchBase class:**
+```python
+WRAPPER_DIR = "/usr/local/libexec/mythos"
+
+def sudo_wrapper(self, wrapper_name, *args, timeout=120, check=True):
+    """
+    Invoke a Mythos privileged wrapper via sudo -n.
+
+    Args:
+        wrapper_name: bare name (e.g. "mythos-servicectl")
+        *args: arguments to pass to the wrapper
+        timeout: subprocess timeout in seconds
+        check: if True, raise on non-zero exit
+
+    Returns:
+        subprocess.CompletedProcess
+
+    Raises:
+        RuntimeError if the wrapper is not installed (SYS-0063 missing)
+        subprocess.CalledProcessError if check=True and wrapper fails
+        subprocess.TimeoutExpired if timeout exceeded
+    """
+    wrapper_path = os.path.join(self.WRAPPER_DIR, wrapper_name)
+    if not os.path.isfile(wrapper_path):
+        raise RuntimeError(
+            f"Mythos privilege wrapper not found: {wrapper_path}. "
+            f"Install SYS-0063 first (privilege foundation)."
+        )
+
+    cmd = ["sudo", "-n", wrapper_path] + list(args)
+    return subprocess.run(
+        cmd,
+        check=check,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+```
+
+**Add convenience methods that wrap `sudo_wrapper()`:**
+
+```python
+def restart_service(self, unit):
+    """Restart a Mythos service via mythos-servicectl."""
+    self.sudo_wrapper("mythos-servicectl", "restart", unit)
+    if unit not in self.services_restarted:
+        self.services_restarted.append(unit)
+
+def stop_service(self, unit):
+    self.sudo_wrapper("mythos-servicectl", "stop", unit)
+
+def start_service(self, unit):
+    self.sudo_wrapper("mythos-servicectl", "start", unit)
+
+def is_service_active(self, unit):
+    """Returns True if the service is active, False otherwise."""
+    try:
+        result = self.sudo_wrapper(
+            "mythos-servicectl", "is-active", unit,
+            check=False,
+        )
+        return result.returncode == 0
+    except Exception:
+        return False
+
+def install_systemd_unit(self, basename):
+    """Deploy a systemd unit file from /opt/mythos/systemd/."""
+    self.sudo_wrapper("mythos-install-unit", basename)
+
+def install_cloudflared_config(self):
+    """Deploy /opt/mythos/cloudflared/config.yml."""
+    self.sudo_wrapper("mythos-install-cloudflared-config")
+
+def scan_perms(self):
+    """Return count of non-adge-owned files under /opt/mythos."""
+    result = self.sudo_wrapper("mythos-scan-perms")
+    return int(result.stdout.strip())
+
+def fix_ownership(self):
+    """Recursive chown /opt/mythos to adge:adge."""
+    self.sudo_wrapper("mythos-fix-ownership", timeout=300)
+
+def backup_git(self):
+    """Create timestamped tar.gz of .git/ in /tmp. Returns the path."""
+    result = self.sudo_wrapper("mythos-backup-git", timeout=600)
+    return result.stdout.strip()
+
+def clean_tmp_pack(self):
+    """Remove stale tmp_pack_* files."""
+    self.sudo_wrapper("mythos-clean-tmp-pack")
+
+def allowlist_append_unit(self, unit):
+    """Add a unit to /etc/mythos/allowed-units.txt."""
+    self.sudo_wrapper("mythos-allowlist-append", unit)
+```
+
+**Deprecate old helpers (keep for backward compat but make them no-ops):**
+
+```python
+def initial_sudo_cache(self):
+    """DEPRECATED: SYS-0063 privilege foundation handles this."""
+    self.logger.log(
+        "  ⊙ initial_sudo_cache() is deprecated (SYS-0063 handles privileges)"
+    )
+    return True
+
+def refresh_sudo(self, label=""):
+    """DEPRECATED: SYS-0063 privilege foundation handles this."""
+    return True
+```
+
+**Add privilege foundation check to `begin()`:**
+
+In the existing `begin()` method, add (non-fatally):
+
+```python
+# Check privilege foundation is installed (SYS-0063)
+wrapper_check = os.path.join(self.WRAPPER_DIR, "mythos-servicectl")
+if os.path.isfile(wrapper_check):
+    try:
+        subprocess.run(
+            ["sudo", "-n", wrapper_check, "is-active", "mythos-bot.service"],
+            check=False, capture_output=True, timeout=5,
+        )
+        self.logger.log("  ✓ privilege foundation (SYS-0063) installed and working")
+    except Exception as e:
+        self.logger.log(
+            f"  ⚠ privilege foundation check failed: {e}"
+        )
+else:
+    self.logger.log(
+        "  ⚠ privilege foundation (SYS-0063) not installed. "
+        "Patches using sudo may prompt for passwords."
+    )
+```
+
+### 10.4 SYS-0064 apply_patch.py structure
+
+```python
+#!/usr/bin/env python3
+"""
+SYS-0064: Framework migration to privilege foundation.
+
+Updates patch_base.py to use the wrappers installed by SYS-0063.
+Deprecates initial_sudo_cache() and refresh_sudo() as no-ops.
+Adds convenience methods for common privileged operations.
+"""
+
+import sys
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+sys.path.insert(0, '/opt/mythos/patches/scripts')
+from patch_base import PatchBase
+
+PATCH_BASE_PATH = "/opt/mythos/patches/scripts/patch_base.py"
+BACKUP_PATH = f"/tmp/patch_base.py.pre_SYS-0064.bak"
+
+def main():
+    patch = PatchBase(
+        stream='SYS',
+        number=64,
+        description='framework migration to privilege foundation',
+        patch_type='MINOR',
+    )
+    patch.begin()
+
+    try:
+        # 1. Verify SYS-0063 is installed
+        if not os.path.isfile("/usr/local/libexec/mythos/mythos-servicectl"):
+            patch.errors.append(
+                "SYS-0063 privilege foundation not found. "
+                "Install SYS-0063 before running SYS-0064."
+            )
+            patch.finish()
+            return 1
+
+        # 2. Verify the wrappers actually work
+        try:
+            result = subprocess.run(
+                ["sudo", "-n", "/usr/local/libexec/mythos/mythos-servicectl",
+                 "is-active", "mythos-bot.service"],
+                check=False, capture_output=True, text=True, timeout=5,
+            )
+            if "a password is required" in (result.stderr or "").lower():
+                patch.errors.append(
+                    "SYS-0063 is installed but sudo -n still prompts for password. "
+                    "Check /etc/sudoers.d/mythos-patches"
+                )
+                patch.finish()
+                return 1
+        except Exception as e:
+            patch.errors.append(f"wrapper verification failed: {e}")
+            patch.finish()
+            return 1
+
+        # 3. Backup patch_base.py
+        shutil.copy2(PATCH_BASE_PATH, BACKUP_PATH)
+        patch.logger.log(f"  ✓ backed up to {BACKUP_PATH}")
+
+        # 4. Read current patch_base.py
+        with open(PATCH_BASE_PATH, 'r') as f:
+            current = f.read()
+
+        # 5. Verify it doesn't already have SYS-0064 changes
+        if "sudo_wrapper" in current:
+            patch.logger.log("  ⊙ patch_base.py already has sudo_wrapper method — skipping")
+        else:
+            # 6. Apply the edits (use targeted str.replace calls for safety)
+            new_content = apply_patch_base_updates(current)
+
+            # 7. Write to tempfile first
+            temp_path = f"/tmp/patch_base.py.SYS-0064.new"
+            with open(temp_path, 'w') as f:
+                f.write(new_content)
+
+            # 8. Syntax-check the new file
+            result = subprocess.run(
+                ["python3", "-m", "py_compile", temp_path],
+                check=False, capture_output=True, text=True,
+            )
+            if result.returncode != 0:
+                patch.errors.append(
+                    f"new patch_base.py has syntax errors:\n{result.stderr}"
+                )
+                patch.finish()
+                return 1
+
+            # 9. Atomic move into place
+            shutil.move(temp_path, PATCH_BASE_PATH)
+            patch.logger.log("  ✓ patch_base.py updated")
+
+        # 10. Sanity check — import the updated module and verify
+        # the new method exists
+        result = subprocess.run(
+            ["python3", "-c",
+             "import sys; sys.path.insert(0, '/opt/mythos/patches/scripts'); "
+             "from patch_base import PatchBase; "
+             "assert hasattr(PatchBase, 'sudo_wrapper'), 'sudo_wrapper missing'; "
+             "print('OK')"],
+            check=False, capture_output=True, text=True,
+        )
+        if result.returncode != 0 or "OK" not in result.stdout:
+            # Rollback
+            shutil.copy2(BACKUP_PATH, PATCH_BASE_PATH)
+            patch.errors.append(
+                f"new patch_base.py failed import check — rolled back.\n"
+                f"stderr: {result.stderr}"
+            )
+            patch.finish()
+            return 1
+
+        patch.logger.log("  ✓ updated patch_base.py imports cleanly")
+
+        patch.validations.append("patch_base.py: sudo_wrapper + convenience methods")
+        patch.validations.append("patch_base.py: deprecated helpers are now no-ops")
+        patch.validations.append("patch_base.py: begin() sanity check added")
+
+    except Exception as e:
+        patch.errors.append(f"SYS-0064 failed: {e}")
+
+    patch.finish()
+    return 1 if patch.errors else 0
+
+
+def apply_patch_base_updates(current):
+    """Apply the str.replace edits to patch_base.py source."""
+    # Use precise marker strings from the existing patch_base.py
+    # (determine these by reading patch_base.py during the fresh conversation)
+    # Add new methods, deprecate old ones, add begin() sanity check
+    # TODO: implement during fresh conversation after reading patch_base.py
+    pass
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+```
+
+**IMPORTANT:** The `apply_patch_base_updates()` function needs to be
+implemented during the fresh conversation, **after reading the actual
+current `patch_base.py` source**. The exact str.replace markers depend on
+the existing source formatting. Do not guess — read it live.
+
+### 10.5 SYS-0064 verification
+
+After install, verify via:
+
+```bash
+# 1. patch_base.py imports cleanly
+python3 -c "import sys; sys.path.insert(0, '/opt/mythos/patches/scripts'); from patch_base import PatchBase; print(dir(PatchBase))"
+
+# 2. New methods exist
+python3 -c "import sys; sys.path.insert(0, '/opt/mythos/patches/scripts'); from patch_base import PatchBase; print('sudo_wrapper:', hasattr(PatchBase, 'sudo_wrapper')); print('restart_service:', hasattr(PatchBase, 'restart_service'))"
+
+# 3. A trivial "hello world" patch that uses the new methods works
+# (build a throwaway patch manually to test, or wait for SYS-0065+)
+```
+
+### 10.6 SYS-0064 rollback
+
+If anything fails during the edit:
+```bash
+sudo cp /tmp/patch_base.py.pre_SYS-0064.bak /opt/mythos/patches/scripts/patch_base.py
+```
+
+This is what the apply_patch.py does automatically on failure. Manual
+recovery command is in the output if automatic rollback also fails.
+
+---
+
+## 11. SYS-0065: Skill + docs update
+
+### 11.1 Scope
+
+Update the mythos-patch skill at `/mnt/skills/user/mythos-patch/SKILL.md`
+with all the rules from this session. Update `/opt/mythos/docs/TODO.md`
+and `/opt/mythos/docs/ARCHITECTURE.md`.
+
+### 11.2 Prerequisites
+
+- [ ] SYS-0063 installed and verified
+- [ ] SYS-0064 installed and verified (patch_base.py has new methods)
+- [ ] SYS stream counter at **65**
+
+### 11.3 Skill file writability check
+
+The mythos-patch skill lives at `/mnt/skills/user/mythos-patch/SKILL.md`.
+This path may or may not be writable from within the patch environment.
+**Check during the fresh conversation:**
+
+```bash
+test -w /mnt/skills/user/mythos-patch/SKILL.md && echo "writable" || echo "readonly"
+```
+
+If writable: SYS-0065 updates the file directly via the patch.
+If not writable: SYS-0065 generates the new content to a file that
+adge manually copies into the skill directory. The patch itself still
+creates a record in PATCH_HISTORY.
+
+### 11.4 New skill sections to add
+
+Add these sections to SKILL.md. Preserve existing content, append new
+sections in the appropriate locations.
+
+#### Section: "Patch numbering is monotonic with one exception"
+
+```markdown
+## Patch numbering rules
+
+Patch numbers are **monotonic and burned on failure**. Once SYS-0059 has
+been attempted with destructive work, the next SYS patch is SYS-0060 —
+never a retry at SYS-0059. The number is spent.
+
+**The one exception:** a pre-flight failure that leaves zero side effects
+does NOT burn the number. The same patch number can be reused.
+
+Test: was the failure **functionally identical to the patch never having
+run**?
+- `elapsed_seconds < 1` (or thereabouts)
+- `files_deployed: []`
+- No git commits made
+- No configs edited
+- No services touched
+
+If YES, the number is not burned and can be reused.
+If NO — any destructive work, partial state, triggered rollback — the
+number is burned permanently. The next attempt is `current_counter + 1`.
+
+Under no circumstances ship "SYS-0059 v2" after "SYS-0059" failed with
+any destructive work. Always advance the counter.
+```
+
+#### Section: "Working tree cleanliness checks"
+
+```markdown
+## Working tree allow-list for patches
+
+When a patch checks the git working tree for cleanliness before
+proceeding, the allow-list MUST include:
+
+1. **`.version`** — auto-bumped by GitManager on every install
+2. **Live log files** — `graph_logging/logs/*.log`, `patches/logs/*`
+3. **The patch's own extraction directory** — computed dynamically
+   from `patch.patch_dir`, excluded via prefix match
+
+The check should emit THREE categories transparently so adge can verify
+nothing of his is being silently swallowed:
+- Expected install noise (allowed)
+- Self-extraction (allowed)
+- Genuine dirty (blocks the patch)
+
+Reference implementation: see SYS-0060 and SYS-0062 apply_patch.py for
+the `check_working_tree()` pattern.
+```
+
+#### Section: "Privilege management (post-SYS-0063)"
+
+```markdown
+## Privilege management
+
+After SYS-0063 and SYS-0064, Mythos patches use root-owned wrapper
+scripts at `/usr/local/libexec/mythos/` for privileged operations.
+A narrow sudoers drop-in at `/etc/sudoers.d/mythos-patches` whitelists
+only those wrappers.
+
+**DO:**
+- Use `patch.sudo_wrapper("mythos-<n>", ...)` for any privileged operation
+- Use convenience methods: `patch.restart_service()`, `patch.install_systemd_unit()`,
+  `patch.scan_perms()`, `patch.fix_ownership()`, `patch.backup_git()`,
+  `patch.clean_tmp_pack()`, `patch.allowlist_append_unit()`
+- Add new wrappers for new privileged operations by shipping a SYS patch
+  that installs the wrapper AND updates the sudoers file
+
+**DO NOT:**
+- Call `sudo` directly in patches (breaks monitor-triggered installs)
+- Use `initial_sudo_cache()` or `refresh_sudo()` (deprecated, no-op)
+- Whitelist GTFOBins commands in sudoers. Never: `find`, `tar`, `awk`,
+  `sed`, `vim`, `less`, `more`, `perl`, `python`, `dd`, `nc`, `cp`, `mv`,
+  `chmod`, `chown`
+- Use trailing wildcards in sudoers NOPASSWD rules except where consumed
+  by a wrapper that validates its own arguments
+- Run the patch monitor as root (explicitly rejected — breaks file ownership)
+- Add services without adding them to `/etc/mythos/allowed-units.txt`
+  via `mythos-allowlist-append` first
+
+**Rule: adding a new Mythos service** requires two things in the same patch:
+1. The systemd unit file at `/opt/mythos/systemd/mythos-newservice.service`
+2. `patch.allowlist_append_unit("mythos-newservice.service")`
+
+Then subsequent patches can call `patch.install_systemd_unit()` and
+`patch.restart_service()` on the new service.
+```
+
+#### Section: "Zip build hygiene"
+
+```markdown
+## Zip build must exclude bytecode
+
+When packaging a patch for delivery, ALWAYS exclude `__pycache__` and `*.pyc`:
+
+```bash
+zip -rq output.zip patch_dir/ -x "*__pycache__*" "*.pyc"
+```
+
+Shipping bytecode in a patch is a bug and has historically caused issues.
+```
+
+#### Section: "Never snapshot a giant .git/"
+
+```markdown
+## Never tar a large .git/
+
+If `.git/` is above ~2 GB, do NOT attempt to snapshot it via `tar`. Use
+`git bundle create <path> --all` instead — git's native backup format,
+much more compact, works even on repos with broken indexes.
+
+If `.git/` is above ~10 GB, question why. It's almost certainly
+contaminated with files that should be in `.gitignore` (voice memos,
+model files, binary artifacts). Slim the repo with `git filter-repo`
+before any operation that walks the object store.
+```
+
+#### Section: "Index-free pattern for broken repos"
+
+```markdown
+## Index-free pattern
+
+When the git index is broken (git status / git add / git rm --cached
+all hang), patches can still operate on the repo by using index-free
+operations:
+
+- `git cat-file --batch-all-objects` — reads objects without touching index
+- `git filter-repo` — rewrites history without using index
+- `git gc --aggressive --prune=now` — repacks without using index
+- `git bundle create` — usually works without index
+- `git push` — pushes refs, doesn't need index
+
+**Pre-flight test:** run `git cat-file --batch-all-objects --batch-check`
+with a 30-second timeout. If this succeeds, the object store is readable
+and filter-repo will work. If it hangs, the repo is broken beyond what
+a patch can fix without manual intervention.
+```
+
+### 11.5 TODO.md updates
+
+Add to the "Completed" section:
+
+```markdown
+### 2026-04 Patches
+
+- SYS-0060: git permissions and sync recovery — fixed 1092 root-owned files
+- SYS-0062: git repo slim — removed voice_memos/ from history, restored GitHub sync
+- SYS-0063: privilege foundation — wrappers + sudoers + allowlist
+- SYS-0064: framework migration — patch_base.py uses wrappers
+- SYS-0065: skill + docs update — codified new rules
+```
+
+Remove any items in "Active Work" that referenced the old sudo problem.
+
+### 11.6 ARCHITECTURE.md updates
+
+Add a new section:
+
+```markdown
+## Privilege Model
+
+Mythos patches perform privileged operations (systemctl, chown, install
+to /etc/) via root-owned wrapper scripts at `/usr/local/libexec/mythos/`.
+A narrow sudoers drop-in at `/etc/sudoers.d/mythos-patches` whitelists
+only those wrappers. The wrapper scripts do all argument validation;
+sudoers never sees user input.
+
+### Wrappers
+
+Located at `/usr/local/libexec/mythos/`, mode 0755, owner root:root:
+
+- `mythos-servicectl <action> <unit>` — systemctl operations on approved units
+- `mythos-install-unit <basename>` — deploy systemd unit file
+- `mythos-install-cloudflared-config` — deploy cloudflared config
+- `mythos-fix-ownership` — recursive chown /opt/mythos to adge:adge
+- `mythos-scan-perms [--verbose]` — count non-adge-owned files
+- `mythos-backup-git` — create timestamped .git/ backup in /tmp
+- `mythos-clean-tmp-pack` — remove stale tmp_pack_* files
+- `mythos-allowlist-append <unit>` — add unit to allowed-units.txt
+
+### Allowlist file
+
+`/etc/mythos/allowed-units.txt` — root-owned (0644), plain text, one
+unit per line. Read by `mythos-servicectl` to determine which services
+can be managed. Updated via `mythos-allowlist-append` or by shipping a
+patch that calls `patch.allowlist_append_unit()`.
+
+### Patch framework integration
+
+`PatchBase` exposes privileged operations via convenience methods:
+
+- `patch.restart_service(unit)` → mythos-servicectl restart
+- `patch.install_systemd_unit(basename)` → mythos-install-unit
+- `patch.scan_perms()` → mythos-scan-perms (returns int)
+- `patch.fix_ownership()` → mythos-fix-ownership
+- `patch.backup_git()` → mythos-backup-git (returns path)
+- `patch.allowlist_append_unit(unit)` → mythos-allowlist-append
+
+Under the hood all these call `patch.sudo_wrapper(wrapper_name, *args)`
+which invokes `sudo -n /usr/local/libexec/mythos/<wrapper>`. Because the
+wrappers are whitelisted in sudoers for passwordless invocation by adge,
+this works without prompting for a password in both interactive terminals
+and monitor-triggered (no-TTY) installs.
+
+### Installed by SYS-0063 and SYS-0064
+
+- SYS-0063: installs the wrappers + sudoers + allowlist
+- SYS-0064: updates patch_base.py to use the wrappers
+```
+
+### 11.7 SYS-0065 apply_patch.py structure
+
+```python
+#!/usr/bin/env python3
+"""
+SYS-0065: mythos-patch skill + docs update.
+
+Codifies all the rules learned during the 2026-04-10 session into the
+skill file and architecture docs.
+"""
+
+import sys
+import os
+import shutil
+from pathlib import Path
+
+sys.path.insert(0, '/opt/mythos/patches/scripts')
+from patch_base import PatchBase
+
+SKILL_PATH = "/mnt/skills/user/mythos-patch/SKILL.md"
+TODO_PATH = "/opt/mythos/docs/TODO.md"
+ARCH_PATH = "/opt/mythos/docs/ARCHITECTURE.md"
+
+def main():
+    patch = PatchBase(
+        stream='SYS',
+        number=65,
+        description='skill + docs update (new rules from SYS-0059-0064)',
+        patch_type='MINOR',
+    )
+    patch.begin()
+
+    try:
+        # 1. Check if skill file is writable
+        skill_writable = os.path.isfile(SKILL_PATH) and os.access(SKILL_PATH, os.W_OK)
+
+        if skill_writable:
+            update_skill_in_place(patch)
+        else:
+            generate_skill_update_as_artifact(patch)
+            patch.logger.log(
+                f"  ⚠ Skill file is not writable from patch environment."
+                f" Generated updated content at /tmp/mythos-patch-SKILL.new.md"
+                f" — adge should manually install it."
+            )
+
+        # 2. Update TODO.md (should be writable)
+        update_todo(patch)
+
+        # 3. Update ARCHITECTURE.md (should be writable)
+        update_architecture(patch)
+
+        patch.validations.append(
+            "skill update: " + ("in-place" if skill_writable else "as artifact for manual install")
+        )
+        patch.validations.append("TODO.md updated")
+        patch.validations.append("ARCHITECTURE.md updated")
+
+    except Exception as e:
+        patch.errors.append(f"SYS-0065 failed: {e}")
+
+    patch.finish()
+    return 1 if patch.errors else 0
+
+
+def update_skill_in_place(patch):
+    # Read current skill content
+    # Insert new sections at appropriate locations
+    # Write back
+    # TODO: implement during fresh conversation after reading current SKILL.md
+    pass
+
+
+def generate_skill_update_as_artifact(patch):
+    # Write the full updated SKILL.md content to /tmp/
+    # adge copies it manually
+    # TODO: implement during fresh conversation
+    pass
+
+
+def update_todo(patch):
+    # Append completion markers for SYS-0060, 0062, 0063, 0064, 0065
+    # Remove any stale sudo-related items from Active Work
+    # TODO: implement during fresh conversation after reading current TODO.md
+    pass
+
+
+def update_architecture(patch):
+    # Append the "Privilege Model" section
+    # TODO: implement during fresh conversation
+    pass
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+```
+
+### 11.8 SYS-0065 verification
+
+```bash
+# Skill update (if writable)
+grep "Patch numbering is monotonic" /mnt/skills/user/mythos-patch/SKILL.md
+grep "Privilege management" /mnt/skills/user/mythos-patch/SKILL.md
+
+# TODO update
+grep "SYS-0063" /opt/mythos/docs/TODO.md
+
+# ARCHITECTURE update
+grep "Privilege Model" /opt/mythos/docs/ARCHITECTURE.md
+```
+
+---
+
+## 12. Order of operations summary
+
+```
+1. Fresh Claude reads this plan
+2. Verify prerequisites (Section 2)
+3. Request prerequisite diagnostic from adge
+4. Confirm all prereqs pass with adge
+5. Build SYS-0063 (Section 6)
+   - Create patch directory
+   - Write wrappers (Section 5)
+   - Write apply_patch.py (Section 6.3-6.8)
+   - Zip with pycache exclusion
+   - Present to adge with "MANUAL RUN ONLY" warning
+6. Adge runs: patch-install SYS-0063
+7. Adge pastes install output
+8. Verify success (Section 8)
+9. Build SYS-0064 (Section 10)
+   - Read current patch_base.py from diag
+   - Determine exact str.replace markers
+   - Write apply_patch.py
+   - Zip and deliver
+10. Adge runs: patch-install SYS-0064 (can use monitor now if he wants)
+11. Verify success (Section 10.5)
+12. Build SYS-0065 (Section 11)
+    - Check skill file writability
+    - Read current SKILL.md, TODO.md, ARCHITECTURE.md
+    - Determine what content to add where
+    - Write apply_patch.py with actual implementations
+    - Zip and deliver
+13. Adge runs: patch-install SYS-0065
+14. Verify success (Section 11.8)
+15. Update userMemories to reflect:
+    - SYS counter at 66
+    - Privilege foundation installed
+    - Framework migrated
+    - Skill updated
+    - Patch numbering rules learned
+```
+
+---
+
+## 13. Failure modes and mitigations
+
+### 13.1 SYS-0063 fails during visudo -c validation
+
+The sudoers tempfile content had a syntax error. Should never happen
+because content is generated from a template, but if it does:
+- Patch aborts before install — zero damage
+- Rollback removes wrappers installed in step 8
+- adge retries with a fixed tempfile template
+
+### 13.2 SYS-0063 fails during post-install verification
+
+`sudo -n` on a wrapper prompted for a password instead of running.
+Possible causes:
+- Wrapper installed at wrong path (catch in step 8 verification)
+- Sudoers rule has a typo visudo didn't catch (extremely unlikely)
+- TTY tickets interfering with non-interactive mode (shouldn't matter)
+
+Rollback removes wrappers and sudoers file. adge investigates manually.
+
+### 13.3 SYS-0064 breaks existing patches
+
+`patch_base.py` changes could break backward compatibility. Mitigations:
+- Backup patch_base.py to /tmp/ before any edits
+- Add new methods without removing existing ones
+- Deprecated helpers become no-ops (don't error, just return True)
+- Syntax check the new file before committing the move
+- Import check after installing
+- Auto-rollback on any failure
+
+If rollback fails, manual recovery:
+```bash
+sudo cp /tmp/patch_base.py.pre_SYS-0064.bak /opt/mythos/patches/scripts/patch_base.py
+```
+
+### 13.4 SYS-0065 skill file not writable
+
+If `/mnt/skills/user/mythos-patch/SKILL.md` can't be written from the
+patch environment:
+- SYS-0065 generates the updated content to `/tmp/mythos-patch-SKILL.new.md`
+- adge manually copies it into place
+- The patch still records completion in PATCH_HISTORY
+
+### 13.5 Monitor auto-installs SYS-0063
+
+The monitor might grab the SYS-0063 zip before adge runs patch-install.
+If this happens, the TTY check at the top of apply_patch.py refuses to
+run and exits with a clear error message. The monitor's install.sh
+reports failure, patch-install rollback triggers, system returns to
+pre-install state. Adge can then run it manually.
+
+**Mitigation up front:** instruct adge in the delivery message to NOT
+drop the zip in Downloads. Tell him to run `patch-install SYS-0063`
+directly from his terminal.
+
+---
+
+## 14. Unresolved / optional improvements
+
+These are nice-to-haves but not required for the plan to succeed.
+Punt to future patches unless specifically requested.
+
+### 14.1 Hash verification of wrappers
+
+SYS-0063 could embed expected SHA-256 hashes for each wrapper and
+verify them post-install. Adds complexity in exchange for tamper
+detection. Skipped for now.
+
+### 14.2 selinux / AppArmor compatibility
+
+Ubuntu 24.04 has AppArmor enabled by default. Haven't checked whether
+any AppArmor profile interferes with the wrappers. Should be fine
+because `/usr/local/libexec/` isn't typically covered by profiles,
+but worth checking with `aa-status` during the fresh conversation if
+anything acts weird.
+
+### 14.3 Logging
+
+Wrappers don't log their invocations anywhere. Could add syslog writes
+for audit trail. Not in scope for SYS-0063. Future hardening.
+
+### 14.4 Automatic wrapper updates
+
+If a future patch changes a wrapper script, it needs to ship the new
+wrapper AND use `sudo install` to replace the old one. No mechanism
+exists to automate this. Probably fine for now — wrapper changes should
+be rare and deliberate.
+
+### 14.5 Bootstrap using systemd one-shot service instead of interactive sudo
+
+SYS-0063 currently requires interactive sudo for its own bootstrap.
+An alternative would be to ship SYS-0063 as a systemd one-shot service
+that runs as root, does the install, then removes itself. More
+engineering, but completely eliminates the interactive sudo step.
+
+Not worth it — the one-time bootstrap requirement is a small price
+and the monitor-triggered case is handled by the TTY check.
+
+---
+
+## 15. Closing notes for the fresh Claude
+
+### Things I want you to do
+
+- Read this entire plan before asking adge anything
+- Verify prerequisites via the diagnostic in Section 2.4
+- Confirm the plan scope with adge before building SYS-0063
+- Follow the structure in Section 6 exactly — don't improvise
+- Test the patches thoroughly at each step
+- Update userMemories after SYS-0065 lands so the new state is captured
+
+### Things I want you to AVOID
+
+- Don't redesign the approach — it's been peer-reviewed twice
+- Don't add "helpful" extra wrappers unless adge asks
+- Don't try to make SYS-0063 work for monitor-triggered installs (accept
+  the one-time interactive sudo bootstrap)
+- Don't edit `patch_base.py` in SYS-0063 — that's SYS-0064
+- Don't update the skill in SYS-0063 — that's SYS-0065
+- Don't bundle SYS-0063/0064/0065 into one mega-patch — Jeff specifically
+  required the split
+
+### If you get stuck
+
+- Ask adge for a targeted diagnostic
+- Consult this document's Section 13 for common failure modes
+- Read the mythos-patch skill if something about the patch system is unclear
+- Check userMemories for context about past decisions
+
+### Expected total session time
+
+- Prerequisite verification: 5 minutes
+- SYS-0063 build: 20-30 minutes
+- SYS-0063 install + verification: 10 minutes
+- SYS-0064 build: 15-20 minutes
+- SYS-0064 install + verification: 5 minutes
+- SYS-0065 build: 20-30 minutes (depends on skill file writability)
+- SYS-0065 install + verification: 5 minutes
+
+**Total: 90-120 minutes.** Budget 2-3 hours to allow for unexpected
+issues. This work should be completable in a single focused session.
+
+---
+
+## End of plan
+
+This document is self-contained, peer-reviewed, and ready to execute.
+A fresh Claude should be able to deliver SYS-0063, SYS-0064, and SYS-0065
+successfully using only this plan, the mythos-patch skill, and a
+diagnostic dump from adge.
+
+Good luck. Ship carefully.

@@ -1,0 +1,20 @@
+[Unit]
+Description=RODE Wireless GO auto-transfer (udev triggered)
+Documentation=file:///opt/mythos/bin/rode-autotransfer
+After=local-fs.target
+
+[Service]
+Type=oneshot
+User=adge
+Group=adge
+ExecStart=/opt/mythos/bin/rode-autotransfer
+StandardOutput=append:/opt/mythos/logs/rode_autotransfer.log
+StandardError=append:/opt/mythos/logs/rode_autotransfer.log
+TimeoutStartSec=1800
+# Required so the process can read /opt/mythos/.env and write to user config
+Environment=HOME=/home/adge
+Environment=XDG_CONFIG_HOME=/home/adge/.config
+Environment=PATH=/opt/mythos/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+[Install]
+WantedBy=multi-user.target

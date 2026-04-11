@@ -1,0 +1,19 @@
+[Unit]
+Description=Mythos Solar & Space Weather Ingestion Service
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/observatory/ingest/solar_ingest.py
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+Environment=PYTHOPATH=/opt/mythos
+
+[Install]
+WantedBy=multi-user.target

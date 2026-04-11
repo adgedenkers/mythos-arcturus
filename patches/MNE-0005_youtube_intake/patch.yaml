@@ -1,0 +1,11 @@
+stream: MNE
+number: 5
+description: youtube_transcript_intake
+patch_type: MAJOR
+summary: |
+  YouTube transcript intake skill for Iris. When a YouTube URL is sent,
+  Iris fetches the transcript and metadata, stores both VTT (timestamped)
+  and plain text formats in Postgres, and creates Video/Channel nodes in Neo4j.
+changes:
+  - /opt/mythos/skills/data/youtube_intake.py: New skill
+  - /opt/mythos/migrations/youtube_videos.sql: New table

@@ -1,0 +1,23 @@
+# Iris Meditation Global Config
+# /opt/mythos/voice/meditation_config.yaml
+#
+# Background music settings applied to all meditations unless overridden
+# in the individual .yaml spec file.
+#
+# To enable background music globally:
+#   1. Download tracks with: iris-music-fetch
+#   2. Set default_track to a filename in music_dir
+#
+# Per-meditation override (in meditation spec defaults:):
+#   background:
+#     track: singing_bowl_loop.ogg
+#     volume: 0.18
+#     fade_in: 4.0
+#     fade_out: 6.0
+
+background:
+  music_dir: /opt/mythos/public/meditations/music
+  track: null          # null = no background music by default
+  volume: 0.22         # 0.0 (silent) → 1.0 (full) — recommend 0.15–0.25
+  fade_in: 3.0         # seconds to fade in at start
+  fade_out: 6.0        # seconds to fade out at end (dropout_transition)

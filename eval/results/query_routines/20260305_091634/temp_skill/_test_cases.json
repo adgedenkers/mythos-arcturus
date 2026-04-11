@@ -1,0 +1,23 @@
+[
+  {
+    "message": "what are my routines today",
+    "expect_ok": true,
+    "expect_data_has": [
+      "routines"
+    ]
+  },
+  {
+    "message": "have I done my daily tasks",
+    "expect_ok": true,
+    "expect_data_has": [
+      "routines"
+    ],
+    "expect_summary_contains": [
+      "Routine"
+    ]
+  },
+  {
+    "message": "checklist",
+    "expect_ok": true
+  }
+]

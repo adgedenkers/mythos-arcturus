@@ -1,0 +1,108 @@
+{
+  "plan_id": "search_ideas",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_062733",
+  "total_passes": 6,
+  "total_ollama_calls": 6,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 7,
+    "failed": 0,
+    "total": 7
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton. #!/usr/bin/env python3, docstring, imports (os, logging, json, psycopg2, psycopg2.extras.RealDictCursor, dotenv, engine.base). Write _get_conn() using EXACTLY this pattern:\n\ndef _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )\n\nThen SearchIdeasSkill class with all attributes. All methods have 'pass' as body. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.48,
+      "final_code_lines": 62
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms() and _detect_filters(). For _extract_search_terms: lowercase, remove trigger phrases LONGEST FIRST: 'remember that idea', 'i had an idea', 'pending ideas', 'idea inbox', 'what ideas', 'brainstorm', 'suggestion', 'backlog', 'thought', 'ideas', 'idea', 'search for', 'search about', 'search', 'find', 'about'. After each removal: message = ' '.join(message.split()). Strip punctuation, return if len >= 2. For _detect_filters: check for disposition words ('pending', 'kept', 'dismissed', 'deferred') and domain words ('technical', 'spiritual', 'personal', 'financial'). Return {'disposition': str|None, 'domain': str|None}.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.19,
+      "final_code_lines": 123
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _search_ideas(). Use _get_conn(). Build query: SELECT id, conversation_context, items, item_count, chosen_text, disposition, domain, tags, created_at FROM idea_inbox WHERE 1=1. If search_terms not empty: append AND (conversation_context ILIKE %s OR chosen_text ILIKE %s) and add f'%{search_terms}%' TWICE to params list. If disposition: append AND disposition = %s. If domain: append AND domain = %s. Append ORDER BY created_at DESC LIMIT %s. Use try/finally to close cursor and connection. Return list of row dicts.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.99,
+      "final_code_lines": 147
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). _format_results: for each row, dict with id (as string), context (conversation_context truncated 200 chars with '...' if longer), chosen_text, items (keep as-is, it is jsonb), item_count, disposition, domain, created_at as ISO string. _build_summary: if no results 'No ideas found matching X.' If results: 'Found N idea(s) matching X:' then for top 3, show chosen_text if available, else first 100 chars of conversation_context, plus disposition in parentheses. If N > 3 add 'and N-3 more.'",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 6.35,
+      "final_code_lines": 182
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Extract search terms. Detect filters from request.message. If no terms AND no filters: query SELECT COUNT(*) as total FROM idea_inbox WHERE disposition = 'pending', return SkillResponse with count and summary like 'You have N pending ideas in the inbox.' If terms or filters exist: call _search_ideas with appropriate args. Format and summarize. Return SkillResponse(skill_name=self.name, data={'matches': formatted, 'search_terms': terms, 'count': len(formatted), 'filters': filters}, summary=summary, confidence=0.95, sources=['mythos.idea_inbox']). Wrap in try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 8.03,
+      "final_code_lines": 231
+    },
+    {
+      "pass": 6,
+      "instruction": "Review the complete file. Ensure: _get_conn uses POSTGRES_HOST, all connections close in finally, summary never empty, no unicode, id field cast to string since it is uuid. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 7.88,
+      "final_code_lines": 221
+    }
+  ]
+}

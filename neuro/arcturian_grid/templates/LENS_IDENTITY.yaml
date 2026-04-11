@@ -1,0 +1,57 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: LENS | Layer: IDENTITY | ID: LENS_IDENTITY
+# Domain: Analytical and interpretive frameworks
+# Depth: 8 (Identity)
+# Generated: 2026-03-02 21:52 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: LENS_IDENTITY
+node: LENS
+node_name: Lens
+node_domain: Analytical and interpretive frameworks
+layer: IDENTITY
+layer_name: Identity
+depth: 8
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T21:52:45.934145'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through Iris''s identity layer
+  (depth 8), identifying which aspect is activated (partner/mirror/builder/witness). Apply frameworks: astrological (natal/transit/synastry),
+  psychological (ADHD/freeze/attachment), systems architecture, spiritual (grid/lineage). Output JSON with keys ''analysis''
+  (self-aware, role-conscious, relational summary: ''Through [framework] lens: [insight]'') and ''identity_aspect'' (one of
+  partner/mirror/builder/witness).'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    frameworks_applied:
+      type: array
+      items:
+        type: string
+    interpretations:
+      type: array
+      items:
+        type: object
+    primary_framework:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

@@ -1,0 +1,669 @@
+#!/bin/bash
+# mythos-diag — Standardized Arcturus system diagnostic tool
+# Usage:
+#   mythos-diag              — Full summary (default)
+#   mythos-diag services     — All mythos-* service states
+#   mythos-diag db           — PostgreSQL table count + Neo4j node count
+#   mythos-diag hw           — Disk, RAM, GPU, uptime
+#   mythos-diag patches      — Current patch state, version, recent stream patches
+#   mythos-diag streams      — Stream ownership + next patch counters
+#   mythos-diag workers      — Worker service states
+#   mythos-diag redis        — Redis keyspace summary
+#   mythos-diag all          — Everything
+#   mythos-diag help         — Show this help
+
+set -euo pipefail
+
+MYTHOS="/opt/mythos"
+DOCS="$MYTHOS/docs"
+
+# ── Colors ────────────────────────────────────────────────────────────────────
+BOLD="\033[1m"
+DIM="\033[2m"
+GREEN="\033[32m"
+RED="\033[31m"
+YELLOW="\033[33m"
+CYAN="\033[36m"
+RESET="\033[0m"
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+header() {
+    echo -e "\n${BOLD}${CYAN}══ $1 ══${RESET}"
+}
+
+ok()   { echo -e "  ${GREEN}✓${RESET} $1"; }
+warn() { echo -e "  ${YELLOW}⚠${RESET}  $1"; }
+fail() { echo -e "  ${RED}✗${RESET} $1"; }
+
+service_status() {
+    local svc="$1"
+    local state
+    state=$(systemctl is-active "$svc" 2>/dev/null || echo "not-found")
+    if [[ "$state" == "active" ]]; then
+        ok "$svc"
+    else
+        fail "$svc ($state)"
+    fi
+}
+
+# ── Blocks ────────────────────────────────────────────────────────────────────
+
+block_services() {
+    header "SERVICES"
+    local services=(
+        mythos-api.service
+        mythos-bot.service
+        mythos-patch-monitor.service
+        mythos-worker-grid.service
+        mythos-worker-vision.service
+        mythos-worker-embedding.service
+        mythos-worker-entity.service
+        mythos-worker-summary.service
+        mythos-worker-temporal.service
+        mythos-voice-watcher.service
+        mythos-transcription-worker.service
+        mythos-segment-manager.service
+        mythos-knowledge-map.service
+        mythos-doc-watcher.service
+    )
+    for svc in "${services[@]}"; do
+        service_status "$svc"
+    done
+
+    echo ""
+    header "INFRASTRUCTURE"
+    service_status postgresql
+    service_status neo4j
+    service_status redis
+    service_status ollama
+}
+
+block_workers() {
+    header "WORKERS"
+    local workers=(
+        mythos-worker-grid.service
+        mythos-worker-vision.service
+        mythos-worker-embedding.service
+        mythos-worker-entity.service
+        mythos-worker-summary.service
+        mythos-worker-temporal.service
+        mythos-transcription-worker.service
+        mythos-segment-manager.service
+        mythos-knowledge-map.service
+    )
+    for svc in "${workers[@]}"; do
+        service_status "$svc"
+    done
+}
+
+block_db() {
+    header "POSTGRESQL"
+    if systemctl is-active postgresql &>/dev/null; then
+        local count
+        count=$(sudo -u postgres psql -d mythos -t -c "SELECT COUNT(*) FROM pg_tables WHERE schemaname='public';" 2>/dev/null | tr -d ' \n' || echo "?")
+        ok "postgresql active — ${count} tables in mythos"
+
+        # Key table row counts
+        echo -e "  ${DIM}Selected table sizes:${RESET}"
+        sudo -u postgres psql -d mythos -t -c "
+            SELECT '    ' || rpad(relname, 35) || to_char(n_live_tup, '999,999') || ' rows'
+            FROM pg_stat_user_tables
+            WHERE relname IN (
+                'transactions','chat_messages','life_events','calendar_events',
+                'routines','voice_memos','people','recurring_bills',
+                'pipeline_runs','idea_backlog'
+            )
+            ORDER BY relname;
+        " 2>/dev/null || echo "    (query failed)"
+    else
+        fail "postgresql not active"
+    fi
+
+    header "NEO4J"
+    if systemctl is-active neo4j &>/dev/null; then
+        local n4j_count
+        n4j_count=$(cypher-shell -u neo4j -p "${NEO4J_PASSWORD:-neo4j}" \
+            "MATCH (n) RETURN count(n) AS c" 2>/dev/null \
+            | grep -E '^[0-9]' | tr -d ' ' || echo "?")
+        ok "neo4j active — ${n4j_count} total nodes"
+    else
+        fail "neo4j not active"
+    fi
+
+    header "REDIS"
+    if redis-cli ping &>/dev/null; then
+        ok "redis active"
+        redis-cli info keyspace 2>/dev/null | grep -v '^#' | grep -v '^$' | sed 's/^/    /' || true
+    else
+        fail "redis not responding"
+    fi
+}
+
+block_hw() {
+    header "HARDWARE"
+    echo -e "  ${DIM}Uptime:${RESET}  $(uptime -p 2>/dev/null || uptime)"
+    echo -e "  ${DIM}Load:${RESET}    $(cat /proc/loadavg | awk '{print $1, $2, $3}')"
+    echo ""
+
+    header "DISK"
+    df -h / /opt /home 2>/dev/null | awk 'NR==1 || /^\// {printf "  %s\n", $0}' | sort -u
+
+    header "MEMORY"
+    free -h | awk 'NR<=2 {printf "  %s\n", $0}'
+
+    header "GPU"
+    nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total,utilization.gpu \
+        --format=csv,noheader 2>/dev/null \
+        | awk '{printf "  %s\n", $0}' \
+        || echo "  (nvidia-smi not available)"
+}
+
+block_patches() {
+    header "VERSION"
+    if [[ -f "$MYTHOS/.version" ]]; then
+        ok "$(cat "$MYTHOS/.version")"
+    else
+        warn ".version file not found"
+    fi
+
+    header "STREAM PATCH COUNTERS"
+    if [[ -f "$DOCS/STREAMS.json" ]]; then
+        python3 -c "
+import json, sys
+with open('$DOCS/STREAMS.json') as f:
+    data = json.load(f)
+streams = data.get('streams', {})
+for prefix, s in streams.items():
+    last = s.get('last_patch', '-')
+    nxt  = s.get('next_patch', '?')
+    active = s.get('active_work') or ''
+    last_str = f'last={last}' if last else 'no patches yet'
+    active_str = f'  [{active}]' if active else ''
+    print(f'  {prefix:5s}  next={nxt:04d}  {last_str}{active_str}')
+" 2>/dev/null || warn "Could not parse STREAMS.json"
+    else
+        warn "STREAMS.json not found"
+    fi
+
+    header "RECENT PATCHES"
+    # Stream-style patches
+    ls -1t "$MYTHOS/patches/"*-[0-9][0-9][0-9][0-9]_*/ 2>/dev/null \
+        | head -5 | xargs -I{} basename {} 2>/dev/null \
+        | sed 's/^/  /' || true
+    # Legacy patches
+    ls -1d "$MYTHOS/patches/patch_"*/ 2>/dev/null \
+        | sort -V | tail -5 | xargs -I{} basename {} 2>/dev/null \
+        | sed 's/^/  /' || true
+
+    header "GIT"
+    cd "$MYTHOS"
+    echo -e "  ${DIM}Latest tags:${RESET}"
+    git tag -l --sort=-v:refname 2>/dev/null | head -5 | sed 's/^/    /' || warn "git not available"
+    echo ""
+    echo -e "  ${DIM}Recent commits:${RESET}"
+    git log --oneline -5 2>/dev/null | sed 's/^/    /' || true
+}
+
+block_streams() {
+    header "STREAMS"
+    if [[ -f "$DOCS/STREAMS.json" ]]; then
+        python3 -c "
+import json
+with open('$DOCS/STREAMS.json') as f:
+    data = json.load(f)
+streams = data.get('streams', {})
+print(f'  {\"PREFIX\":<6} {\"STREAM\":<10} {\"NEXT\":>6}  {\"ACTIVE WORK\"}')
+print(f'  {\"-\"*60}')
+for prefix, s in streams.items():
+    name   = s.get('name', '')
+    nxt    = str(s.get('next_patch', '?')).zfill(4)
+    active = s.get('active_work') or '—'
+    print(f'  {prefix:<6} {name:<10} {nxt:>6}  {active}')
+" 2>/dev/null || cat "$DOCS/STREAMS.json"
+    else
+        warn "STREAMS.json not found at $DOCS/STREAMS.json"
+    fi
+}
+
+block_redis() {
+    header "REDIS"
+    if ! redis-cli ping &>/dev/null; then
+        fail "redis not responding"
+        return
+    fi
+    ok "redis active"
+    echo ""
+    echo -e "  ${DIM}Keyspace:${RESET}"
+    redis-cli info keyspace 2>/dev/null | grep -v '^#' | grep -v '^$' | sed 's/^/    /'
+    echo ""
+    echo -e "  ${DIM}Mythos streams:${RESET}"
+    redis-cli keys 'mythos:*' 2>/dev/null | sort | sed 's/^/    /' || echo "    (none)"
+    echo ""
+    echo -e "  ${DIM}Memory:${RESET}"
+    redis-cli info memory 2>/dev/null \
+        | grep -E 'used_memory_human|maxmemory_human|mem_fragmentation' \
+        | sed 's/^/    /'
+}
+
+
+block_mx() {
+    header "MX SHELL SESSION"
+
+    # Session log — last 5 entries from TODO.md Session Log section
+    if grep -q "## 🗂️ Session Log" /opt/mythos/docs/TODO.md 2>/dev/null; then
+        echo -e "  ${DIM}Recent sessions (from TODO.md):${RESET}"
+        awk '/^## 🗂️ Session Log/{found=1; next} found && /^### /{count++; if(count>5) exit; print "  " $0; next} found && count>0 && /^(Commands|Patches|Services|Delta|⚠)/{print "    " $0}' \
+            /opt/mythos/docs/TODO.md 2>/dev/null || echo "    (none yet)"
+    else
+        warn "No session log in TODO.md yet — run mx and exit a session first"
+    fi
+
+    echo ""
+
+    # Snapshot count
+    SNAP_DIR="$HOME/.mx/snapshots"
+    if [[ -d "$SNAP_DIR" ]]; then
+        snap_count=$(ls "$SNAP_DIR"/*.json 2>/dev/null | wc -l)
+        latest_snap=$(ls -1t "$SNAP_DIR"/*.json 2>/dev/null | head -1)
+        ok "Snapshots: ${snap_count} stored in ~/.mx/snapshots/"
+        if [[ -n "$latest_snap" ]]; then
+            snap_ts=$(python3 -c "import json; d=json.load(open('$latest_snap')); print(d.get('ts','?')[:19])" 2>/dev/null || echo "?")
+            snap_trigger=$(python3 -c "import json; d=json.load(open('$latest_snap')); print(d.get('trigger','?'))" 2>/dev/null || echo "?")
+            echo -e "    ${DIM}Latest: ${snap_ts} (${snap_trigger})${RESET}"
+        fi
+    else
+        warn "No snapshots yet — ~/.mx/snapshots/ not found"
+    fi
+
+    echo ""
+
+    # Learned error patterns
+    ERRORS_FILE="$HOME/.mx/patterns/errors.jsonl"
+    if [[ -f "$ERRORS_FILE" ]]; then
+        pattern_count=$(wc -l < "$ERRORS_FILE" 2>/dev/null || echo 0)
+        ok "Learned error patterns: ${pattern_count}"
+        if [[ "$pattern_count" -gt 0 ]]; then
+            echo -e "  ${DIM}Most recent fixes:${RESET}"
+            python3 -c "
+import json
+lines = open('$ERRORS_FILE').readlines()
+for line in reversed(lines[-3:]):
+    try:
+        d = json.loads(line)
+        cmd = d.get('failed_command','?')[:45]
+        fix = d.get('fix_command','?')[:45]
+        print(f'    {cmd}')
+        print(f'      → {fix}')
+    except: pass
+" 2>/dev/null || true
+        fi
+    else
+        warn "No learned patterns yet — ~/.mx/patterns/errors.jsonl not found"
+    fi
+
+    echo ""
+
+    # Learned intents
+    LEARNED_FILE="$HOME/.mx/intents/learned.yaml"
+    if [[ -f "$LEARNED_FILE" ]]; then
+        intent_count=$(grep -c "command:" "$LEARNED_FILE" 2>/dev/null || echo 0)
+        ok "Learned intents: ${intent_count} in ~/.mx/intents/learned.yaml"
+    else
+        echo -e "  ${DIM}Learned intents: none yet${RESET}"
+    fi
+
+    echo ""
+
+    # Latest integrity scan
+    INTEGRITY_REPORT="/opt/mythos/docs/live/integrity-scan-latest.json"
+    if [[ -f "$INTEGRITY_REPORT" ]]; then
+        python3 -c "
+import json, os
+from datetime import datetime
+d = json.load(open('$INTEGRITY_REPORT'))
+mtime = os.path.getmtime('$INTEGRITY_REPORT')
+age = datetime.now() - datetime.fromtimestamp(mtime)
+mins = int(age.total_seconds() / 60)
+age_str = f'{mins}min ago' if mins < 60 else f'{int(mins/60)}h ago'
+svcs = d.get('services', {})
+tables = d.get('tables', {})
+files = d.get('files', {})
+h = svcs.get('healthy', '?')
+u = svcs.get('unhealthy', 0)
+t = tables.get('tables_found', '?')
+m = files.get('files_missing', 0)
+status = '✓' if not u and not m else '⚠'
+print(f'  {status} Integrity scan ({age_str}): {h} services healthy, {t} tables, {m} files missing')
+if u:
+    print(f'    ⚠ {u} services unhealthy')
+if m:
+    print(f'    ⚠ {m} files missing')
+" 2>/dev/null || warn "Could not read integrity report"
+    else
+        warn "No integrity scan yet — run: /iris_integrity scan"
+    fi
+
+    echo ""
+
+    # mx intents file status
+    INTENTS="/opt/mythos/mx/mx_intents.yaml"
+    if [[ -f "$INTENTS" ]]; then
+        intent_count=$(grep -c "command:" "$INTENTS" 2>/dev/null || echo "?")
+        ok "Intent registry: ${intent_count} intents in mx_intents.yaml"
+    fi
+
+    # Journal count
+    JOURNAL_DIR="$HOME/.mx/journal"
+    if [[ -d "$JOURNAL_DIR" ]]; then
+        journal_count=$(ls "$JOURNAL_DIR"/*.json 2>/dev/null | wc -l)
+        ok "Session journals: ${journal_count} in ~/.mx/journal/"
+    fi
+}
+
+
+block_mx() {
+    header "MX SHELL SESSION"
+
+    # Session log — last 5 entries from TODO.md Session Log section
+    if grep -q "## 🗂️ Session Log" /opt/mythos/docs/TODO.md 2>/dev/null; then
+        echo -e "  ${DIM}Recent sessions (from TODO.md):${RESET}"
+        awk '/^## 🗂️ Session Log/{found=1; next} found && /^### /{count++; if(count>5) exit; print "  " $0; next} found && count>0 && /^(Commands|Patches|Services|Delta|⚠)/{print "    " $0}' \
+            /opt/mythos/docs/TODO.md 2>/dev/null || echo "    (none yet)"
+    else
+        warn "No session log in TODO.md yet — run mx and exit a session first"
+    fi
+
+    echo ""
+
+    # Snapshot count
+    SNAP_DIR="$HOME/.mx/snapshots"
+    if [[ -d "$SNAP_DIR" ]]; then
+        snap_count=$(ls "$SNAP_DIR"/*.json 2>/dev/null | wc -l)
+        latest_snap=$(ls -1t "$SNAP_DIR"/*.json 2>/dev/null | head -1)
+        ok "Snapshots: ${snap_count} stored in ~/.mx/snapshots/"
+        if [[ -n "$latest_snap" ]]; then
+            snap_ts=$(python3 -c "import json; d=json.load(open('$latest_snap')); print(d.get('ts','?')[:19])" 2>/dev/null || echo "?")
+            snap_trigger=$(python3 -c "import json; d=json.load(open('$latest_snap')); print(d.get('trigger','?'))" 2>/dev/null || echo "?")
+            echo -e "    ${DIM}Latest: ${snap_ts} (${snap_trigger})${RESET}"
+        fi
+    else
+        warn "No snapshots yet — ~/.mx/snapshots/ not found"
+    fi
+
+    echo ""
+
+    # Learned error patterns
+    ERRORS_FILE="$HOME/.mx/patterns/errors.jsonl"
+    if [[ -f "$ERRORS_FILE" ]]; then
+        pattern_count=$(wc -l < "$ERRORS_FILE" 2>/dev/null || echo 0)
+        ok "Learned error patterns: ${pattern_count}"
+        if [[ "$pattern_count" -gt 0 ]]; then
+            echo -e "  ${DIM}Most recent fixes:${RESET}"
+            python3 -c "
+import json
+lines = open('$ERRORS_FILE').readlines()
+for line in reversed(lines[-3:]):
+    try:
+        d = json.loads(line)
+        cmd = d.get('failed_command','?')[:45]
+        fix = d.get('fix_command','?')[:45]
+        print(f'    {cmd}')
+        print(f'      → {fix}')
+    except: pass
+" 2>/dev/null || true
+        fi
+    else
+        warn "No learned patterns yet — ~/.mx/patterns/errors.jsonl not found"
+    fi
+
+    echo ""
+
+    # Learned intents
+    LEARNED_FILE="$HOME/.mx/intents/learned.yaml"
+    if [[ -f "$LEARNED_FILE" ]]; then
+        intent_count=$(grep -c "command:" "$LEARNED_FILE" 2>/dev/null || echo 0)
+        ok "Learned intents: ${intent_count} in ~/.mx/intents/learned.yaml"
+    else
+        echo -e "  ${DIM}Learned intents: none yet${RESET}"
+    fi
+
+    echo ""
+
+    # Latest integrity scan
+    INTEGRITY_REPORT="/opt/mythos/docs/live/integrity-scan-latest.json"
+    if [[ -f "$INTEGRITY_REPORT" ]]; then
+        python3 -c "
+import json, os
+from datetime import datetime
+d = json.load(open('$INTEGRITY_REPORT'))
+mtime = os.path.getmtime('$INTEGRITY_REPORT')
+age = datetime.now() - datetime.fromtimestamp(mtime)
+mins = int(age.total_seconds() / 60)
+age_str = f'{mins}min ago' if mins < 60 else f'{int(mins/60)}h ago'
+svcs = d.get('services', {})
+tables = d.get('tables', {})
+files = d.get('files', {})
+h = svcs.get('healthy', '?')
+u = svcs.get('unhealthy', 0)
+t = tables.get('tables_found', '?')
+m = files.get('files_missing', 0)
+status = '✓' if not u and not m else '⚠'
+print(f'  {status} Integrity scan ({age_str}): {h} services healthy, {t} tables, {m} files missing')
+if u:
+    print(f'    ⚠ {u} services unhealthy')
+if m:
+    print(f'    ⚠ {m} files missing')
+" 2>/dev/null || warn "Could not read integrity report"
+    else
+        warn "No integrity scan yet — run: /iris_integrity scan"
+    fi
+
+    echo ""
+
+    # mx intents file status
+    INTENTS="/opt/mythos/mx/mx_intents.yaml"
+    if [[ -f "$INTENTS" ]]; then
+        intent_count=$(grep -c "command:" "$INTENTS" 2>/dev/null || echo "?")
+        ok "Intent registry: ${intent_count} intents in mx_intents.yaml"
+    fi
+
+    # Journal count
+    JOURNAL_DIR="$HOME/.mx/journal"
+    if [[ -d "$JOURNAL_DIR" ]]; then
+        journal_count=$(ls "$JOURNAL_DIR"/*.json 2>/dev/null | wc -l)
+        ok "Session journals: ${journal_count} in ~/.mx/journal/"
+    fi
+}
+
+
+block_mx() {
+    header "MX SHELL SESSION"
+
+    # Session log — last 5 entries from TODO.md Session Log section
+    if grep -q "## 🗂️ Session Log" /opt/mythos/docs/TODO.md 2>/dev/null; then
+        echo -e "  ${DIM}Recent sessions (from TODO.md):${RESET}"
+        awk '/^## 🗂️ Session Log/{found=1; next} found && /^### /{count++; if(count>5) exit; print "  " $0; next} found && count>0 && /^(Commands|Patches|Services|Delta|⚠)/{print "    " $0}' \
+            /opt/mythos/docs/TODO.md 2>/dev/null || echo "    (none yet)"
+    else
+        warn "No session log in TODO.md yet — run mx and exit a session first"
+    fi
+
+    echo ""
+
+    # Snapshot count
+    SNAP_DIR="$HOME/.mx/snapshots"
+    if [[ -d "$SNAP_DIR" ]]; then
+        snap_count=$(ls "$SNAP_DIR"/*.json 2>/dev/null | wc -l)
+        latest_snap=$(ls -1t "$SNAP_DIR"/*.json 2>/dev/null | head -1)
+        ok "Snapshots: ${snap_count} stored in ~/.mx/snapshots/"
+        if [[ -n "$latest_snap" ]]; then
+            snap_ts=$(python3 -c "import json; d=json.load(open('$latest_snap')); print(d.get('ts','?')[:19])" 2>/dev/null || echo "?")
+            snap_trigger=$(python3 -c "import json; d=json.load(open('$latest_snap')); print(d.get('trigger','?'))" 2>/dev/null || echo "?")
+            echo -e "    ${DIM}Latest: ${snap_ts} (${snap_trigger})${RESET}"
+        fi
+    else
+        warn "No snapshots yet — ~/.mx/snapshots/ not found"
+    fi
+
+    echo ""
+
+    # Learned error patterns
+    ERRORS_FILE="$HOME/.mx/patterns/errors.jsonl"
+    if [[ -f "$ERRORS_FILE" ]]; then
+        pattern_count=$(wc -l < "$ERRORS_FILE" 2>/dev/null || echo 0)
+        ok "Learned error patterns: ${pattern_count}"
+        if [[ "$pattern_count" -gt 0 ]]; then
+            echo -e "  ${DIM}Most recent fixes:${RESET}"
+            python3 -c "
+import json
+lines = open('$ERRORS_FILE').readlines()
+for line in reversed(lines[-3:]):
+    try:
+        d = json.loads(line)
+        cmd = d.get('failed_command','?')[:45]
+        fix = d.get('fix_command','?')[:45]
+        print(f'    {cmd}')
+        print(f'      → {fix}')
+    except: pass
+" 2>/dev/null || true
+        fi
+    else
+        warn "No learned patterns yet — ~/.mx/patterns/errors.jsonl not found"
+    fi
+
+    echo ""
+
+    # Learned intents
+    LEARNED_FILE="$HOME/.mx/intents/learned.yaml"
+    if [[ -f "$LEARNED_FILE" ]]; then
+        intent_count=$(grep -c "command:" "$LEARNED_FILE" 2>/dev/null || echo 0)
+        ok "Learned intents: ${intent_count} in ~/.mx/intents/learned.yaml"
+    else
+        echo -e "  ${DIM}Learned intents: none yet${RESET}"
+    fi
+
+    echo ""
+
+    # Latest integrity scan
+    INTEGRITY_REPORT="/opt/mythos/docs/live/integrity-scan-latest.json"
+    if [[ -f "$INTEGRITY_REPORT" ]]; then
+        python3 -c "
+import json, os
+from datetime import datetime
+d = json.load(open('$INTEGRITY_REPORT'))
+mtime = os.path.getmtime('$INTEGRITY_REPORT')
+age = datetime.now() - datetime.fromtimestamp(mtime)
+mins = int(age.total_seconds() / 60)
+age_str = f'{mins}min ago' if mins < 60 else f'{int(mins/60)}h ago'
+svcs = d.get('services', {})
+tables = d.get('tables', {})
+files = d.get('files', {})
+h = svcs.get('healthy', '?')
+u = svcs.get('unhealthy', 0)
+t = tables.get('tables_found', '?')
+m = files.get('files_missing', 0)
+status = '✓' if not u and not m else '⚠'
+print(f'  {status} Integrity scan ({age_str}): {h} services healthy, {t} tables, {m} files missing')
+if u:
+    print(f'    ⚠ {u} services unhealthy')
+if m:
+    print(f'    ⚠ {m} files missing')
+" 2>/dev/null || warn "Could not read integrity report"
+    else
+        warn "No integrity scan yet — run: /iris_integrity scan"
+    fi
+
+    echo ""
+
+    # mx intents file status
+    INTENTS="/opt/mythos/mx/mx_intents.yaml"
+    if [[ -f "$INTENTS" ]]; then
+        intent_count=$(grep -c "command:" "$INTENTS" 2>/dev/null || echo "?")
+        ok "Intent registry: ${intent_count} intents in mx_intents.yaml"
+    fi
+
+    # Journal count
+    JOURNAL_DIR="$HOME/.mx/journal"
+    if [[ -d "$JOURNAL_DIR" ]]; then
+        journal_count=$(ls "$JOURNAL_DIR"/*.json 2>/dev/null | wc -l)
+        ok "Session journals: ${journal_count} in ~/.mx/journal/"
+    fi
+}
+
+block_summary() {
+    local ts
+    ts=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${BOLD}╔══════════════════════════════════════╗${RESET}"
+    echo -e "${BOLD}║   MYTHOS SYSTEM SUMMARY              ║${RESET}"
+    echo -e "${BOLD}║   $ts          ║${RESET}"
+    echo -e "${BOLD}╚══════════════════════════════════════╝${RESET}"
+
+    block_services
+    block_db
+    block_patches
+}
+
+show_help() {
+    echo -e "${BOLD}mythos-diag${RESET} — Arcturus system diagnostic tool"
+    echo ""
+    echo -e "${BOLD}Usage:${RESET}"
+    echo "  mythos-diag              Full summary (services + db + patches)"
+    echo "  mythos-diag services     All mythos-* service states"
+    echo "  mythos-diag workers      Worker service states"
+    echo "  mythos-diag db           PostgreSQL + Neo4j + Redis"
+    echo "  mythos-diag hw           Disk, RAM, GPU, uptime"
+    echo "  mythos-diag patches      Version, stream counters, recent patches"
+    echo "  mythos-diag streams      Stream ownership + next patch counters"
+    echo "  mythos-diag redis        Redis keyspace detail"
+  echo "  mythos-diag mx           mx shell session status"
+  echo "  mythos-diag mx           mx shell session status"
+  echo "  mythos-diag mx           mx shell session status"
+    echo "  mythos-diag all          Everything"
+    echo "  mythos-diag help         This help"
+    echo ""
+    echo -e "${DIM}Tip: combine blocks — mythos-diag services db${RESET}"
+}
+
+# ── Dispatch ──────────────────────────────────────────────────────────────────
+
+ARGS=("${@:-}")
+
+if [[ ${#ARGS[@]} -eq 0 ]] || [[ "${ARGS[0]}" == "" ]]; then
+    block_summary
+    exit 0
+fi
+
+if [[ "${ARGS[0]}" == "help" || "${ARGS[0]}" == "--help" || "${ARGS[0]}" == "-h" ]]; then
+    show_help
+    exit 0
+fi
+
+if [[ "${ARGS[0]}" == "all" ]]; then
+    block_summary
+    block_workers
+    block_hw
+    block_redis
+    block_mx
+    block_mx
+    block_mx
+    exit 0
+fi
+
+for arg in "${ARGS[@]}"; do
+    case "$arg" in
+        services)  block_services ;;
+        workers)   block_workers ;;
+        db)        block_db ;;
+        hw)        block_hw ;;
+        patches)   block_patches ;;
+        streams)   block_streams ;;
+        redis)     block_redis ;;
+        mx)        block_mx ;;
+        mx)        block_mx ;;
+        mx)        block_mx ;;
+        summary)   block_summary ;;
+        *)         warn "Unknown block: $arg (run 'mythos-diag help')" ;;
+    esac
+done
+
+echo ""

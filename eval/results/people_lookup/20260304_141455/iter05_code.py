@@ -1,0 +1,188 @@
+#!/usr/bin/env python3
+"""
+People Lookup
+=============
+
+Searches the Mythos people table by first_name, last_name, or known_as (case-insensitive LIKE match).
+Returns matching records with birth data. If no search term can be extracted, returns the total count
+of people in the registry. The summary is human-readable with names, birth dates, and locations.
+"""
+import os
+import logging
+from typing import Any, Dict
+
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
+
+load_dotenv('/opt/mythos/.env')
+
+from engine.base import SkillBase, SkillRequest, SkillResponse
+
+logger = logging.getLogger(__name__)
+
+
+def _get_conn():
+    return psycopg2.connect(
+        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),
+        database=os.getenv('POSTGRES_DB', 'mythos'),
+        user=os.getenv('POSTGRES_USER', 'postgres'),
+        password=os.getenv('POSTGRES_PASSWORD', ''),
+        port=os.getenv('POSTGRES_PORT', '5432'),
+        cursor_factory=RealDictCursor,
+    )
+
+
+class PeopleLookupSkill(SkillBase):
+    name = "people_lookup"
+    version = "1.0"
+    category = "data"
+    description = "Searches the Mythos people table by name or alias, returning birth data."
+    triggers = [
+        "who is",
+        "find person",
+        "people",
+        "person",
+        "lookup",
+        "born",
+        "birthday",
+        "birth data"
+    ]
+    cache_ttl = 600  # seconds
+
+    async def execute(self, request: SkillRequest) -> SkillResponse:
+        try:
+            conn = _get_conn()
+            cur = conn.cursor()
+
+            message = request.message.lower()
+            search_term = None
+
+            # Extract search term from message
+            if "who is" in message:
+                search_term = message.split("who is", 1)[1].strip()
+            elif "find person" in message:
+                search_term = message.split("find person", 1)[1].strip()
+            elif "lookup" in message:
+                search_term = message.split("lookup", 1)[1].strip()
+            elif "born" in message or "birthday" in message or "birth data" in message:
+                # Try to extract name after these keywords
+                for keyword in ["born", "birthday", "birth data"]:
+                    if keyword in message:
+                        parts = message.split(keyword, 1)
+                        if len(parts) > 1:
+                            search_term = parts[1].strip()
+                            break
+
+            # If we still don't have a search term, try to find a name
+            if not search_term:
+                # Simple heuristic: look for common name patterns
+                words = message.split()
+                for word in words:
+                    if len(word) > 2 and word.isalpha():
+                        search_term = word
+                        break
+
+            if search_term:
+                # Search for people matching the term in first_name, last_name, or known_as
+                query = """
+                    SELECT id, prefix, first_name, middle_name, last_name, suffix, known_as,
+                           date_of_birth, time_of_birth, birth_city, birth_state, birth_zip, birth_country
+                    FROM people
+                    WHERE LOWER(first_name) LIKE %s
+                       OR LOWER(last_name) LIKE %s
+                       OR LOWER(known_as) LIKE %s
+                    ORDER BY last_name, first_name
+                """
+                search_pattern = f"%{search_term}%"
+                cur.execute(query, (search_pattern, search_pattern, search_pattern))
+                results = cur.fetchall()
+            else:
+                # No search term found, return total count
+                query = "SELECT COUNT(*) as total FROM people"
+                cur.execute(query)
+                count_result = cur.fetchone()
+                total_count = count_result['total'] if count_result else 0
+                cur.close()
+                conn.close()
+
+                summary = f"The registry contains {total_count} people."
+                return SkillResponse(
+                    skill_name=self.name,
+                    data={"total_count": total_count},
+                    summary=summary,
+                    confidence=0.95,
+                    sources=["mythos.people"],
+                )
+
+            if not results:
+                summary = f"No people found matching '{search_term}'."
+                return SkillResponse(
+                    skill_name=self.name,
+                    data={"results": []},
+                    summary=summary,
+                    confidence=0.95,
+                    sources=["mythos.people"],
+                )
+
+            # Format results for summary
+            people_list = []
+            for person in results:
+                # Build full name
+                name_parts = [person['prefix']] if person['prefix'] else []
+                name_parts.append(person['first_name'] or '')
+                if person['middle_name']:
+                    name_parts.append(person['middle_name'])
+                name_parts.append(person['last_name'] or '')
+                full_name = ' '.join(filter(None, name_parts)).strip()
+
+                # Build birth location
+                location_parts = []
+                if person['birth_city']:
+                    location_parts.append(person['birth_city'])
+                if person['birth_state']:
+                    location_parts.append(person['birth_state'])
+                if person['birth_country']:
+                    location_parts.append(person['birth_country'])
+                birth_location = ', '.join(location_parts) if location_parts else "Unknown"
+
+                # Build birth date string
+                birth_date = ""
+                if person['date_of_birth']:
+                    birth_date = person['date_of_birth'].strftime("%Y-%m-%d")
+                    if person['time_of_birth']:
+                        birth_date += f" at {person['time_of_birth'].strftime('%H:%M')}"
+
+                people_list.append({
+                    "name": full_name,
+                    "birth_date": birth_date,
+                    "birth_location": birth_location
+                })
+
+            # Create summary text
+            if len(people_list) == 1:
+                person = people_list[0]
+                summary = f"Found one person: {person['name']}. Born {person['birth_date']} in {person['birth_location']}."
+            else:
+                names = [p['name'] for p in people_list]
+                summary = f"Found {len(people_list)} people matching '{search_term}': {', '.join(names)}."
+
+            return SkillResponse(
+                skill_name=self.name,
+                data={"results": people_list},
+                summary=summary,
+                confidence=0.95,
+                sources=["mythos.people"],
+            )
+
+        except Exception as e:
+            logger.error(f"Error in people lookup: {str(e)}")
+            return SkillResponse(
+                skill_name=self.name,
+                data={"error": str(e)},
+                summary="An error occurred while searching for people.",
+                confidence=0.5,
+                sources=["mythos.people"],
+                ok=False
+            )
+        finally:

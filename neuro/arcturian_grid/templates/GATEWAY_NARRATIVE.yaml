@@ -1,0 +1,61 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: GATEWAY | Layer: NARRATIVE | ID: GATEWAY_NARRATIVE
+# Domain: Transcendent and liminal
+# Depth: 7 (Narrative)
+# Generated: 2026-03-02 22:22 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: GATEWAY_NARRATIVE
+node: GATEWAY
+node_name: Gateway
+node_domain: Transcendent and liminal
+layer: NARRATIVE
+layer_name: Narrative
+depth: 7
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T22:22:52.298162'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the Gateway node (transcendent/liminal)
+  and Narrative Layer (depth 7). Determine: 1) Spiritual significance & cosmic dimension present (e.g., ''This is the Saturn
+  initiation''), 2) Lineage activations/synchronicities, 3) What teams/guides would note about this moment, 4) The eternal
+  dimension of this temporal exchange. Place the exchange within the larger narrative: identify current chapter, unfolding
+  arc, and trajectory fit. Output ONLY a JSON object with keys: ''arc_placement'' (concise story context), ''sacred_context''
+  (spiritual/cosmic insight), ''narrative_arc'' (arc progression description). Style: Contextual, arc-aware, story-placing.
+  Focus exclusively on this node+layer intersection.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    spiritual_dimension:
+      type: string
+    lineage_echoes:
+      type: array
+      items:
+        type: string
+    synchronicities:
+      type: array
+      items:
+        type: string
+    transcendent_read:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

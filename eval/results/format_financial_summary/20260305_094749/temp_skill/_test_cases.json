@@ -1,0 +1,13 @@
+[
+  {
+    "message": "format financial data",
+    "expect_ok": true,
+    "expect_data_has": [
+      "formatted"
+    ]
+  },
+  {
+    "message": "money summary",
+    "expect_ok": true
+  }
+]

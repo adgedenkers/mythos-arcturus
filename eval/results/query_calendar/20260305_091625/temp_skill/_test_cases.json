@@ -1,0 +1,20 @@
+[
+  {
+    "message": "what is on my calendar today",
+    "expect_ok": true,
+    "expect_data_has": [
+      "events"
+    ]
+  },
+  {
+    "message": "any upcoming events this week",
+    "expect_ok": true,
+    "expect_data_has": [
+      "events"
+    ]
+  },
+  {
+    "message": "schedule",
+    "expect_ok": true
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "Name": "Test Person",
+  "Birth": {
+    "Date": "1990-03-15",
+    "Time": "15:30",
+    "Place": "Syracuse, NY, USA",
+    "Latitude": 43.048122,
+    "Longitude": -76.147424,
+    "Timezone": "America/New_York"
+  },
+  "House System": "Placidus",
+  "Zodiac Type": "Tropical",
+  "Ephemeris": "Swiss Ephemeris",
+  "Ephemeris Path": "/opt/mythos/astrology/ephe",
+  "Included Objects": [
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+    "Chiron",
+    "Lilith",
+    "Mean Node",
+    "True Node",
+    "Ceres",
+    "Pallas",
+    "Juno",
+    "Vesta",
+    "Eris",
+    "South Node"
+  ],
+  "Engine Version": "2.1"
+}

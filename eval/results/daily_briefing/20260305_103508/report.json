@@ -1,0 +1,163 @@
+{
+  "plan_id": "daily_briefing",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_103508",
+  "total_passes": 5,
+  "total_ollama_calls": 11,
+  "final_parse": true,
+  "final_import": false,
+  "final_behavioral": {},
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: logging, importlib, engine.base. NO database imports. Class DailyBriefingSkill with attributes. Define SUB_SKILLS as class dict:\n\nSUB_SKILLS = {\n    'spiral_time': ('data.spiral_time', 'SpiralTimeSkill'),\n    'calendar': ('data.query_calendar', 'QueryCalendarSkill'),\n    'routines': ('data.query_routines', 'QueryRoutinesSkill'),\n    'bills': ('data.query_bills_due', 'QueryBillsDueSkill'),\n}\n\nMethods: execute, _run_skill, _build_briefing. All 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 1.26,
+      "final_code_lines": 27
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _run_skill(self, module_path, class_name, request). Import module with importlib.import_module(module_path). Get class with getattr. Instantiate and run: response = await cls().run(request). Return response. Wrap in try/except, on error return SkillResponse(skill_name=class_name, error=str(e)).",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 1.5,
+      "final_code_lines": 33
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _build_briefing(self, results). Takes dict of {label: SkillResponse}. Build sections list. For each label in order ['spiral_time', 'calendar', 'routines', 'bills']: if response.ok and response.summary, append the summary. Join all sections with ' | '. If no sections have data, return 'Good morning. No briefing data available today.' Return the combined string.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 1.86,
+      "final_code_lines": 45
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement execute(). For each skill in SUB_SKILLS: call _run_skill and collect results in a dict. Call _build_briefing with the results dict. Collect all data from ok responses into merged_data dict keyed by label. Return SkillResponse(skill_name=self.name, data=merged_data, summary=briefing, confidence=0.9, sources=['daily_briefing']). try/except.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "No async def execute() method found"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "No async def execute() method found"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "No async def execute() method found"
+          ]
+        }
+      ],
+      "elapsed_seconds": 7.81,
+      "final_code_lines": 71
+    },
+    {
+      "pass": 5,
+      "instruction": "Review. No database imports. importlib used correctly. All four sub-skills referenced. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary missing 'Routine': ",
+            "summary empty",
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary empty",
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary missing 'Routine': ",
+            "summary empty",
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary empty",
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary missing 'Routine': ",
+            "summary empty",
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary empty",
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 4,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary missing 'Routine': ",
+            "summary empty",
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary empty",
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 5,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary missing 'Routine': ",
+            "summary empty",
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary empty",
+            "Expected ok=True, got False (error: object SkillResponse can't be used in 'await' expression)",
+            "summary empty"
+          ]
+        }
+      ],
+      "elapsed_seconds": 14.05,
+      "final_code_lines": 71
+    }
+  ]
+}

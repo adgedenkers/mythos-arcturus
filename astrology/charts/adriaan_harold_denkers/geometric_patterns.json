@@ -1,0 +1,89 @@
+[
+  {
+    "Type": "Grand Trine",
+    "Points": [
+      "IC",
+      "Jupiter",
+      "Mars"
+    ],
+    "Aspects": [
+      "IC-Jupiter",
+      "Jupiter-Mars",
+      "Mars-IC"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Descendant",
+      "Neptune",
+      "Saturn"
+    ],
+    "Aspects": [
+      "Neptune-Descendant (Opposition)",
+      "Neptune-Saturn (Square)",
+      "Descendant-Saturn (Square)"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Chiron",
+      "Jupiter",
+      "Venus"
+    ],
+    "Aspects": [
+      "Venus-Chiron (Opposition)",
+      "Venus-Jupiter (Square)",
+      "Chiron-Jupiter (Square)"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Juno",
+      "Jupiter",
+      "Venus"
+    ],
+    "Aspects": [
+      "Jupiter-Juno (Opposition)",
+      "Jupiter-Venus (Square)",
+      "Juno-Venus (Square)"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Descendant",
+      "Mercury",
+      "Saturn"
+    ],
+    "Aspects": [
+      "Mercury-Descendant (Opposition)",
+      "Mercury-Saturn (Square)",
+      "Descendant-Saturn (Square)"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Descendant",
+      "Mars",
+      "Saturn"
+    ],
+    "Aspects": [
+      "Mars-Descendant (Opposition)",
+      "Mars-Saturn (Square)",
+      "Descendant-Saturn (Square)"
+    ]
+  },
+  {
+    "Type": "Yod",
+    "Points": [
+      "IC",
+      "Saturn",
+      "Venus"
+    ],
+    "Apex": "IC"
+  }
+]

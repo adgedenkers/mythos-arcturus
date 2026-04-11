@@ -1,0 +1,17 @@
+[
+  {
+    "message": "show me the idea backlog",
+    "expect_ok": true,
+    "expect_data_has": [
+      "pending_count"
+    ]
+  },
+  {
+    "message": "what ideas are pending",
+    "expect_ok": true
+  },
+  {
+    "message": "backlog status",
+    "expect_ok": true
+  }
+]

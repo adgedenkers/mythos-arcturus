@@ -1,0 +1,150 @@
+[
+  {
+    "id": "f3c9e5f2-9f5a-4a91-b9d7-6a8b6e7e5a01",
+    "title": "Old Navy Women's Dark Blue Flare Jeans Size 16 Regular",
+    "description": "Old Navy women's jeans in dark blue. Size 16 Regular. Made from a comfortable cotton, elastane, and polyester blend. These classic flare jeans are in gently used condition with plenty of life left. Perfect for casual everyday wear.\n\nUnit A – identical SKU stored separately.\n\nMaterials: Cotton, Elastane, Polyester\nBrand: Old Navy\nCondition: Gently Used",
+    "price": 18.00,
+    "currency": "USD",
+    "availability": "in stock",
+    "condition": "used_like_new",
+    "brand": "Old Navy",
+    "category": "Women's Jeans",
+    "size": "16 Regular",
+    "color": "Dark Blue",
+    "material": "cotton, elastane, polyester",
+    "gender": "female",
+    "images": [
+      "image-0000001.jpeg",
+      "image-0000003.jpeg",
+      "image-0000002.jpeg"
+    ],
+    "custom_fields": {
+      "garment_type": "jeans",
+      "original_notes": "Unit A – identical SKU stored separately."
+    }
+  },
+  {
+    "id": "6a7f92a4-1a0c-4c6e-8b17-f3f1d0f1c403",
+    "title": "Old Navy Women's Dark Blue Jeans Size 16 Regular",
+    "description": "Old Navy women's jeans in dark blue. Size 16 Regular. Made from a comfortable cotton, elastane, and polyester blend. These jeans are in gently used condition and ready for a new home.\n\nUnit B – identical SKU stored separately.\n\nMaterials: Cotton, Elastane, Polyester\nBrand: Old Navy\nCondition: Gently Used",
+    "price": 16.00,
+    "currency": "USD",
+    "availability": "in stock",
+    "condition": "used_like_new",
+    "brand": "Old Navy",
+    "category": "Women's Jeans",
+    "size": "16 Regular",
+    "color": "Dark Blue",
+    "material": "cotton, elastane, polyester",
+    "gender": "female",
+    "images": [
+      "image-0000004.jpeg",
+      "image-0000005.jpeg",
+      "image-0000006.jpeg"
+    ],
+    "custom_fields": {
+      "garment_type": "jeans",
+      "original_notes": "Unit B – identical SKU stored separately."
+    }
+  },
+  {
+    "id": "9d1cbe77-8f2a-4b4e-8c8f-61b7e4a31c02",
+    "title": "Gap 1969 Women's Easy Leggings Jeans Size 34R - NEW WITH TAGS",
+    "description": "Gap 1969 women's jeans in medium blue. Size 34R. New with tags! Easy Leggings cut provides comfortable stretch and flattering fit. Made from quality cotton blend fabric.\n\nNever worn - still has original tags attached!\n\nMaterials: Cotton Blend\nBrand: Gap 1969\nCondition: New with Tags",
+    "price": 35.00,
+    "currency": "USD",
+    "availability": "in stock",
+    "condition": "new",
+    "brand": "Gap",
+    "category": "Women's Jeans",
+    "size": "34R",
+    "color": "Medium Blue",
+    "material": "cotton blend",
+    "gender": "female",
+    "images": [
+      "image-0000007.jpeg",
+      "image-0000009.jpeg",
+      "image-0000008.jpeg"
+    ],
+    "custom_fields": {
+      "garment_type": "jeans",
+      "style": "Easy Leggings",
+      "original_notes": "Easy Leggings cut; new with tags."
+    }
+  },
+  {
+    "id": "a41e3f6e-3c7e-4c5b-b4c6-6a8b5c9e1001",
+    "title": "Old Navy Women's Dark Blue Flare Jeans Size 18 Regular",
+    "description": "Old Navy women's flare/micro-flare jeans in dark wash. Size 18 Regular. Made from a comfortable cotton, elastane, and polyester blend. These stylish flare jeans are in gently used condition with classic dark wash.\n\nOld Navy flare / micro-flare, dark wash.\n\nMaterials: Cotton, Elastane, Polyester\nBrand: Old Navy\nCondition: Gently Used",
+    "price": 18.00,
+    "currency": "USD",
+    "availability": "in stock",
+    "condition": "used_like_new",
+    "brand": "Old Navy",
+    "category": "Women's Jeans",
+    "size": "18 Regular",
+    "color": "Dark Blue",
+    "material": "cotton, elastane, polyester",
+    "gender": "female",
+    "images": [
+      "image-0000012.jpeg",
+      "image-0000010.jpeg",
+      "image-0000011.jpeg"
+    ],
+    "custom_fields": {
+      "garment_type": "jeans",
+      "style": "flare/micro-flare",
+      "original_notes": "Old Navy flare / micro-flare, dark wash."
+    }
+  },
+  {
+    "id": "b52d7a91-9d3c-4c1f-9f6e-0d0f7c2a1002",
+    "title": "Old Navy Women's Light Blue Micro-Flare Jeans Size 18 Regular",
+    "description": "Old Navy women's micro-flare jeans in lighter wash. Size 18 Regular. Made from a comfortable cotton, elastane, and polyester blend. These trendy micro-flare jeans are in gently used condition with beautiful light wash.\n\nOld Navy micro-flare, lighter wash.\n\nMaterials: Cotton, Elastane, Polyester\nBrand: Old Navy\nCondition: Gently Used",
+    "price": 17.00,
+    "currency": "USD",
+    "availability": "in stock",
+    "condition": "used_like_new",
+    "brand": "Old Navy",
+    "category": "Women's Jeans",
+    "size": "18 Regular",
+    "color": "Light Blue",
+    "material": "cotton, elastane, polyester",
+    "gender": "female",
+    "images": [
+      "image-0000013.jpeg",
+      "image-0000014.jpeg",
+      "image-0000015.jpeg"
+    ],
+    "custom_fields": {
+      "garment_type": "jeans",
+      "style": "micro-flare",
+      "original_notes": "Old Navy micro-flare, lighter wash."
+    }
+  },
+  {
+    "id": "c9a84c33-7e9a-4c44-9c88-44a8c3101003",
+    "title": "Gap 1969 Women's Perfect Boot Cut Jeans Size 34R",
+    "description": "Gap 1969 women's Perfect Boot cut jeans in medium blue. Size 34R. Made from quality cotton blend fabric. These classic boot cut jeans are in gently used condition and perfect for any casual occasion.\n\nGap 1969 Perfect Boot cut.\n\nMaterials: Cotton Blend\nBrand: Gap 1969\nCondition: Gently Used",
+    "price": 28.00,
+    "currency": "USD",
+    "availability": "in stock",
+    "condition": "used_like_new",
+    "brand": "Gap",
+    "category": "Women's Jeans",
+    "size": "34R",
+    "color": "Medium Blue",
+    "material": "cotton blend",
+    "gender": "female",
+    "images": [
+      "image-0000018.jpeg",
+      "image-0000016.jpeg",
+      "image-0000017.jpeg"
+    ],
+    "custom_fields": {
+      "garment_type": "jeans",
+      "style": "Perfect Boot Cut",
+      "original_notes": "Gap 1969 Perfect Boot cut."
+    }
+  }
+]

@@ -1,0 +1,59 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: BEACON | Layer: INTENTION | ID: BEACON_INTENTION
+# Domain: Knowledge and information retrieval
+# Depth: 6 (Intention)
+# Generated: 2026-03-02 22:02 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: BEACON_INTENTION
+node: BEACON
+node_name: Beacon
+node_domain: Knowledge and information retrieval
+layer: INTENTION
+layer_name: Intention
+depth: 6
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: true
+generated_at: '2026-03-02T22:02:04.483615'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response}. Identify relevant stored knowledge
+  from: knowledge graph facts, Postgres financial/calendar/task data, past conversation context, and external knowledge. Output
+  ONLY a JSON object with key ''analysis'' containing a directive string starting with ''Relevant: '' followed by actionable
+  facts. Example: ''Relevant: Last financial review showed $247 monthly surplus. Car payment estimates range $300-450. Gap
+  exists.'' Do not include explanations, additional keys, or markdown.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    relevant_facts:
+      type: array
+      items:
+        type: string
+    data_points:
+      type: array
+      items:
+        type: object
+    knowledge_gaps:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

@@ -1,0 +1,16 @@
+TITLE 1: Title 38—Pensions, Bonuses, and Veterans' Relief--Volume 1
+CHAPTER I: CHAPTER I—DEPARTMENT OF VETERANS AFFAIRS
+PART 3: PART 3—ADJUDICATION
+SUBPART A: Subpart A—Pension, Compensation, and Dependency and Indemnity Compensation
+SECTION: § 3.658 Offsets; dependency and indemnity compensation.
+NODE: 38:1.0.1.1.4.1.73.212
+
+============================================================
+
+(a) When an award of dependency and indemnity compensation is made covering a period for which death compensation or benefits under the Federal Employee's Compensation Act, based on military service, have been paid to the same payee based on the same death, the award of dependency and indemnity compensation will be made subject to an offset of payments of death compensation or benefits under the Federal Employees' Compensation Act over the same period.
+
+(b) When an award of dependency and indemnity compensation is made covering a period for which death benefits have been paid to the same payee based on the death of another spouse the award will be made subject to an offset of payments of survivors pension or death compensation, or dependency and indemnity compensation over the same period in the case of the other spouse.
+
+[Section Authority: (Authority: 38 U.S.C. 103(d)(2), 5304(b)(3))]
+
+[Citation: [41 FR 17387, Apr. 26, 1976, as amended at 91 FR 2713, Jan. 22, 2026]]

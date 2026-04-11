@@ -1,0 +1,73 @@
+{
+  "plan_id": "search_voice_memos",
+  "version": "1.0",
+  "description": "Build a Mythos skill that full-text searches voice memo transcripts",
+  "pattern": "memory_search",
+  "model_hint": "qwen3-coder:30b",
+
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "connection_pattern": "psycopg2 with RealDictCursor, loaded from /opt/mythos/.env via dotenv",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse",
+      "skill_directory": "/opt/mythos/skills/data/",
+      "venv_python": "/opt/mythos/.venv/bin/python3"
+    },
+    "table_schema": "Table: voice_memos\nColumns:\n  - id (integer, NOT NULL, PK)\n  - filename (text, NOT NULL)\n  - duration_seconds (double precision)\n  - transcript_full (text) — full transcription text\n  - transcript_diarized (text) — with speaker labels\n  - speaker_count (integer, default 0)\n  - speaker_stats (jsonb)\n  - status (text, default 'pending')\n  - created_at (timestamptz, default now())\n\nIndexes:\n  - idx_voice_memos_transcript_fts: GIN index on to_tsvector('english', COALESCE(transcript_full, ''))\n  - idx_voice_memos_created: btree on created_at DESC\n\nRelated table: voice_memo_segments\n  - memo_id (FK to voice_memos.id)\n  - segment_index, speaker_label, start_time, end_time, text",
+    "scaffold": "class SearchVoiceMemoSkill(SkillBase):\n    name = 'search_voice_memos'\n    version = '1.0'\n    category = 'data'\n    description = 'Full-text search across voice memo transcripts'\n    triggers = ['voice memo', 'voice memos', 'recording', 'what did I say', 'what did we say', 'we talked about', 'I said', 'we discussed', 'remember when I said', 'transcript', 'memo search']\n    cache_ttl = 300\n\n    async def execute(self, request: SkillRequest) -> SkillResponse:\n        # 1. Extract search terms using _extract_search_terms()\n        # 2. If no terms: return total memo count with guidance\n        # 3. Run FTS query using _search_transcripts() with ts_rank\n        # 4. Build result list using _format_results()\n        # 5. Build human summary using _build_summary()\n        # 6. Return SkillResponse with matches in data\n        pass\n\n    def _extract_search_terms(self, message: str) -> str:\n        # Remove trigger phrases, return cleaned search string\n        # Must return at least 2 chars or empty string\n        pass\n\n    def _search_transcripts(self, search_terms: str, limit: int = 10) -> list:\n        # Use to_tsquery with plainto_tsquery for safety\n        # SELECT with ts_rank for relevance scoring\n        # Return rows ordered by rank DESC, then created_at DESC\n        # Include: id, filename, duration_seconds, snippet of transcript, rank, created_at\n        pass\n\n    def _format_results(self, rows: list) -> list:\n        # Convert rows to clean dicts\n        # Truncate transcript previews to 200 chars\n        # Format duration as minutes:seconds\n        pass\n\n    def _build_summary(self, results: list, search_terms: str) -> str:\n        # 'Found N voice memo(s) matching \"X\": filename1 (duration, date), filename2...'\n        # Include brief transcript snippet from top result\n        pass"
+  },
+
+  "build_plan": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton: shebang, docstring, all imports (os, logging, psycopg2, psycopg2.extras.RealDictCursor, dotenv, engine.base), the _get_conn() function, and the SearchVoiceMemoSkill class with all attributes (name, version, category, description, triggers, cache_ttl) set. All methods should exist with 'pass' as body. Use the scaffold from context as your guide.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms(). It should lowercase the message, remove these trigger phrases: 'voice memo', 'voice memos', 'recording', 'what did i say', 'what did we say', 'we talked about', 'i said', 'we discussed', 'remember when i said', 'transcript', 'memo search', 'search', 'find'. Strip whitespace and punctuation. Return the cleaned string if length >= 2, else empty string.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _search_transcripts(). Use _get_conn(), create cursor. Build query: SELECT id, filename, duration_seconds, LEFT(transcript_full, 300) as transcript_preview, created_at, ts_rank(to_tsvector('english', COALESCE(transcript_full, '')), plainto_tsquery('english', %s)) as rank FROM voice_memos WHERE status = 'completed' AND to_tsvector('english', COALESCE(transcript_full, '')) @@ plainto_tsquery('english', %s) ORDER BY rank DESC, created_at DESC LIMIT %s. Use try/finally to close cursor and connection. Return list of row dicts.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). _format_results: for each row, build a dict with id, filename, duration as 'Xm Ys' format, transcript_preview truncated to 200 chars with '...' if longer, created_at as ISO string, rank. _build_summary: if no results return 'No voice memos found matching X'. If results: 'Found N voice memo(s) matching X: ' then list each as 'filename (duration, date)'. Add transcript preview from top result.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Call _extract_search_terms(request.message). If no terms: query SELECT COUNT(*) FROM voice_memos WHERE status = 'completed', return SkillResponse with count and guidance message. If terms: call _search_transcripts(), _format_results(), _build_summary(). Return SkillResponse with data={'matches': results, 'search_terms': terms, 'count': len}, summary from _build_summary, confidence=0.95, sources=['mythos.voice_memos']. Wrap entire body in try/except/finally. In finally: close connection if open. On exception: return SkillResponse with error=str(e).",
+      "test": "import_check"
+    },
+    {
+      "pass": 6,
+      "instruction": "Review the complete file. Fix any issues: ensure all database connections are closed in finally blocks, ensure summary is never empty, ensure all methods are properly connected. The file must be production-ready.",
+      "test": "full_behavioral",
+      "recursive": true
+    }
+  ],
+
+  "test_cases": [
+    {
+      "message": "search voice memos for love",
+      "expect_ok": true,
+      "expect_summary_contains": ["voice memo"],
+      "expect_data_has": ["matches"]
+    },
+    {
+      "message": "what did we say about relationship",
+      "expect_ok": true,
+      "expect_data_has": ["matches"]
+    },
+    {
+      "message": "hello how are you today",
+      "expect_ok": true,
+      "note": "No search terms extractable — should return count or guidance"
+    }
+  ]
+}

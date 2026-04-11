@@ -1,0 +1,107 @@
+# Example Mission: Audit a Telegram handler
+# This mission has Iris analyze a handler file, check its graph relationships,
+# and produce a structured audit report.
+#
+# Run: mythos-mission run /opt/mythos/mission/templates/audit_handler.yaml
+
+mission: audit-handler
+version: 1
+description: >
+  Analyze a Telegram bot handler file. Check what functions it defines,
+  what it imports, what tables it touches, and produce a structured
+  audit report with improvement suggestions.
+
+model: qwen2.5:32b
+temperature: 0.2
+
+context:
+  files:
+    - path: /opt/mythos/telegram_bot/handlers/finance_handler.py
+      alias: target_handler
+
+  graph:
+    - cypher: >
+        MATCH (f:IntegrityFile {path: '/opt/mythos/telegram_bot/handlers/finance_handler.py'})
+        -[:CONTAINS]->(fn:IntegrityFunction)
+        RETURN fn.name as function_name
+        ORDER BY fn.name
+      alias: handler_functions
+
+    - cypher: >
+        MATCH (f:IntegrityFile {path: '/opt/mythos/telegram_bot/handlers/finance_handler.py'})
+        -[:IMPORTS]->(dep:IntegrityFile)
+        RETURN dep.path as dependency
+        ORDER BY dep.path
+      alias: handler_imports
+
+    - cypher: >
+        MATCH (dep:IntegrityFile)
+        -[:IMPORTS]->(f:IntegrityFile {path: '/opt/mythos/telegram_bot/handlers/finance_handler.py'})
+        RETURN dep.path as dependent
+        ORDER BY dep.path
+      alias: handler_dependents
+
+  postgres:
+    - query: >
+        SELECT table_name FROM information_schema.tables
+        WHERE table_schema='public'
+        AND (table_name LIKE '%finance%' OR table_name LIKE '%account%'
+             OR table_name LIKE '%transaction%' OR table_name LIKE '%bill%')
+        ORDER BY table_name
+      alias: finance_tables
+
+phases:
+  - name: analyze
+    description: Analyze the handler structure and produce an audit report
+    max_retries: 1
+    prompt: |
+      You are auditing a Telegram bot handler file from the Mythos system.
+
+      FILE: /opt/mythos/telegram_bot/handlers/finance_handler.py
+
+      SOURCE CODE:
+      ```python
+      {context.files.target_handler}
+      ```
+
+      FUNCTIONS DEFINED (from Neo4j graph):
+      {context.graph.handler_functions}
+
+      FILES IT IMPORTS:
+      {context.graph.handler_imports}
+
+      FILES THAT IMPORT IT:
+      {context.graph.handler_dependents}
+
+      RELATED DATABASE TABLES:
+      {context.postgres.finance_tables}
+
+      Produce a JSON audit report:
+      {{
+        "file": "/opt/mythos/telegram_bot/handlers/finance_handler.py",
+        "function_count": <number>,
+        "line_count": <estimated>,
+        "commands_registered": ["list of /command names"],
+        "imports_count": <number>,
+        "tables_accessed": ["list of table names used in code"],
+        "issues": [
+          {{
+            "severity": "high|medium|low",
+            "description": "what's wrong",
+            "suggestion": "how to fix it"
+          }}
+        ],
+        "summary": "one paragraph overall assessment"
+      }}
+
+      Respond with ONLY the JSON. No markdown fences. No explanation.
+    output_format: json
+    output_alias: audit
+    output_path: /tmp/mythos-mission/audit_finance_handler.json
+
+success:
+  description: "Audit report generated"
+  outputs:
+    - /tmp/mythos-mission/audit_finance_handler.json
+  on_success:
+    - command: "echo '[{mission.mission}] completed at $(date)' >> /opt/mythos/mission/logs/completed.log"

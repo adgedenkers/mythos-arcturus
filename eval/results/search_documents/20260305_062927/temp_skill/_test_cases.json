@@ -1,0 +1,18 @@
+[
+  {
+    "message": "find document about architecture",
+    "expect_ok": true,
+    "expect_data_has": [
+      "matches"
+    ]
+  },
+  {
+    "message": "what documents do we have",
+    "expect_ok": true
+  },
+  {
+    "message": "hey iris",
+    "expect_ok": true,
+    "note": "No terms - should return total count"
+  }
+]

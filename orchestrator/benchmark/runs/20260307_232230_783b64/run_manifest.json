@@ -1,0 +1,34 @@
+{
+  "run_id": "20260307_232230_783b64",
+  "started_at": "2026-03-08T04:22:30.523756+00:00",
+  "models": [
+    "gemma3:27b",
+    "qwen2.5:32b",
+    "deepseek-r1:32b"
+  ],
+  "task_count": 43,
+  "git_hash": "4434197e",
+  "config": {
+    "models": [
+      "gemma3:27b",
+      "qwen2.5:32b",
+      "deepseek-r1:32b"
+    ],
+    "judge_model": "gemma3:27b",
+    "ollama_host": "http://localhost:11434",
+    "output_dir": "/opt/mythos/orchestrator/benchmark/runs",
+    "timeouts": {
+      "reasoning": 120,
+      "code": 180,
+      "mythos": 120,
+      "narrative": 180,
+      "tool_use": 120,
+      "voice": 120,
+      "default": 120
+    },
+    "max_model_threads": 3,
+    "judge_enabled": true,
+    "skip_task_ids": [],
+    "retry_on_timeout": false
+  }
+}

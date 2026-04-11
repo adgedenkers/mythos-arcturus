@@ -1,0 +1,13 @@
+# Full Stack (no life context) — All prompt layers except life state
+name: full_no_life
+description: "Layers 1-5 + dynamic. Everything except life context injection."
+
+layers:
+  identity: true
+  personality: true
+  voice: true
+  mode: true
+  user_profile: true
+  dynamic_context: true
+  life_context: false
+  skills: false

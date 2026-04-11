@@ -1,0 +1,78 @@
+{
+  "plan_id": "rank_by_relevance",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_094721",
+  "total_passes": 4,
+  "total_ollama_calls": 4,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: logging, re, datetime (datetime, timedelta), engine.base. NO database imports. Class with attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 0.88,
+      "final_code_lines": 22
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _score(). Takes a result dict and a list of keyword strings. Search across all string values in the result dict (join all str values into one text block, lowercase). For each keyword: count occurrences in the text. Keyword score = sum of (occurrences * (1/total_keywords)) capped at 1.0. Recency bonus: if result has 'created_at', parse it, calculate days ago. Recency score = max(0, 1.0 - (days_ago / 30)). If no date, recency = 0.5. Final score = (keyword_score * 0.7) + (recency_score * 0.3). Return clamped 0.0-1.0.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.09,
+      "final_code_lines": 75
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement execute(). Get results from request.parameters.get('results', []). Get keywords from request.parameters.get('keywords', []). If not keywords, try splitting request.message into words. If no results: return empty response. Score each result with _score(). Sort by score descending. Add 'relevance_score' field to each. Return SkillResponse(skill_name=self.name, data={'ranked': sorted_list, 'count': len, 'keywords_used': keywords}, summary=f'Ranked {len} results by relevance for keywords: {keywords}. Top score: {top_score:.0%}.', confidence=0.9, sources=['rank_by_relevance']). try/except.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 5.01,
+      "final_code_lines": 124
+    },
+    {
+      "pass": 4,
+      "instruction": "Review. No database imports. Scoring handles edge cases (no keywords, no dates, empty results). Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 5.6,
+      "final_code_lines": 134
+    }
+  ]
+}

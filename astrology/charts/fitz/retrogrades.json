@@ -1,0 +1,50 @@
+[
+  {
+    "Object": "Mercury",
+    "Sign": "Virgo",
+    "House": 8,
+    "Longitude": 156.643244
+  },
+  {
+    "Object": "Jupiter",
+    "Sign": "Aries",
+    "House": 3,
+    "Longitude": 0.053448
+  },
+  {
+    "Object": "Uranus",
+    "Sign": "Pisces",
+    "House": 3,
+    "Longitude": 359.120175
+  },
+  {
+    "Object": "Neptune",
+    "Sign": "Aquarius",
+    "House": 2,
+    "Longitude": 326.781743
+  },
+  {
+    "Object": "Pluto",
+    "Sign": "Capricorn",
+    "House": 1,
+    "Longitude": 272.797442
+  },
+  {
+    "Object": "Mean Node",
+    "Sign": "Capricorn",
+    "House": 1,
+    "Longitude": 278.356178
+  },
+  {
+    "Object": "True Node",
+    "Sign": "Capricorn",
+    "House": 1,
+    "Longitude": 279.623782
+  },
+  {
+    "Object": "South Node",
+    "Sign": "Cancer",
+    "House": 7,
+    "Longitude": 98.356178
+  }
+]

@@ -1,0 +1,19 @@
+[Unit]
+Description=Mythos Lunar Calendar Worker — auto-generates Seraphe's monthly transit calendar
+After=network.target mythos-api.service
+Wants=mythos-api.service
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/workers/lunar_calendar_worker.py
+Restart=on-failure
+RestartSec=60
+StandardOutput=journal
+StandardError=journal
+Environment=PYTHONPATH=/opt/mythos
+
+[Install]
+WantedBy=multi-user.target

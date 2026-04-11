@@ -1,0 +1,370 @@
+# Mission: Full System Archaeology
+# A deep, multi-phase investigation of the entire Mythos system.
+# Iris examines the codebase graph, live services, database state,
+# and code structure — then cross-references everything to find
+# dead code, orphaned tables, missing relationships, and buried treasures.
+#
+# Run: mythos-mission run /opt/mythos/mission/templates/system_archaeology.yaml
+
+mission: system-archaeology
+version: 1
+description: >
+  Deep multi-phase investigation of the entire Mythos system.
+  Cross-reference the Neo4j integrity graph with live services,
+  database row counts, file sizes, and import chains to find:
+  dead code, orphaned tables, heaviest files, most fragile
+  dependency chains, and hidden architectural patterns.
+  Produce a comprehensive archaeology report.
+
+model: qwen2.5:32b
+temperature: 0.15
+
+context:
+  # --- Graph: structural overview ---
+  graph:
+    - cypher: >
+        MATCH (f:IntegrityFile)-[:CONTAINS]->(fn:IntegrityFunction)
+        WITH f.path as path, f.size_bytes as size, count(fn) as functions,
+             f.directory as dir, f.extension as ext
+        RETURN path, size, functions, dir, ext
+        ORDER BY size DESC LIMIT 30
+      alias: largest_files
+
+    - cypher: >
+        MATCH (f:IntegrityFile)
+        WHERE f.extension = '.py'
+        AND NOT (f)<-[:IMPORTS]-(:IntegrityFile)
+        AND NOT f.path CONTAINS '/archive/'
+        AND NOT f.path CONTAINS '/backups/'
+        AND NOT f.path CONTAINS '/eval/'
+        AND NOT f.path CONTAINS '__pycache__'
+        RETURN f.path as path, f.size_bytes as size
+        ORDER BY f.size_bytes DESC LIMIT 40
+      alias: never_imported_files
+
+    - cypher: >
+        MATCH (f:IntegrityFile)-[r:IMPORTS]->(dep:IntegrityFile)
+        WITH dep.path as path, count(f) as imported_by_count
+        RETURN path, imported_by_count
+        ORDER BY imported_by_count DESC LIMIT 20
+      alias: most_depended_on
+
+    - cypher: >
+        MATCH (f:IntegrityFile)-[:IMPORTS]->(dep:IntegrityFile)
+        WITH f.path as source, count(dep) as dependency_count
+        WHERE dependency_count > 8
+        RETURN source, dependency_count
+        ORDER BY dependency_count DESC LIMIT 20
+      alias: most_dependencies
+
+    - cypher: >
+        MATCH (f:IntegrityFile)-[:CONTAINS]->(fn:IntegrityFunction)
+        WITH f.path as file, collect(fn.name) as functions
+        WHERE size(functions) > 15
+        RETURN file, size(functions) as func_count, functions
+        ORDER BY func_count DESC LIMIT 15
+      alias: god_files
+
+    - cypher: >
+        MATCH (t:IntegrityTable)-[:HAS_COLUMN]->(c:IntegrityColumn)
+        WITH t.name as table_name, count(c) as col_count
+        RETURN table_name, col_count
+        ORDER BY col_count DESC LIMIT 20
+      alias: widest_tables
+
+    - cypher: >
+        MATCH (s:IntegrityService)
+        RETURN s.name as service
+        ORDER BY s.name
+      alias: registered_services
+
+    - cypher: >
+        MATCH (d:IntegrityDirectory)
+        WHERE NOT (:IntegrityFile)-[:IN_DIRECTORY]->(d)
+        AND NOT d.path CONTAINS '__pycache__'
+        AND NOT d.path CONTAINS 'node_modules'
+        AND NOT d.path CONTAINS '.git'
+        RETURN d.path as empty_dir
+        ORDER BY d.path
+      alias: empty_directories
+
+  # --- Postgres: live data stats ---
+  postgres:
+    - query: >
+        SELECT relname as table_name,
+               n_live_tup as row_count
+        FROM pg_stat_user_tables
+        WHERE schemaname = 'public'
+        ORDER BY n_live_tup DESC
+      alias: table_row_counts
+
+    - query: >
+        SELECT relname as table_name,
+               pg_size_pretty(pg_total_relation_size(relid)) as total_size
+        FROM pg_stat_user_tables
+        WHERE schemaname = 'public'
+        ORDER BY pg_total_relation_size(relid) DESC
+        LIMIT 20
+      alias: largest_tables_disk
+
+    - query: >
+        SELECT relname as table_name
+        FROM pg_stat_user_tables
+        WHERE schemaname = 'public'
+        AND n_live_tup = 0
+        ORDER BY relname
+      alias: empty_tables
+
+  # --- Shell: live system state ---
+  shell:
+    - command: "systemctl list-units --type=service --state=running | grep mythos | awk '{print $1}'"
+      alias: running_services
+
+    - command: "du -sh /opt/mythos/*/ 2>/dev/null | sort -rh | head -20"
+      alias: directory_sizes
+
+    - command: "find /opt/mythos -name '*.py' -newer /opt/mythos/docs/ARCHITECTURE.md -not -path '*/__pycache__/*' -not -path '*/archive/*' -not -path '*/.venv/*' | wc -l"
+      alias: files_newer_than_arch_doc
+
+    - command: "wc -l /opt/mythos/assistants/chat_assistant.py /opt/mythos/api/main.py /opt/mythos/telegram_bot/mythos_bot.py /opt/mythos/core/life_context.py /opt/mythos/core/prompt_assembler.py 2>/dev/null"
+      alias: key_file_line_counts
+
+    - command: "cat /opt/mythos/docs/STREAMS.json | python3 -c \"import json,sys; d=json.load(sys.stdin); [print(f'{k}: next_patch={v[\\\"next_patch\\\"]}') for k,v in d['streams'].items()]\""
+      alias: stream_counters
+
+phases:
+  # ===== PHASE 1: Dead code detection =====
+  - name: dead_code_analysis
+    description: >
+      Identify Python files that nothing imports, tables with zero rows,
+      and services registered in the graph but not running.
+      Cross-reference all three data sources.
+    prompt: |
+      You are a system archaeologist analyzing the Mythos codebase.
+
+      TASK: Identify dead code, orphaned infrastructure, and unused resources.
+
+      PYTHON FILES NEVER IMPORTED BY ANYTHING (filtered out archives/eval/backups):
+      {context.graph.never_imported_files}
+
+      POSTGRES TABLES WITH ZERO ROWS:
+      {context.postgres.empty_tables}
+
+      ALL TABLE ROW COUNTS:
+      {context.postgres.table_row_counts}
+
+      SERVICES REGISTERED IN GRAPH:
+      {context.graph.registered_services}
+
+      SERVICES ACTUALLY RUNNING:
+      {context.shell.running_services}
+
+      EMPTY DIRECTORIES:
+      {context.graph.empty_directories}
+
+      Analyze this data and produce a JSON report:
+      {{
+        "dead_code": {{
+          "likely_dead_files": [
+            {{
+              "path": "file path",
+              "size_bytes": 0,
+              "reason": "why it's probably dead"
+            }}
+          ],
+          "entry_points_not_dead": [
+            {{
+              "path": "file path",
+              "reason": "why this is probably a CLI tool, service entry, or standalone script despite no imports"
+            }}
+          ]
+        }},
+        "orphaned_tables": [
+          {{
+            "table": "name",
+            "rows": 0,
+            "verdict": "probably unused | empty but active | staging table"
+          }}
+        ],
+        "service_ghosts": [
+          {{
+            "service": "name",
+            "status": "registered but not running | running but not registered"
+          }}
+        ],
+        "empty_directories_to_clean": ["list of dirs safe to remove"],
+        "summary": "2-3 sentence overview of dead code situation"
+      }}
+
+      IMPORTANT RULES:
+      - Files in /opt/mythos/bin/ are CLI tools — NOT dead even if never imported
+      - Files named __init__.py, main.py, bot.py, or containing 'if __name__' are entry points
+      - Files in /opt/mythos/services/ are systemd service scripts — NOT dead
+      - Test files are not dead code
+      - Be conservative: if unsure, put it in entry_points_not_dead
+
+      Respond with ONLY the JSON. No markdown fences.
+    output_format: json
+    output_alias: dead_code
+    max_retries: 1
+
+  # ===== PHASE 2: Architectural stress analysis =====
+  - name: stress_analysis
+    description: >
+      Find the most fragile, overloaded, and tightly coupled parts
+      of the system. Identify god files, dependency bottlenecks,
+      and the widest database tables.
+    prompt: |
+      You are analyzing architectural stress in the Mythos codebase.
+
+      TASK: Identify fragility, coupling hotspots, and complexity risks.
+
+      LARGEST FILES (by bytes):
+      {context.graph.largest_files}
+
+      FILES WITH MOST FUNCTIONS (god files):
+      {context.graph.god_files}
+
+      MOST DEPENDED-ON FILES (import bottlenecks):
+      {context.graph.most_depended_on}
+
+      FILES WITH MOST DEPENDENCIES:
+      {context.graph.most_dependencies}
+
+      WIDEST DATABASE TABLES:
+      {context.graph.widest_tables}
+
+      LARGEST TABLES ON DISK:
+      {context.postgres.largest_tables_disk}
+
+      KEY FILE LINE COUNTS:
+      {context.shell.key_file_line_counts}
+
+      STREAM PATCH COUNTERS:
+      {context.shell.stream_counters}
+
+      Produce a JSON stress report:
+      {{
+        "god_files": [
+          {{
+            "path": "file",
+            "func_count": 0,
+            "risk": "what could go wrong",
+            "split_suggestion": "how to decompose it"
+          }}
+        ],
+        "dependency_bottlenecks": [
+          {{
+            "path": "file",
+            "imported_by": 0,
+            "risk": "if this breaks, what falls"
+          }}
+        ],
+        "coupling_hotspots": [
+          {{
+            "path": "file",
+            "dependencies": 0,
+            "concern": "why this is fragile"
+          }}
+        ],
+        "database_concerns": [
+          {{
+            "table": "name",
+            "columns": 0,
+            "disk_size": "size",
+            "concern": "normalization issue, wide table, etc"
+          }}
+        ],
+        "resilience_score": "1-10 rating of overall system resilience",
+        "top_3_risks": [
+          "the three most important architectural risks"
+        ],
+        "summary": "2-3 sentence architectural health assessment"
+      }}
+
+      Respond with ONLY the JSON. No markdown fences.
+    output_format: json
+    output_alias: stress
+    max_retries: 1
+
+  # ===== PHASE 3: Synthesis — final archaeology report =====
+  - name: synthesis
+    description: >
+      Combine dead code analysis and stress analysis into a final
+      archaeology report with prioritized recommendations.
+    prompt: |
+      You are writing the final report for a system archaeology investigation
+      of the Mythos system — a consciousness architecture running on a home
+      server called Arcturus.
+
+      DEAD CODE ANALYSIS:
+      {phases.dead_code}
+
+      STRESS ANALYSIS:
+      {phases.stress}
+
+      DIRECTORY SIZES:
+      {context.shell.directory_sizes}
+
+      FILES MODIFIED SINCE LAST ARCHITECTURE DOC UPDATE:
+      {context.shell.files_newer_than_arch_doc} Python files have changed since ARCHITECTURE.md was last updated.
+
+      STREAM STATUS:
+      {context.shell.stream_counters}
+
+      Write a final archaeology report as JSON:
+      {{
+        "report_title": "Mythos System Archaeology — March 2026",
+        "executive_summary": "3-4 sentence overview of findings",
+        "system_health_score": "1-10",
+        "findings": [
+          {{
+            "category": "dead_code | fragility | complexity | data | documentation",
+            "severity": "critical | high | medium | low",
+            "finding": "what was found",
+            "recommendation": "what to do about it",
+            "effort": "small | medium | large"
+          }}
+        ],
+        "quick_wins": [
+          "things that can be fixed in under 30 minutes"
+        ],
+        "strategic_recommendations": [
+          "bigger architectural changes worth planning"
+        ],
+        "buried_treasures": [
+          "interesting things discovered — patterns, capabilities, or connections that might not be obvious"
+        ],
+        "stats": {{
+          "total_files": 0,
+          "total_functions": 0,
+          "total_tables": 0,
+          "total_services": 0,
+          "dead_file_candidates": 0,
+          "empty_tables": 0,
+          "god_files": 0,
+          "resilience_score": "from stress analysis"
+        }}
+      }}
+
+      Be specific. Reference actual file paths and table names.
+      The audience is the system's architect — be direct, no fluff.
+
+      Respond with ONLY the JSON. No markdown fences.
+    output_format: json
+    output_alias: final_report
+    output_path: /tmp/mythos-mission/archaeology_report.json
+    max_retries: 1
+
+success:
+  description: "Full system archaeology complete"
+  outputs:
+    - /tmp/mythos-mission/archaeology_report.json
+  on_success:
+    - command: "cp /tmp/mythos-mission/archaeology_report.json /opt/mythos/mission/logs/archaeology_$(date +%Y%m%d).json"
+    - command: "echo '[system-archaeology] completed at $(date) — report saved' >> /opt/mythos/mission/logs/completed.log"
+
+failure:
+  on_failure:
+    - command: "echo '[system-archaeology] FAILED at $(date)' >> /opt/mythos/mission/logs/failed.log"
+  diagnostic: true

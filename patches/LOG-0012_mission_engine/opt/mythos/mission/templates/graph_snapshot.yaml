@@ -1,0 +1,40 @@
+# Mission: Export Graph Snapshot for Claude
+# Produces a comprehensive JSON snapshot of the Mythos codebase graph
+# directly from Neo4j via graph-bridge (no Ollama needed).
+#
+# Run: mythos-mission run /opt/mythos/mission/templates/graph_snapshot.yaml
+# Or just: graph-bridge snapshot /tmp/mythos-graph-snapshot.json
+#
+# Then paste the JSON into your Claude chat for accurate system knowledge.
+
+mission: graph-snapshot-export
+version: 2
+description: >
+  Export a comprehensive snapshot of the Mythos codebase structure from Neo4j.
+  Uses graph-bridge directly — no Ollama call needed for data export.
+
+model: qwen2.5:32b
+temperature: 0.1
+
+context:
+  shell:
+    - command: "graph-bridge snapshot /tmp/mythos-mission/graph_snapshot.json && cat /tmp/mythos-mission/graph_snapshot.json"
+      alias: snapshot_output
+
+phases:
+  - name: verify
+    description: Verify the snapshot was generated and is valid JSON
+    validate:
+      - type: file_exists
+        file: /tmp/mythos-mission/graph_snapshot.json
+      - type: shell
+        command: "/opt/mythos/.venv/bin/python3 -c \"import json; d=json.load(open('/tmp/mythos-mission/graph_snapshot.json')); assert 'stats' in d; assert d['stats']['IntegrityFile'] > 0; print(f'Valid: {d[\"stats\"][\"IntegrityFile\"]} files, {d[\"stats\"][\"IntegrityFunction\"]} functions')\""
+    on_fail: halt
+
+success:
+  description: "Graph snapshot exported for Claude consumption"
+  outputs:
+    - /tmp/mythos-mission/graph_snapshot.json
+  on_success:
+    - command: "cp /tmp/mythos-mission/graph_snapshot.json /opt/mythos/mission/logs/latest_snapshot.json"
+    - command: "echo '[graph-snapshot] exported at $(date)' >> /opt/mythos/mission/logs/completed.log"

@@ -1,0 +1,17 @@
+[Unit]
+Description=Denkers Co. Public Website
+After=network.target
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos/web/denkers-site
+ExecStart=/usr/bin/python3 -m http.server 8090 --bind 127.0.0.1
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

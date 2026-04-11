@@ -1,0 +1,37 @@
+mumble:
+  channel: Iris
+  host: 127.0.0.1
+  password: ''
+  port: 64738
+  user: Iris
+pipeline:
+  channels: 1
+  greeting: Iris online. I am listening.
+  min_confidence: 0.4
+  sample_rate: 48000
+  wake_word_required: true
+  wake_words:
+  - iris
+  - hey iris
+processor:
+  max_tokens: 2048
+  model: iris-thinking-v2
+  ollama_url: http://localhost:11434
+  system_prompt_path: /opt/mythos/prompts/voices/iris.yaml
+  temperature: 0.7
+  timeout: 30
+stt:
+  compute_type: float16
+  device: cuda
+  engine: faster-whisper
+  model_size: medium.en
+  vad:
+    enabled: true
+    min_silence_ms: 1000
+    min_speech_ms: 1500
+    post_speech_pause_ms: 1200
+    threshold: 0.65
+tts:
+  engine: kokoro
+  language: en
+  voice: af_heart

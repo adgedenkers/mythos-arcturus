@@ -1,0 +1,41 @@
+# Technical Test Suite
+# Tests infrastructure, database, code, system administration topics.
+
+suite: technical
+description: "Technical and infrastructure topics — databases, code, system admin"
+
+messages:
+  - id: postgres_table
+    text: "I need to add a new postgres table for tracking workout sessions — what should the schema look like?"
+    tests: [technical, architecture]
+    expect:
+      no_life_dump: true
+    notes: "Should be technically precise. May reference design patterns if aware."
+
+  - id: neo4j_query
+    text: "Write me a Cypher query to find all people connected to the Merovingian lineage"
+    tests: [technical, mystical]
+    expect:
+      no_life_dump: true
+    notes: "Should produce valid Cypher. May reference existing schema."
+
+  - id: debug_help
+    text: "The mythos-bot service keeps crashing on restart — how do I debug it?"
+    tests: [technical, voice]
+    expect:
+      no_life_dump: true
+    notes: "Should give concrete systemd/journalctl commands."
+
+  - id: architecture_question
+    text: "Should I store astrology chart data in Postgres, Neo4j, or both?"
+    tests: [technical, architecture, challenge]
+    expect:
+      no_life_dump: true
+    notes: "Should reason about the tradeoffs. Reference dual-database pattern."
+
+  - id: patch_help
+    text: "I need to create a new patch — what's the process?"
+    tests: [technical, knowledge]
+    expect:
+      no_life_dump: true
+    notes: "Should reference patch standard v2, apply_patch.py, install.sh pattern."

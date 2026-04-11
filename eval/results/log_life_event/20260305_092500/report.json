@@ -1,0 +1,167 @@
+{
+  "plan_id": "log_life_event",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_092500",
+  "total_passes": 5,
+  "total_ollama_calls": 9,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": false,
+    "errors": [
+      "Expected ok=True, got False (error: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: fe_sendauth: no password supplied\n)",
+      "summary missing 'Logged': ",
+      "data missing 'event_id': []",
+      "data missing 'description': []",
+      "summary empty",
+      "Expected ok=True, got False (error: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: fe_sendauth: no password supplied\n)",
+      "data missing 'event_id': []",
+      "summary empty"
+    ],
+    "passed": 2,
+    "failed": 8,
+    "total": 10
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: os, logging, psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.71,
+      "final_code_lines": 49
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_description(), _detect_domain(), _detect_person(). For extract: lowercase, remove triggers LONGEST FIRST: 'log life event', 'record event', 'log event', 'something happened', 'just happened', 'remember that', 'note that', 'log that', 'log', 'record'. Normalize whitespace between each. Return cleaned string. For domain: check for 'spiritual', 'technical', 'financial', 'personal'. Default 'personal'. For person: check for 'rebecca', 'seraphe', 'fitz'. Map 'seraphe' to 'rebecca'. Default 'adge'.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.86,
+      "final_code_lines": 101
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _insert_event(). Use _get_conn(). INSERT INTO life_events (description, domain, person, source, source_message) VALUES (%s, %s, %s, 'iris', %s) RETURNING id. conn.commit() after execute. Return the new id. try/finally close cursor and connection.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.99,
+      "final_code_lines": 101
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement execute(). Extract description. If empty or less than 3 chars: return SkillResponse(skill_name=self.name, data={}, summary='Could not determine what to log. Please describe the event.', confidence=0.3, sources=[]). Detect domain and person. Call _insert_event. Return SkillResponse(skill_name=self.name, data={'event_id': new_id, 'description': desc, 'domain': domain, 'person': person}, summary=f'Logged life event: \"{desc}\" (domain: {domain}, person: {person})', confidence=0.95, sources=['mythos.life_events']). try/except/finally. On error: return SkillResponse(skill_name=self.name, error=str(e)).",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.61,
+      "final_code_lines": 124
+    },
+    {
+      "pass": 5,
+      "instruction": "Review. _get_conn uses POSTGRES_HOST. conn.commit() after INSERT. Connections close in finally. SkillResponse uses ONLY valid kwargs (skill_name, data, summary, confidence, sources, error). Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: 0)",
+            "summary missing 'Logged': ",
+            "data missing 'event_id': []",
+            "data missing 'description': []",
+            "summary empty",
+            "Expected ok=True, got False (error: 0)",
+            "data missing 'event_id': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: 0)",
+            "summary missing 'Logged': ",
+            "data missing 'event_id': []",
+            "data missing 'description': []",
+            "summary empty",
+            "Expected ok=True, got False (error: 0)",
+            "data missing 'event_id': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: 0)",
+            "summary missing 'Logged': ",
+            "data missing 'event_id': []",
+            "data missing 'description': []",
+            "summary empty",
+            "Expected ok=True, got False (error: 0)",
+            "data missing 'event_id': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 4,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: 0)",
+            "summary missing 'Logged': ",
+            "data missing 'event_id': []",
+            "data missing 'description': []",
+            "summary empty",
+            "Expected ok=True, got False (error: 0)",
+            "data missing 'event_id': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 5,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: 0)",
+            "summary missing 'Logged': ",
+            "data missing 'event_id': []",
+            "data missing 'description': []",
+            "summary empty",
+            "Expected ok=True, got False (error: 0)",
+            "data missing 'event_id': []",
+            "summary empty"
+          ]
+        }
+      ],
+      "elapsed_seconds": 23.07,
+      "final_code_lines": 124
+    }
+  ]
+}

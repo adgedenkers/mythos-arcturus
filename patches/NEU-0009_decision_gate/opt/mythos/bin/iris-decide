@@ -1,0 +1,259 @@
+#!/usr/bin/env python3
+"""
+iris-decide — CLI for the Iris Decision Gate
+
+Usage:
+    iris-decide test <trigger_name>       Dry-run full pipeline (gather + LLM) without executing action
+    iris-decide prompt <trigger_name>     Show assembled prompt only, no LLM call
+    iris-decide history [trigger_name]    Query trigger_log for decision gate entries
+
+Examples:
+    iris-decide test smart_service_check
+    iris-decide prompt smart_disk_check
+    iris-decide history
+    iris-decide history smart_service_check
+"""
+
+import argparse
+import json
+import os
+import sys
+
+import psycopg2
+import psycopg2.extras
+
+# Use the mythos venv paths
+sys.path.insert(0, "/opt/mythos")
+sys.path.insert(0, "/opt/mythos/iris/core/src")
+
+
+def get_db_config() -> dict:
+    return {
+        "host": os.getenv("PGHOST", "localhost"),
+        "port": int(os.getenv("PGPORT", 5432)),
+        "database": os.getenv("PGDATABASE", "mythos"),
+        "user": os.getenv("PGUSER", "adge"),
+        "password": os.getenv("PGPASSWORD", ""),
+    }
+
+
+def get_db(db_config: dict):
+    return psycopg2.connect(
+        host=db_config["host"],
+        port=db_config["port"],
+        database=db_config["database"],
+        user=db_config["user"],
+        password=db_config["password"],
+        cursor_factory=psycopg2.extras.RealDictCursor,
+    )
+
+
+def load_trigger(db_config: dict, name: str) -> dict:
+    """Load a single trigger by name."""
+    conn = get_db(db_config)
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, name, trigger_type, schedule, action_type,
+               action_payload, context_queries, decision_prompt,
+               enabled, priority, last_fired, next_fire, fire_count,
+               metadata
+        FROM scheduled_triggers
+        WHERE name = %s
+    """, (name,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    if not row:
+        print(f"ERROR: Trigger '{name}' not found")
+        sys.exit(1)
+    return dict(row)
+
+
+def cmd_test(args):
+    """Dry-run: gather context + call LLM, but don't execute the decided action."""
+    db_config = get_db_config()
+    trigger = load_trigger(db_config, args.trigger_name)
+
+    context_queries = trigger.get("context_queries") or []
+    decision_prompt = trigger.get("decision_prompt")
+
+    if not context_queries:
+        print(f"WARNING: Trigger '{args.trigger_name}' has no context_queries")
+    if not decision_prompt:
+        print(f"ERROR: Trigger '{args.trigger_name}' has no decision_prompt — not a decision gate trigger")
+        sys.exit(1)
+
+    print(f"╔══ Decision Gate Test: {args.trigger_name} ══╗")
+    print(f"  Action type: {trigger['action_type']}")
+    print(f"  Priority: {trigger['priority']}")
+    print(f"  Enabled: {trigger['enabled']}")
+    print()
+
+    # Gather context
+    from context_engine import ContextEngine
+    ctx_engine = ContextEngine(db_config)
+
+    print("── Gathering context ──")
+    context = ctx_engine.gather(context_queries)
+    print(f"  Providers called: {context['providers_called']}")
+    print(f"  Providers succeeded: {context['providers_succeeded']}")
+    if context["errors"]:
+        for err in context["errors"]:
+            print(f"  ERROR: {err['provider']}: {err['error']}")
+    print()
+
+    # Show context summary
+    print("── Context gathered ──")
+    for prov_name, prov_result in context.get("results", {}).items():
+        data = prov_result.get("data", "")
+        if isinstance(data, str):
+            preview = data[:200].replace("\n", " ")
+        else:
+            preview = json.dumps(data, default=str)[:200]
+        print(f"  [{prov_name}] {preview}...")
+    print()
+
+    # Run decision gate
+    from decision_gate import DecisionGate
+    gate = DecisionGate(db_config)
+
+    print("── Calling LLM ──")
+    result = gate.evaluate(trigger, context)
+
+    print(f"\n╔══ Decision Result ══╗")
+    print(f"  Action:        {result.action}")
+    print(f"  Confidence:    {result.confidence:.2f}")
+    print(f"  Auto-execute:  {result.auto_executed}")
+    print(f"  Notify human:  {result.notify}")
+    print(f"  LLM duration:  {result.llm_duration_ms}ms")
+    print(f"  Reasoning:     {result.reasoning}")
+    if result.params:
+        print(f"  Params:        {json.dumps(result.params)}")
+
+    # Routing explanation
+    print()
+    if result.auto_executed and not result.notify:
+        print("  → ROUTE: Would auto-execute without notification (confidence >= 0.8)")
+    elif result.auto_executed and result.notify:
+        print("  → ROUTE: Would execute AND notify human (confidence 0.5–0.8)")
+    else:
+        print("  → ROUTE: Would DEFER to human — no execution (confidence < 0.5)")
+
+    print(f"\n  (Dry run — no action was actually executed)")
+
+
+def cmd_prompt(args):
+    """Show the assembled prompt without calling the LLM."""
+    db_config = get_db_config()
+    trigger = load_trigger(db_config, args.trigger_name)
+
+    context_queries = trigger.get("context_queries") or []
+    decision_prompt = trigger.get("decision_prompt")
+
+    if not decision_prompt:
+        print(f"ERROR: Trigger '{args.trigger_name}' has no decision_prompt")
+        sys.exit(1)
+
+    # Gather context
+    from context_engine import ContextEngine
+    ctx_engine = ContextEngine(db_config)
+
+    print(f"── Gathering context for: {args.trigger_name} ──")
+    context = ctx_engine.gather(context_queries)
+
+    # Assemble prompt
+    context_json = json.dumps(context, default=str, indent=2)
+    assembled = decision_prompt.replace("{context}", context_json)
+
+    print(f"\n{'═' * 60}")
+    print("ASSEMBLED PROMPT")
+    print(f"{'═' * 60}")
+    print(assembled)
+    print(f"{'═' * 60}")
+    print(f"\n(Context length: {len(context_json)} chars)")
+
+
+def cmd_history(args):
+    """Show decision gate log entries."""
+    db_config = get_db_config()
+    conn = get_db(db_config)
+    cur = conn.cursor()
+
+    if args.trigger_name:
+        cur.execute("""
+            SELECT trigger_name, fired_at, route, decision_parsed,
+                   llm_duration_ms, success, error
+            FROM trigger_log
+            WHERE trigger_name = %s AND decision_response IS NOT NULL
+            ORDER BY fired_at DESC
+            LIMIT 20
+        """, (args.trigger_name,))
+    else:
+        cur.execute("""
+            SELECT trigger_name, fired_at, route, decision_parsed,
+                   llm_duration_ms, success, error
+            FROM trigger_log
+            WHERE decision_response IS NOT NULL
+            ORDER BY fired_at DESC
+            LIMIT 20
+        """)
+
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if not rows:
+        print("No decision gate entries found")
+        return
+
+    print(f"{'═' * 80}")
+    print(f"{'Trigger':<25} {'Fired At':<22} {'Action':<15} {'Conf':>5} {'LLM ms':>7} {'OK':>3}")
+    print(f"{'═' * 80}")
+
+    for row in rows:
+        parsed = row["decision_parsed"] or {}
+        action = parsed.get("action", "?")[:14]
+        conf = parsed.get("confidence", "?")
+        conf_str = f"{conf:.2f}" if isinstance(conf, (int, float)) else str(conf)
+        llm_ms = row["llm_duration_ms"] or 0
+        ok = "✓" if row["success"] else "✗"
+        fired = row["fired_at"].strftime("%Y-%m-%d %H:%M:%S") if row["fired_at"] else "?"
+
+        print(f"  {row['trigger_name']:<23} {fired:<22} {action:<15} {conf_str:>5} {llm_ms:>7} {ok:>3}")
+
+        if parsed.get("reasoning"):
+            print(f"    → {parsed['reasoning'][:100]}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Iris Decision Gate CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__,
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    # test
+    p_test = sub.add_parser("test", help="Dry-run full pipeline without executing action")
+    p_test.add_argument("trigger_name", help="Name of the trigger to test")
+
+    # prompt
+    p_prompt = sub.add_parser("prompt", help="Show assembled prompt only")
+    p_prompt.add_argument("trigger_name", help="Name of the trigger")
+
+    # history
+    p_hist = sub.add_parser("history", help="Show decision gate log entries")
+    p_hist.add_argument("trigger_name", nargs="?", default=None, help="Optional trigger name filter")
+
+    args = parser.parse_args()
+
+    if args.command == "test":
+        cmd_test(args)
+    elif args.command == "prompt":
+        cmd_prompt(args)
+    elif args.command == "history":
+        cmd_history(args)
+
+
+if __name__ == "__main__":
+    main()

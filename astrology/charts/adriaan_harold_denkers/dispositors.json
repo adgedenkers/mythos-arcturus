@@ -1,0 +1,42 @@
+{
+  "Chain": {
+    "Sun": "Mars",
+    "Moon": "Sun",
+    "Mercury": "Jupiter",
+    "Venus": "Mars",
+    "Mars": "Jupiter",
+    "Jupiter": "Sun",
+    "Saturn": "Mercury",
+    "Uranus": "Mars",
+    "Neptune": "Jupiter",
+    "Pluto": "Venus"
+  },
+  "Final Dispositors": [],
+  "Mutual Receptions": [],
+  "Circular Loops": [
+    [
+      "Jupiter",
+      "Sun",
+      "Mars"
+    ]
+  ],
+  "Classical Mutual Receptions": [],
+  "Modern Mutual Receptions": [
+    {
+      "Planets": [
+        "Jupiter",
+        "Sun"
+      ],
+      "Type": "Modern (Sign+House)",
+      "Description": "Jupiter in Leo (ruled by Sun), Sun in house 12 (ruled by Jupiter)"
+    },
+    {
+      "Planets": [
+        "Jupiter",
+        "Mars"
+      ],
+      "Type": "Modern (Sign+House)",
+      "Description": "Mars in Sagittarius (ruled by Jupiter), Jupiter in house 8 (ruled by Mars)"
+    }
+  ]
+}

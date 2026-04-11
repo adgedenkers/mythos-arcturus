@@ -1,0 +1,54 @@
+#!/opt/mythos/.venv/bin/python3
+"""iris-docworker - CLI for Iris Documentation Workers (Patch 0188)"""
+import sys, os, json, argparse, logging
+
+sys.path.insert(0, "/opt/mythos")
+
+env_file = "/opt/mythos/.env"
+if os.path.exists(env_file):
+    with open(env_file) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, _, val = line.partition("=")
+                os.environ.setdefault(key.strip(), val.strip())
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Iris Documentation Worker")
+    parser.add_argument("--daemon", action="store_true", help="Run continuously")
+    parser.add_argument("--run-once", action="store_true", help="Drain pending tasks then exit")
+    parser.add_argument("--queue", type=str, default=None, help="Process only one queue type")
+    parser.add_argument("--status", action="store_true", help="Show queue status")
+    parser.add_argument("--dry-run", action="store_true", help="Preview without LLM calls")
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
+
+    if args.status:
+        import redis
+        r = redis.Redis(host="localhost", port=6379, decode_responses=True)
+        queues = {
+            "component": "iris:docs:queue:component",
+            "architecture": "iris:docs:queue:architecture",
+            "system_map": "iris:docs:queue:system_map",
+        }
+        status = {}
+        for name, key in queues.items():
+            status[name] = {"pending": r.llen(key)}
+        status["_meta"] = {"processing": r.scard("iris:docs:processing"), "completed": r.zcard("iris:docs:completed")}
+        print(json.dumps(status, indent=2))
+        return
+
+    if not args.daemon and not args.run_once:
+        parser.print_help()
+        print("\nSpecify --daemon or --run-once to start processing.")
+        return
+
+    from iris.docs.worker import run_worker
+    mode = "daemon" if args.daemon else "run_once"
+    run_worker(mode=mode, queue_filter=args.queue, dry_run=args.dry_run)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,24 @@
+[
+  {
+    "message": "do you remember anything about love",
+    "expect_ok": true,
+    "expect_data_has": [
+      "stores_searched"
+    ],
+    "expect_summary_contains": [
+      "Voice Memo",
+      "Conversation"
+    ]
+  },
+  {
+    "message": "search everything for emerald flame",
+    "expect_ok": true,
+    "expect_data_has": [
+      "stores_searched"
+    ]
+  },
+  {
+    "message": "what do you remember",
+    "expect_ok": true
+  }
+]

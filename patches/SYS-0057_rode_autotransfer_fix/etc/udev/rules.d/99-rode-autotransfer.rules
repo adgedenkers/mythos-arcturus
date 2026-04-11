@@ -1,0 +1,8 @@
+# RODE Wireless GO auto-transfer
+# Triggers rode-autotransfer.service when a RODE Wireless GO TX block device
+# (vendor 19f7, product 005f) appears as mass storage.
+#
+# Matches the parent disk only (not partitions) — udisks2 handles the mount
+# and the autotransfer script polls /proc/mounts until ready.
+
+ACTION=="add", SUBSYSTEM=="block", ENV{ID_VENDOR_ID}=="19f7", ENV{ID_MODEL_ID}=="005f", ENV{DEVTYPE}=="disk", TAG+="systemd", ENV{SYSTEMD_WANTS}+="rode-autotransfer.service"

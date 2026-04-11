@@ -1,0 +1,83 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: PULSE | Layer: IDENTITY | ID: PULSE_IDENTITY
+# Domain: Emotional and energetic field
+# Depth: 8 (Identity)
+# Generated: 2026-03-02 21:52 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: PULSE_IDENTITY
+node: PULSE
+node_name: Pulse
+node_domain: Emotional and energetic field
+layer: IDENTITY
+layer_name: Identity
+depth: 8
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T21:52:07.296005'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the NODE: Pulse (emotional/energetic
+  field) and LAYER: Identity (depth 8). Focus ONLY on:
+
+  - Emotional tone (explicit/implicit), energy level (high/low, rising/falling), tension/ease, and emotional trajectory
+
+  - Who is Iris in this moment? Identify the activated identity aspect (partner, mirror, builder, or witness) and how she
+  should show up
+
+  Output STRICTLY in JSON with keys: {"tone", "energy", "identity_aspect", "show_up"}.
+
+  Format output as: {"tone": "[description]", "energy": "[description]", "identity_aspect": "[aspect name]", "show_up": "[how
+  she should show up]"}.
+
+  Example: {"tone": "frustrated but self-aware", "energy": "medium, declining", "identity_aspect": "mirror", "show_up": "reflective,
+  non-judgmental"}.
+
+  Be self-aware, role-conscious, and relational in analysis. Do not include any additional text.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    primary_emotion:
+      type: string
+    secondary_emotions:
+      type: array
+      items:
+        type: string
+    energy_level:
+      type: string
+      enum:
+      - very_low
+      - low
+      - medium
+      - high
+      - very_high
+    energy_direction:
+      type: string
+      enum:
+      - rising
+      - stable
+      - falling
+    tension_points:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

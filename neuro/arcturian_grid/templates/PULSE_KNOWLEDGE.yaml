@@ -1,0 +1,72 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: PULSE | Layer: KNOWLEDGE | ID: PULSE_KNOWLEDGE
+# Domain: Emotional and energetic field
+# Depth: 5 (Knowledge)
+# Generated: 2026-03-02 21:51 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: PULSE_KNOWLEDGE
+node: PULSE
+node_name: Pulse
+node_domain: Emotional and energetic field
+layer: KNOWLEDGE
+layer_name: Knowledge
+depth: 5
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: true
+generated_at: '2026-03-02T21:51:53.421897'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange at the intersection of NODE: Pulse (emotional/energetic field) and LAYER: Knowledge
+  (depth 5). For NODE: Assess emotional tone (explicit/implicit), energy level (high/low, rising/falling), tension/ease, and
+  emotional trajectory. For LAYER: Identify relevant accumulated understanding—facts, data, expertise, learned patterns—applicable
+  here. Output ONLY a JSON object with keys ''node_analysis'' (authoritative, data-informed summary) and ''layer_analysis''
+  (grounded, evidence-based relevance). Use placeholders {user_message} and {assistant_response}. Maintain strict focus on
+  this node+layer intersection. Do not include external analysis.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    primary_emotion:
+      type: string
+    secondary_emotions:
+      type: array
+      items:
+        type: string
+    energy_level:
+      type: string
+      enum:
+      - very_low
+      - low
+      - medium
+      - high
+      - very_high
+    energy_direction:
+      type: string
+      enum:
+      - rising
+      - stable
+      - falling
+    tension_points:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

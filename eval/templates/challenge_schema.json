@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mythos Chunk Challenge Spec",
+  "description": "Defines a challenge for the Ollama chunk factory eval harness. Contains everything a model needs to build a valid Mythos SkillBase skill.",
+  "type": "object",
+  "required": ["challenge_id", "version", "description", "requirement", "system_context", "validation_criteria"],
+  "properties": {
+    "challenge_id": {
+      "type": "string",
+      "description": "Unique identifier for this challenge (snake_case)"
+    },
+    "version": {
+      "type": "string",
+      "description": "Challenge spec version"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Who designed this challenge (claude, iris, ka'tuar'el)"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "description": {
+      "type": "string",
+      "description": "One-line summary of what needs to be built"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["beginner", "intermediate", "advanced"],
+      "description": "beginner = single table query, intermediate = multi-table or logic, advanced = composite or external"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["data", "action", "composite", "meta"]
+    },
+    "stream": {
+      "type": "string",
+      "enum": ["SYS", "NEU", "LOG", "MNE", "SEN"]
+    },
+    "requirement": {
+      "type": "object",
+      "required": ["natural_language", "skill_name", "class_name", "filename"],
+      "properties": {
+        "natural_language": {
+          "type": "string",
+          "description": "Plain English description of what to build. This is the primary instruction."
+        },
+        "skill_name": {"type": "string"},
+        "class_name": {"type": "string"},
+        "filename": {"type": "string"},
+        "category": {"type": "string"},
+        "cache_ttl": {"type": "integer"},
+        "triggers": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "system_context": {
+      "type": "object",
+      "description": "Everything the model needs to know about the target environment",
+      "properties": {
+        "database": {"type": "string"},
+        "database_name": {"type": "string"},
+        "connection_pattern": {"type": "string"},
+        "table": {
+          "type": "object",
+          "properties": {
+            "name": {"type": "string"},
+            "schema": {"type": "string"},
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {"type": "string"},
+                  "type": {"type": "string"},
+                  "nullable": {"type": "boolean"},
+                  "note": {"type": "string"}
+                }
+              }
+            },
+            "indexes": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "engine_import": {"type": "string"},
+        "venv_python": {"type": "string"},
+        "skill_directory": {"type": "string"}
+      }
+    },
+    "expected_behavior": {
+      "type": "object",
+      "properties": {
+        "test_cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "message": {"type": "string"},
+              "expect_summary_contains": {"type": "array", "items": {"type": "string"}},
+              "expect_data_has": {"type": "array", "items": {"type": "string"}},
+              "expect_ok": {"type": "boolean"},
+              "note": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "validation_criteria": {
+      "type": "object",
+      "properties": {
+        "structural": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Code structure checks (parse, class, attributes)"
+        },
+        "behavioral": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Runtime behavior expectations"
+        }
+      }
+    },
+    "gold_path": {
+      "type": "string",
+      "description": "Relative path to the gold standard implementation"
+    }
+  }
+}

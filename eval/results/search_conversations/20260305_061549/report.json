@@ -1,0 +1,108 @@
+{
+  "plan_id": "search_conversations",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_061549",
+  "total_passes": 6,
+  "total_ollama_calls": 6,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 9,
+    "failed": 0,
+    "total": 9
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton. Start with #!/usr/bin/env python3, then docstring, then imports: os, logging, psycopg2, psycopg2.extras.RealDictCursor, dotenv (load_dotenv from /opt/mythos/.env), engine.base (SkillBase, SkillRequest, SkillResponse). Then write _get_conn() using EXACTLY this pattern:\n\ndef _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )\n\nThen the SearchConversationsSkill class with all attributes set. All methods should have 'pass' as body for now. Do NOT use any unicode characters like em-dashes in comments \u2014 use only ASCII.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 6.02,
+      "final_code_lines": 68
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms(). Lowercase the message. Define trigger phrases to remove, LONGEST FIRST: 'remember our conversation', 'earlier conversation', 'what did we discuss', 'we talked about', 'previous chat', 'chat history', 'conversations', 'conversation', 'you said', 'i asked', 'discussed', 'search for', 'search about', 'search', 'find'. For each phrase, do message = message.replace(phrase, '') then IMMEDIATELY normalize whitespace with message = ' '.join(message.split()). After all removals, strip punctuation (keep only alphanumeric and spaces), final whitespace normalize. Return cleaned if len >= 2, else empty string.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.39,
+      "final_code_lines": 101
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _search_turns(). Get connection with _get_conn(). Create cursor. Query: SELECT conversation_id, turn_idx, speaker_type, LEFT(content, 300) as content_preview, created_at FROM conversation_turns WHERE content ILIKE %s ORDER BY created_at DESC LIMIT %s. Pass parameters as (f'%{search_terms}%', limit). Use try/finally to always close cursor and connection. Return list of row dicts. IMPORTANT: Do NOT use to_tsvector or plainto_tsquery \u2014 this table has no FTS index. Use ILIKE only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 5.09,
+      "final_code_lines": 122
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). _format_results: for each row, build dict with conversation_id (as string), turn_idx, speaker_type, content_preview (truncated to 200 chars, add '...' if longer), created_at (as ISO string or None). _build_summary: if no results return 'No conversations found mentioning \"X\".' If results: 'Found N conversation turn(s) mentioning \"X\".' Then for top 3 results append: '[Speaker] said: \"preview...\" (date)'. Speaker should be capitalized like 'Human' or 'Assistant'.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 6.43,
+      "final_code_lines": 157
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Call _extract_search_terms(request.message). If no terms: get connection, query SELECT COUNT(*) as total FROM conversation_turns, close connection, return SkillResponse(skill_name=self.name, data={'total_turns': total}, summary=f'Conversation history has {total} turns. Ask about a specific topic to search.', confidence=0.5, sources=['mythos.conversation_turns']). If terms found: call _search_turns(terms), then _format_results(rows), then _build_summary(formatted, terms). Return SkillResponse(skill_name=self.name, data={'matches': formatted, 'search_terms': terms, 'count': len(formatted)}, summary=summary, confidence=0.95, sources=['mythos.conversation_turns']). Wrap ENTIRE execute body in try/except/finally. In except: log error, return SkillResponse(skill_name=self.name, error=str(e)). In finally: pass (connections are closed in _search_turns).",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 7.88,
+      "final_code_lines": 198
+    },
+    {
+      "pass": 6,
+      "instruction": "Review the complete file. Ensure: all database connections close in finally blocks, summary is never empty, no unicode characters in comments (no em-dashes), _get_conn uses POSTGRES_HOST not DB_HOST, all methods connect properly. The file must be production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 8.36,
+      "final_code_lines": 197
+    }
+  ]
+}

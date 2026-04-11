@@ -1,0 +1,32 @@
+[
+  {
+    "Object": "Pluto",
+    "Sign": "Scorpio",
+    "House": 4,
+    "Longitude": 227.612505
+  },
+  {
+    "Object": "Mean Node",
+    "Sign": "Aquarius",
+    "House": 6,
+    "Longitude": 314.550702
+  },
+  {
+    "Object": "True Node",
+    "Sign": "Aquarius",
+    "House": 6,
+    "Longitude": 315.720109
+  },
+  {
+    "Object": "Juno",
+    "Sign": "Scorpio",
+    "House": 4,
+    "Longitude": 235.078346
+  },
+  {
+    "Object": "South Node",
+    "Sign": "Leo",
+    "House": 12,
+    "Longitude": 134.550702
+  }
+]

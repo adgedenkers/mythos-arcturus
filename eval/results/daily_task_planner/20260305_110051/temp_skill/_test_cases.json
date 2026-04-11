@@ -1,0 +1,17 @@
+[
+  {
+    "message": "plan my day",
+    "expect_ok": true,
+    "expect_summary_contains": [
+      "Routine"
+    ]
+  },
+  {
+    "message": "what should i do today",
+    "expect_ok": true
+  },
+  {
+    "message": "to do list",
+    "expect_ok": true
+  }
+]

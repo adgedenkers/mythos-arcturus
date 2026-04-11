@@ -1,0 +1,161 @@
+{
+  "run_id": "20260307_171642_f58f87",
+  "completed_at": "2026-03-07T22:22:53.192417+00:00",
+  "elapsed_seconds": 370,
+  "task_count": 43,
+  "model_count": 3,
+  "per_model": {
+    "gemma3:27b": {
+      "pass": 0,
+      "fail": 0,
+      "timeout": 0,
+      "error": 0,
+      "skip": 31,
+      "total_score": 0,
+      "max_score": 0,
+      "score_pct": 0,
+      "avg_response_ms": 0,
+      "category_breakdown": {
+        "tool_use": {
+          "pass": 0,
+          "total_tasks": 7,
+          "score": 0,
+          "max": 48
+        },
+        "voice": {
+          "pass": 0,
+          "total_tasks": 6,
+          "score": 0,
+          "max": 39
+        },
+        "narrative": {
+          "pass": 0,
+          "total_tasks": 6,
+          "score": 0,
+          "max": 45
+        },
+        "code": {
+          "pass": 0,
+          "total_tasks": 8,
+          "score": 0,
+          "max": 60
+        },
+        "reasoning": {
+          "pass": 0,
+          "total_tasks": 8,
+          "score": 0,
+          "max": 51
+        },
+        "mythos": {
+          "pass": 0,
+          "total_tasks": 8,
+          "score": 0,
+          "max": 51
+        }
+      }
+    },
+    "qwen2.5:32b": {
+      "pass": 18,
+      "fail": 0,
+      "timeout": 0,
+      "error": 0,
+      "skip": 18,
+      "total_score": 63.55,
+      "max_score": 126,
+      "score_pct": 50.4,
+      "avg_response_ms": 39480,
+      "category_breakdown": {
+        "tool_use": {
+          "pass": 5,
+          "total_tasks": 7,
+          "score": 22,
+          "max": 48
+        },
+        "voice": {
+          "pass": 0,
+          "total_tasks": 6,
+          "score": 0,
+          "max": 39
+        },
+        "narrative": {
+          "pass": 0,
+          "total_tasks": 6,
+          "score": 0,
+          "max": 45
+        },
+        "code": {
+          "pass": 8,
+          "total_tasks": 8,
+          "score": 41.55,
+          "max": 60
+        },
+        "reasoning": {
+          "pass": 3,
+          "total_tasks": 8,
+          "score": 0,
+          "max": 51
+        },
+        "mythos": {
+          "pass": 2,
+          "total_tasks": 8,
+          "score": 0,
+          "max": 51
+        }
+      }
+    },
+    "llama3.3:70b": {
+      "pass": 4,
+      "fail": 0,
+      "timeout": 0,
+      "error": 0,
+      "skip": 28,
+      "total_score": 4,
+      "max_score": 24,
+      "score_pct": 16.7,
+      "avg_response_ms": 57469,
+      "category_breakdown": {
+        "tool_use": {
+          "pass": 0,
+          "total_tasks": 7,
+          "score": 0,
+          "max": 48
+        },
+        "voice": {
+          "pass": 4,
+          "total_tasks": 6,
+          "score": 4,
+          "max": 39
+        },
+        "narrative": {
+          "pass": 0,
+          "total_tasks": 6,
+          "score": 0,
+          "max": 45
+        },
+        "code": {
+          "pass": 0,
+          "total_tasks": 8,
+          "score": 0,
+          "max": 60
+        },
+        "reasoning": {
+          "pass": 0,
+          "total_tasks": 8,
+          "score": 0,
+          "max": 51
+        },
+        "mythos": {
+          "pass": 0,
+          "total_tasks": 8,
+          "score": 0,
+          "max": 51
+        }
+      }
+    }
+  },
+  "model_ranking": [
+    "qwen2.5:32b",
+    "llama3.3:70b",
+    "gemma3:27b"
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "plan_id": "log_checkin",
+  "version": "1.0",
+  "description": "Record a mood or status check-in",
+  "pattern": "action_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "table_schema": "Table: checkin_log\nColumns:\n  - id (integer, PK, serial)\n  - checkin_date (date, NOT NULL)\n  - checkin_time (timestamp, default CURRENT_TIMESTAMP)\n  - checkin_type (varchar(20), default 'morning') -- values: 'morning', 'evening', 'midday', 'mood'\n  - summary (text) -- the mood or status text goes here\n  - user_response (text) -- the original message\n  - created_at (timestamp, default CURRENT_TIMESTAMP)\n\nIMPORTANT: There is NO 'mood' column. Store mood text in 'summary'. Store original message in 'user_response'. Set checkin_type to 'mood' for mood check-ins.",
+    "scaffold": "class LogCheckinSkill(SkillBase):\n    name = 'log_checkin'\n    version = '1.0'\n    category = 'action'\n    description = 'Record a mood or status check-in'\n    triggers = ['check in', 'checkin', 'feeling', 'i feel', 'mood', 'how am i', 'status update', 'im feeling', 'doing well', 'doing great', 'doing bad', 'stressed', 'tired', 'energized', 'happy', 'anxious']\n    cache_ttl = 0\n\n    async def execute(self, request) -> SkillResponse:\n        # 1. Extract mood/status from message\n        # 2. INSERT into checkin_log\n        # 3. Return confirmation\n        pass\n\n    def _extract_mood(self, message) -> str:\n        pass\n\n    def _insert_checkin(self, mood, notes, person) -> int:\n        pass",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "connection_cleanup": "Always try/except/finally. Close cursor and connection in finally. COMMIT after INSERT.",
+      "no_unicode": "ASCII only in comments.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name (str), data (dict), summary (str), confidence (float), sources (list), error (str|None). NEVER use 'success', 'message', 'text', 'ok', 'result'."
+    }
+  },
+  "build_plan": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: os, logging, psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_mood(). Lowercase message. Remove triggers LONGEST FIRST: 'status update', 'im feeling', 'i feel', 'doing well', 'doing great', 'doing bad', 'check in', 'checkin', 'feeling', 'mood'. Normalize whitespace between each. The remaining text IS the mood/status. Common moods to recognize: 'happy', 'sad', 'tired', 'anxious', 'stressed', 'energized', 'grateful', 'frustrated', 'calm', 'excited'. If cleaned text is a known mood word, use it directly. Otherwise use the full cleaned text as a freeform mood. Return the mood string.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _insert_checkin(). Use _get_conn(). INSERT INTO checkin_log (checkin_date, checkin_type, summary, user_response) VALUES (CURRENT_DATE, 'mood', %s, %s) RETURNING id. Params: (mood_text, original_message). conn.commit(). Return cursor.fetchone()['id']. try/finally close cursor and connection. IMPORTANT: use cursor.fetchone()['id'] NOT cursor.fetchone()[0] because RealDictCursor returns dicts.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement execute(). Extract mood from message. If mood is empty or < 2 chars: return SkillResponse(skill_name=self.name, data={}, summary='How are you feeling? Tell me your mood or status.', confidence=0.3, sources=[]). Call _insert_checkin(mood_text=mood, original_message=request.message). Return SkillResponse(skill_name=self.name, data={'checkin_id': new_id, 'mood': mood}, summary=f'Check-in recorded: {mood}', confidence=0.95, sources=['mythos.checkin_log']). try/except/finally.",
+      "test": "import_check"
+    },
+    {
+      "pass": 5,
+      "instruction": "Review. _get_conn uses POSTGRES_HOST. conn.commit() after INSERT. SkillResponse uses ONLY valid kwargs. Summary never empty. ASCII only. Production-ready.",
+      "test": "full_behavioral",
+      "recursive": true
+    }
+  ],
+  "test_cases": [
+    {
+      "message": "feeling great today",
+      "expect_ok": true,
+      "expect_data_has": [
+        "checkin_id",
+        "mood"
+      ],
+      "expect_summary_contains": [
+        "Check-in"
+      ]
+    },
+    {
+      "message": "im feeling tired and stressed",
+      "expect_ok": true,
+      "expect_data_has": [
+        "mood"
+      ]
+    },
+    {
+      "message": "checkin",
+      "expect_ok": true,
+      "note": "No mood specified - should ask"
+    }
+  ]
+}

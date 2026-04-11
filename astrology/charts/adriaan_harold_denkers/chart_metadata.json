@@ -1,0 +1,37 @@
+{
+  "Name": "Adriaan Harold Denkers",
+  "Birth": {
+    "Date": "1978-11-22",
+    "Time": "08:30",
+    "Place": "Albany, NY, USA",
+    "Latitude": 42.651167,
+    "Longitude": -73.754968,
+    "Timezone": "America/New_York"
+  },
+  "House System": "Placidus",
+  "Zodiac Type": "Tropical",
+  "Ephemeris": "Swiss Ephemeris",
+  "Ephemeris Path": "/opt/mythos/ephemeris",
+  "Included Objects": [
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+    "Chiron",
+    "Lilith",
+    "Mean Node",
+    "True Node",
+    "Ceres",
+    "Pallas",
+    "Juno",
+    "Vesta",
+    "South Node"
+  ],
+  "Engine Version": "2.1"
+}

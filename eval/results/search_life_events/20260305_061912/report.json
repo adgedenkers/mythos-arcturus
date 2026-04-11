@@ -1,0 +1,108 @@
+{
+  "plan_id": "search_life_events",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_061912",
+  "total_passes": 6,
+  "total_ollama_calls": 6,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 8,
+    "failed": 0,
+    "total": 8
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton. Start with #!/usr/bin/env python3, docstring, imports (os, logging, psycopg2, psycopg2.extras.RealDictCursor, dotenv, engine.base). Write _get_conn() using EXACTLY this pattern:\n\ndef _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )\n\nThen SearchLifeEventsSkill class with all attributes. All methods have 'pass' as body. ASCII only in comments.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.64,
+      "final_code_lines": 64
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms() and _detect_filters(). For _extract_search_terms: lowercase, remove trigger phrases LONGEST FIRST: 'remember when', 'what happened', 'life events', 'life event', 'log entry', 'milestone', 'occurred', 'happened', 'events', 'event', 'logged', 'search for', 'search about', 'search', 'find', 'about'. After each removal do message = ' '.join(message.split()). Strip punctuation, return if len >= 2. For _detect_filters: check message for domain keywords ('personal', 'spiritual', 'technical', 'financial') and person names ('adge', 'rebecca', 'seraphe', 'fitz'). Map 'seraphe' to 'rebecca' since that is the database value. Return dict with domain and person (both can be None).",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 10.07,
+      "final_code_lines": 166
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _search_events(). Use _get_conn(). Build query dynamically: start with SELECT id, description, domain, person, mood, created_at FROM life_events WHERE 1=1. If search_terms is not empty: append AND description ILIKE %s and add f'%{search_terms}%' to params. If domain: append AND domain = %s. If person: append AND person = %s. Append ORDER BY created_at DESC LIMIT %s. Use try/finally to close cursor and connection. Return list of row dicts.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 10.77,
+      "final_code_lines": 174
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). _format_results: for each row, dict with id, description (truncated 200 chars with '...' if longer), domain, person, mood (or None), created_at as ISO string. _build_summary: if no results 'No life events found matching X.' If results: 'Found N life event(s) matching X:' then for top 3: 'description (domain, date)'. If N > 3 add 'and N-3 more.'",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 10.63,
+      "final_code_lines": 174
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Extract search terms. Detect filters from original message (request.message). If no terms AND no filters: query SELECT COUNT(*) as total FROM life_events, return SkillResponse with count and guidance. Otherwise: call _search_events(terms, domain=filters.get('domain'), person=filters.get('person')). Format and summarize. Return SkillResponse(skill_name=self.name, data={'matches': formatted, 'search_terms': terms, 'count': len(formatted), 'filters': filters}, summary=summary, confidence=0.95, sources=['mythos.life_events']). Wrap in try/except/finally. On error: return SkillResponse(skill_name=self.name, error=str(e)).",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 13.18,
+      "final_code_lines": 227
+    },
+    {
+      "pass": 6,
+      "instruction": "Review the complete file. Ensure: _get_conn uses POSTGRES_HOST not DB_HOST, all connections close in finally, summary never empty, no unicode in comments. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 13.47,
+      "final_code_lines": 224
+    }
+  ]
+}

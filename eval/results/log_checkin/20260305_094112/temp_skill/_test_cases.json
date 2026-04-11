@@ -1,0 +1,25 @@
+[
+  {
+    "message": "feeling great today",
+    "expect_ok": true,
+    "expect_data_has": [
+      "checkin_id",
+      "mood"
+    ],
+    "expect_summary_contains": [
+      "Check-in"
+    ]
+  },
+  {
+    "message": "im feeling tired and stressed",
+    "expect_ok": true,
+    "expect_data_has": [
+      "mood"
+    ]
+  },
+  {
+    "message": "checkin",
+    "expect_ok": true,
+    "note": "No mood specified - should ask"
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "message": "what happened yesterday",
+    "expect_ok": true,
+    "expect_data_has": [
+      "start_date",
+      "end_date",
+      "detected"
+    ],
+    "expect_summary_contains": [
+      "yesterday"
+    ]
+  },
+  {
+    "message": "show me last week",
+    "expect_ok": true,
+    "expect_data_has": [
+      "start_date"
+    ],
+    "expect_summary_contains": [
+      "last week"
+    ]
+  },
+  {
+    "message": "hello there",
+    "expect_ok": true,
+    "note": "No date reference"
+  }
+]

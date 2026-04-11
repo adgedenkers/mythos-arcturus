@@ -1,0 +1,51 @@
+TITLE 1: Title 38—Pensions, Bonuses, and Veterans' Relief--Volume 1
+CHAPTER I: CHAPTER I—DEPARTMENT OF VETERANS AFFAIRS
+PART 17: PART 17—MEDICAL
+SECTION: § 17.415 Full practice authority for advanced practice registered nurses.
+NODE: 38:1.0.1.1.19.0.207.158
+
+============================================================
+
+(a) Advanced practice registered nurse (APRN). For purposes of this section, an advanced practice registered nurse (APRN) is an individual who:
+
+(1) Has completed a nationally-accredited, graduate-level educational program that prepares them for one of the three APRN roles of Certified Nurse Practitioner (CNP), Clinical Nurse Specialist (CNS), or Certified Nurse-Midwife (CNM);
+
+(2) Has passed a national certification examination that measures knowledge in one of the APRN roles described in paragraph (a)(1) of this section;
+
+(3) Has obtained a license from a State licensing board in one of three recognized APRN roles described in paragraph (a)(1) of this section; and
+
+(4) Maintains certification and licensure as required by paragraphs (a)(2) and (3) of this section.
+
+(b) Full practice authority. For purposes of this section, full practice authority means the authority of an APRN to provide services described in paragraph (d) of this section without the clinical oversight of a physician, regardless of State or local law restrictions, when that APRN is working within the scope of their VA employment.
+
+(c) Granting of full practice authority. VA may grant full practice authority to an APRN subject to the following:
+
+(1) Verification that the APRN meets the requirements established in paragraph (a) of this section; and
+
+(2) Determination that the APRN has demonstrated the knowledge and skills necessary to provide the services described in paragraph (d) of this section without the clinical oversight of a physician, and is thus qualified to be privileged for such scope of practice.
+
+(d) Services provided by an APRN with full practice authority. (1) Subject to the limitations established in paragraph (d)(2) of this section, the full practice authority for each of the three APRN roles includes, but is not limited to, providing the following services:
+
+(i) A CNP has full practice authority to:
+
+(A) Take comprehensive histories, provide physical examinations and other health assessment and screening activities, diagnose, treat, and manage patients with acute and chronic illnesses and diseases;
+
+(B) Order laboratory and imaging studies and integrate the results into clinical decision making;
+
+(C) Prescribe medication and durable medical equipment;
+
+(D) Make appropriate referrals for patients and families, and request consultations;
+
+(E) Aid in health promotion, disease prevention, health education, and counseling as well as the diagnosis and management of acute and chronic diseases.
+
+(ii) A CNS has full practice authority to provide diagnosis and treatment of health or illness states, disease management, health promotion, and prevention of illness and risk behaviors among individuals, families, groups, and communities within their scope of practice.
+
+(iii) A CNM has full practice authority to provide a range of primary health care services to women, including gynecologic care, family planning services, preconception care (care that women veterans receive before becoming pregnant, including reducing the risk of birth defects and other problems such as the treatment of diabetes and high blood pressure), prenatal and postpartum care, childbirth, and care of a newborn, and treating the partner of their female patients for sexually transmitted disease and reproductive health, if the partner is also enrolled in the VA healthcare system or is not required to enroll.
+
+(2) The full practice authority of an APRN is subject to the limitations imposed by the Controlled Substances Act, 21 U.S.C. 801 et seq., and that APRN's State licensure on the authority to prescribe, or administer controlled substances, as well as any other limitations on the provision of VA care set forth in applicable Federal law and policy.
+
+(e) Preemption of State and local law. To achieve important Federal interests, including but not limited to the ability to provide the same comprehensive care to veterans in all States under 38 U.S.C. 7301, this section preempts conflicting State and local laws relating to the practice of APRNs when such APRNs are working within the scope of their VA employment. Any State or local law, or regulation pursuant to such law, is without any force or effect on, and State or local governments have no legal authority to enforce them in relation to, activities performed under this section or decisions made by VA under this section.
+
+[Citation: [81 FR 90206, Dec. 14, 2016]]
+
+[Part Authority: Authority:38 U.S.C. 501, and as noted in specific sections. Section 17.30 also issued under 38 U.S.C. 1701. Section 17.32 also issued under 38 U.S.C. 7331-7334. Section 17.35 is also issued under 38 U.S.C. 1724. Section 17.37 is also issued under 38 U.S.C. 101, 1701, 1705, 1710, 1720J, 1721, 1722. Section 17.38 is also issued under 38 U.S.C. 1701 and 1703. Section 17.43 also issued under 38 U.S.C. 109, 1784, 8111, and 8153. Section 17.44 also issued under E.O. 10122, 15 FR 2173, 3 CFR, 1949-1953 Comp., p. 313, E.O. 10400, 17 FR 8648, 3 CFR, 1949-1953 Comp., p. 900, and E.O. 11733, 38 FR 20431, 3 CFR, 1971-1975 Comp., p. 792. Section 17.46 is also issued under 38 U.S.C. 1710. Section 17.47 is also issued under 38 U.S.C. 1701, 1710, 1721, 1722, 1729, 3104(a)(9), 7333, Pub. L. 99-272; 42 U.S.C. 1396 et seq. Section 17.52 is also issued under 38 U.S.C. 1701, 1703, 1710, 1712, and 3104. Section 17.55 is also issued under 38 U.S.C. 513, 1703, and 1728. Section 17.56 is also issued under 38 U.S.C. 1703 and 1728. Sections 17.61 through 17.74 are also issued under 38 U.S.C. 1730. Section 17.86 also issued under 38 U.S.C. 1785. Section 17.101 is also issued under 38 U.S.C. 101, 1701, 1705, 1710, 1721, 1722, 1729. Section 17.102 also issued under 38 U.S.C. 109, 1711, 1729, 1784, 1784A, 1785, 8111, 8153. Section 17.105 is also issued under 38 U.S.C. 501, 1721, 1722A, 1724, and 1725A. Section 17.108 is also issued under 38 U.S.C. 501, 1703, 1710, 1725A, 1720J, and 1730A. Section 17.110 is also issued under 38 U.S.C. 501, 1703, 1710, 1720D, 1720J, 1722A, and 1730A. Section 17.111 is also issued under 38 U.S.C. 101(28), 501, 1701(7), 1703, 1710, 1710B, 1720B, 1720D, 1722A, and 1730A. Section 17.125 is also issued under 38 U.S.C. 7304. Sections 17.156 and 17.157 are also issued under 38 U.S.C. 3901 and 3902. Section 17.158 is also issued under 38 U.S.C. 3902 and 3903. Section 17.169 is also issued under 38 U.S.C. 1712C. Sections 17.243 through 17.248 are also issued under 38 U.S.C. 7302 note. Sections 17.270, and 17.272 through 17.277 are also issued under 38 U.S.C. 1781. Section 17.271 is also issued under 38 U.S.C. 1720G(a)(7)(A) and 1781. Section 17.278 is also issued under 38 U.S.C. 1781 and 42 U.S.C. 2651. Section 17.279 is also issued under 5 U.S.C. 552 and 552a; 38 U.S.C. 1781, 5701, and 7332. Sections 17.380, 17.390 and 17.412 are also issued under sec. 260, Pub. L. 114-223, 130 Stat. 857, and sec. 236, Public Law 115-141, 132 Stat. 348, and sec. 236, div. J, Pub. L 115-141, 132 Stat. 348. Section 17.395 is also issued under 38 U.S.C. 1788. Section 17.410 is also issued under 38 U.S.C. 1787. Section 17.415 is also issued under 38 U.S.C. 7301, 7304, 7402, and 7403. Section 17.417 also issued under 38 U.S.C. 1701 (note), 1709A, 1712A (note), 1722B, 1730C, 7301, 7306, 7330A, 7331, 7401-7403, 7405, 7406, 7408. Section 17.419 also issued under 38 U.S.C. 1701 (note), 7301, 7306, 7330A, 7401-7403, 7405, 7406, 7408). Section 17.450 is also issued under 38 U.S.C. 1703E. Sections 17.525 through 17.531 are also issued under 38 U.S.C. 7691 through 7697. Sections 17.545 through 17.553 are also issued under 38 U.S.C. 7698, 7699, 7699A, and 7699B. Sections 17.600 through 17.612 are also issued under 38 U.S.C. 7601-7619, 7633, 7634, 7636, and sec. 104(a), div. V, Public Law 117-328. Sections 17.613 through 17.618 are also issued under Pub. L. 115-182, sec. 304. Sections 17.640 and 17.647 are also issued under sec. 4, Pub. L. 114-2, 129 Stat. 30. Sections 17.641 through 17.646 are also issued under 38 U.S.C. 501(a) and sec. 4, Pub. L. 114-2, 129 Stat. 30. Section 17.655 also issued under 38 U.S.C. 501(a), 7304, 7405. Sections 17.1200 through 17.1230 are also issued under 38 U.S.C. 1720J. Section 17.3200 also issued under 38 U.S.C. 1162, 1701, 1707, 1710, 1714, 1717, 3901. Section 17.3210 also issued under 38 U.S.C. 1701, 1710. Section 17.3220 also issued under 38 U.S.C. 1701(6)(F), 1710. Section 17.3230 also issued under 38 U.S.C. 1701(6)(F), 1710, 1714(a). Section 17.3250 also issued under 38 U.S.C. 1701, 1710, 1725, 1728. Section 17.3500 is also issued under Pub. L. 102-139 sec. 101. Sections 17.4000 through 17.4040 also issued under 38 U.S.C. 1703, 1703B, and 1703C. Section 17.4100 et seq. is also issued under 38 U.S.C. 1703A. Section 17.4600 is also issued under 38 U.S.C. 1725A and 1730A.]

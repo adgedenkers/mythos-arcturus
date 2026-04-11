@@ -1,0 +1,17 @@
+[
+  {
+    "message": "good morning iris",
+    "expect_ok": true,
+    "expect_summary_contains": [
+      "Routine"
+    ]
+  },
+  {
+    "message": "daily briefing",
+    "expect_ok": true
+  },
+  {
+    "message": "whats today look like",
+    "expect_ok": true
+  }
+]

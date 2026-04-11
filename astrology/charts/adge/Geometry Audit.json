@@ -1,0 +1,64 @@
+{
+  "Grand Trine": {
+    "expected_count": 2,
+    "detected_count": 2,
+    "status": "OK",
+    "missing": [],
+    "extra": []
+  },
+  "T-Square": {
+    "expected_count": 0,
+    "detected_count": 1,
+    "status": "EXTRA",
+    "missing": [],
+    "extra": [
+      [
+        "IC",
+        "Jupiter",
+        "Pluto"
+      ]
+    ]
+  },
+  "Yod": {
+    "expected_count": 0,
+    "detected_count": 0,
+    "status": "OK",
+    "missing": [],
+    "extra": []
+  },
+  "Kite": {
+    "expected_count": 4,
+    "detected_count": 4,
+    "status": "OK",
+    "missing": [],
+    "extra": []
+  },
+  "Mystic Rectangle": {
+    "expected_count": 0,
+    "detected_count": 0,
+    "status": "OK",
+    "missing": [],
+    "extra": []
+  },
+  "Boomerang": {
+    "expected_count": 0,
+    "detected_count": 0,
+    "status": "OK",
+    "missing": [],
+    "extra": []
+  },
+  "Cradle": {
+    "expected_count": 0,
+    "detected_count": 0,
+    "status": "OK",
+    "missing": [],
+    "extra": []
+  },
+  "Star of David": {
+    "expected_count": 0,
+    "detected_count": 0,
+    "status": "OK",
+    "missing": [],
+    "extra": []
+  }
+}

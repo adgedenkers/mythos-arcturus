@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+# yt-subscribe — Subscribe to a YouTube channel and backfill all videos
+# Usage: yt-subscribe @handle [@handle2 ...]
+
+set -e
+
+if [ $# -eq 0 ]; then
+    echo "Usage: yt-subscribe @handle [@handle2 ...]"
+    echo "Example: yt-subscribe @ChaseHughes @elikiiah @TranscendentTarot"
+    exit 1
+fi
+
+cd /opt/mythos
+/opt/mythos/.venv/bin/python3 - "$@" << 'PYEOF'
+import subprocess, json, sys, time, redis, psycopg2
+
+r = redis.from_url('redis://localhost:6379/0', decode_responses=True)
+
+QUEUE_KEY = 'mythos:youtube:queue'
+META_PREFIX = 'mythos:youtube:queue:meta:'
+FAILED_KEY = 'mythos:youtube:failed'
+
+# Get existing DB videos
+conn = psycopg2.connect('dbname=mythos user=postgres host=/var/run/postgresql')
+cur = conn.cursor()
+cur.execute('SELECT video_id FROM youtube_videos')
+existing = {row[0] for row in cur.fetchall()}
+cur.close()
+conn.close()
+
+handles = sys.argv[1:]
+grand_total = 0
+
+for handle in handles:
+    handle = handle.strip()
+    if not handle.startswith('@'):
+        handle = '@' + handle
+
+    print(f'\n{"="*60}')
+    print(f'  {handle}')
+    print(f'{"="*60}')
+
+    # Step 1: Resolve channel
+    url = f'https://www.youtube.com/{handle}/videos'
+    result = subprocess.run(
+        ['/opt/mythos/.venv/bin/yt-dlp', '--flat-playlist', '--playlist-items', '0',
+         '--dump-single-json', '--no-warnings', url],
+        capture_output=True, text=True, timeout=30,
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        print(f'  ✗ Could not resolve {handle}')
+        print(f'    stderr: {result.stderr[:200]}')
+        continue
+
+    data = json.loads(result.stdout)
+    channel_id = data.get('channel_id')
+    channel_name = data.get('channel') or data.get('uploader') or handle
+    channel_handle = data.get('uploader_id') or handle
+
+    if not channel_id:
+        print(f'  ✗ No channel_id found for {handle}')
+        continue
+
+    print(f'  Channel: {channel_name}')
+    print(f'  ID: {channel_id}')
+
+    # Step 2: Subscribe (add to Redis channel list)
+    from workers.youtube_channel_monitor import _load_channel_list, _save_channel_list
+    from datetime import datetime, timezone
+
+    channels = _load_channel_list(r)
+    already = False
+    for ch in channels:
+        if ch.get('channel_id') == channel_id:
+            ch['active'] = True
+            ch['channel_name'] = channel_name
+            ch['channel_handle'] = channel_handle
+            already = True
+            break
+    if not already:
+        channels.append({
+            'channel_id': channel_id,
+            'channel_name': channel_name,
+            'channel_handle': channel_handle,
+            'name': channel_name,
+            'priority': 5,
+            'active': True,
+            'subscribed_at': datetime.now(tz=timezone.utc).isoformat(),
+        })
+    _save_channel_list(r, channels)
+    print(f'  ✓ Subscribed')
+
+    # Step 3: Get all video IDs
+    print(f'  Fetching full video list...')
+    result = subprocess.run(
+        ['/opt/mythos/.venv/bin/yt-dlp', '--flat-playlist',
+         '--print', '%(id)s\t%(title)s',
+         '--no-warnings', url],
+        capture_output=True, text=True, timeout=120,
+    )
+    if result.returncode != 0:
+        print(f'  ✗ Failed to list videos: {result.stderr[:200]}')
+        continue
+
+    skipped_db = 0
+    skipped_queue = 0
+    skipped_failed = 0
+    queued = 0
+
+    for line in result.stdout.strip().split('\n'):
+        if not line.strip():
+            continue
+        parts = line.split('\t', 1)
+        video_id = parts[0]
+        title = parts[1] if len(parts) > 1 else ''
+
+        if video_id in existing:
+            skipped_db += 1
+            continue
+        if r.zscore(QUEUE_KEY, video_id) is not None:
+            skipped_queue += 1
+            continue
+        raw = r.hget(FAILED_KEY, video_id)
+        if raw:
+            try:
+                info = json.loads(raw)
+                if info.get('permanent') or info.get('attempt_count', 0) >= 3:
+                    skipped_failed += 1
+                    continue
+            except:
+                pass
+
+        score = 8 * 1_000_000_000 + int(time.time())
+        meta = {
+            'channel_id': channel_id,
+            'channel_name': channel_name,
+            'title': title,
+            'description': '',
+            'published_at': '',
+            'queued_at': datetime.now(tz=timezone.utc).isoformat(),
+        }
+        pipe = r.pipeline()
+        pipe.zadd(QUEUE_KEY, {video_id: score})
+        pipe.hset(META_PREFIX + video_id, mapping=meta)
+        pipe.execute()
+        queued += 1
+
+    grand_total += queued
+    print(f'  ✓ {queued} queued | {skipped_db} in DB | {skipped_queue} in queue | {skipped_failed} perm-failed')
+
+queue_size = r.zcard(QUEUE_KEY)
+print(f'\n{"="*60}')
+print(f'  DONE — {grand_total} new videos queued')
+print(f'  Total queue: {queue_size}')
+print(f'  Est. time: ~{queue_size * 5 / 60:.0f} hours ({queue_size * 5 / 60 / 24:.1f} days)')
+print(f'{"="*60}')
+PYEOF

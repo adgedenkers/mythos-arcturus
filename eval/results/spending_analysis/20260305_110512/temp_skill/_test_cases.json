@@ -1,0 +1,17 @@
+[
+  {
+    "message": "show me spending analysis",
+    "expect_ok": true,
+    "expect_data_has": [
+      "categories"
+    ]
+  },
+  {
+    "message": "where is my money going",
+    "expect_ok": true
+  },
+  {
+    "message": "monthly spending breakdown",
+    "expect_ok": true
+  }
+]

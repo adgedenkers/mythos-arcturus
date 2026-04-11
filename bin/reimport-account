@@ -1,0 +1,4 @@
+#!/bin/bash
+# reimport-account — Full wipe + reimport of account transactions from CSV
+# Symlinked to /opt/mythos/bin/reimport-account
+exec /opt/mythos/.venv/bin/python3 /opt/mythos/finance/scripts/reimport_account.py "$@"

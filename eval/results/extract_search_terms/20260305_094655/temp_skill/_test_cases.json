@@ -1,0 +1,28 @@
+[
+  {
+    "message": "do you remember anything about the emerald flame",
+    "expect_ok": true,
+    "expect_data_has": [
+      "cleaned",
+      "keywords"
+    ],
+    "expect_summary_contains": [
+      "emerald flame"
+    ]
+  },
+  {
+    "message": "can you find what we discussed about tarot cards",
+    "expect_ok": true,
+    "expect_data_has": [
+      "cleaned"
+    ],
+    "expect_summary_contains": [
+      "tarot"
+    ]
+  },
+  {
+    "message": "the",
+    "expect_ok": true,
+    "note": "All filler - should return empty"
+  }
+]

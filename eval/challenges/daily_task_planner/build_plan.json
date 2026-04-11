@@ -1,0 +1,31 @@
+{
+  "plan_id": "daily_task_planner",
+  "version": "1.0",
+  "description": "Combine calendar events, routines, and upcoming bills into one prioritized daily task list",
+  "pattern": "composite_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "mandatory_patterns": {
+      "no_database": "Composite. No _get_conn. Uses importlib to call sub-skills.",
+      "import_pattern": "module = importlib.import_module(path); cls = getattr(module, name); response = await cls().run(request)",
+      "no_unicode": "ASCII only.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name, data, summary, confidence, sources, error.",
+      "async_required": "CRITICAL: execute() MUST be 'async def execute'. _run_skill() MUST be 'async def _run_skill'. All .run() calls MUST use 'await'. Every method that calls await must itself be async def."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: logging, importlib, engine.base (SkillBase, SkillRequest, SkillResponse). NO database imports. Class DailyTaskPlannerSkill with name='daily_task_planner', triggers=['task planner', 'plan my day', 'what should i do', 'daily plan', 'prioritize my day', 'to do list', 'todo list', 'whats on my plate']. Define SUB_SKILLS dict:\n\nSUB_SKILLS = {\n    'calendar': ('data.query_calendar', 'QueryCalendarSkill'),\n    'routines': ('data.query_routines', 'QueryRoutinesSkill'),\n    'bills': ('data.query_bills_due', 'QueryBillsDueSkill'),\n}\n\nMethods: async def execute, async def _run_skill, def _build_plan. All have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement 'async def _run_skill(self, module_path, class_name, request)'. Use importlib.import_module(module_path). cls = getattr(module, class_name). response = await cls().run(request). Return response. Wrap in try/except, on error return SkillResponse(skill_name=class_name, error=str(e)).", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement def _build_plan(self, results). Takes dict of {label: SkillResponse}. Build a prioritized task list. Priority order: 1) Calendar events with times (highest - time-sensitive), 2) Incomplete routines (medium - daily habits), 3) Bills due today or tomorrow (medium-high - financial), 4) Bills due this week (lower). For each section, extract items from the response.data if available. Build a numbered list: '1. [HIGH] Event: title at time\\n2. [MED] Routine: title\\n3. [MED] Bill: merchant $amount due day N'. Also count: total tasks, completed routines, upcoming events. Return summary string.", "test": "parse_check"},
+    {"pass": 4, "instruction": "Implement 'async def execute(self, request)'. For each skill in SUB_SKILLS: response = await self._run_skill(mod_path, cls_name, request). Collect in results dict. Call _build_plan(results). Merge data from ok responses. Return SkillResponse(skill_name=self.name, data={'tasks': merged_data, 'calendar': results.get('calendar', {}).data if results.get('calendar') and results['calendar'].ok else {}, 'routines': results.get('routines', {}).data if results.get('routines') and results['routines'].ok else {}, 'bills': results.get('bills', {}).data if results.get('bills') and results['bills'].ok else {}}, summary=plan_summary, confidence=0.9, sources=['daily_task_planner']). try/except, on error return SkillResponse with error.", "test": "import_check"},
+    {"pass": 5, "instruction": "Review. CRITICAL: execute is 'async def'. _run_skill is 'async def'. All .run() calls use 'await'. No database imports. Summary never empty. If no tasks: 'No tasks for today - enjoy your free time!' ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "plan my day", "expect_ok": true, "expect_summary_contains": ["Routine"]},
+    {"message": "what should i do today", "expect_ok": true},
+    {"message": "to do list", "expect_ok": true}
+  ]
+}

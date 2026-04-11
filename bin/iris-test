@@ -1,0 +1,139 @@
+#!/usr/bin/env python3
+"""
+iris-test — Iris resonance test tool
+"""
+import sys, os, json, time, argparse
+from datetime import datetime
+from pathlib import Path
+sys.path.insert(0, '/opt/mythos')
+import yaml, requests
+
+DEFAULT_CONFIG = "/opt/mythos/orchestrator/benchmark/resonance/iris_test_config.yaml"
+
+def load_config(p):
+    with open(p) as f: return yaml.safe_load(f)
+
+def get_api_key():
+    with open("/opt/mythos/.env") as f:
+        for line in f:
+            if line.startswith("API_KEY_TELEGRAM_BOT="):
+                return line.strip().split("=", 1)[1]
+
+def get_loaded_model():
+    try:
+        d = requests.get("http://localhost:11434/api/ps", timeout=5).json()
+        return ", ".join(m["name"] for m in d.get("models", [])) or "none"
+    except: return "unknown"
+
+def get_active_layers():
+    try:
+        sys.path.insert(0, "/opt/mythos/core")
+        from prompt_assembler import get_layer_status
+        return [k for k, v in get_layer_status().items() if v.get("enabled")]
+    except: return ["unknown"]
+
+def send_message(api_url, api_key, user_id, message, model_pref, timeout):
+    try:
+        resp = requests.post(f"{api_url}/message",
+            headers={"Content-Type": "application/json", "X-API-Key": api_key},
+            json={"user_id": user_id, "message": message, "mode": "chat", "model_preference": model_pref},
+            timeout=timeout)
+        if resp.status_code == 200:
+            return {"status": "ok", "response": resp.json().get("response", "")}
+        return {"status": "error", "response": f"HTTP {resp.status_code}"}
+    except requests.exceptions.Timeout:
+        return {"status": "timeout", "response": ""}
+    except Exception as e:
+        return {"status": "error", "response": str(e)}
+
+def run_test(config, set_name, model_override=None, save_path=None):
+    api_url = config.get("api_url", "http://localhost:8000")
+    user_id = config.get("user_id", "7811548479")
+    timeout = config.get("timeout", 180)
+    model_pref = model_override or config.get("model_preference", "auto")
+    sets = config.get("sets", {})
+    if set_name not in sets:
+        print(f"Unknown set: {set_name}\nAvailable: {', '.join(sets.keys())}")
+        sys.exit(1)
+    prompt_set = sets[set_name]
+    prompts = prompt_set.get("prompts", [])
+    desc = prompt_set.get("description", "")
+    api_key = get_api_key()
+    model = get_loaded_model()
+    layers = get_active_layers()
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"\n{'='*60}")
+    print(f"  IRIS TEST — {set_name}")
+    print(f"  {desc}")
+    print(f"  Model: {model}  |  Preference: {model_pref}")
+    print(f"  Layers: {', '.join(layers)}")
+    print(f"  Prompts: {len(prompts)}  |  Time: {now}")
+    print(f"{'='*60}\n")
+    results = []
+    for i, prompt in enumerate(prompts, 1):
+        print(f"━━━ [{i}/{len(prompts)}] {prompt} ━━━")
+        start = time.time()
+        result = send_message(api_url, api_key, user_id, prompt, model_pref, timeout)
+        elapsed = time.time() - start
+        response = result.get("response", "")
+        status = result.get("status", "error")
+        wc = len(response.split()) if response else 0
+        if status == "ok":
+            print(response)
+            print(f"  [{wc}w, {elapsed:.1f}s]")
+        else:
+            print(f"  {status.upper()}: {response[:100]}")
+        print()
+        results.append({"prompt": prompt, "response": response, "status": status,
+                        "word_count": wc, "elapsed_s": round(elapsed, 1)})
+    ok = sum(1 for r in results if r["status"] == "ok")
+    avg_w = sum(r["word_count"] for r in results) / len(results) if results else 0
+    avg_t = sum(r["elapsed_s"] for r in results) / len(results) if results else 0
+    print(f"{'='*60}")
+    print(f"  SUMMARY: {ok}/{len(results)} OK  |  Avg: {avg_w:.0f}w, {avg_t:.1f}s  |  Model: {model}")
+    print(f"{'='*60}\n")
+    if save_path:
+        output = {"set": set_name, "description": desc, "model": model,
+                  "model_preference": model_pref, "layers": layers, "timestamp": now,
+                  "results": results, "summary": {"ok": ok, "total": len(results),
+                  "avg_words": round(avg_w, 1), "avg_time": round(avg_t, 1)}}
+        Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(save_path, "w") as f: json.dump(output, f, indent=2)
+        print(f"Results saved: {save_path}")
+
+def main():
+    parser = argparse.ArgumentParser(description="Iris resonance test tool")
+    parser.add_argument("message", nargs="?", help="Single custom message")
+    parser.add_argument("--set", default="standard", help="Prompt set (default: standard)")
+    parser.add_argument("--config", default=DEFAULT_CONFIG, help="Config file")
+    parser.add_argument("--list", action="store_true", help="List prompt sets")
+    parser.add_argument("--model", default=None, help="Override model preference")
+    parser.add_argument("--save", nargs="?", const="auto", help="Save results")
+    args = parser.parse_args()
+    config = load_config(args.config)
+    if args.list:
+        print("\nAvailable prompt sets:\n")
+        for name, data in config.get("sets", {}).items():
+            print(f"  {name:<15s} {len(data.get('prompts',[])):>2d} prompts  {data.get('description','')}")
+        print(f"\nUsage: iris-test --set <name>")
+        return
+    if args.message:
+        api_key = get_api_key()
+        print(f"\nModel: {get_loaded_model()}\n")
+        print(f"━━━ {args.message} ━━━")
+        r = send_message(config.get("api_url", "http://localhost:8000"), api_key,
+            config.get("user_id", "7811548479"), args.message,
+            args.model or config.get("model_preference", "auto"), config.get("timeout", 180))
+        print(r["response"] if r["status"] == "ok" else f"ERROR: {r['response']}")
+        print()
+        return
+    save_path = None
+    if args.save:
+        if args.save == "auto":
+            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+            save_path = f"/opt/mythos/orchestrator/benchmark/resonance/runs/iris_test_{ts}_{args.set}.json"
+        else: save_path = args.save
+    run_test(config, args.set, model_override=args.model, save_path=save_path)
+
+if __name__ == "__main__":
+    main()

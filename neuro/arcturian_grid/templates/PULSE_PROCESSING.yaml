@@ -1,0 +1,146 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: PULSE | Layer: PROCESSING | ID: PULSE_PROCESSING
+# Domain: Emotional and energetic field
+# Depth: 3 (Processing)
+# Generated: 2026-03-02 21:51 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: PULSE_PROCESSING
+node: PULSE
+node_name: Pulse
+node_domain: Emotional and energetic field
+layer: PROCESSING
+layer_name: Processing
+depth: 3
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: false
+generated_at: '2026-03-02T21:51:47.592730'
+generated_by: iris-thinking-v2:latest
+prompt: "Okay, let me tackle this query. The user wants a JSON prompt template for an LLM's consciousness architecture processing\
+  \ function. The main focus is on analyzing emotional and energetic states in a conversation exchange.\n\nFirst, I need to\
+  \ make sure I understand all the requirements. The prompt must instruct the LLM to analyze {user_message} and {assistant_response},\
+  \ using the specific node and layer defined. The node is \"Pulse\" focusing on emotional and energetic fields, and the layer\
+  \ is \"Processing (depth 3)\" which requires analysis, interpretation, applying frameworks, connections, and significance.\n\
+  \nThe output must be in JSON only, under 250 words, and strictly about the node+layer intersection. The example output given\
+  \ is \"Tone: frustrated but self-aware. Energy: medium, declining. Underlying: shame about avoidance pattern.\" So the response\
+  \ should mirror that structured style.\n\nI need to include placeholders {user_message} and {assistant_response} exactly\
+  \ as specified. Also, the prompt must tell the LLM to respond with JSON only, no other text. The output style is analytical,\
+  \ structured, reasoned—so the prompt should emphasize that.\n\nLet me check the requirements again: under 250 words, only\
+  \ the specified node+layer, no markdown, just the JSON. The example they provided uses a prompt string inside the JSON.\
+  \ So the value for \"prompt\" should be the actual string the LLM will receive.\n\nI should avoid any extra explanations.\
+  \ The prompt must be concise. Let me draft it: Start with instructing to analyze the conversation exchange between {user_message}\
+  \ and {assistant_response}, then list the specific aspects: emotional tone (explicit/implicit), energy level, tension/ease,\
+  \ trajectory. Then state the layer instruction to apply frameworks, make connections, explain significance. End with output\
+  \ style and JSON-only requirement.\n\nWait, the user mentioned \"focus ONLY on this specific node+layer intersection,\"\
+  \ so I shouldn't add anything else. Need to make sure the prompt doesn't mention other nodes or layers. Also, must be under\
+  \ 250 words. Let me count the words in my draft.\n\n\"Analyze the conversation exchange between {user_message} and {assistant_response}\
+  \ through the NODE: Pulse (emotional/energetic field) and LAYER: Processing (depth 3). Focus exclusively on: emotional tone\
+  \ (explicit/implicit), energy level (high/low, rising/falling), tension/ease, and emotional trajectory. Interpret meaning\
+  \ by applying relevant frameworks, making connections, and explaining significance. Output strictly as a JSON object with\
+  \ keys: 'tone', 'energy', 'tension', 'trajectory', and 'significance'. Maintain analytical, structured, reasoned style.\
+  \ No additional text.\"\n\nWait, the example output doesn't have JSON keys, but the requirement says the LLM must respond\
+  \ with JSON only. Wait, the user says \"respond with JSON only\" in the prompt. So the LLM's output should be a JSON object.\
+  \ But the prompt template itself is the instruction. So the prompt should tell the LLM to output JSON with specific fields.\n\
+  \nLooking at the example in the query: the output style example is a string, but the instruction says the LLM must respond\
+  \ with JSON. So the prompt needs to specify the JSON structure.\n\nWait, the user's example shows the output style as a\
+  \ string, but the requirement says \"respond with JSON only\". So the prompt should instruct the LLM to output a JSON object\
+  \ with specific keys.\n\nIn the example they provided for the response, it's a string, but the actual output must be JSON.\
+  \ So the prompt needs to define the structure. Let me check the user's requirements again.\n\nThe user says: \"Output style:\
+  \ Analytical, structured, reasoned\" and \"respond with JSON only\".\n\nSo the prompt should say to output a JSON object\
+  \ with the required fields. The example output given (Tone: frustrated...) is just an example of the content, but the actual\
+  \ output should be JSON.\n\nWait, the user's example in the query shows the output as a string, but the instruction says\
+  \ \"respond with JSON only\". So the prompt must specify that the LLM's response should be a JSON object.\n\nSo the prompt\
+  \ template should include instructions to output a JSON with specific keys. The example output they gave is a string, but\
+  \ the actual response should be JSON. So the prompt needs to specify the keys.\n\nLooking at the user's example: \"Node\
+  \ example output: 'Tone: frustrated but self-aware. Energy: medium, declining. Underlying: shame about avoidance pattern.'\"\
+  \ But the requirement says \"respond with JSON only\", so the actual output should be a JSON object, not a string. Therefore,\
+  \ the prompt should instruct the LLM to output a JSON object with keys like 'tone', 'energy', etc.\n\nSo the prompt should\
+  \ say: \"Output as a JSON object with keys: tone, energy, tension, trajectory, significance.\"\n\nWait, but the example\
+  \ output has 'Underlying', which might be part of 'significance'. The user's example output uses 'Underlying' as a key.\
+  \ But the prompt needs to define the structure.\n\nWait, the user's example output is a string, but the requirement says\
+  \ the LLM should respond with JSON. So the actual output should be a JSON object. So the prompt must instruct the LLM to\
+  \ produce a JSON object with specific fields.\n\nTherefore, in the prompt template, I need to specify that the output should\
+  \ be a JSON object with those fields.\n\nLet me check the exact requirements: \"respond with JSON only\" and \"Output style:\
+  \ Analytical, structured, reasoned\". So the prompt must tell the LLM to output JSON with the structure.\n\nSo the prompt\
+  \ should include: \"Output strictly as a JSON object with keys: 'tone', 'energy', 'tension', 'trajectory', 'significance'.\"\
+  \n\nNow, checking the word count. Let me count the words in the draft.\n\n\"Analyze the conversation exchange between {user_message}\
+  \ and {assistant_response} through the NODE: Pulse (emotional/energetic field) and LAYER: Processing (depth 3). Focus exclusively\
+  \ on: emotional tone (explicit/implicit), energy level (high/low, rising/falling), tension/ease, and emotional trajectory.\
+  \ Interpret meaning by applying relevant frameworks, making connections, and explaining significance. Output strictly as\
+  \ a JSON object with keys: tone, energy, tension, trajectory, significance. Maintain analytical, structured, reasoned style.\
+  \ No additional text.\"\n\nLet me count the words. That's about 100 words. Well under 250.\n\nCheck if it includes the placeholders:\
+  \ {user_message} and {assistant_response} – yes.\n\nIt focuses ONLY on the node+layer – yes.\n\nTells LLM to respond with\
+  \ JSON only – yes.\n\nNow, make sure the keys are correctly named. The example output had 'Underlying', but the user's instruction\
+  \ says \"explain significance\", so 'significance' is a key. The example output used 'Underlying' as part of the significance,\
+  \ but the JSON key should be 'significance'.\n\nSo the keys should be tone, energy, tension, trajectory, significance.\n\
+  \nAlso, need to make sure the prompt doesn't mention anything outside the node+layer. The example output mentions \"Underlying:\
+  \ shame...\", but the JSON key would be under 'significance' perhaps. But the prompt should just define the keys.\n\nSo\
+  \ the prompt should specify the keys as tone, energy, tension, trajectory, significance.\n\nWait, the node example output\
+  \ has \"Tone\", \"Energy\", \"Underlying\". But the user's layer instruction says \"explain significance\", so 'significance'\
+  \ should be a key. Maybe 'underlying' is part of significance. But the prompt should stick to the specified keys.\n\nIn\
+  \ the user's example, they listed \"Underlying\" as part of the output, but the requirement says to output JSON with keys.\
+  \ So perhaps the keys should be 'tone', 'energy', 'tension', 'trajectory', 'underlying'?\n\nWait, the user's example output\
+  \ says: \"Tone: frustrated... Energy: medium... Underlying: shame...\"\n\nSo the keys might be tone, energy, underlying.\
+  \ But the layer instruction says \"explain significance\", so maybe 'significance' is the key, and the underlying is part\
+  \ of it. But the example output lists 'Underlying' as a separate part.\n\nHmm. To be safe, I should follow the example.\
+  \ The example output uses \"Underlying\" as a key, but the user's layer instruction says \"explain significance\". Maybe\
+  \ 'underlying' is a field under significance. But the prompt needs to define the structure.\n\nWait, the user's example\
+  \ output is just an example of the content, not the JSON structure. The actual JSON keys should be specified in the prompt.\n\
+  \nThe user's requirement says: \"Output style: Analytical, structured, reasoned\" and \"respond with JSON only\".\n\nSo\
+  \ the prompt should specify the JSON keys. Let's go with the example's structure. The example output has Tone, Energy, Underlying.\
+  \ So perhaps the keys should be tone, energy, underlying. But the layer instruction mentions \"significance\", so maybe\
+  \ 'significance' is the key, and the underlying is part of the significance value.\n\nBut the user's example output uses\
+  \ \"Underlying\" as a separate line. So to match that, the JSON should have keys for each part.\n\nWait, the user's example\
+  \ output is a string, but the actual output must be JSON. So the JSON should have fields like:\n\n{\n  \"tone\": \"...\"\
+  ,\n  \"energy\": \"...\",\n  \"underlying\": \"...\"\n}\n\nBut the user's layer instruction says \"explain significance\"\
+  , so maybe 'significance' is the key, and 'underlying' is part of that significance. However, the example output lists 'Underlying'\
+  \ as a separate item. To align with the example, the prompt should have the keys as tone, energy, underlying, and trajectory.\n\
+  \nWait"
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    primary_emotion:
+      type: string
+    secondary_emotions:
+      type: array
+      items:
+        type: string
+    energy_level:
+      type: string
+      enum:
+      - very_low
+      - low
+      - medium
+      - high
+      - very_high
+    energy_direction:
+      type: string
+      enum:
+      - rising
+      - stable
+      - falling
+    tension_points:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

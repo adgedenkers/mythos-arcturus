@@ -1,0 +1,16 @@
+{
+  "run_id": "20260311_120717_resonance",
+  "phase": 1,
+  "started_at": "2026-03-11T12:07:17.449126",
+  "models": [
+    "qwen3:30b-a3b"
+  ],
+  "configs": [
+    "full_iris"
+  ],
+  "prompt_count": 16,
+  "total_calls": 16,
+  "prompt_tokens": {
+    "full_iris": 1829
+  }
+}

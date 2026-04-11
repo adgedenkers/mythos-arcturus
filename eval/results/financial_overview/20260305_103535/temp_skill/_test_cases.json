@@ -1,0 +1,14 @@
+[
+  {
+    "message": "give me a financial overview",
+    "expect_ok": true
+  },
+  {
+    "message": "how are my finances",
+    "expect_ok": true
+  },
+  {
+    "message": "finance report",
+    "expect_ok": true
+  }
+]

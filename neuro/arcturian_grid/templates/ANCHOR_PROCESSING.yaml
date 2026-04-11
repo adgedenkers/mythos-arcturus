@@ -1,0 +1,70 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ANCHOR | Layer: PROCESSING | ID: ANCHOR_PROCESSING
+# Domain: Physical and structural reality
+# Depth: 3 (Processing)
+# Generated: 2026-03-02 21:50 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ANCHOR_PROCESSING
+node: ANCHOR
+node_name: Anchor
+node_domain: Physical and structural reality
+layer: PROCESSING
+layer_name: Processing
+depth: 3
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: false
+generated_at: '2026-03-02T21:50:18.056753'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} exclusively through the Anchor
+  node (physical/structural reality) and Processing layer (depth 3). Extract all physical/logistical details: time, place,
+  location, physical objects, logistics, scheduling, body state, health, environment, infrastructure, or hardware. Then interpret
+  meaning by applying relevant frameworks, making connections, and explaining significance. Output ONLY a JSON object with
+  two keys: ''physical_details'' (structured list of extracted facts) and ''interpretation'' (analytical explanation of meaning/significance
+  using frameworks). Maintain analytical, structured, reasoned style. Do not include any other fields or commentary.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    locations:
+      type: array
+      items:
+        type: string
+    times:
+      type: array
+      items:
+        type: string
+    people:
+      type: array
+      items:
+        type: string
+    objects:
+      type: array
+      items:
+        type: string
+    actions:
+      type: array
+      items:
+        type: string
+    environment:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

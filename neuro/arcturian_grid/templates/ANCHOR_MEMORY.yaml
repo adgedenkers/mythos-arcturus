@@ -1,0 +1,70 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ANCHOR | Layer: MEMORY | ID: ANCHOR_MEMORY
+# Domain: Physical and structural reality
+# Depth: 4 (Memory)
+# Generated: 2026-03-02 21:50 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ANCHOR_MEMORY
+node: ANCHOR
+node_name: Anchor
+node_domain: Physical and structural reality
+layer: MEMORY
+layer_name: Memory
+depth: 4
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: false
+generated_at: '2026-03-02T21:50:20.839765'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze {user_message} and {assistant_response} through the Anchor NODE (physical/logistical reality) and Memory
+  LAYER (depth 4). For Anchor: extract time, place, objects, logistics, body state, or infrastructure from the exchange. For
+  Memory: identify past conversations/patterns in memory graph that reference similar physical/logistical contexts. Output
+  ONLY JSON with ''anchor'' (physical details) and ''memory'' (associative past references) keys. Anchor output: concise physical/logistical
+  facts. Memory output: referential connections to prior exchanges (e.g., ''Similar to 2023-10-05 meeting logistics''). No
+  explanations, no new details.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    locations:
+      type: array
+      items:
+        type: string
+    times:
+      type: array
+      items:
+        type: string
+    people:
+      type: array
+      items:
+        type: string
+    objects:
+      type: array
+      items:
+        type: string
+    actions:
+      type: array
+      items:
+        type: string
+    environment:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

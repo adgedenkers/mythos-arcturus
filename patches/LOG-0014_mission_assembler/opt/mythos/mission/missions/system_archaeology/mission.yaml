@@ -1,0 +1,191 @@
+# System Archaeology v2 — Modular Mission
+#
+# Prompts live in prompts/*.md — edit them independently.
+# Assemble and run:
+#   mythos-mission-assemble /opt/mythos/mission/missions/system_archaeology --run
+#
+# Or assemble, review, then run:
+#   mythos-mission-assemble /opt/mythos/mission/missions/system_archaeology -o /tmp/arch.yaml
+#   mythos-mission dry-run /tmp/arch.yaml
+#   mythos-mission run /tmp/arch.yaml
+
+mission: system-archaeology-v2
+version: 2
+description: >
+  Deep multi-phase investigation of the Mythos system.
+  Cross-references graph, database, and live system state to find
+  dead code, architectural stress, and buried patterns.
+
+model: qwen2.5:32b
+temperature: 0.15
+
+context:
+  graph:
+    # --- Largest files with function counts ---
+    - cypher: >
+        MATCH (f:IntegrityFile)-[:CONTAINS]->(fn:IntegrityFunction)
+        WHERE f.extension = '.py'
+        WITH f.path as path, f.size_bytes as size, count(fn) as functions
+        RETURN path, size, functions
+        ORDER BY functions DESC LIMIT 25
+      alias: files_by_function_count
+
+    # --- Python files nothing imports (potential dead code) ---
+    - cypher: >
+        MATCH (f:IntegrityFile)
+        WHERE f.extension = '.py'
+        AND NOT (f)<-[:IMPORTS]-(:IntegrityFile)
+        AND NOT f.path CONTAINS '/archive/'
+        AND NOT f.path CONTAINS '/backups/'
+        AND NOT f.path CONTAINS '/eval/'
+        AND NOT f.path CONTAINS '/__pycache__/'
+        AND NOT f.path CONTAINS '/.venv/'
+        AND NOT f.path CONTAINS '/node_modules/'
+        AND NOT f.filename = '__init__.py'
+        RETURN f.path as path, f.size_bytes as size, f.directory as dir
+        ORDER BY f.size_bytes DESC LIMIT 50
+      alias: never_imported_py
+
+    # --- Import bottlenecks (most depended-on files) ---
+    - cypher: >
+        MATCH (consumer:IntegrityFile)-[:IMPORTS]->(f:IntegrityFile)
+        WITH f.path as path, count(consumer) as imported_by,
+             collect(consumer.path) as consumers
+        WHERE imported_by > 3
+        RETURN path, imported_by, consumers
+        ORDER BY imported_by DESC LIMIT 20
+      alias: import_bottlenecks
+
+    # --- High-dependency files ---
+    - cypher: >
+        MATCH (f:IntegrityFile)-[:IMPORTS]->(dep:IntegrityFile)
+        WITH f.path as path, count(dep) as deps
+        WHERE deps > 6
+        RETURN path, deps
+        ORDER BY deps DESC LIMIT 20
+      alias: high_dependency_files
+
+    # --- Widest tables (most columns) ---
+    - cypher: >
+        MATCH (t:IntegrityTable)-[:HAS_COLUMN]->(c:IntegrityColumn)
+        WITH t.name as table_name, count(c) as col_count
+        RETURN table_name, col_count
+        ORDER BY col_count DESC
+      alias: table_column_counts
+
+    # --- All services in graph ---
+    - cypher: >
+        MATCH (s:IntegrityService)
+        RETURN s.name as service ORDER BY s.name
+      alias: graph_services
+
+    # --- Overall stats ---
+    - cypher: >
+        MATCH (f:IntegrityFile) WITH count(f) as files
+        MATCH (fn:IntegrityFunction) WITH files, count(fn) as functions
+        MATCH (t:IntegrityTable) WITH files, functions, count(t) as tables
+        MATCH (s:IntegrityService) WITH files, functions, tables, count(s) as services
+        MATCH (d:IntegrityDirectory) WITH files, functions, tables, services, count(d) as dirs
+        RETURN files, functions, tables, services, dirs
+      alias: system_stats
+
+  postgres:
+    # --- Row counts for all tables ---
+    - query: >
+        SELECT relname as table_name, n_live_tup as rows
+        FROM pg_stat_user_tables
+        WHERE schemaname = 'public'
+        ORDER BY n_live_tup DESC
+      alias: table_row_counts
+
+    # --- Empty tables ---
+    - query: >
+        SELECT relname as table_name
+        FROM pg_stat_user_tables
+        WHERE schemaname = 'public' AND n_live_tup = 0
+        ORDER BY relname
+      alias: empty_tables
+
+    # --- Disk size top 15 ---
+    - query: >
+        SELECT relname as table_name,
+               pg_size_pretty(pg_total_relation_size(relid)) as size
+        FROM pg_stat_user_tables
+        WHERE schemaname = 'public'
+        ORDER BY pg_total_relation_size(relid) DESC LIMIT 15
+      alias: table_disk_sizes
+
+  shell:
+    # --- Running services ---
+    - command: "systemctl list-units --type=service --state=running --no-legend | grep mythos | awk '{print $1}'"
+      alias: running_services
+
+    # --- Directory sizes ---
+    - command: "du -sh /opt/mythos/*/ 2>/dev/null | sort -rh | head -25"
+      alias: dir_sizes
+
+    # --- Line counts for key files ---
+    - command: >
+        wc -l
+        /opt/mythos/assistants/chat_assistant.py
+        /opt/mythos/api/main.py
+        /opt/mythos/telegram_bot/mythos_bot.py
+        /opt/mythos/core/life_context.py
+        /opt/mythos/core/prompt_assembler.py
+        /opt/mythos/core/action_executor.py
+        /opt/mythos/finance/importer.py
+        2>/dev/null | sort -rn
+      alias: key_file_lines
+
+    # --- Stream counters ---
+    - command: "cat /opt/mythos/docs/STREAMS.json | python3 -c \"import json,sys; d=json.load(sys.stdin); [print(f'{k}: next_patch={v[\\\"next_patch\\\"]}') for k,v in d['streams'].items()]\""
+      alias: streams
+
+    # --- Files changed since arch doc ---
+    - command: "find /opt/mythos -name '*.py' -newer /opt/mythos/docs/ARCHITECTURE.md -not -path '*/__pycache__/*' -not -path '*/archive/*' -not -path '*/.venv/*' -not -path '*/node_modules/*' 2>/dev/null | wc -l"
+      alias: files_newer_than_docs
+
+# =====================================================================
+# PHASES — each prompt lives in prompts/<name>.md
+# Edit prompts independently. Re-assemble and re-run.
+# =====================================================================
+
+phases:
+  - name: dead_code
+    description: Find dead code, orphaned tables, ghost services
+    prompt_file: dead_code.md
+    output_format: json
+    output_alias: dead_code
+    output_path: /tmp/mythos-mission/arch_dead_code.json
+    max_retries: 1
+
+  - name: stress
+    description: Find god files, bottlenecks, coupling hotspots, wide tables
+    prompt_file: stress.md
+    output_format: json
+    output_alias: stress
+    output_path: /tmp/mythos-mission/arch_stress.json
+    max_retries: 1
+
+  - name: synthesis
+    description: Combine analyses into final report with recommendations
+    prompt_file: synthesis.md
+    output_format: json
+    output_alias: report
+    output_path: /tmp/mythos-mission/archaeology_report.json
+    max_retries: 1
+
+success:
+  description: "System archaeology v2 complete"
+  outputs:
+    - /tmp/mythos-mission/archaeology_report.json
+    - /tmp/mythos-mission/arch_dead_code.json
+    - /tmp/mythos-mission/arch_stress.json
+  on_success:
+    - command: "cp /tmp/mythos-mission/archaeology_report.json /opt/mythos/mission/logs/archaeology_$(date +%Y%m%d_%H%M%S).json"
+    - command: "echo '[system-archaeology-v2] completed at $(date)' >> /opt/mythos/mission/logs/completed.log"
+
+failure:
+  on_failure:
+    - command: "echo '[system-archaeology-v2] FAILED at $(date)' >> /opt/mythos/mission/logs/failed.log"
+  diagnostic: true

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec "/opt/mythos/.venv/bin/python3" "/opt/mythos/bin/rode_transfer.py" "$@"

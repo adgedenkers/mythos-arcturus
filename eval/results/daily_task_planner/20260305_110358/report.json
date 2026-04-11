@@ -1,0 +1,130 @@
+{
+  "plan_id": "daily_task_planner",
+  "model": "llama3.3:70b",
+  "timestamp": "20260305_110358",
+  "total_passes": 5,
+  "total_ollama_calls": 17,
+  "final_parse": false,
+  "final_import": false,
+  "final_behavioral": {},
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: logging, importlib, engine.base (SkillBase, SkillRequest, SkillResponse). NO database imports. Class DailyTaskPlannerSkill with name='daily_task_planner', triggers=['task planner', 'plan my day', 'what should i do', 'daily plan', 'prioritize my day', 'to do list', 'todo list', 'whats on my plate']. Define SUB_SKILLS dict:\n\nSUB_SKILLS = {\n    'calendar': ('data.query_calendar', 'QueryCalendarSkill'),\n    'routines': ('data.query_routines', 'QueryRoutinesSkill'),\n    'bills': ('data.query_bills_due', 'QueryBillsDueSkill'),\n}\n\nMethods: async def execute, async def _run_skill, def _build_plan. All have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 2,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 3,
+          "error": "ERROR: No response field"
+        }
+      ],
+      "elapsed_seconds": 2.8,
+      "final_code_lines": 0
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement 'async def _run_skill(self, module_path, class_name, request)'. Use importlib.import_module(module_path). cls = getattr(module, class_name). response = await cls().run(request). Return response. Wrap in try/except, on error return SkillResponse(skill_name=class_name, error=str(e)).",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 2,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 3,
+          "error": "ERROR: No response field"
+        }
+      ],
+      "elapsed_seconds": 2.59,
+      "final_code_lines": 0
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement def _build_plan(self, results). Takes dict of {label: SkillResponse}. Build a prioritized task list. Priority order: 1) Calendar events with times (highest - time-sensitive), 2) Incomplete routines (medium - daily habits), 3) Bills due today or tomorrow (medium-high - financial), 4) Bills due this week (lower). For each section, extract items from the response.data if available. Build a numbered list: '1. [HIGH] Event: title at time\\n2. [MED] Routine: title\\n3. [MED] Bill: merchant $amount due day N'. Also count: total tasks, completed routines, upcoming events. Return summary string.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 2,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 3,
+          "error": "ERROR: No response field"
+        }
+      ],
+      "elapsed_seconds": 2.56,
+      "final_code_lines": 0
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement 'async def execute(self, request)'. For each skill in SUB_SKILLS: response = await self._run_skill(mod_path, cls_name, request). Collect in results dict. Call _build_plan(results). Merge data from ok responses. Return SkillResponse(skill_name=self.name, data={'tasks': merged_data, 'calendar': results.get('calendar', {}).data if results.get('calendar') and results['calendar'].ok else {}, 'routines': results.get('routines', {}).data if results.get('routines') and results['routines'].ok else {}, 'bills': results.get('bills', {}).data if results.get('bills') and results['bills'].ok else {}}, summary=plan_summary, confidence=0.9, sources=['daily_task_planner']). try/except, on error return SkillResponse with error.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 2,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 3,
+          "error": "ERROR: No response field"
+        }
+      ],
+      "elapsed_seconds": 2.65,
+      "final_code_lines": 0
+    },
+    {
+      "pass": 5,
+      "instruction": "Review. CRITICAL: execute is 'async def'. _run_skill is 'async def'. All .run() calls use 'await'. No database imports. Summary never empty. If no tasks: 'No tasks for today - enjoy your free time!' ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 2,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 3,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 4,
+          "error": "ERROR: No response field"
+        },
+        {
+          "attempt": 5,
+          "error": "ERROR: No response field"
+        }
+      ],
+      "elapsed_seconds": 4.35,
+      "final_code_lines": 0
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "plan_id": "query_bills_due",
+  "version": "1.0",
+  "description": "Query upcoming bills due in the next N days with payment status",
+  "pattern": "data_query_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "table_schema": "Table: recurring_bills\nColumns:\n  - id (integer, PK)\n  - account_id (integer, FK to accounts)\n  - merchant_name (varchar(255), NOT NULL)\n  - expected_amount (numeric(12,2))\n  - frequency (varchar(20), default 'monthly')\n  - expected_day (integer) -- day of month the bill is due\n  - category_primary (varchar(100))\n  - is_active (boolean, default true)\n  - merchant_pattern (text)\n\nTable: bill_overrides\n  - bill_id (FK to recurring_bills.id)\n  - month (varchar) -- format: 'YYYY-MM'\n  - is_paid (boolean)\n  UNIQUE constraint on (bill_id, month)\n\nLogic: a bill is unpaid for current month if there is NO override row with is_paid=true for that bill+month.",
+    "scaffold": "class QueryBillsDueSkill(SkillBase):\n    name = 'query_bills_due'\n    version = '1.0'\n    category = 'data'\n    description = 'Show upcoming bills due in the next N days'\n    triggers = ['bill', 'bills', 'due', 'bills due', 'upcoming bills', 'what do I owe', 'payments coming', 'when is the next bill']\n    cache_ttl = 300\n\n    async def execute(self, request) -> SkillResponse:\n        # 1. Determine lookahead days (default 7, detect from message)\n        # 2. Query bills due between today's day-of-month and today+N\n        # 3. Check overrides to see which are already paid\n        # 4. Format and summarize\n        pass\n\n    def _detect_days(self, message) -> int:\n        # Look for numbers in message, default to 7\n        pass\n\n    def _query_bills(self, days_ahead=7) -> list:\n        # Get today's day of month, query bills with expected_day between today and today+days\n        # LEFT JOIN bill_overrides for current month to check payment status\n        pass\n\n    def _format_results(self, rows) -> list:\n        pass\n\n    def _build_summary(self, results, days) -> str:\n        # 'N bills due in the next X days, totaling $Y: merchant1 $amt (day N), ...'\n        pass",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "connection_cleanup": "Always try/except/finally. Close cursor and connection in finally.",
+      "no_unicode": "ASCII only in comments."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton: #!/usr/bin/env python3, docstring, imports (os, logging, re, datetime, psycopg2, RealDictCursor, dotenv, engine.base). from datetime import date, timedelta. Write _get_conn() EXACTLY as in mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _detect_days(). Use re.search(r'(\\d+)\\s*days?', message) to find a number. If found, return that int (capped at 31). Default to 7 if no number found. Also check for keywords: 'week' = 7, 'month' = 30, 'today' = 1, 'tomorrow' = 2.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement _query_bills(). Use _get_conn(). Get today = date.today(). Get current month string as today.strftime('%Y-%m'). Get today's day of month (dom). Calculate end_dom = dom + days_ahead. Query:\n\nSELECT rb.id, rb.merchant_name, rb.expected_amount, rb.expected_day, rb.category_primary,\n       COALESCE(bo.is_paid, false) as is_paid\nFROM recurring_bills rb\nLEFT JOIN bill_overrides bo ON bo.bill_id = rb.id AND bo.month = %s\nWHERE rb.is_active = true\n  AND rb.expected_day IS NOT NULL\n  AND rb.expected_day >= %s AND rb.expected_day <= %s\n  AND COALESCE(bo.is_paid, false) = false\nORDER BY rb.expected_day\n\nParams: (month_str, dom, end_dom). Handle month wraparound: if end_dom > 31, also include days 1 through (end_dom - 31). try/finally close.", "test": "parse_check"},
+    {"pass": 4, "instruction": "Implement _format_results() and _build_summary(). Format: dict with id, merchant_name, expected_amount (float), expected_day, category, is_paid. Summary: if no results 'No unpaid bills due in the next N days.' If results: 'N bill(s) due in the next N days, totaling $TOTAL:' then each 'merchant $amount (due day N)'. Calculate total from expected_amounts.", "test": "parse_check"},
+    {"pass": 5, "instruction": "Implement execute(). Detect days from message. Query bills. Format and summarize. Return SkillResponse(skill_name=self.name, data={'bills': formatted, 'days_ahead': days, 'count': len, 'total_due': sum of amounts}, summary=summary, confidence=0.95, sources=['mythos.recurring_bills', 'mythos.bill_overrides']). try/except/finally.", "test": "import_check"},
+    {"pass": 6, "instruction": "Review. _get_conn uses POSTGRES_HOST. Connections close. Summary never empty. Amounts as $X.XX. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "what bills are due this week", "expect_ok": true, "expect_data_has": ["bills"]},
+    {"message": "upcoming bills next 14 days", "expect_ok": true, "expect_data_has": ["bills"]},
+    {"message": "bills due", "expect_ok": true, "expect_data_has": ["bills"]}
+  ]
+}

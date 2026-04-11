@@ -1,0 +1,13 @@
+[
+  {
+    "message": "rank by relevance",
+    "expect_ok": true,
+    "expect_data_has": [
+      "ranked"
+    ]
+  },
+  {
+    "message": "most relevant results",
+    "expect_ok": true
+  }
+]

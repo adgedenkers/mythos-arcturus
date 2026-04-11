@@ -1,0 +1,140 @@
+{
+  "plan_id": "search_voice_memos",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260304_184607",
+  "total_passes": 6,
+  "total_ollama_calls": 10,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": false,
+    "errors": [
+      "Setup error: name 'true' is not defined"
+    ],
+    "passed": 0,
+    "failed": 1,
+    "total": 1
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton: shebang, docstring, all imports (os, logging, psycopg2, psycopg2.extras.RealDictCursor, dotenv, engine.base), the _get_conn() function, and the SearchVoiceMemoSkill class with all attributes (name, version, category, description, triggers, cache_ttl) set. All methods should exist with 'pass' as body. Use the scaffold from context as your guide.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 5.88,
+      "final_code_lines": 71
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms(). It should lowercase the message, remove these trigger phrases: 'voice memo', 'voice memos', 'recording', 'what did i say', 'what did we say', 'we talked about', 'i said', 'we discussed', 'remember when i said', 'transcript', 'memo search', 'search', 'find'. Strip whitespace and punctuation. Return the cleaned string if length >= 2, else empty string.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.34,
+      "final_code_lines": 95
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _search_transcripts(). Use _get_conn(), create cursor. Build query: SELECT id, filename, duration_seconds, LEFT(transcript_full, 300) as transcript_preview, created_at, ts_rank(to_tsvector('english', COALESCE(transcript_full, '')), plainto_tsquery('english', %s)) as rank FROM voice_memos WHERE status = 'completed' AND to_tsvector('english', COALESCE(transcript_full, '')) @@ plainto_tsquery('english', %s) ORDER BY rank DESC, created_at DESC LIMIT %s. Use try/finally to close cursor and connection. Return list of row dicts.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 5.53,
+      "final_code_lines": 127
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). _format_results: for each row, build a dict with id, filename, duration as 'Xm Ys' format, transcript_preview truncated to 200 chars with '...' if longer, created_at as ISO string, rank. _build_summary: if no results return 'No voice memos found matching X'. If results: 'Found N voice memo(s) matching X: ' then list each as 'filename (duration, date)'. Add transcript preview from top result.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 7.6,
+      "final_code_lines": 180
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Call _extract_search_terms(request.message). If no terms: query SELECT COUNT(*) FROM voice_memos WHERE status = 'completed', return SkillResponse with count and guidance message. If terms: call _search_transcripts(), _format_results(), _build_summary(). Return SkillResponse with data={'matches': results, 'search_terms': terms, 'count': len}, summary from _build_summary, confidence=0.95, sources=['mythos.voice_memos']. Wrap entire body in try/except/finally. In finally: close connection if open. On exception: return SkillResponse with error=str(e).",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 9.27,
+      "final_code_lines": 200
+    },
+    {
+      "pass": 6,
+      "instruction": "Review the complete file. Fix any issues: ensure all database connections are closed in finally blocks, ensure summary is never empty, ensure all methods are properly connected. The file must be production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "Setup error: name 'true' is not defined"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "Setup error: name 'true' is not defined"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "Setup error: name 'true' is not defined"
+          ]
+        },
+        {
+          "attempt": 4,
+          "test_pass": false,
+          "errors": [
+            "Setup error: name 'true' is not defined"
+          ]
+        },
+        {
+          "attempt": 5,
+          "test_pass": false,
+          "errors": [
+            "Setup error: name 'true' is not defined"
+          ]
+        }
+      ],
+      "elapsed_seconds": 67.22,
+      "final_code_lines": 200
+    }
+  ]
+}

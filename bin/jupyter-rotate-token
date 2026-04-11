@@ -1,0 +1,46 @@
+#!/bin/bash
+# jupyter-rotate-token — generate a fresh Jupyter token and restart the service
+#
+# Usage:
+#   jupyter-rotate-token         # generate + restart + print URL
+#   jupyter-rotate-token --quiet # same, but no URL output (for scripts)
+
+set -e
+
+TOKEN_FILE="/opt/mythos/.jupyter_token"
+QUIET=0
+[ "${1:-}" = "--quiet" ] && QUIET=1
+
+# Generate a 48-byte URL-safe token (64 chars base64).
+# Python's secrets.token_urlsafe is the canonical source.
+NEW_TOKEN=$(/opt/mythos/.venv-jupyter/bin/python3 -c \
+    "import secrets; print(secrets.token_urlsafe(48))")
+
+if [ -z "$NEW_TOKEN" ]; then
+    echo "FATAL: failed to generate token" >&2
+    exit 1
+fi
+
+# Atomic write: write to temp, chmod, then rename.
+# The service user (adge) owns the file. Mode 0600.
+TMP=$(mktemp --tmpdir=/opt/mythos .jupyter_token.XXXXXX)
+printf '%s' "$NEW_TOKEN" > "$TMP"
+chmod 0600 "$TMP"
+mv "$TMP" "$TOKEN_FILE"
+
+# Restart the service so it picks up the new token.
+# If the service isn't running yet (first install), start it instead.
+if systemctl is-active --quiet mythos-jupyter.service; then
+    sudo systemctl restart mythos-jupyter.service
+else
+    sudo systemctl start mythos-jupyter.service
+fi
+
+if [ "$QUIET" = "0" ]; then
+    echo "✓ New token generated and service restarted"
+    echo ""
+    echo "  URL:   https://jupyter.denkers.co/lab?token=$NEW_TOKEN"
+    echo "  Token: $NEW_TOKEN"
+    echo ""
+    echo "Copy token to clipboard: jupyter-token --copy"
+fi

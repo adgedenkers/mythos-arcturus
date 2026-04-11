@@ -1,0 +1,446 @@
+#!/opt/mythos/.venv/bin/python3
+"""
+mythos-doc-gap — Push documentation gap items to Iris doc worker queues.
+
+Takes the gap analysis from the March 7-8 build push and creates
+properly formatted tasks for each undocumented component, pushing
+them to the existing iris:docs:queue:{type} Redis lists.
+
+Usage:
+    mythos-doc-gap --list              Show all gap items and their queue targets
+    mythos-doc-gap --push              Push all gap items to Redis queues
+    mythos-doc-gap --push --item N     Push a single item by number
+    mythos-doc-gap --push --dry-run    Show what would be pushed without pushing
+    mythos-doc-gap --status            Show current doc worker queue depths
+    mythos-doc-gap --run               Push all items AND run iris-docworker --run-once
+    mythos-doc-gap --clear-dedup       Clear the dedup set (allows re-pushing)
+"""
+
+import argparse
+import json
+import hashlib
+import logging
+import os
+import subprocess
+import sys
+import time
+
+sys.path.insert(0, "/opt/mythos")
+
+# Load env
+env_file = "/opt/mythos/.env"
+if os.path.exists(env_file):
+    with open(env_file) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, _, val = line.partition("=")
+                os.environ.setdefault(key.strip(), val.strip())
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [doc-gap] %(levelname)s: %(message)s",
+)
+logger = logging.getLogger("doc-gap")
+
+
+# ═══════════════════════════════════════════════════
+# GAP ITEMS — What needs documenting
+# ═══════════════════════════════════════════════════
+
+GAP_ITEMS = [
+    # --- Architecture entries (new sections for ARCHITECTURE.md) ---
+    {
+        "id": 1,
+        "queue": "architecture",
+        "component": "autonomic_system",
+        "purpose": "Iris's self-maintaining infrastructure: trigger engine (scheduled + event-based firing), "
+                   "idle task engine (5 background maintenance tasks), and context engine (13 providers for "
+                   "gathering diagnostic data from files, Postgres, Neo4j, Redis, git, services, disk). "
+                   "Three deployed phases: Phase 0 (idle tasks, NEU-0006), Phase 1 (trigger engine, SYS-0035 + NEU-0007), "
+                   "Phase 2 (context engine, NEU-0008). Service: mythos-trigger.service. "
+                   "Tables: scheduled_triggers, trigger_log, escalation_rules, iris_task_log.",
+        "files": [
+            "/opt/mythos/iris/core/src/trigger_engine.py",
+            "/opt/mythos/iris/core/src/trigger_runner.py",
+            "/opt/mythos/iris/core/src/context_engine.py",
+            "/opt/mythos/iris/core/src/task_registry.py",
+        ],
+    },
+    {
+        "id": 2,
+        "queue": "architecture",
+        "component": "model_benchmarking",
+        "purpose": "43-task benchmark harness across 6 categories (Reasoning, Code, Mythos, Narrative, Tool Use, Voice). "
+                   "All tasks use real Mythos work. JSONL output, judge scoring via separate model. "
+                   "Round 1 results: qwen2.5:32b won at 81.1%. gemma3:27b timed out on all tasks. "
+                   "CLIs: mythos-bench, mythos-bench-report.",
+        "files": [
+            "/opt/mythos/orchestrator/benchmark/run_benchmark.py",
+            "/opt/mythos/orchestrator/benchmark/tasks.py",
+            "/opt/mythos/orchestrator/benchmark/report.py",
+            "/opt/mythos/orchestrator/benchmark/bench_config.json",
+        ],
+    },
+    {
+        "id": 3,
+        "queue": "architecture",
+        "component": "voice_tuning",
+        "purpose": "Iterative prompt tuning loop for Iris voice quality. Runs V-01 through V-06 against any model "
+                   "using live prompt_layers.yaml as system prompt. Reads prompt files directly off disk — edit and "
+                   "re-run without patching. CLI: iris-voice-tune.",
+        "files": [
+            "/opt/mythos/orchestrator/voice_tuning/tune.py",
+        ],
+    },
+    {
+        "id": 4,
+        "queue": "architecture",
+        "component": "mx_shell",
+        "purpose": "Self-healing development shell (v1.1.0). Session intent tracking, system state snapshots "
+                   "before/after significant commands, delta analysis with regression detection "
+                   "(ADDITION/CHANGE/REGRESSION/NEUTRAL), pre/post integrity hooks on patch-install/systemctl/psql, "
+                   "learned error pattern correction, auto-journaling to TODO.md. CLI: mx.",
+        "files": [
+            "/opt/mythos/mx/mx_session.py",
+            "/opt/mythos/mx/mx_journal.py",
+            "/opt/mythos/mx/mx_snapshot.py",
+            "/opt/mythos/mx/mx_delta.py",
+            "/opt/mythos/mx/mx_hooks.py",
+        ],
+    },
+    {
+        "id": 5,
+        "queue": "architecture",
+        "component": "web_search_skill",
+        "purpose": "Iris live web search via BBC RSS feeds (Technology, World, Science, Business, Politics, HN) + "
+                   "Wikipedia full-text search. Query classifier routes to correct backend. 10-minute cache. "
+                   "Skill context injection fixed to land in correct prompt position. "
+                   "Threading fix replaced ThreadPoolExecutor with threading.Thread.",
+        "files": [
+            "/opt/mythos/skills/data/web_search.py",
+            "/opt/mythos/skills/skills_context.py",
+        ],
+    },
+    {
+        "id": 6,
+        "queue": "architecture",
+        "component": "iris_integrity_awareness",
+        "purpose": "Iris can read system health and carry it in her prompt context. "
+                   "Telegram commands: /iris_integrity, /iris_integrity scan, /iris_integrity full, /iris_integrity context. "
+                   "Injected via get_system_health_context() into life_context.py.",
+        "files": [
+            "/opt/mythos/iris/core/src/iris_integrity.py",
+            "/opt/mythos/telegram_bot/handlers/iris_integrity_handler.py",
+        ],
+    },
+    {
+        "id": 7,
+        "queue": "architecture",
+        "component": "mission_system",
+        "purpose": "LLM-powered system analysis missions. YAML-defined multi-phase pipelines that gather context "
+                   "from files/Postgres/Neo4j/shell, render prompt templates, call Ollama, parse output, write files. "
+                   "System archaeology mission finds dead code, architectural stress, buried patterns. "
+                   "CLIs: mythos-mission, mythos-mission-assemble, graph-bridge.",
+        "files": [
+            "/opt/mythos/mission/mission_runner.py",
+            "/opt/mythos/mission/mission_assembler.py",
+            "/opt/mythos/mission/graph_bridge.py",
+            "/opt/mythos/mission/MISSION_SPEC.md",
+        ],
+    },
+    {
+        "id": 8,
+        "queue": "architecture",
+        "component": "decision_gate",
+        "purpose": "Phase 4 of the autonomic system — events that reach escalation TIER 2+ get routed through "
+                   "Ollama for judgment. Gathers context, builds prompt, calls LLM, returns structured action plan. "
+                   "CLI: iris-decide (test dry-run, prompt preview, history). "
+                   "Two seed triggers: smart_disk_check, smart_service_check (currently disabled).",
+        "files": [
+            "/opt/mythos/bin/iris-decide",
+            "/opt/mythos/iris/core/src/trigger_engine.py",
+        ],
+    },
+    {
+        "id": 9,
+        "queue": "architecture",
+        "component": "seraphe_lunar",
+        "purpose": "Complete lunar transit pipeline for Seraphe. Swiss Ephemeris computation, binary search "
+                   "refinement to minute-level precision, 16 natal points, 6 aspect types, 102 interpretation "
+                   "mappings, intensity/tone scoring, compact print-ready PDF generation (1 page per month). "
+                   "CLI: seraphe-lunar.",
+        "files": [
+            "/opt/mythos/astrology/tools/seraphe_lunar.py",
+        ],
+    },
+
+    # --- Component docs (detailed reference pages) ---
+    {
+        "id": 10,
+        "queue": "component",
+        "component": "trigger_engine",
+        "purpose": "Standalone service firing scheduled triggers. CronParser, ActionHandlers "
+                   "(reflex, run_task, telegram_notify, run_command, redis_push), TriggerEngine main loop.",
+        "files": [
+            "/opt/mythos/iris/core/src/trigger_engine.py",
+            "/opt/mythos/iris/core/src/trigger_runner.py",
+        ],
+    },
+    {
+        "id": 11,
+        "queue": "component",
+        "component": "context_engine",
+        "purpose": "13 context providers for gathering diagnostic data. Providers: journalctl, git_log, "
+                   "file_content, pg_query, neo4j_query, redis_state, service_status, disk_usage, streams_json, etc. "
+                   "Secret sanitization strips credentials before LLM context.",
+        "files": [
+            "/opt/mythos/iris/core/src/context_engine.py",
+        ],
+    },
+    {
+        "id": 12,
+        "queue": "component",
+        "component": "idle_task_engine",
+        "purpose": "5 built-in background tasks: redis_queue_health, patch_audit, neo4j_hygiene, "
+                   "doc_staleness, table_row_counts. Wired into consciousness loop via _maybe_initiate().",
+        "files": [
+            "/opt/mythos/iris/core/src/task_registry.py",
+        ],
+    },
+    {
+        "id": 13,
+        "queue": "component",
+        "component": "mx",
+        "purpose": "Self-healing development shell. Session manager, journal, snapshots, delta engine, "
+                   "pre/post integrity hooks.",
+        "files": [
+            "/opt/mythos/mx/mx_session.py",
+            "/opt/mythos/mx/mx_journal.py",
+            "/opt/mythos/mx/mx_snapshot.py",
+            "/opt/mythos/mx/mx_delta.py",
+            "/opt/mythos/mx/mx_hooks.py",
+        ],
+    },
+    {
+        "id": 14,
+        "queue": "component",
+        "component": "benchmark",
+        "purpose": "Model evaluation pipeline. 43 tasks, 6 categories, dependency graph between tasks, "
+                   "JSONL output, judge scoring.",
+        "files": [
+            "/opt/mythos/orchestrator/benchmark/run_benchmark.py",
+            "/opt/mythos/orchestrator/benchmark/tasks.py",
+            "/opt/mythos/orchestrator/benchmark/report.py",
+        ],
+    },
+
+    # --- System map regeneration ---
+    {
+        "id": 15,
+        "queue": "system_map",
+        "component": "global",
+        "purpose": "Regenerate full system map including all new components from March 7-8 build push.",
+        "files": [],
+        "components": [
+            "autonomic_system", "model_benchmarking", "voice_tuning", "mx_shell",
+            "web_search_skill", "iris_integrity_awareness", "mission_system",
+            "decision_gate", "seraphe_lunar", "trigger_engine", "context_engine",
+            "idle_task_engine", "benchmark",
+            # existing components
+            "astrology", "docs", "finance", "integrity", "iris",
+            "patches", "skills", "telegram_bot",
+        ],
+    },
+]
+
+
+# ═══════════════════════════════════════════════════
+# QUEUE OPERATIONS
+# ═══════════════════════════════════════════════════
+
+QUEUE_MAP = {
+    "component": "iris:docs:queue:component",
+    "architecture": "iris:docs:queue:architecture",
+    "system_map": "iris:docs:queue:system_map",
+}
+
+DEDUP_KEY = "iris:docs:dedup"
+
+
+def task_hash(task):
+    return hashlib.sha256(json.dumps(task, sort_keys=True).encode()).hexdigest()[:16]
+
+
+def build_task(item):
+    """Convert a gap item into the task format the doc worker expects."""
+    queue_type = item["queue"]
+
+    if queue_type == "component":
+        return {
+            "type": "component_doc",
+            "component": item["component"],
+            "file_count": len(item.get("files", [])),
+            "files": item.get("files", []),
+            "component_summary": item.get("purpose", ""),
+            "documentation_gaps": [f"New component from March 7-8 build push — not yet documented"],
+            "status": "pending",
+            "created_at": time.time(),
+        }
+    elif queue_type == "architecture":
+        return {
+            "type": "architecture_entry",
+            "component": item["component"],
+            "file_count": len(item.get("files", [])),
+            "files": item.get("files", []),
+            "purpose": item.get("purpose", ""),
+            "status": "pending",
+            "created_at": time.time(),
+        }
+    elif queue_type == "system_map":
+        return {
+            "type": "system_map",
+            "components": item.get("components", []),
+            "total_files": 0,
+            "purpose": item.get("purpose", ""),
+            "status": "pending",
+            "created_at": time.time(),
+        }
+    else:
+        raise ValueError(f"Unknown queue type: {queue_type}")
+
+
+def push_item(r, item, dry_run=False):
+    """Push a single gap item to the appropriate Redis queue."""
+    queue_type = item["queue"]
+    queue_key = QUEUE_MAP.get(queue_type)
+    if not queue_key:
+        logger.error(f"No queue for type '{queue_type}'")
+        return False
+
+    task = build_task(item)
+    th = task_hash(task)
+
+    if r.sismember(DEDUP_KEY, th):
+        logger.info(f"  [{item['id']:2d}] {item['component']:<30s} SKIPPED (dedup)")
+        return False
+
+    if dry_run:
+        logger.info(f"  [{item['id']:2d}] {item['component']:<30s} → {queue_key} (DRY RUN)")
+        return True
+
+    r.sadd(DEDUP_KEY, th)
+    r.rpush(queue_key, json.dumps(task))
+    logger.info(f"  [{item['id']:2d}] {item['component']:<30s} → {queue_key}")
+    return True
+
+
+# ═══════════════════════════════════════════════════
+# COMMANDS
+# ═══════════════════════════════════════════════════
+
+def cmd_list():
+    """Show all gap items."""
+    print(f"\n{'#':>3s}  {'Queue':<15s}  {'Component':<30s}  {'Files':>5s}")
+    print("-" * 60)
+    for item in GAP_ITEMS:
+        print(f"{item['id']:3d}  {item['queue']:<15s}  {item['component']:<30s}  {len(item.get('files', [])):5d}")
+    print(f"\nTotal: {len(GAP_ITEMS)} items")
+    print(f"  architecture: {sum(1 for i in GAP_ITEMS if i['queue'] == 'architecture')}")
+    print(f"  component:    {sum(1 for i in GAP_ITEMS if i['queue'] == 'component')}")
+    print(f"  system_map:   {sum(1 for i in GAP_ITEMS if i['queue'] == 'system_map')}")
+
+
+def cmd_push(item_id=None, dry_run=False):
+    """Push gap items to Redis queues."""
+    import redis as redis_lib
+    r = redis_lib.Redis(host="localhost", port=6379, decode_responses=True)
+
+    items = GAP_ITEMS
+    if item_id is not None:
+        items = [i for i in GAP_ITEMS if i["id"] == item_id]
+        if not items:
+            print(f"No item with id {item_id}")
+            return
+
+    pushed = 0
+    skipped = 0
+    for item in items:
+        if push_item(r, item, dry_run=dry_run):
+            pushed += 1
+        else:
+            skipped += 1
+
+    action = "Would push" if dry_run else "Pushed"
+    print(f"\n{action}: {pushed}  |  Skipped (dedup): {skipped}")
+    r.close()
+
+
+def cmd_status():
+    """Show queue depths."""
+    import redis as redis_lib
+    r = redis_lib.Redis(host="localhost", port=6379, decode_responses=True)
+
+    print("\nDoc Worker Queue Status:")
+    print("-" * 45)
+    for name, key in QUEUE_MAP.items():
+        pending = r.llen(key)
+        print(f"  {name:<15s}  {pending:>3d} pending")
+
+    processing = r.scard("iris:docs:processing")
+    completed = r.zcard("iris:docs:completed")
+    dedup = r.scard(DEDUP_KEY)
+    print(f"\n  processing:    {processing}")
+    print(f"  completed:     {completed}")
+    print(f"  dedup set:     {dedup}")
+    r.close()
+
+
+def cmd_run(item_id=None, dry_run=False):
+    """Push items then run the doc worker."""
+    cmd_push(item_id=item_id, dry_run=dry_run)
+    if not dry_run:
+        print("\nStarting iris-docworker --run-once...")
+        subprocess.run(
+            ["/opt/mythos/.venv/bin/python3", "/opt/mythos/bin/iris-docworker", "--run-once"],
+            cwd="/opt/mythos",
+        )
+
+
+def cmd_clear_dedup():
+    """Clear the dedup set to allow re-pushing."""
+    import redis as redis_lib
+    r = redis_lib.Redis(host="localhost", port=6379, decode_responses=True)
+    count = r.scard(DEDUP_KEY)
+    r.delete(DEDUP_KEY)
+    print(f"Cleared dedup set ({count} entries)")
+    r.close()
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Push documentation gap items to Iris doc worker")
+    parser.add_argument("--list", action="store_true", help="Show all gap items")
+    parser.add_argument("--push", action="store_true", help="Push items to Redis queues")
+    parser.add_argument("--run", action="store_true", help="Push + run iris-docworker")
+    parser.add_argument("--status", action="store_true", help="Show queue depths")
+    parser.add_argument("--item", type=int, help="Process a single item by ID")
+    parser.add_argument("--dry-run", action="store_true", help="Preview without pushing")
+    parser.add_argument("--clear-dedup", action="store_true", help="Clear dedup set")
+    args = parser.parse_args()
+
+    if args.clear_dedup:
+        cmd_clear_dedup()
+    elif args.list:
+        cmd_list()
+    elif args.status:
+        cmd_status()
+    elif args.push:
+        cmd_push(item_id=args.item, dry_run=args.dry_run)
+    elif args.run:
+        cmd_run(item_id=args.item, dry_run=args.dry_run)
+    else:
+        parser.print_help()
+
+
+if __name__ == "__main__":
+    main()

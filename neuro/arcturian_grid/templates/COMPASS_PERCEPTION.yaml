@@ -1,0 +1,53 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: COMPASS | Layer: PERCEPTION | ID: COMPASS_PERCEPTION
+# Domain: Directional and intentional
+# Depth: 1 (Perception)
+# Generated: 2026-03-02 22:21 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: COMPASS_PERCEPTION
+node: COMPASS
+node_name: Compass
+node_domain: Directional and intentional
+layer: PERCEPTION
+layer_name: Perception
+depth: 1
+model_tier: small
+runtime_models:
+- mistral:7b
+- qwen2.5:7b
+- nous-hermes2:latest
+processing: unconscious
+critical_path: false
+generated_at: '2026-03-02T22:21:56.704678'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze {user_message} and {assistant_response}. Extract ONLY literal content: user''s actual need (not stated request),
+  required action to advance conversation, Iris''s next action vs. words, and conversation trajectory. Be factual, concrete,
+  observable. No interpretation, inference, or analysis. Output JSON only.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    stated_need:
+      type: string
+    actual_need:
+      type: string
+    recommended_action:
+      type: string
+    trajectory:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

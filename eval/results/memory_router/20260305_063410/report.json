@@ -1,0 +1,93 @@
+{
+  "plan_id": "memory_router",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_063410",
+  "total_passes": 5,
+  "total_ollama_calls": 5,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 12,
+    "failed": 0,
+    "total": 12
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton. #!/usr/bin/env python3, docstring, imports: ONLY logging and engine.base (SkillBase, SkillRequest, SkillResponse). NO psycopg2, NO os, NO dotenv -- this skill has no database access. Then the MemoryRouterSkill class with attributes. Define STORE_KEYWORDS as a class-level dict:\n\nSTORE_KEYWORDS = {\n    'voice_memos': ['voice', 'memo', 'memos', 'recording', 'said', 'talked', 'spoke', 'heard', 'audio', 'transcri'],\n    'conversations': ['chat', 'conversation', 'discuss', 'discussed', 'asked', 'told', 'replied', 'message', 'thread'],\n    'life_events': ['happened', 'event', 'occurred', 'milestone', 'experience', 'went', 'did', 'felt', 'mood'],\n    'ideas': ['idea', 'thought', 'brainstorm', 'suggestion', 'concept', 'proposal', 'plan', 'backlog'],\n    'documents': ['document', 'doc', 'file', 'scroll', 'written', 'notes', 'readme', 'architecture'],\n}\n\nAll methods have 'pass' as body. ASCII only in comments.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.59,
+      "final_code_lines": 40
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms(). Lowercase the message. Remove trigger phrases LONGEST FIRST: 'find anything about', 'search everything', 'what did we', 'what did i', 'when did we', 'when did i', 'did we', 'did i', 'have we', 'have i', 'remember', 'recall', 'look up', 'memory', 'search for', 'search about', 'search', 'find', 'about'. After each removal: message = ' '.join(message.split()). Strip punctuation (keep alphanumeric and spaces). Return if len >= 2, else empty string.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.77,
+      "final_code_lines": 71
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _score_stores(). Lowercase the message. For each store in STORE_KEYWORDS, count how many of its keywords appear in the message (use 'keyword in message' substring match). Store the counts. If ALL stores have score 0 (no specific keywords matched), return ALL five stores with score 1.0 each -- this means 'search everywhere'. Otherwise, return only stores with score > 0, sorted by score descending. Return as list of tuples: [(store_name, score), ...]. Normalize scores so max is 1.0.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 7.42,
+      "final_code_lines": 115
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement execute(). Extract search terms from request.message. Score stores using the ORIGINAL message (not the cleaned terms -- we want routing keywords preserved for scoring). Build the target list from scored stores. Build summary: if specific stores matched: 'Routing to N store(s): store1, store2. Search terms: X.' If searching all stores: 'No specific store identified -- searching all memory stores for: X.' If no search terms at all: 'No searchable content found in message.' Return SkillResponse(skill_name=self.name, data={'targets': [name for name, score in targets], 'scores': {name: score for name, score in targets}, 'search_terms': terms}, summary=summary, confidence=max_score or 0.5, sources=['memory_router']). No try/except needed since there is no database -- but still wrap in try/except for safety, returning SkillResponse with error on exception.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 9.0,
+      "final_code_lines": 141
+    },
+    {
+      "pass": 5,
+      "instruction": "Review the complete file. Ensure: NO database imports (no psycopg2, no os, no dotenv), STORE_KEYWORDS uses the exact five store names, summary is never empty, all stores returned when no keywords match, ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 8.94,
+      "final_code_lines": 141
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+credentials-file: /etc/cloudflared/f40f4018-7b7d-412a-900e-5b8b5433394c.json
+tunnel: f40f4018-7b7d-412a-900e-5b8b5433394c
+ingress:
+  - hostname: denkers.co
+    service: http://127.0.0.1:8090
+  - hostname: www.denkers.co
+    service: http://127.0.0.1:8090
+  - hostname: mythos-api.denkers.co
+    service: http://127.0.0.1:8000
+  - hostname: ssh.denkers.co
+    service: ssh://127.0.0.1:22
+  - hostname: iris.denkers.co
+    service: http://127.0.0.1:8000
+  - service: http_status:404

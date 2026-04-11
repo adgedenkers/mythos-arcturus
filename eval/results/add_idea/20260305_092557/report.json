@@ -1,0 +1,167 @@
+{
+  "plan_id": "add_idea",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_092557",
+  "total_passes": 5,
+  "total_ollama_calls": 9,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": false,
+    "errors": [
+      "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+      "summary missing 'Captured': ",
+      "data missing 'idea_id': []",
+      "data missing 'idea': []",
+      "summary empty",
+      "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+      "data missing 'idea_id': []",
+      "summary empty"
+    ],
+    "passed": 2,
+    "failed": 8,
+    "total": 10
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: os, logging, json, psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 1.29,
+      "final_code_lines": 34
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_idea() and _detect_domain(). For extract: lowercase, remove triggers LONGEST FIRST: 'i have an idea', 'capture idea', 'thought about', 'what if we', 'we should', 'we could', 'new idea', 'add idea', 'idea', 'capture'. Normalize whitespace between each. Strip punctuation except basic ones. Return cleaned text. For domain: check for 'technical', 'spiritual', 'personal', 'financial', 'mythos'. Default None.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.64,
+      "final_code_lines": 132
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _insert_idea(). Use _get_conn(). Build items as json.dumps([idea_text]). Build tags as json.dumps([domain]) if domain else json.dumps([]). INSERT INTO idea_inbox (conversation_context, items, item_count, disposition, domain, tags) VALUES (%s, %s, 1, 'pending', %s, %s) RETURNING id. Params: (source_message, items_json, domain, tags_json). conn.commit(). Return str(row['id']). try/finally close.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.82,
+      "final_code_lines": 134
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement execute(). Extract idea text. If empty or < 3 chars: return SkillResponse(skill_name=self.name, data={}, summary='Could not capture an idea. Please describe your thought.', confidence=0.3, sources=[]). Detect domain. Call _insert_idea(idea_text, domain, request.message). Return SkillResponse(skill_name=self.name, data={'idea_id': new_id, 'idea': idea_text, 'domain': domain}, summary=f'Captured idea: \"{idea_text}\"' + (f' (domain: {domain})' if domain else ''), confidence=0.95, sources=['mythos.idea_inbox']). try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 5.48,
+      "final_code_lines": 151
+    },
+    {
+      "pass": 5,
+      "instruction": "Review. _get_conn uses POSTGRES_HOST. conn.commit() after INSERT. SkillResponse uses ONLY valid kwargs. json.dumps for jsonb columns. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Captured': ",
+            "data missing 'idea_id': []",
+            "data missing 'idea': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "data missing 'idea_id': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Captured': ",
+            "data missing 'idea_id': []",
+            "data missing 'idea': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "data missing 'idea_id': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Captured': ",
+            "data missing 'idea_id': []",
+            "data missing 'idea': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "data missing 'idea_id': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 4,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Captured': ",
+            "data missing 'idea_id': []",
+            "data missing 'idea': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "data missing 'idea_id': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 5,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Captured': ",
+            "data missing 'idea_id': []",
+            "data missing 'idea': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "data missing 'idea_id': []",
+            "summary empty"
+          ]
+        }
+      ],
+      "elapsed_seconds": 28.34,
+      "final_code_lines": 151
+    }
+  ]
+}

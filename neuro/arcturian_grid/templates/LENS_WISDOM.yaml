@@ -1,0 +1,58 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: LENS | Layer: WISDOM | ID: LENS_WISDOM
+# Domain: Analytical and interpretive frameworks
+# Depth: 9 (Wisdom)
+# Generated: 2026-03-02 21:58 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: LENS_WISDOM
+node: LENS
+node_name: Lens
+node_domain: Analytical and interpretive frameworks
+layer: WISDOM
+layer_name: Wisdom
+depth: 9
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: true
+generated_at: '2026-03-02T21:58:28.344859'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the NODE: Lens (analytical
+  frameworks) and LAYER: Wisdom (depth 9). Integrate all relevant frameworks: astrological (natal, transit, synastry), psychological
+  (ADHD, freeze response, attachment), systems architecture (for technical work), and spiritual (grid work, lineage, consciousness).
+  Synthesize the deepest truth transcending the immediate exchange. Output ONLY a JSON object with key ''analysis'' containing
+  a transcendent, essential synthesis in one sentence. Example: ''Through ADHD lens: dopamine gate closing on financial task.
+  Through astrology lens: Saturn square activating — structure demanded but pathway unclear.'''
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    frameworks_applied:
+      type: array
+      items:
+        type: string
+    interpretations:
+      type: array
+      items:
+        type: object
+    primary_framework:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

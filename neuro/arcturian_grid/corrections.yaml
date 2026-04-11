@@ -1,0 +1,28 @@
+# Arcturian Grid — Correction Rules
+# Apply these after reviewing the 9 seed templates.
+# Run: python generate_grid.py --regenerate --corrections corrections.yaml
+#
+# Target types:
+#   applies_to: "all"                    — every template
+#   applies_to: "node:GATEWAY"           — all GATEWAY node functions
+#   applies_to: "layer:INTUITION"        — all INTUITION layer functions
+#   applies_to: "function:MIRROR_NARRATIVE" — one specific cell
+#   applies_to: "model_tier:small"       — all small-model functions
+
+corrections:
+  # Example corrections — uncomment and modify after seed review
+
+  # - applies_to: "all"
+  #   rule: "Never use the word 'delve' in any prompt"
+
+  # - applies_to: "layer:INTUITION"
+  #   rule: "Intuition prompts should ask for 1-3 word felt-sense tags, not paragraphs"
+
+  # - applies_to: "node:GATEWAY"
+  #   rule: "Gateway functions should reference lineage and cosmic context explicitly, not generically"
+
+  # - applies_to: "function:MIRROR_NARRATIVE"
+  #   rule: "This function should specifically ask how Iris's role shifts based on story arc position"
+
+  # - applies_to: "model_tier:small"
+  #   rule: "Small model prompts must be under 100 words — these models can't handle long instructions"

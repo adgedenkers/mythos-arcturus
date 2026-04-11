@@ -1,0 +1,35 @@
+# mx — Mythos Shell Session Config
+# /opt/mythos/mx/mx_config.yaml
+
+ollama:
+  host: http://localhost:11434
+  # model: leave blank to use active Mythos model from .model_overrides.json
+  fallback_model: gemma3:27b
+  timeout: 60
+
+session:
+  buffer_size: 20          # last N commands kept in context for Ollama
+  max_heal_attempts: 3     # max self-heal loop iterations before giving up
+  countdown_seconds: 3     # seconds before auto-running a fix
+  log_dir: ~/.mx/sessions
+  pattern_dir: ~/.mx/patterns
+  intent_dir: ~/.mx/intents
+
+# Commands that should NEVER auto-execute — require explicit 'yes' confirmation
+dangerous_commands:
+  - "rm -rf"
+  - "rm -r"
+  - "drop table"
+  - "drop database"
+  - "truncate"
+  - "DELETE FROM"
+  - "systemctl stop"
+  - "shutdown"
+  - "reboot"
+
+# Commands where non-zero exit is expected — suppress healing
+suppress_heal:
+  - "grep"
+  - "diff"
+  - "test"
+  - "ping"

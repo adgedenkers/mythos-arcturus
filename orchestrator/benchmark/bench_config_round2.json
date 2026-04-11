@@ -1,0 +1,31 @@
+{
+  "run_id_prefix": "round2",
+  "models": [
+    "qwen3:30b-a3b",
+    "qwen2.5:32b",
+    "command-r:35b",
+    "mistral-small:24b",
+    "gemma2:27b",
+    "nous-hermes2:latest",
+    "phi4:14b",
+    "qwen3:14b",
+    "yi:34b-chat"
+  ],
+  "judge_model": "qwen2.5:32b",
+  "ollama_host": "http://localhost:11434",
+  "output_dir": "/opt/mythos/orchestrator/benchmark/runs",
+  "timeouts": {
+    "reasoning": 240,
+    "code": 300,
+    "mythos": 240,
+    "narrative": 300,
+    "tool_use": 180,
+    "voice": 180,
+    "default": 240
+  },
+  "max_model_threads": 3,
+  "judge_enabled": true,
+  "skip_task_ids": [],
+  "retry_on_timeout": false,
+  "notes": "Round 2 — 9 models. Timeouts doubled from round 1 to prevent cascade skips on large models under load."
+}

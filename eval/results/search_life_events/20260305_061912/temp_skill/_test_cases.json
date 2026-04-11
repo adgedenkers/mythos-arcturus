@@ -1,0 +1,21 @@
+[
+  {
+    "message": "search life events about spiritual",
+    "expect_ok": true,
+    "expect_data_has": [
+      "matches"
+    ]
+  },
+  {
+    "message": "what happened recently",
+    "expect_ok": true,
+    "expect_data_has": [
+      "matches"
+    ]
+  },
+  {
+    "message": "hello there",
+    "expect_ok": true,
+    "note": "No terms or filters - should return total count"
+  }
+]

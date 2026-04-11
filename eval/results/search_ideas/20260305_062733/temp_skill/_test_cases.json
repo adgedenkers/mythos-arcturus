@@ -1,0 +1,18 @@
+[
+  {
+    "message": "search ideas about consulting",
+    "expect_ok": true,
+    "expect_data_has": [
+      "matches"
+    ]
+  },
+  {
+    "message": "what pending ideas do I have",
+    "expect_ok": true
+  },
+  {
+    "message": "good morning iris",
+    "expect_ok": true,
+    "note": "No terms - should return pending count"
+  }
+]

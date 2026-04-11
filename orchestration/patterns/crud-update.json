@@ -1,0 +1,384 @@
+{
+  "pattern_id": "crud-update",
+  "name": "CRUD Updates Pattern",
+  "version": "2.0.0",
+  "description": "Standard pattern for adding, modifying, or extending features in the Mythos system across all three data layers: PostgreSQL (relational/transactional), Neo4j (graph/spiritual/lineage), and flat files (configs, markdown docs, JSON data). Handles schema changes, Cypher migrations, file structure changes, service code, bot handlers, and patch packaging.",
+
+  "trigger": {
+    "keywords": [
+      "add a field", "new table", "new column", "modify schema", "add feature",
+      "CRUD", "database change", "new endpoint", "add command", "bot command",
+      "extend the", "update the schema", "add tracking for", "I need a new",
+      "new node type", "new relationship", "add to the graph", "link souls",
+      "new lineage", "connect nodes", "cypher", "graph update",
+      "new config", "update config", "add a document", "new template",
+      "data file", "json data", "markdown doc"
+    ],
+    "intent_types": [
+      "schema_change", "new_feature", "feature_extension", "bot_command_add",
+      "api_endpoint_add", "data_model_change",
+      "graph_model_change", "node_type_add", "relationship_add",
+      "lineage_update", "spiritual_infrastructure",
+      "config_change", "document_template", "flat_file_update"
+    ],
+    "preconditions": [
+      "target_is_mythos_system",
+      "involves_data_or_code_change"
+    ]
+  },
+
+  "data_layer_detection": {
+    "description": "Rules for determining which data layers are affected by the request. The recon stage uses these to scope its analysis and downstream stages are conditionally executed.",
+    "rules": [
+      {
+        "layer": "postgres",
+        "indicators": [
+          "table", "column", "field", "row", "SQL", "query", "transaction",
+          "finance", "sales", "tracking", "log", "audit", "import", "export",
+          "relational", "foreign key", "index", "aggregate", "report"
+        ]
+      },
+      {
+        "layer": "neo4j",
+        "indicators": [
+          "node", "relationship", "edge", "graph", "soul", "lineage", "bloodline",
+          "incarnation", "entity", "connection", "path", "traverse", "link",
+          "spiritual", "order", "activation", "seal", "throne", "anchor",
+          "Cypher", "Neo4j", "label", "property"
+        ]
+      },
+      {
+        "layer": "flat_files",
+        "indicators": [
+          "config", "configuration", "template", "markdown", "document",
+          "JSON file", "YAML", "data file", "static", "reference",
+          "calendar", "spiral time", "export format", "import format"
+        ]
+      }
+    ]
+  },
+
+  "context_gathering": {
+    "commands": [
+      {
+        "id": "current_pg_schema",
+        "command": "sudo -u postgres psql -d mythos -c \"\\dt\" && sudo -u postgres psql -d mythos -c \"SELECT table_name, column_name, data_type, is_nullable FROM information_schema.columns WHERE table_schema='public' ORDER BY table_name, ordinal_position;\"",
+        "description": "PostgreSQL tables and column definitions",
+        "output_key": "postgres_schema",
+        "layer": "postgres"
+      },
+      {
+        "id": "pg_row_counts",
+        "command": "sudo -u postgres psql -d mythos -c \"SELECT schemaname, relname, n_live_tup FROM pg_stat_user_tables ORDER BY relname;\"",
+        "description": "Row counts per table to understand data volume",
+        "output_key": "postgres_row_counts",
+        "layer": "postgres"
+      },
+      {
+        "id": "pg_indexes",
+        "command": "sudo -u postgres psql -d mythos -c \"SELECT tablename, indexname, indexdef FROM pg_indexes WHERE schemaname='public' ORDER BY tablename;\"",
+        "description": "Current indexes for reference",
+        "output_key": "postgres_indexes",
+        "layer": "postgres"
+      },
+      {
+        "id": "neo4j_labels",
+        "command": "cypher-shell -u neo4j -p \"$(cat /opt/mythos/.env | grep NEO4J_PASSWORD | cut -d= -f2)\" \"CALL db.labels() YIELD label RETURN label ORDER BY label;\" 2>/dev/null || echo '[Neo4j not reachable or no password found]'",
+        "description": "All node labels in Neo4j",
+        "output_key": "neo4j_labels",
+        "layer": "neo4j"
+      },
+      {
+        "id": "neo4j_rel_types",
+        "command": "cypher-shell -u neo4j -p \"$(cat /opt/mythos/.env | grep NEO4J_PASSWORD | cut -d= -f2)\" \"CALL db.relationshipTypes() YIELD relationshipType RETURN relationshipType ORDER BY relationshipType;\" 2>/dev/null || echo '[Neo4j not reachable]'",
+        "description": "All relationship types in Neo4j",
+        "output_key": "neo4j_relationship_types",
+        "layer": "neo4j"
+      },
+      {
+        "id": "neo4j_node_counts",
+        "command": "cypher-shell -u neo4j -p \"$(cat /opt/mythos/.env | grep NEO4J_PASSWORD | cut -d= -f2)\" \"CALL db.labels() YIELD label WITH label CALL { WITH label WITH 'MATCH (n:' + label + ') RETURN count(n) AS cnt' AS q CALL db.query(q) YIELD cnt RETURN cnt } RETURN label, cnt ORDER BY label;\" 2>/dev/null || cypher-shell -u neo4j -p \"$(cat /opt/mythos/.env | grep NEO4J_PASSWORD | cut -d= -f2)\" \"MATCH (n) RETURN labels(n)[0] AS label, count(*) AS count ORDER BY label;\" 2>/dev/null || echo '[Neo4j count query failed]'",
+        "description": "Node counts per label",
+        "output_key": "neo4j_node_counts",
+        "layer": "neo4j"
+      },
+      {
+        "id": "neo4j_sample_schema",
+        "command": "cypher-shell -u neo4j -p \"$(cat /opt/mythos/.env | grep NEO4J_PASSWORD | cut -d= -f2)\" \"CALL db.schema.visualization();\" 2>/dev/null || echo '[Schema visualization not available]'",
+        "description": "Neo4j schema visualization",
+        "output_key": "neo4j_schema_viz",
+        "layer": "neo4j"
+      },
+      {
+        "id": "flat_file_inventory",
+        "command": "find /opt/mythos -maxdepth 3 \\( -name '*.json' -o -name '*.yaml' -o -name '*.yml' -o -name '*.md' -o -name '*.conf' -o -name '*.cfg' -o -name '*.toml' \\) ! -path '*/node_modules/*' ! -path '*/.venv/*' ! -path '*/patches/archive/*' ! -path '*/.git/*' | sort",
+        "description": "All config/data/doc files in Mythos",
+        "output_key": "flat_file_inventory",
+        "layer": "flat_files"
+      },
+      {
+        "id": "target_flat_files",
+        "command": "for f in $(find /opt/mythos/{{TARGET_MODULE}}/ -maxdepth 2 \\( -name '*.json' -o -name '*.yaml' -o -name '*.yml' -o -name '*.md' -o -name '*.conf' \\) 2>/dev/null | head -10); do echo \"=== $f ===\"; head -50 \"$f\"; echo; done",
+        "description": "Contents of flat files in the target module",
+        "output_key": "target_flat_file_contents",
+        "layer": "flat_files"
+      },
+      {
+        "id": "recent_patches",
+        "command": "ls -la /opt/mythos/patches/archive/ | tail -20 && echo '---' && git -C /opt/mythos log --oneline -10",
+        "description": "Recent patches and git history",
+        "output_key": "patch_history",
+        "layer": "all"
+      },
+      {
+        "id": "todo_status",
+        "command": "cat /opt/mythos/docs/TODO.md",
+        "description": "Current work status and backlog",
+        "output_key": "todo",
+        "layer": "all"
+      },
+      {
+        "id": "architecture",
+        "command": "cat /opt/mythos/docs/ARCHITECTURE.md",
+        "description": "System architecture reference",
+        "output_key": "architecture",
+        "layer": "all"
+      },
+      {
+        "id": "target_file_list",
+        "command": "find /opt/mythos/{{TARGET_MODULE}}/ -name '*.py' -o -name '*.sql' -o -name '*.cypher' | head -30",
+        "description": "Code files in target module",
+        "output_key": "target_file_list",
+        "layer": "all"
+      },
+      {
+        "id": "target_code",
+        "command": "for f in $(find /opt/mythos/{{TARGET_MODULE}}/ -name '*.py' | head -10); do echo \"=== $f ===\"; cat \"$f\"; echo; done",
+        "description": "Python code in target module",
+        "output_key": "target_code",
+        "layer": "all"
+      },
+      {
+        "id": "bot_handlers",
+        "command": "grep -rn 'def handle\\|@bot\\|CommandHandler\\|MessageHandler\\|CallbackQueryHandler' /opt/mythos/telegram_bot/ | head -40",
+        "description": "Current bot command handlers",
+        "output_key": "bot_handlers",
+        "layer": "all"
+      },
+      {
+        "id": "service_status",
+        "command": "systemctl status mythos-bot.service mythos-patch-monitor.service 2>&1 | head -30",
+        "description": "Service states",
+        "output_key": "service_status",
+        "layer": "all"
+      },
+      {
+        "id": "env_config",
+        "command": "cat /opt/mythos/.env | grep -v PASSWORD | grep -v SECRET | grep -v KEY || echo '[No .env found]'",
+        "description": "Environment config (secrets redacted)",
+        "output_key": "env_config",
+        "layer": "all"
+      }
+    ],
+    "files": [
+      "/opt/mythos/docs/TODO.md",
+      "/opt/mythos/docs/ARCHITECTURE.md"
+    ]
+  },
+
+  "stages": [
+    {
+      "stage_id": "recon",
+      "name": "Multi-Layer Reconnaissance",
+      "description": "Analyze current state across all three data layers. Determine which layers are affected by the request. Produce a unified gap analysis.",
+      "depends_on": [],
+      "execution": {
+        "mode": "llm",
+        "model_preference": "balanced",
+        "prompt_template": "You are analyzing the current state of the Mythos system, which has THREE data layers:\n\n1. **PostgreSQL** (relational): Transactional data, finance, tracking, logs\n2. **Neo4j** (graph): Souls, lineages, incarnations, spiritual infrastructure, entity relationships\n3. **Flat Files**: Configs (.json, .yaml, .env), documents (.md), data files, templates\n\n--- POSTGRESQL STATE ---\nTables and columns:\n{{postgres_schema}}\n\nRow counts:\n{{postgres_row_counts}}\n\nIndexes:\n{{postgres_indexes}}\n\n--- NEO4J STATE ---\nNode labels:\n{{neo4j_labels}}\n\nRelationship types:\n{{neo4j_relationship_types}}\n\nNode counts:\n{{neo4j_node_counts}}\n\nSchema visualization:\n{{neo4j_schema_viz}}\n\n--- FLAT FILES ---\nFile inventory:\n{{flat_file_inventory}}\n\nTarget module flat files:\n{{target_flat_file_contents}}\n\n--- CODE ---\nTarget module code:\n{{target_code}}\n\nBot handlers:\n{{bot_handlers}}\n\n--- REQUEST ---\nThe user wants to: {{USER_REQUEST}}\n\nProduce a JSON analysis:\n{\n  \"affected_layers\": [\"postgres\", \"neo4j\", \"flat_files\"],  // which layers this request touches\n  \"postgres\": {\n    \"relevant_tables\": [],\n    \"gaps\": [],\n    \"conflicts\": []\n  },\n  \"neo4j\": {\n    \"relevant_labels\": [],\n    \"relevant_relationships\": [],\n    \"gaps\": [],\n    \"conflicts\": []\n  },\n  \"flat_files\": {\n    \"relevant_files\": [],\n    \"gaps\": [],\n    \"conflicts\": []\n  },\n  \"cross_layer\": {\n    \"sync_points\": [],  // where data flows between layers\n    \"shared_identifiers\": [],  // IDs or keys that bridge layers\n    \"consistency_concerns\": []\n  },\n  \"existing_code\": {\n    \"relevant_files\": [],\n    \"key_functions\": []\n  },\n  \"existing_bot_commands\": []\n}",
+        "max_tokens": 6144,
+        "temperature": 0.1
+      },
+      "input_contract": {
+        "from_context": [
+          "postgres_schema", "postgres_row_counts", "postgres_indexes",
+          "neo4j_labels", "neo4j_relationship_types", "neo4j_node_counts", "neo4j_schema_viz",
+          "flat_file_inventory", "target_flat_file_contents",
+          "target_code", "bot_handlers"
+        ],
+        "from_stages": []
+      },
+      "output_contract": {
+        "format": "json",
+        "required_fields": ["affected_layers", "cross_layer"],
+        "description": "Multi-layer gap analysis with cross-layer sync points identified"
+      }
+    },
+    {
+      "stage_id": "plan",
+      "name": "Multi-Layer Change Plan",
+      "description": "Given the recon analysis, produce a concrete plan spanning all affected data layers with explicit ordering to maintain cross-layer consistency.",
+      "depends_on": ["recon"],
+      "execution": {
+        "mode": "llm",
+        "model_preference": "deep",
+        "prompt_template": "You are planning changes to the Mythos system across multiple data layers.\n\nSystem architecture:\n{{architecture}}\n\nRecon analysis:\n{{recon_output}}\n\nUser request: {{USER_REQUEST}}\n\nProduce a change plan as JSON:\n{\n  \"affected_layers\": [],\n  \"execution_order\": \"Description of what must happen in what order across layers\",\n  \"postgres\": {\n    \"migrations\": [],  // SQL operations in execution order\n    \"new_indexes\": [],\n    \"data_seeds\": []  // any initial data to insert\n  },\n  \"neo4j\": {\n    \"schema_changes\": [],  // new constraints, indexes\n    \"cypher_migrations\": [],  // CREATE, MERGE operations for new structure\n    \"data_seeds\": []  // initial nodes/relationships to create\n  },\n  \"flat_files\": {\n    \"new_files\": [],  // {path, format, description}\n    \"modified_files\": [],  // {path, changes_needed}\n    \"templates\": []  // any new templates to create\n  },\n  \"code_changes\": [],  // {file, action (create|modify|delete), description, layer_interactions}\n  \"bot_changes\": [],  // new/modified bot commands\n  \"cross_layer_sync\": {\n    \"sync_operations\": [],  // operations that must update multiple layers atomically\n    \"rollback_order\": \"If something fails, reverse in this order\",\n    \"validation_queries\": []  // queries to verify cross-layer consistency after deployment\n  },\n  \"patch_number\": \"next sequential based on {{patch_history}}\",\n  \"risk_assessment\": {\n    \"postgres_risks\": [],\n    \"neo4j_risks\": [],\n    \"flat_file_risks\": [],\n    \"cross_layer_risks\": [],\n    \"rollback_strategy\": \"\"\n  }\n}",
+        "max_tokens": 6144,
+        "temperature": 0.2
+      },
+      "input_contract": {
+        "from_context": ["architecture", "patch_history"],
+        "from_stages": ["recon"]
+      },
+      "output_contract": {
+        "format": "json",
+        "required_fields": ["affected_layers", "execution_order", "cross_layer_sync", "risk_assessment"],
+        "description": "Multi-layer change plan with cross-layer sync strategy and rollback plan"
+      }
+    },
+    {
+      "stage_id": "build_sql",
+      "name": "Build PostgreSQL Migrations",
+      "description": "Generate all SQL migration statements. CONDITIONAL: only runs if postgres is in affected_layers.",
+      "depends_on": ["plan"],
+      "skip_condition": "postgres not in plan_output.affected_layers",
+      "execution": {
+        "mode": "llm",
+        "model_preference": "balanced",
+        "prompt_template": "Generate PostgreSQL migration SQL for the Mythos system.\n\nChange plan - Postgres section:\n{{plan_output.postgres}}\n\nExisting schema:\n{{postgres_schema}}\n\nExisting indexes:\n{{postgres_indexes}}\n\nCross-layer sync points:\n{{plan_output.cross_layer_sync}}\n\nRules:\n- All SQL in a single file\n- Use IF NOT EXISTS where appropriate\n- Include rollback comments (-- ROLLBACK: <reverse statement>)\n- Follow existing naming conventions from schema\n- Add appropriate indexes\n- Add appropriate constraints and foreign keys\n- If this table/field bridges to Neo4j, add a comment noting the graph counterpart\n- Include any data seed INSERT statements at the end\n\nOutput the complete SQL file content.",
+        "max_tokens": 8192,
+        "temperature": 0.1
+      },
+      "input_contract": {
+        "from_context": ["postgres_schema", "postgres_indexes"],
+        "from_stages": ["plan"]
+      },
+      "output_contract": {
+        "format": "sql",
+        "description": "Complete PostgreSQL migration SQL file with rollback comments"
+      }
+    },
+    {
+      "stage_id": "build_cypher",
+      "name": "Build Neo4j Cypher Migrations",
+      "description": "Generate all Cypher migration statements. CONDITIONAL: only runs if neo4j is in affected_layers.",
+      "depends_on": ["plan"],
+      "skip_condition": "neo4j not in plan_output.affected_layers",
+      "execution": {
+        "mode": "llm",
+        "model_preference": "balanced",
+        "prompt_template": "Generate Neo4j Cypher migration statements for the Mythos system.\n\nChange plan - Neo4j section:\n{{plan_output.neo4j}}\n\nExisting node labels:\n{{neo4j_labels}}\n\nExisting relationship types:\n{{neo4j_relationship_types}}\n\nExisting node counts:\n{{neo4j_node_counts}}\n\nCross-layer sync points:\n{{plan_output.cross_layer_sync}}\n\nRules:\n- All Cypher in a single .cypher file\n- Use MERGE for idempotent operations where possible\n- CREATE CONSTRAINT IF NOT EXISTS for uniqueness constraints\n- CREATE INDEX IF NOT EXISTS for performance indexes\n- Include comments describing each operation\n- If a node bridges to PostgreSQL, include a `pg_table` and `pg_id` property comment\n- Include data seed operations (initial nodes/relationships) at the end\n- Group operations: 1) Constraints/Indexes, 2) Schema changes, 3) Data seeds\n- Each statement must end with a semicolon\n\nOutput the complete Cypher migration file content.",
+        "max_tokens": 8192,
+        "temperature": 0.1
+      },
+      "input_contract": {
+        "from_context": ["neo4j_labels", "neo4j_relationship_types", "neo4j_node_counts"],
+        "from_stages": ["plan"]
+      },
+      "output_contract": {
+        "format": "cypher",
+        "description": "Complete Neo4j Cypher migration file"
+      }
+    },
+    {
+      "stage_id": "build_flat_files",
+      "name": "Build Flat File Changes",
+      "description": "Generate new or modified config/data/doc files. CONDITIONAL: only runs if flat_files is in affected_layers.",
+      "depends_on": ["plan"],
+      "skip_condition": "flat_files not in plan_output.affected_layers",
+      "execution": {
+        "mode": "llm",
+        "model_preference": "balanced",
+        "prompt_template": "Generate flat file changes for the Mythos system.\n\nChange plan - Flat files section:\n{{plan_output.flat_files}}\n\nExisting flat files in target area:\n{{target_flat_file_contents}}\n\nFull flat file inventory:\n{{flat_file_inventory}}\n\nRules:\n- For JSON files: valid JSON, formatted with 2-space indent\n- For YAML files: valid YAML\n- For Markdown files: follow existing doc conventions from ARCHITECTURE.md\n- For config files: match existing format in the module\n- If creating a new file, include a header comment with purpose and date\n- If modifying an existing file, output the COMPLETE new file content (not a diff)\n- Note any cross-layer references (e.g., if a JSON config references Postgres table names or Neo4j labels)\n\nFor each file output:\n- filepath (relative to /opt/mythos/)\n- complete file content\n- description of what changed and why",
+        "max_tokens": 8192,
+        "temperature": 0.1
+      },
+      "input_contract": {
+        "from_context": ["target_flat_file_contents", "flat_file_inventory"],
+        "from_stages": ["plan"]
+      },
+      "output_contract": {
+        "format": "mixed",
+        "required_fields": ["files"],
+        "description": "Array of {filepath, content, description} for all flat file changes"
+      }
+    },
+    {
+      "stage_id": "build_code",
+      "name": "Build Service Code",
+      "description": "Generate or modify Python service code. Must handle connections to whichever data layers are affected.",
+      "depends_on": ["plan"],
+      "execution": {
+        "mode": "llm",
+        "model_preference": "deep",
+        "prompt_template": "Generate Python code changes for the Mythos system.\n\nChange plan - Code changes:\n{{plan_output.code_changes}}\n\nAffected layers: {{plan_output.affected_layers}}\n\nExisting code:\n{{target_code}}\n\nArchitecture:\n{{architecture}}\n\nEnvironment config:\n{{env_config}}\n\nCross-layer sync requirements:\n{{plan_output.cross_layer_sync}}\n\nRules:\n- Match existing code style exactly\n- PostgreSQL: use psycopg2, connection from environment variables or existing connection helper\n- Neo4j: use neo4j Python driver, connection from environment variables\n- Flat files: use pathlib for file operations, json/yaml stdlib for parsing\n- Use the existing venv at /opt/mythos/.venv/bin/python3\n- Include error handling for EACH data layer independently\n- If a function touches multiple layers, implement proper error handling:\n  - Try all operations\n  - If one layer fails, log the failure and the state of other layers\n  - Provide clear error messages indicating which layer failed\n- Add docstrings noting which data layers each function interacts with\n- Follow existing import patterns from the target module\n\nFor each file, output:\n- filepath (relative to /opt/mythos/)\n- complete file content (not diffs)\n- which layers it interacts with",
+        "max_tokens": 8192,
+        "temperature": 0.2
+      },
+      "input_contract": {
+        "from_context": ["target_code", "architecture", "env_config"],
+        "from_stages": ["plan"]
+      },
+      "output_contract": {
+        "format": "mixed",
+        "required_fields": ["files"],
+        "description": "Array of {filepath, content, layers} for all code files"
+      }
+    },
+    {
+      "stage_id": "build_bot",
+      "name": "Build Bot Handlers",
+      "description": "Generate or modify Telegram bot command handlers. Skipped if plan has no bot_changes.",
+      "depends_on": ["plan"],
+      "skip_condition": "bot_changes is empty in plan_output",
+      "execution": {
+        "mode": "llm",
+        "model_preference": "balanced",
+        "prompt_template": "Generate Telegram bot handler code for the Mythos system.\n\nBot changes needed:\n{{plan_output.bot_changes}}\n\nExisting bot handlers:\n{{bot_handlers}}\n\nExisting bot code:\n{{target_code}}\n\nAffected layers: {{plan_output.affected_layers}}\n\nRules:\n- Match existing handler patterns exactly\n- Use existing bot framework (python-telegram-bot)\n- Include help text for new commands\n- Handle errors gracefully with user-friendly messages\n- If querying Neo4j, format graph results readably for Telegram\n- If querying Postgres, format tabular results readably for Telegram\n- Support Seraphe's Telegram ID (8069190169) for any restricted commands\n\nOutput modified or new handler files with full content.",
+        "max_tokens": 4096,
+        "temperature": 0.2
+      },
+      "input_contract": {
+        "from_context": ["bot_handlers", "target_code"],
+        "from_stages": ["plan"]
+      },
+      "output_contract": {
+        "format": "code",
+        "description": "Bot handler Python files"
+      }
+    }
+  ],
+
+  "synthesis": {
+    "mode": "hybrid",
+    "model_preference": "deep",
+    "prompt_template": "You are assembling a Mythos patch from completed multi-layer build stages.\n\nPatch number: {{plan_output.patch_number}}\nDescription: {{USER_REQUEST}}\nAffected layers: {{plan_output.affected_layers}}\n\nPostgreSQL migrations:\n{{build_sql_output}}\n\nNeo4j Cypher migrations:\n{{build_cypher_output}}\n\nFlat file changes:\n{{build_flat_files_output}}\n\nService code:\n{{build_code_output}}\n\nBot handlers:\n{{build_bot_output}}\n\nCross-layer sync requirements:\n{{plan_output.cross_layer_sync}}\n\nAssemble into:\n1. Patch directory: patch_{{NNNN}}_description/\n2. install.sh that:\n   a. Runs PostgreSQL migrations FIRST (if applicable)\n   b. Runs Neo4j Cypher migrations SECOND (if applicable)\n   c. Deploys flat file changes THIRD\n   d. Copies code files to correct locations FOURTH\n   e. Restarts affected services FIFTH\n   f. Runs cross-layer validation queries LAST\n   g. Reports success/failure for each layer independently\n   h. If ANY layer fails, reports which layers succeeded and which failed\n3. All files in correct subdirectory structure under opt/mythos/\n4. Updated TODO.md entry\n5. ARCHITECTURE.md update if this is a stable milestone\n\nRequired output files:\n- install.sh (executable, with layer-by-layer execution and validation)\n- *.sql file (all PostgreSQL SQL, if applicable)\n- *.cypher file (all Neo4j Cypher, if applicable)\n- All flat files in their target paths\n- All Python code files in their target paths\n- manifest.json describing the patch contents and affected layers\n- summary.md (copy/paste ready documentation)\n\ninstall.sh MUST:\n- Check each layer's connectivity before starting\n- Execute layers in the correct order\n- Validate cross-layer consistency after all changes\n- Provide clear output for each step\n- Support a --dry-run flag that shows what would happen without executing",
+    "output_format": "Patch zip file ready for deployment via Mythos patch monitor",
+    "validation": [
+      "SQL file is syntactically valid (if present)",
+      "Cypher file is syntactically valid (if present)",
+      "JSON flat files parse correctly (if present)",
+      "install.sh is executable and handles all affected layers in correct order",
+      "All file paths match ARCHITECTURE.md conventions",
+      "Patch number is sequential and not a duplicate",
+      "No hardcoded credentials or secrets in any file",
+      "Cross-layer validation queries are included in install.sh",
+      "install.sh checks layer connectivity before executing",
+      "Rollback instructions are documented in summary.md"
+    ]
+  },
+
+  "feedback_loop": {
+    "log_execution": true,
+    "track_metrics": [
+      "total_tokens_consumed",
+      "stages_completed_vs_planned",
+      "layers_affected",
+      "human_modifications_post_synthesis",
+      "deployment_success_per_layer",
+      "cross_layer_validation_pass",
+      "rollback_needed"
+    ],
+    "auto_refine": false
+  }
+}

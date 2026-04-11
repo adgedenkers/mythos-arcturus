@@ -1,0 +1,34 @@
+{
+  "plan_id": "log_life_event",
+  "version": "1.0",
+  "description": "Log a new life event with domain, person, and mood",
+  "pattern": "action_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "table_schema": "Table: life_events\nColumns:\n  - id (integer, PK, serial)\n  - description (text, NOT NULL) -- what happened\n  - domain (varchar(50), default 'personal') -- values: 'personal', 'spiritual', 'technical', 'financial'\n  - person (varchar(50), default 'adge') -- values: 'adge', 'rebecca', 'fitz'\n  - mood (varchar(100), nullable)\n  - source (varchar(50), default 'iris')\n  - source_message (text, nullable) -- the original message that triggered this\n  - created_at (timestamp, default CURRENT_TIMESTAMP)",
+    "scaffold": "class LogLifeEventSkill(SkillBase):\n    name = 'log_life_event'\n    version = '1.0'\n    category = 'action'\n    description = 'Log a new life event'\n    triggers = ['log event', 'record event', 'log that', 'note that', 'remember that', 'something happened', 'just happened', 'log life event']\n    cache_ttl = 0\n\n    async def execute(self, request) -> SkillResponse:\n        # 1. Extract description from message\n        # 2. Detect domain and person\n        # 3. INSERT into life_events\n        # 4. Return confirmation\n        pass\n\n    def _extract_description(self, message) -> str:\n        # Remove trigger phrases, return the event description\n        pass\n\n    def _detect_domain(self, message) -> str:\n        # Check for domain keywords, default 'personal'\n        pass\n\n    def _detect_person(self, message) -> str:\n        # Check for person names, default 'adge'\n        pass\n\n    def _insert_event(self, description, domain, person, source_message) -> int:\n        # INSERT and return the new id\n        pass",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "connection_cleanup": "Always try/except/finally. Close cursor and connection in finally. COMMIT after INSERT.",
+      "no_unicode": "ASCII only in comments.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name (str), data (dict), summary (str), confidence (float), sources (list), error (str|None). NEVER use 'success', 'message', 'text', 'ok', 'result', or any other kwargs."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: os, logging, psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _extract_description(), _detect_domain(), _detect_person(). For extract: lowercase, remove triggers LONGEST FIRST: 'log life event', 'record event', 'log event', 'something happened', 'just happened', 'remember that', 'note that', 'log that', 'log', 'record'. Normalize whitespace between each. Return cleaned string. For domain: check for 'spiritual', 'technical', 'financial', 'personal'. Default 'personal'. For person: check for 'rebecca', 'seraphe', 'fitz'. Map 'seraphe' to 'rebecca'. Default 'adge'.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement _insert_event(). Use _get_conn(). INSERT INTO life_events (description, domain, person, source, source_message) VALUES (%s, %s, %s, 'iris', %s) RETURNING id. conn.commit() after execute. Return the new id. try/finally close cursor and connection.", "test": "parse_check"},
+    {"pass": 4, "instruction": "Implement execute(). Extract description. If empty or less than 3 chars: return SkillResponse(skill_name=self.name, data={}, summary='Could not determine what to log. Please describe the event.', confidence=0.3, sources=[]). Detect domain and person. Call _insert_event. Return SkillResponse(skill_name=self.name, data={'event_id': new_id, 'description': desc, 'domain': domain, 'person': person}, summary=f'Logged life event: \"{desc}\" (domain: {domain}, person: {person})', confidence=0.95, sources=['mythos.life_events']). try/except/finally. On error: return SkillResponse(skill_name=self.name, error=str(e)).", "test": "import_check"},
+    {"pass": 5, "instruction": "Review. _get_conn uses POSTGRES_HOST. conn.commit() after INSERT. Connections close in finally. SkillResponse uses ONLY valid kwargs (skill_name, data, summary, confidence, sources, error). Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "log event had a great conversation about astrology", "expect_ok": true, "expect_data_has": ["event_id", "description"], "expect_summary_contains": ["Logged"]},
+    {"message": "note that fitz had a good day at school", "expect_ok": true, "expect_data_has": ["event_id"]},
+    {"message": "log", "expect_ok": true, "note": "Too short - should return guidance"}
+  ]
+}

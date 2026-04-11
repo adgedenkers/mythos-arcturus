@@ -1,0 +1,113 @@
+{
+  "mythos_design_patterns": {
+    "version": "1.0",
+    "description": "Quick-reference index for Iris to understand available patterns",
+    
+    "patterns": {
+      "P1_ontology_node": {
+        "db": "neo4j",
+        "purpose": "Named entities with canonical_id bridge to Postgres",
+        "node_types": ["Person", "Soul", "Event", "Lineage", "Organization", "Location"],
+        "key_rule": "Every node MUST have canonical_id (UUID), at least one name, created_at, source",
+        "multi_label": true,
+        "file": "patterns_neo4j.cypher"
+      },
+      
+      "P2_relationship_web": {
+        "db": "neo4j",
+        "purpose": "Typed, directional edges with properties",
+        "categories": {
+          "family": ["PARENT_OF", "SIBLING_OF", "PARTNER_OF"],
+          "spiritual": ["INCARNATION_OF", "CARRIES_LINEAGE", "ACTIVATED_BY"],
+          "protection": ["PROTECTS", "GUARDS", "ANCHORS"],
+          "organizational": ["MEMBER_OF", "FOUNDED", "LEADS"],
+          "temporal": ["WITNESSED", "PARTICIPATED_IN", "OCCURRED_AT"],
+          "infrastructure": ["CREATED", "MODIFIED"]
+        },
+        "key_rule": "Use specific types, never generic RELATED_TO. Edges carry properties.",
+        "file": "patterns_neo4j.cypher"
+      },
+      
+      "P3_schema_aware_node": {
+        "db": "neo4j",
+        "purpose": "Self-describing graph — Schema nodes define expected properties and relationships",
+        "key_rule": "Every node type gets a :Schema node. Update when properties change.",
+        "introspection_query": "MATCH (s:Schema) RETURN s.node_type, s.required_properties, s.valid_outgoing, s.example_queries ORDER BY s.node_type",
+        "file": "patterns_neo4j.cypher"
+      },
+      
+      "P4_conversation_log": {
+        "db": "postgresql",
+        "purpose": "Chat messages, conversation containers, tiered summaries",
+        "tables": ["conversations", "chat_messages", "conversation_summaries"],
+        "key_rules": [
+          "Messages are IMMUTABLE — never UPDATE content",
+          "Summaries are tiered: 1=every 5 msgs, 2=every 25, 3=full convo",
+          "Embeddings stored as vector(384) via pgvector",
+          "Full-text search via tsvector column"
+        ],
+        "file": "patterns_postgresql.sql"
+      },
+      
+      "P5_financial_transaction": {
+        "db": "postgresql",
+        "purpose": "Income, expenses, accounts, obligations",
+        "tables": ["financial_accounts", "financial_transactions", "financial_obligations"],
+        "key_rules": [
+          "Transactions are IMMUTABLE — corrections are new transactions",
+          "SHA256 fingerprint for dedup on import",
+          "Negative amount = debit, Positive = credit"
+        ],
+        "file": "patterns_postgresql.sql"
+      },
+      
+      "P6_media_asset": {
+        "db": "postgresql",
+        "purpose": "Photos, audio, documents — metadata only, files on disk",
+        "tables": ["media_assets"],
+        "key_rules": [
+          "Binary data lives on DISK, not in database",
+          "SHA256 for dedup",
+          "Vision analysis fields populated async by workers"
+        ],
+        "file": "patterns_postgresql.sql"
+      },
+      
+      "P7_canonical_id_bridge": {
+        "db": "both",
+        "purpose": "Cross-database linking via shared UUID",
+        "key_rules": [
+          "canonical_id is the ONLY cross-DB key",
+          "Never use Neo4j id() or Postgres serial as bridge",
+          "Same UUID appears in both databases for the same entity"
+        ]
+      },
+      
+      "P8_worker_pipeline": {
+        "db": "both",
+        "purpose": "Async enrichment — intake fast, process later",
+        "workers": ["embedding", "entity", "temporal", "grid", "vision", "summary"],
+        "key_rules": [
+          "Intake sets processed=FALSE",
+          "Workers pull unprocessed rows",
+          "Use FOR UPDATE SKIP LOCKED for parallel workers",
+          "Mark processed=TRUE only when ALL workers done"
+        ]
+      }
+    },
+    
+    "conventions": {
+      "ids": "UUID everywhere via uuid_generate_v4() (Postgres) or randomUUID() (Neo4j)",
+      "timestamps": "TIMESTAMPTZ in Postgres, datetime() in Neo4j, always UTC",
+      "source_tracking": "Every record has a source field: manual | import | channeled | inferred | api",
+      "immutability": "Logs (messages, transactions) are NEVER updated. Corrections are new records.",
+      "spiral_time": "spiral_number (which 9-day cycle) + spiral_day (1-9 within cycle) tracked on time-sensitive records"
+    },
+    
+    "for_iris": {
+      "session_startup": "Run P3 introspection query to see current schema. Check what node types and relationship types exist before building anything.",
+      "before_building": "Check which pattern fits. Don't reinvent existing patterns.",
+      "new_feature": "If no pattern fits, create new one following the same format and add to this index."
+    }
+  }
+}

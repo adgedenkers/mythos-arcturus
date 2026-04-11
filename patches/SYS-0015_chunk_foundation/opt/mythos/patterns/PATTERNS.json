@@ -1,0 +1,171 @@
+{
+  "pattern_version": "1.0",
+  "last_updated": "2026-03-04",
+  "description": "Mythos Solution Patterns — known compositions of chunks that solve categories of problems. Claude picks a pattern, fills in the specifics, Ollama grinds through the build plan.",
+
+  "patterns": {
+    "data_query_skill": {
+      "name": "Data Query Skill",
+      "description": "Reads from one PostgreSQL table, returns structured data + human summary. The most common pattern — accounts for ~70% of skills.",
+      "chunk_slots": [
+        {"slot": "query", "type": "db_query", "required": true},
+        {"slot": "formatter", "type": "format_summary", "required": true}
+      ],
+      "scaffold": {
+        "methods": [
+          {"name": "execute", "purpose": "Main entry — extract params, run query, format, return"},
+          {"name": "_build_query", "purpose": "Construct the SQL from request parameters"},
+          {"name": "_format_results", "purpose": "Turn rows into structured data dict"},
+          {"name": "_build_summary", "purpose": "Turn rows into human-readable summary string"}
+        ],
+        "integration": "SkillBase subclass in /opt/mythos/skills/data/",
+        "test_pattern": "parse_check → import_check → execute_with_test_message → verify_summary"
+      },
+      "examples": ["finance_balance", "people_lookup", "calendar_context", "astro_context"],
+      "build_plan_template": [
+        {"pass": 1, "instruction": "Write imports, _get_conn(), class skeleton with all SkillBase attributes", "test": "parse_check"},
+        {"pass": 2, "instruction": "Write _build_query() — the SQL logic", "test": "parse_check"},
+        {"pass": 3, "instruction": "Write _format_results() and _build_summary()", "test": "parse_check"},
+        {"pass": 4, "instruction": "Write execute() tying it all together with try/except/finally", "test": "import_check"},
+        {"pass": 5, "instruction": "Run behavioral tests, fix failures", "test": "full_behavioral", "recursive": true}
+      ]
+    },
+
+    "memory_search": {
+      "name": "Memory Search",
+      "description": "Full-text search across one or more memory stores (voice memos, conversations, life events, ideas). Extracts search terms, queries with tsvector or ILIKE, ranks results, returns summary.",
+      "chunk_slots": [
+        {"slot": "intent_router", "type": "route_intent", "required": false},
+        {"slot": "date_parser", "type": "date_filter", "required": false},
+        {"slot": "searcher", "type": "text_search", "required": true},
+        {"slot": "ranker", "type": "rank_results", "required": false},
+        {"slot": "formatter", "type": "format_summary", "required": true}
+      ],
+      "scaffold": {
+        "methods": [
+          {"name": "execute", "purpose": "Extract search terms, optionally route to stores, search, rank, format"},
+          {"name": "_extract_search_terms", "purpose": "Pull keywords/phrases from natural language message"},
+          {"name": "_search_store", "purpose": "Run FTS or ILIKE query against a specific table"},
+          {"name": "_rank_results", "purpose": "Score by relevance + recency, sort"},
+          {"name": "_build_summary", "purpose": "Human-readable summary of top results with previews"}
+        ],
+        "integration": "SkillBase subclass in /opt/mythos/skills/data/",
+        "test_pattern": "parse_check → import_check → execute_with_known_content → verify_results_found"
+      },
+      "examples": [],
+      "build_plan_template": [
+        {"pass": 1, "instruction": "Write imports, connection, class skeleton", "test": "parse_check"},
+        {"pass": 2, "instruction": "Write _extract_search_terms() — keyword extraction from message", "test": "parse_check"},
+        {"pass": 3, "instruction": "Write _search_store() — the FTS/ILIKE query", "test": "parse_check"},
+        {"pass": 4, "instruction": "Write _rank_results() and _build_summary()", "test": "parse_check"},
+        {"pass": 5, "instruction": "Write execute() chaining all methods with try/except/finally", "test": "import_check"},
+        {"pass": 6, "instruction": "Run behavioral tests, fix failures", "test": "full_behavioral", "recursive": true}
+      ]
+    },
+
+    "action_skill": {
+      "name": "Action Skill",
+      "description": "Writes to PostgreSQL (INSERT/UPDATE/DELETE), returns confirmation. Used for logging events, creating records, updating state.",
+      "chunk_slots": [
+        {"slot": "validator", "type": "route_intent", "required": false},
+        {"slot": "writer", "type": "db_write", "required": true},
+        {"slot": "formatter", "type": "format_summary", "required": true}
+      ],
+      "scaffold": {
+        "methods": [
+          {"name": "execute", "purpose": "Parse input, validate, write, confirm"},
+          {"name": "_parse_input", "purpose": "Extract structured data from natural language message"},
+          {"name": "_validate", "purpose": "Check required fields, prevent duplicates"},
+          {"name": "_write", "purpose": "Execute INSERT/UPDATE with parameterized query"},
+          {"name": "_build_confirmation", "purpose": "Human-readable confirmation of what was done"}
+        ],
+        "integration": "SkillBase subclass in /opt/mythos/skills/data/",
+        "test_pattern": "parse_check → import_check → execute_with_test_input → verify_write"
+      },
+      "examples": [],
+      "build_plan_template": [
+        {"pass": 1, "instruction": "Write imports, connection, class skeleton", "test": "parse_check"},
+        {"pass": 2, "instruction": "Write _parse_input() — extract structured data from message", "test": "parse_check"},
+        {"pass": 3, "instruction": "Write _validate() and _write() — the SQL INSERT/UPDATE", "test": "parse_check"},
+        {"pass": 4, "instruction": "Write execute() with confirmation summary", "test": "import_check"},
+        {"pass": 5, "instruction": "Run behavioral tests, fix failures", "test": "full_behavioral", "recursive": true}
+      ]
+    },
+
+    "composite_skill": {
+      "name": "Composite Skill",
+      "description": "Chains 2+ existing skills together. Daily briefing, full search across stores, multi-step workflows.",
+      "chunk_slots": [
+        {"slot": "sub_skills", "type": "compose", "required": true},
+        {"slot": "merger", "type": "format_summary", "required": true}
+      ],
+      "scaffold": {
+        "methods": [
+          {"name": "execute", "purpose": "Run sub-skills, collect results, merge summaries"},
+          {"name": "_run_sub_skills", "purpose": "Import and execute each sub-skill"},
+          {"name": "_merge_results", "purpose": "Combine data dicts and summaries from all sub-skills"}
+        ],
+        "integration": "SkillBase subclass in /opt/mythos/skills/data/",
+        "test_pattern": "parse_check → import_check → execute → verify_merged_output"
+      },
+      "examples": ["daily_briefing (planned)"],
+      "build_plan_template": [
+        {"pass": 1, "instruction": "Write class skeleton with imports for all sub-skills", "test": "parse_check"},
+        {"pass": 2, "instruction": "Write _run_sub_skills() calling each sub-skill via await Skill().run()", "test": "parse_check"},
+        {"pass": 3, "instruction": "Write _merge_results() and execute()", "test": "import_check"},
+        {"pass": 4, "instruction": "Run behavioral tests, fix failures", "test": "full_behavioral", "recursive": true}
+      ]
+    },
+
+    "api_endpoint": {
+      "name": "API Endpoint",
+      "description": "FastAPI route that exposes a skill or direct query via HTTP. Includes request validation, response formatting, error handling.",
+      "chunk_slots": [
+        {"slot": "handler", "type": "db_query", "required": true},
+        {"slot": "formatter", "type": "format_summary", "required": false}
+      ],
+      "scaffold": {
+        "files": ["api/routes/{name}.py"],
+        "methods": [
+          {"name": "route_handler", "purpose": "FastAPI route function"},
+          {"name": "_validate_request", "purpose": "Pydantic model or manual validation"},
+          {"name": "_execute", "purpose": "Call skill or run query directly"}
+        ],
+        "integration": "FastAPI route registered in api/main.py"
+      },
+      "examples": ["finance routes", "voice routes"],
+      "build_plan_template": [
+        {"pass": 1, "instruction": "Write the Pydantic models and route skeleton", "test": "parse_check"},
+        {"pass": 2, "instruction": "Write the handler logic calling the appropriate skill or query", "test": "parse_check"},
+        {"pass": 3, "instruction": "Wire into api/main.py router include", "test": "import_check"}
+      ]
+    },
+
+    "telegram_command": {
+      "name": "Telegram Command",
+      "description": "Bot handler responding to a /command. Parses args, calls a skill, formats reply for Telegram.",
+      "chunk_slots": [
+        {"slot": "parser", "type": "route_intent", "required": false},
+        {"slot": "executor", "type": "db_query", "required": true},
+        {"slot": "formatter", "type": "format_summary", "required": true}
+      ],
+      "scaffold": {
+        "files": ["telegram_bot/handlers/{name}.py"],
+        "methods": [
+          {"name": "handle_command", "purpose": "Entry point called by bot dispatcher"},
+          {"name": "_parse_args", "purpose": "Extract arguments from message text"},
+          {"name": "_execute", "purpose": "Call skill or run query"},
+          {"name": "_format_reply", "purpose": "Format for Telegram (markdown, length limits)"}
+        ],
+        "integration": "Handler registered in telegram_bot/bot.py command list"
+      },
+      "examples": ["finance commands", "patch_status"],
+      "build_plan_template": [
+        {"pass": 1, "instruction": "Write handler skeleton with arg parsing", "test": "parse_check"},
+        {"pass": 2, "instruction": "Write execute logic calling the skill", "test": "parse_check"},
+        {"pass": 3, "instruction": "Write Telegram-formatted reply builder", "test": "parse_check"},
+        {"pass": 4, "instruction": "Register in bot.py command dispatcher", "test": "import_check"}
+      ]
+    }
+  }
+}

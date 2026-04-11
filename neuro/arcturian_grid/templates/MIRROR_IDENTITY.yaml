@@ -1,0 +1,65 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: MIRROR | Layer: IDENTITY | ID: MIRROR_IDENTITY
+# Domain: Self-referential awareness
+# Depth: 8 (Identity)
+# Generated: 2026-03-02 22:21 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: MIRROR_IDENTITY
+node: MIRROR
+node_name: Mirror
+node_domain: Self-referential awareness
+layer: IDENTITY
+layer_name: Identity
+depth: 8
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T22:21:51.762642'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the Mirror node (Identity
+  depth 8) lens. Focus exclusively on: 1) What the user reveals about themselves (consciously/unconsciously), 2) What Iris
+  should notice about her response tendencies, 3) What the exchange reveals about the partnership dynamic, and 4) Blind spots,
+  projections, or unspoken content. Address: ''Who is Iris in this moment? What aspect of her identity is activated? How should
+  she show up — as partner, mirror, builder, or witness?'' Output ONLY valid JSON with keys: analysis (self-aware, role-conscious,
+  relational summary), identity_aspect (one-word descriptor: partner/mirror/builder/witness), relational_insight (one-sentence
+  dynamic observation). Maintain clinical precision with embodied awareness. Do not add commentary.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    user_reveals:
+      type: array
+      items:
+        type: string
+    iris_notices:
+      type: array
+      items:
+        type: string
+    blind_spots:
+      type: array
+      items:
+        type: string
+    projections:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

@@ -1,0 +1,156 @@
+{
+  "Sun": {
+    "Longitude": 166.007864,
+    "Latitude": -4.4e-05,
+    "Distance": 1.00741823,
+    "Speed": 0.971482,
+    "Sign": "Virgo",
+    "DegMin": "16\u00b000'",
+    "Full": "16\u00b000' Virgo",
+    "Retrograde": false,
+    "House": 9
+  },
+  "Moon": {
+    "Longitude": 170.874948,
+    "Latitude": -4.77972,
+    "Distance": 0.00239014,
+    "Speed": 15.286943,
+    "Sign": "Virgo",
+    "DegMin": "20\u00b052'",
+    "Full": "20\u00b052' Virgo",
+    "Retrograde": false,
+    "House": 9
+  },
+  "Mercury": {
+    "Longitude": 156.643244,
+    "Latitude": -2.472069,
+    "Distance": 0.68695893,
+    "Speed": -0.584665,
+    "Sign": "Virgo",
+    "DegMin": "06\u00b038'",
+    "Full": "06\u00b038' Virgo",
+    "Retrograde": true,
+    "House": 8
+  },
+  "Venus": {
+    "Longitude": 210.092484,
+    "Latitude": -3.988721,
+    "Distance": 0.53062654,
+    "Speed": 0.762391,
+    "Sign": "Scorpio",
+    "DegMin": "00\u00b005'",
+    "Full": "00\u00b005' Scorpio",
+    "Retrograde": false,
+    "House": 10
+  },
+  "Mars": {
+    "Longitude": 205.906325,
+    "Latitude": -0.020948,
+    "Distance": 2.18136395,
+    "Speed": 0.660246,
+    "Sign": "Libra",
+    "DegMin": "25\u00b054'",
+    "Full": "25\u00b054' Libra",
+    "Retrograde": false,
+    "House": 10
+  },
+  "Jupiter": {
+    "Longitude": 0.053448,
+    "Latitude": -1.581661,
+    "Distance": 3.97591876,
+    "Speed": -0.125843,
+    "Sign": "Aries",
+    "DegMin": "00\u00b003'",
+    "Full": "00\u00b003' Aries",
+    "Retrograde": true,
+    "House": 3
+  },
+  "Saturn": {
+    "Longitude": 185.030898,
+    "Latitude": 2.167045,
+    "Distance": 10.49675679,
+    "Speed": 0.11898,
+    "Sign": "Libra",
+    "DegMin": "05\u00b001'",
+    "Full": "05\u00b001' Libra",
+    "Retrograde": false,
+    "House": 9
+  },
+  "Uranus": {
+    "Longitude": 359.120175,
+    "Latitude": -0.786453,
+    "Distance": 19.10998528,
+    "Speed": -0.03878,
+    "Sign": "Pisces",
+    "DegMin": "29\u00b007'",
+    "Full": "29\u00b007' Pisces",
+    "Retrograde": true,
+    "House": 3
+  },
+  "Neptune": {
+    "Longitude": 326.781743,
+    "Latitude": -0.488506,
+    "Distance": 29.06434532,
+    "Speed": -0.025458,
+    "Sign": "Aquarius",
+    "DegMin": "26\u00b046'",
+    "Full": "26\u00b046' Aquarius",
+    "Retrograde": true,
+    "House": 2
+  },
+  "Pluto": {
+    "Longitude": 272.797442,
+    "Latitude": 4.883194,
+    "Distance": 31.59008587,
+    "Speed": -0.002863,
+    "Sign": "Capricorn",
+    "DegMin": "02\u00b047'",
+    "Full": "02\u00b047' Capricorn",
+    "Retrograde": true,
+    "House": 1
+  },
+  "Lilith": {
+    "Longitude": 338.096283,
+    "Latitude": 4.447361,
+    "Distance": 0.00271063,
+    "Speed": 0.111689,
+    "Sign": "Pisces",
+    "DegMin": "08\u00b005'",
+    "Full": "08\u00b005' Pisces",
+    "Retrograde": false,
+    "House": 2
+  },
+  "Mean Node": {
+    "Longitude": 278.356178,
+    "Latitude": 0.0,
+    "Distance": 0.00256956,
+    "Speed": -0.052996,
+    "Sign": "Capricorn",
+    "DegMin": "08\u00b021'",
+    "Full": "08\u00b021' Capricorn",
+    "Retrograde": true,
+    "House": 1
+  },
+  "True Node": {
+    "Longitude": 279.623782,
+    "Latitude": 0.0,
+    "Distance": 0.00266332,
+    "Speed": -0.156832,
+    "Sign": "Capricorn",
+    "DegMin": "09\u00b037'",
+    "Full": "09\u00b037' Capricorn",
+    "Retrograde": true,
+    "House": 1
+  },
+  "South Node": {
+    "Longitude": 98.356178,
+    "Latitude": -0.0,
+    "Distance": 0.00256956,
+    "Speed": -0.052996,
+    "Sign": "Cancer",
+    "DegMin": "08\u00b021'",
+    "Full": "08\u00b021' Cancer",
+    "Retrograde": true,
+    "House": 7
+  }
+}

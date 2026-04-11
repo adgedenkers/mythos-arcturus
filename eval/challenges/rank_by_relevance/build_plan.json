@@ -1,0 +1,28 @@
+{
+  "plan_id": "rank_by_relevance",
+  "version": "1.0",
+  "description": "Score and sort results by keyword match density blended with recency",
+  "pattern": "rank_results",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "scaffold": "class RankByRelevanceSkill(SkillBase):\n    name = 'rank_by_relevance'\n    version = '1.0'\n    category = 'meta'\n    description = 'Score results by keyword relevance blended with recency'\n    triggers = ['relevant', 'best match', 'most relevant', 'rank by relevance']\n    cache_ttl = 0\n\n    async def execute(self, request) -> SkillResponse:\n        # Expects request.parameters with 'results' and 'keywords'\n        pass\n\n    def _score(self, result, keywords) -> float:\n        # Score 0.0-1.0 based on keyword matches in searchable text fields\n        # Blend with recency bonus\n        pass",
+    "mandatory_patterns": {
+      "no_database": "No database. Pure scoring logic.",
+      "no_unicode": "ASCII only.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name, data, summary, confidence, sources, error."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: logging, re, datetime (datetime, timedelta), engine.base. NO database imports. Class with attributes. Methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _score(). Takes a result dict and a list of keyword strings. Search across all string values in the result dict (join all str values into one text block, lowercase). For each keyword: count occurrences in the text. Keyword score = sum of (occurrences * (1/total_keywords)) capped at 1.0. Recency bonus: if result has 'created_at', parse it, calculate days ago. Recency score = max(0, 1.0 - (days_ago / 30)). If no date, recency = 0.5. Final score = (keyword_score * 0.7) + (recency_score * 0.3). Return clamped 0.0-1.0.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement execute(). Get results from request.parameters.get('results', []). Get keywords from request.parameters.get('keywords', []). If not keywords, try splitting request.message into words. If no results: return empty response. Score each result with _score(). Sort by score descending. Add 'relevance_score' field to each. Return SkillResponse(skill_name=self.name, data={'ranked': sorted_list, 'count': len, 'keywords_used': keywords}, summary=f'Ranked {len} results by relevance for keywords: {keywords}. Top score: {top_score:.0%}.', confidence=0.9, sources=['rank_by_relevance']). try/except.", "test": "import_check"},
+    {"pass": 4, "instruction": "Review. No database imports. Scoring handles edge cases (no keywords, no dates, empty results). Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "rank by relevance", "expect_ok": true, "expect_data_has": ["ranked"]},
+    {"message": "most relevant results", "expect_ok": true}
+  ]
+}

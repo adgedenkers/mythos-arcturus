@@ -1,0 +1,35 @@
+{
+  "plan_id": "query_transactions",
+  "version": "1.0",
+  "description": "Search transactions by description, merchant, amount, date range, or account",
+  "pattern": "data_query_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "table_schema": "Table: transactions\nColumns:\n  - id (integer, PK)\n  - account_id (integer, FK to accounts.id)\n  - transaction_date (date, NOT NULL)\n  - description (text, NOT NULL)\n  - merchant_name (varchar(255))\n  - amount (numeric(12,2), NOT NULL) -- negative = debit/spending, positive = credit/deposit\n  - category_primary (varchar(100))\n  - category_secondary (varchar(100))\n  - is_pending (boolean, default false)\n\nTable: accounts\n  - id (integer, PK)\n  - abbreviation (varchar) -- values: SUN, USAA, LLBEAN, TSC, OLDNAVY, TJX, AMEX, USAALOAN, NBT, SID\n  - account_name (text)\n  - account_type (varchar) -- values: 'checking', 'credit', 'loan'\n\nNo FTS index on transactions. Use ILIKE on description or merchant_name.",
+    "scaffold": "class QueryTransactionsSkill(SkillBase):\n    name = 'query_transactions'\n    version = '1.0'\n    category = 'data'\n    description = 'Search transactions by description, merchant, date, amount, or account'\n    triggers = ['transaction', 'transactions', 'spent', 'spending', 'purchase', 'bought', 'paid', 'payment', 'charge', 'how much did', 'where did I spend', 'recent purchases']\n    cache_ttl = 300\n\n    async def execute(self, request) -> SkillResponse:\n        # 1. Extract search terms and detect filters (account, date range)\n        # 2. If no terms/filters: return recent 10 transactions\n        # 3. Query with ILIKE on description/merchant_name + optional filters\n        # 4. Format results with amount, merchant, date, account\n        # 5. Build summary with total spent\n        pass\n\n    def _extract_search_terms(self, message) -> str:\n        pass\n\n    def _detect_account(self, message) -> int | None:\n        # Check for account abbreviations: SUN, USAA, LLBEAN, TSC, AMEX, etc.\n        # Return account_id or None\n        pass\n\n    def _query(self, search_terms, account_id=None, limit=15) -> list:\n        # ILIKE on description OR merchant_name, optional account filter\n        # JOIN accounts for account name\n        # ORDER BY transaction_date DESC\n        pass\n\n    def _format_results(self, rows) -> list:\n        pass\n\n    def _build_summary(self, results, search_terms) -> str:\n        # Include total amount spent and count\n        pass",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "extract_whitespace": "After removing each trigger phrase, normalize whitespace: message = ' '.join(message.split())",
+      "connection_cleanup": "Always try/except/finally. Close cursor and connection in finally.",
+      "no_unicode": "ASCII only in comments."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton: #!/usr/bin/env python3, docstring, imports (os, logging, psycopg2, RealDictCursor, dotenv, engine.base). Write _get_conn() EXACTLY as shown in mandatory_patterns. Write class with all attributes. All methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _extract_search_terms() and _detect_account(). For extract: lowercase, remove triggers LONGEST FIRST: 'where did i spend', 'recent purchases', 'how much did', 'transactions', 'transaction', 'spending', 'purchase', 'payment', 'bought', 'spent', 'charge', 'paid', 'search for', 'search about', 'search', 'find', 'about', 'what', 'when', 'any', 'the'. Normalize whitespace between each. Strip punctuation, single-char words. Return if >= 2 chars. For _detect_account: check message for abbreviations (case-insensitive): {'sun': 1, 'usaa': 2, 'sid': 3, 'nbt': 5, 'llbean': 6, 'tsc': 7, 'oldnavy': 8, 'tjx': 9, 'amex': 10, 'usaaloan': 11}. Return id or None.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement _query(). Use _get_conn(). Build: SELECT t.id, t.transaction_date, t.description, t.merchant_name, t.amount, t.category_primary, a.abbreviation as account_abbr, a.account_name FROM transactions t JOIN accounts a ON a.id = t.account_id WHERE 1=1. If search_terms: AND (t.description ILIKE %s OR t.merchant_name ILIKE %s) with f'%{search_terms}%' twice. If account_id: AND t.account_id = %s. ORDER BY t.transaction_date DESC LIMIT %s. try/finally close.", "test": "parse_check"},
+    {"pass": 4, "instruction": "Implement _format_results() and _build_summary(). Format: dict with id, date (ISO string), description, merchant_name, amount (float), category, account_abbr, account_name. Summary: if no results 'No transactions found matching X.' If results: 'Found N transaction(s) matching X, totaling $TOTAL.' Then top 3: '$AMOUNT at DESCRIPTION (ACCOUNT, DATE)'. Calculate total as sum of amounts.", "test": "parse_check"},
+    {"pass": 5, "instruction": "Implement execute(). Extract terms, detect account. If no terms AND no account: query recent 10 (pass empty search_terms). Format, summarize with 'Here are your 10 most recent transactions, totaling $X.' Otherwise: query with terms/account, format, summarize. Return SkillResponse(skill_name=self.name, data={'matches': formatted, 'search_terms': terms, 'count': len, 'total': sum of amounts}, summary=summary, confidence=0.95, sources=['mythos.transactions']). try/except/finally.", "test": "import_check"},
+    {"pass": 6, "instruction": "Review. _get_conn uses POSTGRES_HOST. Connections close in finally. Summary never empty. Amounts formatted as $X.XX. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "search transactions for stewart", "expect_ok": true, "expect_data_has": ["matches"], "expect_summary_contains": ["transaction"]},
+    {"message": "what did I spend on youtube", "expect_ok": true, "expect_data_has": ["matches"]},
+    {"message": "show me recent transactions", "expect_ok": true, "expect_data_has": ["matches"]}
+  ]
+}

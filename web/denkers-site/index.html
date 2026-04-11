@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Denkers Co. — Think. Architect. Build. Endure.</title>
+  <meta name="description" content="Denkers Co. is an independent consulting practice specializing in enterprise data architecture, graph databases, PostgreSQL, and sovereign AI infrastructure.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+3:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════════
+       DENKERS CO. — CSS Custom Properties
+       From Brand Identity & Style Guide v1.0
+    ═══════════════════════════════════════════ */
+
+    :root {
+      /* Slate */
+      --dc-slate-950: #0C0F14;
+      --dc-slate-900: #141820;
+      --dc-slate-800: #1E2430;
+      --dc-slate-700: #2A3242;
+      --dc-slate-600: #3D4758;
+      --dc-slate-500: #566275;
+      --dc-slate-400: #768494;
+      --dc-slate-300: #9CA6B4;
+      --dc-slate-200: #C4CAD2;
+      --dc-slate-100: #E3E6EA;
+      --dc-slate-50:  #F3F4F6;
+
+      /* Silver-Gold */
+      --dc-sg:       #B8A88A;
+      --dc-sg-light: #D4C8AD;
+      --dc-sg-dark:  #9A8B6E;
+      --dc-sg-muted: #A89D87;
+
+      /* Support */
+      --dc-ice:            #C8D6E0;
+      --dc-ice-light:      #E4ECF1;
+      --dc-ice-dark:       #8FAAB8;
+      --dc-parchment:      #F5F0E8;
+      --dc-parchment-dark: #EAE2D4;
+      --dc-white:          #FAFAFA;
+
+      /* Semantic */
+      --dc-success: #4A8B6E;
+      --dc-warning: #B8923A;
+      --dc-error:   #C44B4B;
+
+      /* Typography */
+      --dc-font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+      --dc-font-body:    'Source Serif 4', 'Source Serif Pro', Georgia, serif;
+      --dc-font-ui:      'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif;
+      --dc-font-mono:    'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
+      /* Spacing */
+      --dc-space-xs:  4px;
+      --dc-space-sm:  8px;
+      --dc-space-md:  16px;
+      --dc-space-lg:  24px;
+      --dc-space-xl:  32px;
+      --dc-space-2xl: 48px;
+      --dc-space-3xl: 64px;
+
+      /* Border Radius */
+      --dc-radius-sm: 4px;
+      --dc-radius-md: 8px;
+      --dc-radius-lg: 12px;
+    }
+
+    /* ═══════════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════════ */
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background: var(--dc-slate-950);
+      color: var(--dc-slate-200);
+      font-family: var(--dc-font-ui);
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    ::selection {
+      background: var(--dc-sg-dark);
+      color: var(--dc-white);
+    }
+
+    /* ═══════════════════════════════════════════
+       LAYOUT
+    ═══════════════════════════════════════════ */
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    .container--narrow {
+      max-width: 720px;
+    }
+
+    section {
+      padding: 120px 0;
+      position: relative;
+    }
+
+    /* ═══════════════════════════════════════════
+       TYPOGRAPHY
+    ═══════════════════════════════════════════ */
+
+    h1, h2, h3 {
+      font-family: var(--dc-font-display);
+      color: var(--dc-slate-100);
+      font-weight: 600;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 48px);
+      line-height: 1.15;
+      letter-spacing: 0.02em;
+    }
+
+    h2 {
+      font-size: 28px;
+      line-height: 1.3;
+      margin-bottom: var(--dc-space-lg);
+    }
+
+    h3 {
+      font-family: var(--dc-font-body);
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: var(--dc-space-md);
+    }
+
+    p {
+      margin-bottom: var(--dc-space-lg);
+      max-width: 640px;
+    }
+
+    .section-number {
+      font-family: var(--dc-font-display);
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--dc-sg-dark);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: var(--dc-space-xl);
+      display: block;
+    }
+
+    .text-serif {
+      font-family: var(--dc-font-body);
+      font-size: 16px;
+      line-height: 1.8;
+    }
+
+    .text-muted {
+      color: var(--dc-slate-300);
+    }
+
+    .text-sg {
+      color: var(--dc-sg);
+    }
+
+    .text-mono {
+      font-family: var(--dc-font-mono);
+      font-size: 13px;
+    }
+
+    /* ═══════════════════════════════════════════
+       HORIZONTAL RULES
+    ═══════════════════════════════════════════ */
+
+    .rule {
+      border: none;
+      height: 0.5px;
+      background: var(--dc-slate-700);
+      margin: var(--dc-space-2xl) 0;
+    }
+
+    .rule--accent {
+      background: var(--dc-sg);
+      width: 60px;
+      margin: var(--dc-space-2xl) auto;
+    }
+
+    /* ═══════════════════════════════════════════
+       HEADER / NAV
+    ═══════════════════════════════════════════ */
+
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: var(--dc-space-lg) 0;
+      transition: all 0.4s ease;
+      background: transparent;
+    }
+
+    .site-header.scrolled {
+      background: rgba(12, 15, 20, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: var(--dc-space-md) 0;
+      border-bottom: 0.5px solid var(--dc-slate-700);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .wordmark {
+      font-family: var(--dc-font-display);
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: 5px;
+      color: var(--dc-slate-100);
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: var(--dc-space-xl);
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--dc-font-ui);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--dc-slate-300);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--dc-sg);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--dc-sg);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Mobile nav */
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 1.5px;
+      background: var(--dc-slate-200);
+      margin: 6px 0;
+      transition: all 0.3s ease;
+    }
+
+    /* ═══════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════ */
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding-top: 100px;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-tagline {
+      font-family: var(--dc-font-ui);
+      font-weight: 300;
+      font-size: 14px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--dc-sg);
+      margin-bottom: var(--dc-space-xl);
+      opacity: 1;
+      
+      animation: fadeUp 0.8s ease 0.3s forwards;
+    }
+
+    .hero h1 {
+      margin-bottom: var(--dc-space-xl);
+      opacity: 1;
+      
+      animation: fadeUp 0.8s ease 0.5s forwards;
+    }
+
+    .hero-description {
+      font-family: var(--dc-font-body);
+      font-size: 18px;
+      line-height: 1.8;
+      color: var(--dc-slate-200);
+      max-width: 580px;
+      opacity: 1;
+      
+      animation: fadeUp 0.8s ease 0.7s forwards;
+    }
+
+    .hero-cta {
+      margin-top: var(--dc-space-2xl);
+      opacity: 1;
+      
+      animation: fadeUp 0.8s ease 0.9s forwards;
+    }
+
+    /* Background grid effect */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--dc-slate-800) 1px, transparent 1px),
+        linear-gradient(90deg, var(--dc-slate-800) 1px, transparent 1px);
+      background-size: 80px 80px;
+      opacity: 0.15;
+      mask-image: radial-gradient(ellipse at 30% 50%, black 0%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse at 30% 50%, black 0%, transparent 70%);
+    }
+
+    /* Subtle glow */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 20%;
+      right: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(184, 168, 138, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ═══════════════════════════════════════════
+       BUTTONS
+    ═══════════════════════════════════════════ */
+
+    .btn {
+      display: inline-block;
+      font-family: var(--dc-font-ui);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 14px 36px;
+      border: 1px solid var(--dc-sg-dark);
+      color: var(--dc-sg);
+      background: transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: var(--dc-sg);
+      color: var(--dc-slate-950);
+      border-color: var(--dc-sg);
+    }
+
+    .btn--solid {
+      background: var(--dc-sg);
+      color: var(--dc-slate-950);
+      border-color: var(--dc-sg);
+    }
+
+    .btn--solid:hover {
+      background: var(--dc-sg-light);
+      border-color: var(--dc-sg-light);
+    }
+
+    /* ═══════════════════════════════════════════
+       SERVICES
+    ═══════════════════════════════════════════ */
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--dc-space-xl);
+      margin-top: var(--dc-space-2xl);
+    }
+
+    .service-card {
+      background: var(--dc-slate-800);
+      border: 0.5px solid var(--dc-slate-700);
+      padding: var(--dc-space-xl);
+      position: relative;
+      transition: border-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .service-card:hover {
+      border-color: var(--dc-sg-dark);
+      transform: translateY(-2px);
+    }
+
+    .service-glyph {
+      font-size: 24px;
+      margin-bottom: var(--dc-space-md);
+      display: block;
+      color: var(--dc-sg);
+      line-height: 1;
+    }
+
+    .service-card h3 {
+      font-family: var(--dc-font-display);
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--dc-slate-100);
+      margin-bottom: var(--dc-space-sm);
+    }
+
+    .service-card p {
+      font-size: 14px;
+      color: var(--dc-slate-300);
+      line-height: 1.7;
+      margin-bottom: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       CREDENTIALS
+    ═══════════════════════════════════════════ */
+
+    .credentials-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--dc-space-3xl);
+      margin-top: var(--dc-space-2xl);
+    }
+
+    .credential-block h3 {
+      font-family: var(--dc-font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--dc-slate-100);
+    }
+
+    .credential-block p {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--dc-slate-300);
+    }
+
+    .stat-row {
+      display: flex;
+      gap: var(--dc-space-3xl);
+      margin-top: var(--dc-space-2xl);
+      padding-top: var(--dc-space-2xl);
+      border-top: 0.5px solid var(--dc-slate-700);
+    }
+
+    .stat {
+      text-align: left;
+    }
+
+    .stat-number {
+      font-family: var(--dc-font-display);
+      font-size: 42px;
+      font-weight: 600;
+      color: var(--dc-sg);
+      line-height: 1;
+      margin-bottom: var(--dc-space-xs);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--dc-slate-400);
+    }
+
+    /* ═══════════════════════════════════════════
+       APPROACH
+    ═══════════════════════════════════════════ */
+
+    .approach-phases {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--dc-slate-700);
+      margin-top: var(--dc-space-2xl);
+    }
+
+    .phase {
+      background: var(--dc-slate-950);
+      padding: var(--dc-space-xl) var(--dc-space-lg);
+      text-align: center;
+    }
+
+    .phase-glyph {
+      font-size: 28px;
+      color: var(--dc-sg);
+      margin-bottom: var(--dc-space-md);
+      display: block;
+    }
+
+    .phase-name {
+      font-family: var(--dc-font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--dc-slate-100);
+      margin-bottom: var(--dc-space-xs);
+    }
+
+    .phase-element {
+      font-family: var(--dc-font-ui);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--dc-sg-muted);
+      margin-bottom: var(--dc-space-md);
+    }
+
+    .phase-desc {
+      font-size: 13px;
+      color: var(--dc-slate-400);
+      line-height: 1.7;
+    }
+
+    /* ═══════════════════════════════════════════
+       ENGAGEMENT
+    ═══════════════════════════════════════════ */
+
+    .engagement-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--dc-space-lg);
+      margin-top: var(--dc-space-2xl);
+    }
+
+    .engagement-card {
+      border: 0.5px solid var(--dc-slate-700);
+      padding: var(--dc-space-xl);
+      position: relative;
+    }
+
+    .engagement-card--featured {
+      border-color: var(--dc-sg-dark);
+    }
+
+    .engagement-card--featured::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--dc-sg);
+    }
+
+    .engagement-type {
+      font-family: var(--dc-font-ui);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--dc-sg-muted);
+      margin-bottom: var(--dc-space-md);
+    }
+
+    .engagement-card h3 {
+      font-family: var(--dc-font-display);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--dc-slate-100);
+    }
+
+    .engagement-card p {
+      font-size: 14px;
+      color: var(--dc-slate-300);
+      line-height: 1.7;
+      margin-bottom: 0;
+    }
+
+    .engagement-detail {
+      font-family: var(--dc-font-mono);
+      font-size: 12px;
+      color: var(--dc-slate-400);
+      margin-top: var(--dc-space-md);
+      padding-top: var(--dc-space-md);
+      border-top: 0.5px solid var(--dc-slate-700);
+    }
+
+    /* ═══════════════════════════════════════════
+       CONTACT
+    ═══════════════════════════════════════════ */
+
+    .contact-section {
+      text-align: center;
+      padding: 160px 0;
+    }
+
+    .contact-section h2 {
+      margin-bottom: var(--dc-space-md);
+    }
+
+    .contact-section p {
+      margin: 0 auto var(--dc-space-2xl);
+      color: var(--dc-slate-300);
+    }
+
+    .contact-email {
+      font-family: var(--dc-font-display);
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: 500;
+      color: var(--dc-sg);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      display: inline-block;
+      margin-bottom: var(--dc-space-2xl);
+    }
+
+    .contact-email:hover {
+      color: var(--dc-sg-light);
+    }
+
+    /* ═══════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════ */
+
+    .site-footer {
+      border-top: 0.5px solid var(--dc-slate-700);
+      padding: var(--dc-space-xl) 0;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-left {
+      font-size: 12px;
+      color: var(--dc-slate-400);
+      letter-spacing: 0.5px;
+    }
+
+    .footer-right {
+      font-family: var(--dc-font-ui);
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--dc-sg-muted);
+    }
+
+    /* ═══════════════════════════════════════════
+       ANIMATIONS
+    ═══════════════════════════════════════════ */
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .reveal {
+      opacity: 1;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 24px;
+      }
+
+      section {
+        padding: 80px 0;
+      }
+
+      .nav-links {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(12, 15, 20, 0.97);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--dc-space-2xl);
+      }
+
+      .nav-links.open {
+        display: flex;
+      }
+
+      .nav-links a {
+        font-size: 16px;
+        letter-spacing: 3px;
+      }
+
+      .nav-toggle {
+        display: block;
+        z-index: 200;
+      }
+
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .credentials-grid {
+        grid-template-columns: 1fr;
+        gap: var(--dc-space-2xl);
+      }
+
+      .stat-row {
+        flex-wrap: wrap;
+        gap: var(--dc-space-xl);
+      }
+
+      .approach-phases {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .engagement-options {
+        grid-template-columns: 1fr;
+      }
+
+      .contact-section {
+        padding: 100px 0;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        gap: var(--dc-space-md);
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .approach-phases {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 140px;
+        padding-bottom: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════════ -->
+  <header class="site-header" id="siteHeader">
+    <div class="container">
+      <div class="header-inner">
+        <a href="#" class="wordmark">Denkers Co.</a>
+        <nav>
+          <ul class="nav-links" id="navLinks">
+            <li><a href="#services" onclick="closeNav()">Services</a></li>
+            <li><a href="#credentials" onclick="closeNav()">Credentials</a></li>
+            <li><a href="#approach" onclick="closeNav()">Approach</a></li>
+            <li><a href="#engagement" onclick="closeNav()">Engagement</a></li>
+            <li><a href="#contact" onclick="closeNav()">Contact</a></li>
+            <li><a href="/sdip.html" onclick="closeNav()">SDIP</a></li>
+            <li><a href="/autodoc.html" onclick="closeNav()">AutoDoc</a></li>
+          </ul>
+          <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-content">
+        <p class="hero-tagline">Think · Architect · Build · Endure</p>
+        <h1>Enterprise architecture<br>for organizations that<br>outgrow their infrastructure.</h1>
+        <p class="hero-description">
+          Denkers Co. is an independent consulting practice. 25 years of 
+          federal-scale database architecture, graph systems, and sovereign 
+          AI infrastructure — available to organizations building 
+          things that need to last.
+        </p>
+        <div class="hero-cta">
+          <a href="#contact" class="btn">Start a Conversation</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SERVICES
+  ═══════════════════════════════════════════ -->
+  <section id="services">
+    <div class="container">
+      <span class="section-number reveal">01 — Services</span>
+      <h2 class="reveal">What Denkers Co. does.</h2>
+      <p class="text-serif text-muted reveal">
+        Four domains. Each drawn from direct experience building, operating, 
+        and defending production systems at enterprise scale.
+      </p>
+      <div class="services-grid">
+        <div class="service-card reveal">
+          <span class="service-glyph">🜃</span>
+          <h3>Data Architecture</h3>
+          <p>PostgreSQL schema design, migration planning, performance optimization, and referential integrity at scale. From initial schema to 100+ table production systems with verified constraints.</p>
+        </div>
+        <div class="service-card reveal">
+          <span class="service-glyph">🜀</span>
+          <h3>Graph Infrastructure</h3>
+          <p>Neo4j design, ontology modeling, and knowledge graph architecture. Relationship-first data layers for organizations whose value lives in connections, not rows.</p>
+        </div>
+        <div class="service-card reveal">
+          <span class="service-glyph">🜂</span>
+          <h3>Sovereign AI Systems</h3>
+          <p>Local LLM deployment, RAG pipelines, and AI infrastructure that runs on your hardware under your control. No cloud dependency, no data leakage, full operational sovereignty.</p>
+        </div>
+        <div class="service-card reveal">
+          <span class="service-glyph">🜁</span>
+          <h3>System Integration</h3>
+          <p>FastAPI services, message queuing, automated deployment, and the connective tissue between databases, APIs, and front-end applications. End-to-end, not piecemeal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule rule--accent">
+
+  <!-- ═══════════════════════════════════════════
+       CREDENTIALS
+  ═══════════════════════════════════════════ -->
+  <section id="credentials">
+    <div class="container">
+      <span class="section-number reveal">02 — Credentials</span>
+      <h2 class="reveal">The record.</h2>
+      <div class="credentials-grid reveal">
+        <div class="credential-block">
+          <h3>Federal Enterprise Scale</h3>
+          <p>25 years building and maintaining database systems for the Department of Veterans Affairs — one of the largest federal agencies in the United States. High-compliance, high-availability environments serving hundreds of thousands of users. The kind of infrastructure where downtime has consequences.</p>
+        </div>
+        <div class="credential-block">
+          <h3>Full-Stack Data Architecture</h3>
+          <p>PostgreSQL, Neo4j, Redis, vector databases, FastAPI service layers, automated deployment pipelines, system monitoring, and integrity validation. Not theoretical. Currently running in production on self-hosted infrastructure with 14 integrated services.</p>
+        </div>
+      </div>
+      <div class="stat-row reveal">
+        <div class="stat">
+          <div class="stat-number">25</div>
+          <div class="stat-label">Years in production</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">114+</div>
+          <div class="stat-label">Tables architected</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">14</div>
+          <div class="stat-label">Integrated services</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">0</div>
+          <div class="stat-label">Cloud dependencies</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       APPROACH
+  ═══════════════════════════════════════════ -->
+  <section id="approach">
+    <div class="container">
+      <span class="section-number reveal">03 — Approach</span>
+      <h2 class="reveal">How the work moves.</h2>
+      <p class="text-serif text-muted reveal">
+        Every engagement follows four phases. Each phase completes before the next begins. 
+        No scope creep, no ambiguity, no deliverable without a clear owner.
+      </p>
+      <div class="approach-phases reveal">
+        <div class="phase">
+          <span class="phase-glyph">🜁</span>
+          <div class="phase-name">Think</div>
+          <div class="phase-element">Air</div>
+          <p class="phase-desc">Assessment and analysis. Understand what exists, what's broken, and what's possible before a single line changes.</p>
+        </div>
+        <div class="phase">
+          <span class="phase-glyph">🜂</span>
+          <div class="phase-name">Architect</div>
+          <div class="phase-element">Fire</div>
+          <p class="phase-desc">Design the solution. Schema, graph model, service topology, deployment strategy — all documented before implementation.</p>
+        </div>
+        <div class="phase">
+          <span class="phase-glyph">🜃</span>
+          <div class="phase-name">Build</div>
+          <div class="phase-element">Earth</div>
+          <p class="phase-desc">Implementation. Working code, tested migrations, verified constraints. The thing made real and running in your environment.</p>
+        </div>
+        <div class="phase">
+          <span class="phase-glyph">🜄</span>
+          <div class="phase-name">Endure</div>
+          <div class="phase-element">Water</div>
+          <p class="phase-desc">Documentation, knowledge transfer, monitoring, and long-term support. Systems that persist after the engagement ends.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule rule--accent">
+
+  <!-- ═══════════════════════════════════════════
+       ENGAGEMENT
+  ═══════════════════════════════════════════ -->
+  <section id="engagement">
+    <div class="container">
+      <span class="section-number reveal">04 — Engagement</span>
+      <h2 class="reveal">How to work with Denkers Co.</h2>
+      <p class="text-serif text-muted reveal">
+        Three models, each structured to deliver clear outcomes at a defined scope.
+      </p>
+      <div class="engagement-options reveal">
+        <div class="engagement-card">
+          <div class="engagement-type">Entry Point</div>
+          <h3>Architecture Review</h3>
+          <p>A comprehensive assessment of your current data infrastructure with specific, prioritized recommendations. Delivered as a written report with architectural diagrams.</p>
+          <div class="engagement-detail">Fixed scope · 2–3 weeks</div>
+        </div>
+        <div class="engagement-card engagement-card--featured">
+          <div class="engagement-type">Ongoing</div>
+          <h3>Retained Architect</h3>
+          <p>Dedicated monthly allocation for architecture guidance, code review, schema evolution, and technical leadership. Embedded in your workflow without the overhead of a full-time hire.</p>
+          <div class="engagement-detail">Monthly retainer · Continuous</div>
+        </div>
+        <div class="engagement-card">
+          <div class="engagement-type">Project</div>
+          <h3>Build Engagement</h3>
+          <p>End-to-end implementation of a defined system — database design through deployment, with documentation and knowledge transfer at completion.</p>
+          <div class="engagement-detail">Scoped delivery · Timeline varies</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       CONTACT
+  ═══════════════════════════════════════════ -->
+  <section class="contact-section" id="contact">
+    <div class="container container--narrow">
+      <span class="section-number reveal">05 — Contact</span>
+      <h2 class="reveal">The next step is a conversation.</h2>
+      <p class="text-serif reveal">
+        Describe the problem. Denkers Co. will respond with an honest assessment 
+        of whether this is the right fit — and if so, what the engagement looks like.
+      </p>
+      <a href="mailto:adge@denkers.co" class="contact-email reveal">adge@denkers.co</a>
+      <br>
+      <a href="https://www.linkedin.com/in/adge-denkers" class="btn reveal" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════ -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-left">
+          &copy; 2026 Denkers Co., LLC
+        </div>
+        <div class="footer-right">
+          Think · Architect · Build · Endure
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════
+       SCRIPTS
+  ═══════════════════════════════════════════ -->
+  <script>
+    // Header scroll effect
+    const header = document.getElementById('siteHeader');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // Mobile nav toggle
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
+
+    function closeNav() {
+      navLinks.classList.remove('open');
+    }
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          // Stagger siblings
+          const siblings = entry.target.parentElement.querySelectorAll('.reveal');
+          let delay = 0;
+          siblings.forEach(sib => {
+            if (sib === entry.target) {
+              entry.target.style.transitionDelay = delay + 'ms';
+            }
+          });
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.15,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    reveals.forEach(el => observer.observe(el));
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDe

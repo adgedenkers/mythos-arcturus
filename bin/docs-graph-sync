@@ -1,0 +1,479 @@
+#!/opt/mythos/.venv/bin/python3
+"""
+docs-graph-sync — Sync documentation metadata into Neo4j.
+
+Reads YAML frontmatter from all .md files in /opt/mythos/docs/,
+creates :Document nodes, and links them to existing code entities
+(:File, :IntegrityFile, :IntegrityFunction, :IntegrityTable,
+:IntegrityService, :Service) by scanning document body for references.
+
+Usage:
+    docs-graph-sync                # full sync
+    docs-graph-sync --dry-run      # show what would be created
+    docs-graph-sync --clear        # remove all :Document nodes first
+    docs-graph-sync --stats        # show current document graph stats
+
+Symlink: /opt/mythos/bin/docs-graph-sync
+"""
+
+import os
+import sys
+import re
+import json
+import argparse
+import subprocess
+from datetime import datetime
+from pathlib import Path
+
+# ── Config ────────────────────────────────────────────────────────────────────
+
+DOCS_ROOT = Path("/opt/mythos/docs")
+SKIP_DIRS = {"archive", "generated", "live", ".git", "__pycache__", "node_modules"}
+NEO4J_USER = "neo4j"
+NEO4J_DB = "neo4j"
+
+# Get password from environment
+NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD", "")
+if not NEO4J_PASSWORD:
+    # Try .bash_secure
+    secure_file = Path.home() / ".bash_secure"
+    if secure_file.exists():
+        for line in secure_file.read_text().split("\n"):
+            if "NEO4J_PASSWORD" in line and "export" in line:
+                match = re.search(r'NEO4J_PASSWORD[=]"?([^"\s]+)"?', line)
+                if match:
+                    NEO4J_PASSWORD = match.group(1)
+
+
+# ── Neo4j helpers ─────────────────────────────────────────────────────────────
+
+def run_cypher(query, params=None):
+    """Execute a Cypher query via cypher-shell. Returns stdout or None."""
+    cmd = [
+        "cypher-shell",
+        "-u", NEO4J_USER,
+        "-p", NEO4J_PASSWORD,
+        "--format", "plain",
+    ]
+
+    # Substitute params into query (cypher-shell doesn't support params well)
+    if params:
+        for key, val in params.items():
+            if isinstance(val, str):
+                escaped = val.replace("\\", "\\\\").replace("'", "\\'")
+                query = query.replace(f"${key}", f"'{escaped}'")
+            elif isinstance(val, list):
+                list_str = "[" + ", ".join(f"'{v}'" for v in val) + "]"
+                query = query.replace(f"${key}", list_str)
+            elif val is None:
+                query = query.replace(f"${key}", "null")
+            else:
+                query = query.replace(f"${key}", str(val))
+
+    try:
+        result = subprocess.run(
+            cmd, input=query, capture_output=True, text=True, timeout=30
+        )
+        if result.returncode != 0:
+            print(f"    ⚠ Cypher error: {result.stderr.strip()[:200]}")
+            return None
+        return result.stdout.strip()
+    except Exception as e:
+        print(f"    ⚠ Neo4j error: {e}")
+        return None
+
+
+# ── Frontmatter parsing ──────────────────────────────────────────────────────
+
+def parse_frontmatter(filepath):
+    """Extract YAML frontmatter from a markdown file."""
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            content = f.read(8192)
+    except Exception:
+        return None, ""
+
+    if not content.startswith("---"):
+        return None, content
+
+    end = content.find("---", 3)
+    if end == -1:
+        return None, content
+
+    yaml_block = content[3:end].strip()
+    body = content[end + 3:]
+
+    meta = {}
+    for line in yaml_block.split("\n"):
+        line = line.strip()
+        if ":" in line:
+            key, _, val = line.partition(":")
+            key = key.strip()
+            val = val.strip().strip('"').strip("'")
+            if val.startswith("[") and val.endswith("]"):
+                val = [v.strip().strip('"').strip("'") for v in val[1:-1].split(",") if v.strip()]
+            meta[key] = val
+
+    return meta, body
+
+
+def read_full_body(filepath):
+    """Read the full file body (after frontmatter) for reference scanning."""
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            content = f.read()
+    except Exception:
+        return ""
+
+    if content.startswith("---"):
+        end = content.find("---", 3)
+        if end != -1:
+            return content[end + 3:]
+    return content
+
+
+# ── Reference extraction ─────────────────────────────────────────────────────
+
+def extract_file_references(body):
+    """Find /opt/mythos/... file paths mentioned in the document body."""
+    paths = set()
+    # Match /opt/mythos/... paths (stop at whitespace, quotes, backtick, paren)
+    for match in re.finditer(r'/opt/mythos/[a-zA-Z0-9_./-]+', body):
+        path = match.group(0).rstrip('.,;:)')
+        if path.count('/') >= 3:  # At least /opt/mythos/something
+            paths.add(path)
+    return paths
+
+
+def extract_table_references(body):
+    """Find PostgreSQL table names mentioned in the document body."""
+    tables = set()
+    # Common patterns: table name after FROM, INTO, UPDATE, TABLE, etc.
+    for match in re.finditer(
+        r'(?:FROM|INTO|UPDATE|TABLE|JOIN)\s+([a-z][a-z0-9_]+)',
+        body, re.IGNORECASE
+    ):
+        tables.add(match.group(1).lower())
+
+    # Also look for explicit table references in backticks
+    for match in re.finditer(r'`([a-z][a-z0-9_]+)`', body):
+        name = match.group(1)
+        # Filter out obvious non-table names
+        if len(name) > 3 and '_' in name:
+            tables.add(name)
+
+    return tables
+
+
+def extract_service_references(body):
+    """Find service names mentioned in the document body."""
+    services = set()
+    # Match mythos-*.service patterns
+    for match in re.finditer(r'mythos-[a-z0-9-]+(?:\.service)?', body):
+        name = match.group(0).replace('.service', '')
+        services.add(name)
+
+    # Match known service names
+    known = [
+        "Mythos Telegram Bot", "Mythos API", "Neo4j Database",
+        "PostgreSQL Database", "Ollama"
+    ]
+    body_lower = body.lower()
+    for svc in known:
+        if svc.lower() in body_lower:
+            services.add(svc)
+
+    return services
+
+
+def extract_function_references(body):
+    """Find function/class names mentioned in the document body."""
+    functions = set()
+    # Match function() or Class.method() patterns in backticks
+    for match in re.finditer(r'`([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?)\(\)`', body):
+        functions.add(match.group(1))
+
+    # Match def function_name or class ClassName patterns
+    for match in re.finditer(r'(?:def|class)\s+([A-Za-z_][A-Za-z0-9_]+)', body):
+        functions.add(match.group(1))
+
+    return functions
+
+
+# ── Graph operations ──────────────────────────────────────────────────────────
+
+def create_document_node(meta, filepath, rel_path):
+    """Create or merge a :Document node in Neo4j."""
+    tags = meta.get("tags", [])
+    if isinstance(tags, str):
+        tags = [tags]
+    tag_str = "[" + ", ".join(f"'{t}'" for t in tags) + "]"
+
+    query = f"""
+MERGE (d:Document {{path: '{rel_path}'}})
+SET d.title = '{meta.get("title", "").replace("'", "\\'")}',
+    d.filename = '{filepath.name}',
+    d.category = '{meta.get("category", "reference")}',
+    d.status = '{meta.get("status", "active")}',
+    d.stream = '{meta.get("stream", "null")}',
+    d.tags = {tag_str},
+    d.author = '{meta.get("author", "unknown").replace("'", "\\'")}',
+    d.created = '{meta.get("created", "unknown")}',
+    d.updated = '{meta.get("updated", "unknown")}',
+    d.synced_at = '{datetime.now().isoformat()}'
+RETURN d.path
+"""
+    return run_cypher(query)
+
+
+def link_to_files(rel_path, file_paths):
+    """Create DESCRIBES relationships from Document to File/IntegrityFile nodes."""
+    count = 0
+    for fpath in file_paths:
+        # Try IntegrityFile first (from integrity scanner)
+        query = f"""
+MATCH (d:Document {{path: '{rel_path}'}})
+OPTIONAL MATCH (f:IntegrityFile {{path: '{fpath}'}})
+OPTIONAL MATCH (f2:File {{path: '{fpath}'}})
+WITH d, COALESCE(f, f2) AS target
+WHERE target IS NOT NULL
+MERGE (d)-[:DESCRIBES]->(target)
+RETURN count(*) AS linked
+"""
+        result = run_cypher(query)
+        if result and "0" not in result.split("\n")[-1]:
+            count += 1
+    return count
+
+
+def link_to_tables(rel_path, table_names):
+    """Create REFERENCES relationships from Document to IntegrityTable nodes."""
+    count = 0
+    for tname in table_names:
+        query = f"""
+MATCH (d:Document {{path: '{rel_path}'}})
+MATCH (t:IntegrityTable {{name: '{tname}'}})
+MERGE (d)-[:REFERENCES]->(t)
+RETURN count(*) AS linked
+"""
+        result = run_cypher(query)
+        if result and "0" not in result.split("\n")[-1]:
+            count += 1
+    return count
+
+
+def link_to_services(rel_path, service_names):
+    """Create DESCRIBES relationships from Document to Service nodes."""
+    count = 0
+    for sname in service_names:
+        # Try exact match first, then partial
+        query = f"""
+MATCH (d:Document {{path: '{rel_path}'}})
+MATCH (s:Service)
+WHERE s.name = '{sname}' OR s.name CONTAINS '{sname}'
+MERGE (d)-[:DESCRIBES]->(s)
+RETURN count(*) AS linked
+"""
+        result = run_cypher(query)
+        if result and "0" not in result.split("\n")[-1]:
+            count += 1
+    return count
+
+
+def link_to_functions(rel_path, func_names):
+    """Create REFERENCES relationships from Document to Function/IntegrityFunction nodes."""
+    count = 0
+    for fname in func_names:
+        query = f"""
+MATCH (d:Document {{path: '{rel_path}'}})
+OPTIONAL MATCH (f:IntegrityFunction {{name: '{fname}'}})
+OPTIONAL MATCH (f2:Function {{name: '{fname}'}})
+WITH d, COALESCE(f, f2) AS target
+WHERE target IS NOT NULL
+MERGE (d)-[:REFERENCES]->(target)
+RETURN count(*) AS linked
+"""
+        result = run_cypher(query)
+        if result and "0" not in result.split("\n")[-1]:
+            count += 1
+    return count
+
+
+def link_documents_by_category():
+    """Create RELATED_TO relationships between documents in the same category."""
+    query = """
+MATCH (d1:Document), (d2:Document)
+WHERE d1.category = d2.category
+AND d1.path < d2.path
+AND d1.category IS NOT NULL
+MERGE (d1)-[:RELATED_TO]->(d2)
+RETURN count(*) AS linked
+"""
+    return run_cypher(query)
+
+
+def link_documents_to_streams():
+    """Link documents to their stream's plan document."""
+    for stream in ["NEU", "LOG", "MNE", "SEN", "SYS"]:
+        query = f"""
+MATCH (d:Document {{stream: '{stream}'}})
+MATCH (plan:Document)
+WHERE plan.path CONTAINS '{stream}_PLAN'
+AND d.path <> plan.path
+MERGE (d)-[:PART_OF]->(plan)
+"""
+        run_cypher(query)
+
+
+# ── Main ──────────────────────────────────────────────────────────────────────
+
+def main():
+    parser = argparse.ArgumentParser(description="Sync docs metadata into Neo4j")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would be created")
+    parser.add_argument("--clear", action="store_true", help="Remove all :Document nodes first")
+    parser.add_argument("--stats", action="store_true", help="Show document graph stats")
+    args = parser.parse_args()
+
+    if not NEO4J_PASSWORD:
+        print("❌ NEO4J_PASSWORD not set")
+        sys.exit(1)
+
+    # Stats mode
+    if args.stats:
+        print("📊 Document Graph Stats")
+        print()
+        result = run_cypher("MATCH (d:Document) RETURN count(d) AS total")
+        print(f"  Document nodes: {result}")
+        result = run_cypher("MATCH (:Document)-[r:DESCRIBES]->() RETURN count(r) AS total")
+        print(f"  DESCRIBES edges: {result}")
+        result = run_cypher("MATCH (:Document)-[r:REFERENCES]->() RETURN count(r) AS total")
+        print(f"  REFERENCES edges: {result}")
+        result = run_cypher("MATCH (:Document)-[r:RELATED_TO]->(:Document) RETURN count(r) AS total")
+        print(f"  RELATED_TO edges: {result}")
+        result = run_cypher("MATCH (:Document)-[r:PART_OF]->(:Document) RETURN count(r) AS total")
+        print(f"  PART_OF edges: {result}")
+        result = run_cypher(
+            "MATCH (d:Document) RETURN d.category AS cat, count(*) AS n "
+            "ORDER BY n DESC"
+        )
+        print(f"\n  By category:\n{result}")
+        return
+
+    # Clear mode
+    if args.clear:
+        print("🗑  Clearing all :Document nodes and relationships...")
+        run_cypher("MATCH (d:Document) DETACH DELETE d")
+        print("  Done ✓")
+        if not args.dry_run:
+            return
+
+    # Scan docs
+    print(f"📚 Scanning {DOCS_ROOT}...")
+    print()
+
+    targets = []
+    for dirpath, dirnames, filenames in os.walk(DOCS_ROOT):
+        rel_dir = os.path.relpath(dirpath, DOCS_ROOT)
+        top_dir = rel_dir.split(os.sep)[0] if rel_dir != "." else "."
+
+        if top_dir in SKIP_DIRS:
+            dirnames.clear()
+            continue
+
+        for fname in sorted(filenames):
+            if not fname.endswith(".md") or fname == "_INDEX.md":
+                continue
+            fpath = Path(dirpath) / fname
+            targets.append((fpath, rel_dir))
+
+    print(f"  Found {len(targets)} documents to sync")
+    print()
+
+    total_nodes = 0
+    total_file_links = 0
+    total_table_links = 0
+    total_service_links = 0
+    total_function_links = 0
+
+    for i, (fpath, rel_dir) in enumerate(targets, 1):
+        rel_path = os.path.relpath(fpath, DOCS_ROOT)
+        meta, _ = parse_frontmatter(fpath)
+        body = read_full_body(fpath)
+
+        if not meta:
+            meta = {
+                "title": fpath.stem.replace("_", " ").title(),
+                "category": "reference",
+                "status": "active",
+                "stream": "null",
+            }
+
+        # Extract references from body
+        file_refs = extract_file_references(body)
+        table_refs = extract_table_references(body)
+        service_refs = extract_service_references(body)
+        func_refs = extract_function_references(body)
+
+        ref_summary = []
+        if file_refs:
+            ref_summary.append(f"{len(file_refs)} files")
+        if table_refs:
+            ref_summary.append(f"{len(table_refs)} tables")
+        if service_refs:
+            ref_summary.append(f"{len(service_refs)} services")
+        if func_refs:
+            ref_summary.append(f"{len(func_refs)} functions")
+
+        refs_str = f" → refs: {', '.join(ref_summary)}" if ref_summary else ""
+        print(f"[{i}/{len(targets)}] {rel_path} ({meta.get('category', '?')}){refs_str}")
+
+        if args.dry_run:
+            total_nodes += 1
+            continue
+
+        # Create node
+        result = create_document_node(meta, fpath, rel_path)
+        if result:
+            total_nodes += 1
+
+        # Create links
+        if file_refs:
+            linked = link_to_files(rel_path, file_refs)
+            total_file_links += linked
+
+        if table_refs:
+            linked = link_to_tables(rel_path, table_refs)
+            total_table_links += linked
+
+        if service_refs:
+            linked = link_to_services(rel_path, service_refs)
+            total_service_links += linked
+
+        if func_refs:
+            linked = link_to_functions(rel_path, func_refs)
+            total_function_links += linked
+
+    # Cross-document relationships
+    if not args.dry_run:
+        print()
+        print("  Linking documents by category...")
+        link_documents_by_category()
+        print("  Linking documents to stream plans...")
+        link_documents_to_streams()
+
+    # Summary
+    print()
+    print("━" * 40)
+    print(f"  Documents: {total_nodes}")
+    if not args.dry_run:
+        print(f"  File links: {total_file_links}")
+        print(f"  Table links: {total_table_links}")
+        print(f"  Service links: {total_service_links}")
+        print(f"  Function links: {total_function_links}")
+        print()
+        print("  Run `docs-graph-sync --stats` to see the full picture")
+    print("━" * 40)
+
+
+if __name__ == "__main__":
+    main()

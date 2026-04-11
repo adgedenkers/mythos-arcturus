@@ -1,0 +1,72 @@
+{
+  "plan_id": "memory_router",
+  "version": "1.0",
+  "description": "Build a Mythos skill that analyzes a message and determines which memory stores to search",
+  "pattern": "route_intent",
+  "model_hint": "qwen3-coder:30b",
+
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse",
+      "skill_directory": "/opt/mythos/skills/data/",
+      "venv_python": "/opt/mythos/.venv/bin/python3"
+    },
+    "scaffold": "class MemoryRouterSkill(SkillBase):\n    name = 'memory_router'\n    version = '1.0'\n    category = 'meta'\n    description = 'Analyzes a message and determines which memory stores to search'\n    triggers = ['remember', 'recall', 'what did', 'when did', 'did we', 'did I', 'have I', 'have we', 'memory', 'search everything', 'find anything about', 'look up']\n    cache_ttl = 0\n\n    STORE_KEYWORDS is a dict mapping store names to keyword lists:\n      'voice_memos': words suggesting spoken/recorded content\n      'conversations': words suggesting chat/discussion history\n      'life_events': words suggesting things that happened/occurred\n      'ideas': words suggesting thoughts/brainstorms/suggestions\n      'documents': words suggesting files/docs/written content\n\n    async def execute(self, request: SkillRequest) -> SkillResponse:\n        # 1. Extract search terms using _extract_search_terms()\n        # 2. Score each store using _score_stores()\n        # 3. Return ranked list of stores to search, plus extracted terms\n        pass\n\n    def _extract_search_terms(self, message: str) -> str:\n        # Remove routing trigger phrases, return the actual search content\n        pass\n\n    def _score_stores(self, message: str) -> list:\n        # For each store, count keyword matches\n        # If no specific store keywords found, return ALL stores (broad search)\n        # Return list of (store_name, score) sorted by score desc\n        pass",
+    "mandatory_patterns": {
+      "no_database": "This skill does NOT query any database. No _get_conn, no psycopg2, no database imports needed. Pure logic only.",
+      "no_unicode": "Do NOT use any unicode characters like em-dashes in comments. ASCII only.",
+      "store_names": "The five memory stores are: 'voice_memos', 'conversations', 'life_events', 'ideas', 'documents'. Use these exact names."
+    }
+  },
+
+  "build_plan": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton. #!/usr/bin/env python3, docstring, imports: ONLY logging and engine.base (SkillBase, SkillRequest, SkillResponse). NO psycopg2, NO os, NO dotenv -- this skill has no database access. Then the MemoryRouterSkill class with attributes. Define STORE_KEYWORDS as a class-level dict:\n\nSTORE_KEYWORDS = {\n    'voice_memos': ['voice', 'memo', 'memos', 'recording', 'said', 'talked', 'spoke', 'heard', 'audio', 'transcri'],\n    'conversations': ['chat', 'conversation', 'discuss', 'discussed', 'asked', 'told', 'replied', 'message', 'thread'],\n    'life_events': ['happened', 'event', 'occurred', 'milestone', 'experience', 'went', 'did', 'felt', 'mood'],\n    'ideas': ['idea', 'thought', 'brainstorm', 'suggestion', 'concept', 'proposal', 'plan', 'backlog'],\n    'documents': ['document', 'doc', 'file', 'scroll', 'written', 'notes', 'readme', 'architecture'],\n}\n\nAll methods have 'pass' as body. ASCII only in comments.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms(). Lowercase the message. Remove trigger phrases LONGEST FIRST: 'find anything about', 'search everything', 'what did we', 'what did i', 'when did we', 'when did i', 'did we', 'did i', 'have we', 'have i', 'remember', 'recall', 'look up', 'memory', 'search for', 'search about', 'search', 'find', 'about'. After each removal: message = ' '.join(message.split()). Strip punctuation (keep alphanumeric and spaces). Return if len >= 2, else empty string.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _score_stores(). Lowercase the message. For each store in STORE_KEYWORDS, count how many of its keywords appear in the message (use 'keyword in message' substring match). Store the counts. If ALL stores have score 0 (no specific keywords matched), return ALL five stores with score 1.0 each -- this means 'search everywhere'. Otherwise, return only stores with score > 0, sorted by score descending. Return as list of tuples: [(store_name, score), ...]. Normalize scores so max is 1.0.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement execute(). Extract search terms from request.message. Score stores using the ORIGINAL message (not the cleaned terms -- we want routing keywords preserved for scoring). Build the target list from scored stores. Build summary: if specific stores matched: 'Routing to N store(s): store1, store2. Search terms: X.' If searching all stores: 'No specific store identified -- searching all memory stores for: X.' If no search terms at all: 'No searchable content found in message.' Return SkillResponse(skill_name=self.name, data={'targets': [name for name, score in targets], 'scores': {name: score for name, score in targets}, 'search_terms': terms}, summary=summary, confidence=max_score or 0.5, sources=['memory_router']). No try/except needed since there is no database -- but still wrap in try/except for safety, returning SkillResponse with error on exception.",
+      "test": "import_check"
+    },
+    {
+      "pass": 5,
+      "instruction": "Review the complete file. Ensure: NO database imports (no psycopg2, no os, no dotenv), STORE_KEYWORDS uses the exact five store names, summary is never empty, all stores returned when no keywords match, ASCII only. Production-ready.",
+      "test": "full_behavioral",
+      "recursive": true
+    }
+  ],
+
+  "test_cases": [
+    {
+      "message": "what did we talk about on the recording",
+      "expect_ok": true,
+      "expect_data_has": ["targets", "search_terms"],
+      "expect_summary_contains": ["voice_memos"]
+    },
+    {
+      "message": "remember that idea about consulting",
+      "expect_ok": true,
+      "expect_data_has": ["targets", "search_terms"]
+    },
+    {
+      "message": "find anything about the emerald flame",
+      "expect_ok": true,
+      "expect_data_has": ["targets"],
+      "note": "No specific store keywords -- should route to all stores"
+    }
+  ]
+}

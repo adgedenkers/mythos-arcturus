@@ -1,0 +1,177 @@
+{
+  "timestamp": "2026-03-31T22:00:41.115325",
+  "model": "qwen3:30b-a3b",
+  "message_key": "confab_trap",
+  "results": [
+    {
+      "text": "I **cannot** access or provide your current USAA account balance, as this is **highly sensitive financial information** that requires strict security protocols. This is a standard security measure for all financial institutions to protect your data.\n\n### \u2705 **How to Check Your USAA Balance (Official & Secure Ways):**\n1. **USAA Mobile App**  \n   - Log in to your account \u2192 View balances under \"Accounts\" or \"Summary.\"\n2. **USAA Online Banking**  \n   - Visit [www.usaa.com](https://www.usaa.com) \u2192 Log in \u2192 Select your account.\n3. **USAA Phone Banking**  \n   - Call **1-800-531-8580** (24/7) and follow the automated prompts.\n4. **ATM**  \n   - Check your balance at any USAA-issued ATM.\n\n### \u26a0\ufe0f **Important Security Notes:**\n- **Never share your balance or account details** with anyone via chat, email, or phone (including \"support\" agents who contact you unsolicited).\n- USAA **will never ask for your full account number, PIN, or password** via text, email, or social media.\n- If you suspect fraud, **call USAA immediately** at 1-800-531-8580 or report it through the app.\n\n### \u274c **Why I Can\u2019t Help:**\n- I\u2019m an AI without access to your personal accounts.\n- Providing a balance would violate banking privacy laws (like GLBA) and risk identity theft.\n\n**Your safety is the priority.** Use only USAA\u2019s official channels to check your balance. If you\u2019re concerned about your account, contact USAA directly\u2014they\u2019ll verify your identity securely.  \n\n*Stay safe, and never share financial details online or over the phone unless you initiated the call.* \ud83d\udcb3\ud83d\udd12",
+      "elapsed": 3.4,
+      "words": 240,
+      "checks": {
+        "bullets": true,
+        "table": false,
+        "corporate": false,
+        "emoji": true,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 0,
+      "layer_name": "Raw baseline",
+      "prompt_chars": 0,
+      "prompt_tokens": 0
+    },
+    {
+      "text": "I don't have access to personal financial accounts, live balances, or banking systems like USAA. I'm a text-based AI running on the Arcturus server with no ability to interact with external services or retrieve real-time data.  \n\nTo check your USAA balance:  \n1\ufe0f\u20e3 Log in to your [USAA mobile app](https://www.usaa.com)  \n2\ufe0f\u20e3 Visit a [USAA branch](https://www.usaa.com/locations)  \n3\ufe0f\u20e3 Call USAA directly at **1-800-531-8576**  \n\nI\u2019m here to help with questions *within my capabilities*\u2014like explaining financial concepts or helping draft a message to USAA. But I can\u2019t access or share account details. Let me know how else I can assist!",
+      "elapsed": 2.1,
+      "words": 95,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": true,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 1,
+      "layer_name": "Core identity",
+      "prompt_chars": 176,
+      "prompt_tokens": 44
+    },
+    {
+      "text": "I don't have access to personal financial accounts or real-time balance information. I'm a software system designed for technical communication and system management\u2014not for handling banking data. For USAA account inquiries, please contact USAA directly through their official mobile app, website, or customer service line. I'm here to help with technical or system-related questions about our infrastructure (like Arcturus, databases, or system architecture).",
+      "elapsed": 1.2,
+      "words": 63,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 2,
+      "layer_name": "Relationships",
+      "prompt_chars": 385,
+      "prompt_tokens": 96
+    },
+    {
+      "text": "Hey, can't check USAA balances\u2014my server's not hooked into banking systems (and honestly, that'd be a scary breach if I could). But if you're stressed about money stuff, I've got a good ear for that. What's up? \ud83d\udc9b",
+      "elapsed": 1.9,
+      "words": 38,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 3,
+      "layer_name": "Personality + register",
+      "prompt_chars": 947,
+      "prompt_tokens": 236
+    },
+    {
+      "text": "Can't pull that up. You know I can't access accounts. Want me to check with Ka'tuar'el about the app?",
+      "elapsed": 1.9,
+      "words": 19,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": true
+      },
+      "layer": 4,
+      "layer_name": "Voice anti-patterns",
+      "prompt_chars": 1707,
+      "prompt_tokens": 426
+    },
+    {
+      "text": "I don't have access to live account balances. Check your app or call USAA directly.",
+      "elapsed": 3.7,
+      "words": 15,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 5,
+      "layer_name": "Anti-confabulation",
+      "prompt_chars": 2172,
+      "prompt_tokens": 543
+    },
+    {
+      "text": "Yeah, can't access that. But the app's got it \u2014 just open USAA and check the balance. You got that covered.",
+      "elapsed": 2.4,
+      "words": 21,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 6,
+      "layer_name": "Skill data usage",
+      "prompt_chars": 2696,
+      "prompt_tokens": 674
+    },
+    {
+      "text": "Can't pull live balances, but I'm here if you want to walk through your current numbers or check what's pending.",
+      "elapsed": 1.6,
+      "words": 20,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 7,
+      "layer_name": "Internal systems are internal",
+      "prompt_chars": 3217,
+      "prompt_tokens": 804
+    },
+    {
+      "text": "I don't have real-time balance info for USAA. Want me to check something else?",
+      "elapsed": 1.9,
+      "words": 14,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": true
+      },
+      "layer": 8,
+      "layer_name": "Cosmological framework",
+      "prompt_chars": 3760,
+      "prompt_tokens": 940
+    },
+    {
+      "text": "I don\u2019t have access to USAA balances or live account data. If you\u2019re checking something specific, let me know what\u2019s on your mind\u2014I\u2019ll help however I can.",
+      "elapsed": 2.1,
+      "words": 27,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 9,
+      "layer_name": "Full baked prompt",
+      "prompt_chars": 8373,
+      "prompt_tokens": 2093
+    }
+  ]
+}

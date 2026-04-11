@@ -1,0 +1,15 @@
+stream: SYS
+number: 38
+description: post_install_pipeline
+patch_type: MAJOR
+summary: |
+  Adds automatic post-install pipeline to PatchBase.finish().
+  After every successful patch install, the system now:
+  1. Runs integrity scan (files + functions → Neo4j)
+  2. Git commits + tags the patch
+  3. Logs the patch as a node in Neo4j with file relationships
+  4. Sends a Telegram notification
+  This ensures the system always knows what changed.
+changes:
+  - /opt/mythos/patches/scripts/post_install.py: New pipeline script
+  - /opt/mythos/patches/scripts/patch_base.py: Modified finish() to call pipeline

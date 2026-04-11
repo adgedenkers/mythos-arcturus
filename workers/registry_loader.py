@@ -1,0 +1,1 @@
+/opt/mythos/orchestrator/src/config/registry.py

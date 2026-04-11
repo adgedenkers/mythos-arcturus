@@ -1,0 +1,36 @@
+{
+  "files": {
+    "files_scanned": 5212,
+    "dirs_scanned": 555,
+    "files_new": 0,
+    "files_updated": 8,
+    "files_unchanged": 5204,
+    "files_missing": 0,
+    "scan_start": "2026-04-10T16:18:26.590658",
+    "errors": [],
+    "scan_end": "2026-04-10T16:18:38.733708"
+  },
+  "functions": {
+    "files_parsed": 415,
+    "functions_found": 3319,
+    "imports_found": 3461,
+    "parse_errors": 1,
+    "scan_start": "2026-04-10T16:18:38.734807",
+    "scan_end": "2026-04-10T16:18:45.881735"
+  },
+  "tables": {
+    "tables_found": 137,
+    "columns_found": 1673,
+    "fk_relationships": 84,
+    "scan_start": "2026-04-10T16:18:45.889175",
+    "scan_end": "2026-04-10T16:18:48.799959"
+  },
+  "services": {
+    "services_found": 26,
+    "healthy": 24,
+    "unhealthy": 2,
+    "linked_to_files": 21,
+    "scan_start": "2026-04-10T16:18:48.800934",
+    "scan_end": "2026-04-10T16:18:49.370313"
+  }
+}

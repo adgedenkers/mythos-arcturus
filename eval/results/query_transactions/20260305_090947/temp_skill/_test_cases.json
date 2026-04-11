@@ -1,0 +1,26 @@
+[
+  {
+    "message": "search transactions for stewart",
+    "expect_ok": true,
+    "expect_data_has": [
+      "matches"
+    ],
+    "expect_summary_contains": [
+      "transaction"
+    ]
+  },
+  {
+    "message": "what did I spend on youtube",
+    "expect_ok": true,
+    "expect_data_has": [
+      "matches"
+    ]
+  },
+  {
+    "message": "show me recent transactions",
+    "expect_ok": true,
+    "expect_data_has": [
+      "matches"
+    ]
+  }
+]

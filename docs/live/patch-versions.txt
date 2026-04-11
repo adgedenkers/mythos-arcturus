@@ -1,0 +1,190 @@
+# Patch → Version Mapping
+# Generated: 2026-04-10 03:00:25
+# Format: PATCH | VERSION | DESCRIPTION
+
+0001 | —            | astro v21 enhancements
+0011 | v1.0.1       | test patch
+0012 | v1.0.2       | telegram autoexec
+0013 | v1.0.3       | finance system
+0014 | v1.0.4       | finance migration
+0015 | v1.0.5       | finance complete
+0016 | v1.0.6       | project docs
+0016 | v1.0.7       | project docs
+0017 | v1.0.8       | project docs updated
+0018 | v1.0.9       | sunmark description cleanup
+0019 | v1.0.10      | todo patch history
+0020 | v1.0.11      | comprehensive docs
+0021 | v1.0.12      | help and chat mode
+0022 | v1.0.13      | default chat status
+0023 | v1.0.14      | chat assistant
+0024 | v1.0.15      | architecture update
+0025 | v1.0.16      | status cleanup
+0026 | v1.0.17      | grid integration
+0027 | v1.0.18      | worker import fix
+0029 | v1.0.19      | grid documentation
+0030 | v1.0.20      | finance auto import
+0031 | v1.0.21      | finance bot commands
+0032 | v1.0.22      | docs finance update
+0033 | v1.0.23      | finance bot fix
+0034 | v1.0.24      | verification template
+0035 | v1.0.25      | sophia consciousness framework
+0036 | v1.0.26      | docs restructure
+0037 | v1.0.27      | iris significance
+0038 | v1.0.28      | iris complete framework
+0039 | v1.0.29      | iris core
+0039 | v1.0.30      | iris core
+0040 | v1.0.31      | iris agency wiring
+0041 | v1.0.32      | iris package fix
+0042 | v1.0.33      | iris telegram
+0043 | v1.0.34      | sandbox path fix
+0044 | v1.0.36      | astrology system
+0046 | v1.0.40      | finance reports
+0047 | v1.0.41      | finance telegram
+0048 | v1.0.42      | setbalance
+0050 | v1.0.35      | triad memory
+0051 | v1.0.37      | ephemeris charts
+0051 | v1.0.43      | seraphe report
+0052 | v1.0.44      | snapshot fix
+0053 | v1.0.45      | sudoers fix
+0054 | v1.0.46      | autodeploy test
+0055 | v1.0.48      | consciousness architecture
+0056 | v1.0.49      | docs and diag
+0056 | v1.0.53      | task tracking
+0057 | v1.0.51      | perception layer
+0057 | v1.0.54      | task due dates
+0058 | v1.0.52      | iris awakening
+0058 | v1.0.55      | docs update
+0059 | v1.0.56      | help system
+0060 | v1.0.57      | docs sync
+0061 | v1.0.58      | iris instructions
+0062 | v1.0.59      | dockerfile prompts
+0063 | v1.0.60      | model config
+0064 | v1.0.61      | finance pulse
+0065 | v1.0.62      | finance importer
+0066 | v1.0.63      | finance reports
+0068 | v1.0.64      | categorizer
+0069 | v1.0.65      | forecast
+0070 | v1.0.66      | report
+0071 | v1.0.67      | web auth
+0072 | v1.0.68      | command center
+0073 | v1.0.69      | ollama model manager
+0074 | v1.0.70      | iris memory
+0075 | v1.0.71      | docs update
+0076 | v1.0.72      | voice transcription
+0077 | v1.0.73      | message buffer
+0078 | v1.0.74      | status display
+0079 | v1.0.75      | media handlers
+0080 | v1.0.77      | manifest system
+0080 | v1.0.78      | manifest system
+0080 | v1.0.79      | manifest system
+0080 | v1.0.80      | manifest system
+0081 | v1.15.1      | astrology system
+0082 | —            | model bench phase1
+0083 | —            | ollama integration
+0084 | v1.15.3      | test framework
+0085 | —            | grading system
+0086 | v1.15.5      | finance hash fix
+0087 | v1.15.6      | finance notify
+0089 | v1.15.7      | importer allow dupes
+0090 | v1.15.9      | test runner
+0091 | v1.15.10     | txn editor
+0092 | v1.15.11     | finance hub
+0093 | v1.15.12     | bills forecast
+0094 | v1.15.13     | docs update
+0094 | v1.15.14     | immich photos
+0095 | v1.15.15     | google photos ingest
+0095 | v1.15.17     | astro numerology
+0095 | v1.15.18     | weekly review
+0096 | v1.15.16     | icloud sync
+0096 | v1.15.19     | routines engine
+0097 | v1.15.20     | iris awareness
+0098 | v1.15.21     | life logging
+0100 | v1.15.23     | knowledge rebuild
+0100 | v1.17.1      | date standardize
+0101 | v1.15.24     | calendar crud
+0102 | v1.15.25     | backlog intelligence
+0103 | v1.16.1      | version enforcement
+0104 | v1.17.0      | weather
+0105 | v1.17.2      | thinking model
+0106 | v1.17.3      | iris modelfile
+0106 | v1.17.4      | thinking model
+0107 | v1.17.6      | patch monitor v2
+0108 | v1.17.9      | diag audio context
+0109 | v1.17.11     | soul stratigraphy
+0109 | v1.17.13     | ontology
+0110 | v1.17.12     | skills system
+0111 | v1.17.14     | skills awareness patchfix
+0112 | v1.18.0      | voice memo pipeline
+0113 | v1.18.1      | unified prompts
+0113 | v1.18.2      | unified prompts
+0113 | —            | voice upload api
+0114 | v1.18.3      | ontology v2 moons
+0114 | v1.18.4      | ontology v2 moons
+0115 | v1.18.13     | clickable ontology
+0115 | v1.18.5      | people management
+0115 | v1.18.7      | person tracker
+0116 | v1.18.8      | people and help
+0117 | v1.18.9      | neo4j cleanup
+0120 | v1.18.15     | harmonics
+0121 | v1.18.17     | diag command
+0122 | v1.19.1      | consciousness stream
+0123 | v1.19.3      | inspect
+0124 | v1.19.5      | help update
+0125 | v1.19.6      | evolution phase0
+0127 | v1.19.7      | voice pipeline docs
+0128 | v1.19.9      | phase0 wiring
+0130 | v1.19.11     | voice telegram command
+0131 | v1.19.12     | research framework
+0132 | v1.19.13     | fix research pipeline
+0133 | v1.19.15     | prompt reset
+0134 | v1.19.16     | identity slim
+0135 | v1.19.17     | seraphe quotes
+0135 | v1.19.19     | docs update
+0139 | v1.19.23     | smart import
+0139 | v1.19.24     | bill matcher
+0140 | v1.19.25     | perception test suite
+0140 | v1.20.0      | react command center
+0141 | v1.21.0      | overview
+0143 | v1.21.1      | forecast v2
+0148 | v1.21.4      | account context
+0149 | v1.21.6      | prompt registry
+0150 | v1.21.7      | orchestrator v2
+0151 | v1.21.8      | docs
+0152 | v1.21.9      | unified orchestrator
+0153 | v1.21.10     | account filtering
+0154 | v1.21.11     | react root
+0155 | v1.21.12     | voice profiles
+0155 | v1.21.13     | voice profiles
+0156 | v1.21.14     | responsive design
+0157 | v1.21.16     | people section
+0158 | v1.21.17     | orchestration test
+0159 | v1.21.18     | rolodex
+0160 | v1.21.19     | rolodex ui
+0161 | v1.21.20     | neo4j app registry
+0162 | v1.21.21     | orchestration framework
+0164 | v1.21.24     | iris systems
+0164 | v1.21.25     | iris awareness
+0165 | v1.21.26     | conversation bridge
+0168 | v1.21.28     | conversation bridge
+0171 | v1.21.30     | integrity scanner
+0174 | v1.21.34     | doc watcher
+0175 | v1.21.35     | bridge wiring
+0177 | v1.21.37     | prompt reset
+0180 | v1.21.38     | astrology engine
+0180 | v1.21.39     | astrology engine
+0181 | v1.21.40     | skill engine
+0182 | v1.21.42     | skill expansion
+0185 | v1.21.45     | arcturian grid generator
+0186 | v1.21.48     | conversation metadata
+0187 | v1.21.49     | iris introspection
+0188 | v1.21.50     | doc workers
+0189 | v1.21.51     | astro chart command
+0190 | v1.21.54     | voice foundation
+0191 | v1.21.55     | astro chart command
+0192 | v1.21.57     | chart interactive
+0193 | v1.21.59     | public fileserver
+0195 | v1.21.62     | chart interactive
+0199 | v1.21.65     | route planner
+0200 | v1.22.0      | stream system
+9999 | v1.17.10     | test
+9999 | v1.17.8      | test

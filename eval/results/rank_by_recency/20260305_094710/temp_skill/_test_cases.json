@@ -1,0 +1,13 @@
+[
+  {
+    "message": "rank these results",
+    "expect_ok": true,
+    "expect_data_has": [
+      "ranked"
+    ]
+  },
+  {
+    "message": "sort by date",
+    "expect_ok": true
+  }
+]

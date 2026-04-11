@@ -1,0 +1,20 @@
+[Unit]
+Description=Mythos Observatory Graph Builder (Neo4j sync)
+After=network.target postgresql.service neo4j.service
+Wants=postgresql.service neo4j.service
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos
+EnvironmentFile=/opt/mythos/.env
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/observatory/graph/observatory_graph.py
+Restart=on-failure
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mythos-obs-graph
+
+[Install]
+WantedBy=multi-user.target

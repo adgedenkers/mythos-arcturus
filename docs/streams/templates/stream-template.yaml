@@ -1,0 +1,43 @@
+# Development Stream Template
+# Copy this file to ../active/<stream-name>.yaml when starting a new stream
+# See: docs/INTEGRITY_DESIGN.md for full stream documentation
+
+stream:
+  id: ""                          # unique slug, e.g. "integrity-system"
+  name: ""                        # human-readable name
+  description: ""                 # what this stream accomplishes
+  created: ""                     # ISO date
+  status: "active"                # active | paused | completed | abandoned
+  
+  # Patch allocation
+  patches:
+    start: null                   # first patch number reserved
+    end: null                     # last patch number reserved (can expand)
+    deployed: []                  # list of deployed patch numbers
+    
+  # Phase tracking
+  phases:
+    - id: "a"
+      name: ""
+      description: ""
+      status: "pending"           # pending | active | completed
+      patches: []                 # which patches implement this phase
+      
+  # File ownership — what files does this stream create/modify?
+  # Used for conflict detection between streams
+  files:
+    creates: []                   # new files this stream will add
+    modifies: []                  # existing files this stream touches
+    
+  # Dependencies
+  depends_on: []                  # other stream IDs that must complete first
+  
+  # Subsystem versioning
+  subsystems:
+    - name: ""                    # e.g. "mythos-integrity"
+      version_before: ""          # version before this stream
+      version_after: ""           # target version after stream completes
+      biological_system: ""       # e.g. "iris-immune"
+
+  # Notes
+  notes: ""

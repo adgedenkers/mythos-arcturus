@@ -1,0 +1,21 @@
+{
+  "Chain": {
+    "Sun": "Jupiter",
+    "Moon": "Mars",
+    "Mercury": "Jupiter",
+    "Venus": "Saturn",
+    "Mars": "Saturn",
+    "Jupiter": "Moon",
+    "Saturn": "Saturn",
+    "Uranus": "Saturn",
+    "Neptune": "Saturn",
+    "Pluto": "Mars"
+  },
+  "Final Dispositors": [
+    "Saturn"
+  ],
+  "Mutual Receptions": [],
+  "Circular Loops": [],
+  "Classical Mutual Receptions": [],
+  "Modern Mutual Receptions": []
+}

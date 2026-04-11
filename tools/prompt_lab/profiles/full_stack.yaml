@@ -1,0 +1,13 @@
+# Full Stack — Production equivalent
+name: full_stack
+description: "All layers active. What Iris actually sees in production."
+
+layers:
+  identity: true
+  personality: true
+  voice: true
+  mode: true
+  user_profile: true
+  dynamic_context: true
+  life_context: true
+  skills: true

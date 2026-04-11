@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+# rode-autotransfer — udev-triggered automatic transfer
+#
+# Triggered by /etc/udev/rules.d/99-rode-autotransfer.rules when a RODE
+# Wireless GO TX (19f7:005f) block device appears. Waits for udisks2 to
+# auto-mount the filesystem, then runs rode-transfer --yes and notifies
+# via Telegram on completion.
+#
+# Logs to /opt/mythos/logs/rode_autotransfer.log
+# Single-instance via flock on /tmp/rode-autotransfer.lock
+set -u
+
+LOCK_FILE="/tmp/rode-autotransfer.lock"
+LOG_FILE="/opt/mythos/logs/rode_autotransfer.log"
+ENV_FILE="/opt/mythos/.env"
+WAIT_SECONDS=20
+
+# Ensure log dir
+mkdir -p "$(dirname "$LOG_FILE")" 2>/dev/null || true
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG_FILE"
+}
+
+# Acquire lock — wait up to 5 minutes for any in-progress run to finish
+exec 9>"$LOCK_FILE"
+if ! flock -w 300 9; then
+    log "Could not acquire lock after 300s — another instance is stuck. Exiting."
+    exit 1
+fi
+
+log "─────── triggered ───────"
+
+# Source env file for TELEGRAM_BOT_TOKEN and TELEGRAM_ID_KA
+if [[ -f "$ENV_FILE" ]]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "$ENV_FILE"
+    set +a
+else
+    log "WARNING: $ENV_FILE not found — Telegram notification disabled"
+fi
+
+# Wait for udisks2 auto-mount to land. Poll /proc/mounts for any RODE mount.
+log "Waiting up to ${WAIT_SECONDS}s for RODE filesystem to mount..."
+mounted=""
+for i in $(seq 1 "$WAIT_SECONDS"); do
+    if grep -qiE 'RODE|/media/[^ ]+/[0-9A-F]{4}-[0-9A-F]{4}' /proc/mounts; then
+        # Confirm at least one of the mounts is actually RODE by checking by-id
+        for entry in /dev/disk/by-id/usb-RODE_Wireless_GO_*; do
+            [[ -e "$entry" ]] || continue
+            real=$(readlink -f "$entry" 2>/dev/null)
+            [[ -n "$real" ]] || continue
+            if grep -qE "^${real}[1-9]? " /proc/mounts; then
+                mounted="yes"
+                break
+            fi
+        done
+        [[ -n "$mounted" ]] && break
+    fi
+    sleep 1
+done
+
+if [[ -z "$mounted" ]]; then
+    log "No RODE mount appeared within ${WAIT_SECONDS}s — exiting without transfer"
+    exit 0
+fi
+
+log "RODE filesystem detected. Running rode-transfer --yes..."
+
+# Run the transfer. Capture output to log.
+TRANSFER_OUTPUT=$(/opt/mythos/bin/rode-transfer --yes 2>&1)
+TRANSFER_RC=$?
+
+echo "$TRANSFER_OUTPUT" >> "$LOG_FILE"
+
+# Parse summary from output
+COPIED=$(echo "$TRANSFER_OUTPUT" | grep -oP 'Copied:\s*\K\d+' | tail -1)
+SKIPPED=$(echo "$TRANSFER_OUTPUT" | grep -oP 'Skipped:\s*\K\d+' | tail -1)
+ERRORS=$(echo "$TRANSFER_OUTPUT" | grep -oP 'Errors:\s*\K\d+' | tail -1)
+TOTAL_MB=$(echo "$TRANSFER_OUTPUT" | grep -oP 'Total:\s*\K[0-9.]+\s*MB' | tail -1)
+
+# Detect "nothing to transfer" path
+if echo "$TRANSFER_OUTPUT" | grep -q "All files already imported"; then
+    log "Nothing new to transfer."
+    MSG="🎙️ *RODE Auto-Transfer*
+Plugged in — nothing new to transfer."
+elif [[ "$TRANSFER_RC" -ne 0 ]]; then
+    log "rode-transfer failed with rc=$TRANSFER_RC"
+    MSG="⚠️ *RODE Auto-Transfer FAILED*
+Exit code: \`${TRANSFER_RC}\`
+See log: \`${LOG_FILE}\`"
+else
+    log "Transfer complete: copied=${COPIED:-?} skipped=${SKIPPED:-?} errors=${ERRORS:-?} total=${TOTAL_MB:-?}"
+    if [[ "${ERRORS:-0}" -gt 0 ]]; then
+        ICON="⚠️"
+    else
+        ICON="✅"
+    fi
+    MSG="${ICON} *RODE Auto-Transfer*
+Copied: *${COPIED:-0}* new file(s)
+Skipped: ${SKIPPED:-0} (already imported)
+Errors: ${ERRORS:-0}
+Total: ${TOTAL_MB:-0 MB}"
+fi
+
+# Send Telegram notification
+if [[ -n "${TELEGRAM_BOT_TOKEN:-}" && -n "${TELEGRAM_ID_KA:-}" ]]; then
+    curl -sS -X POST \
+        "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+        -d "chat_id=${TELEGRAM_ID_KA}" \
+        -d "parse_mode=Markdown" \
+        --data-urlencode "text=${MSG}" \
+        >> "$LOG_FILE" 2>&1
+    echo "" >> "$LOG_FILE"
+    log "Telegram notification sent to ${TELEGRAM_ID_KA}"
+else
+    log "TELEGRAM_BOT_TOKEN or TELEGRAM_ID_KA not set — skipping notification"
+fi
+
+log "─────── complete ───────"
+exit 0

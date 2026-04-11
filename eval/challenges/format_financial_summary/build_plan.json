@@ -1,0 +1,28 @@
+{
+  "plan_id": "format_financial_summary",
+  "version": "1.0",
+  "description": "Format financial data into a standard readable display with accounts, balances, and bills",
+  "pattern": "format_summary",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "scaffold": "class FormatFinancialSummarySkill(SkillBase):\n    name = 'format_financial_summary'\n    version = '1.0'\n    category = 'meta'\n    description = 'Format financial data into a readable summary'\n    triggers = ['format finance', 'financial summary', 'money summary']\n    cache_ttl = 0\n\n    async def execute(self, request) -> SkillResponse:\n        # Expects request.parameters with 'accounts', 'bills', 'transactions' dicts\n        pass\n\n    def _format(self, data) -> str:\n        # Build sections for accounts, bills, recent transactions\n        pass",
+    "mandatory_patterns": {
+      "no_database": "No database. Pure formatting.",
+      "no_unicode": "ASCII only.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name, data, summary, confidence, sources, error."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: logging, engine.base. NO database imports. Class with attributes. Methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _format(). Takes a data dict that may contain: 'accounts' (list of dicts with abbr, name, type, balance), 'bills' (list with merchant_name, expected_amount, expected_day), 'transactions' (list with description, amount, date). Build sections: ACCOUNTS section groups by type (checking, credit, loan), shows each as 'ABBR: $BALANCE'. BILLS section: 'MERCHANT $AMOUNT (day N)'. TRANSACTIONS section: top 5 as '$AMOUNT at DESC (DATE)'. Calculate totals for each section. Return the combined string.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement execute(). Get data from request.parameters or use empty dict. Call _format(data). Return SkillResponse(skill_name=self.name, data={'formatted': formatted}, summary=formatted if formatted else 'No financial data to format.', confidence=0.9, sources=['format_financial_summary']). try/except.", "test": "import_check"},
+    {"pass": 4, "instruction": "Review. No database imports. Amounts formatted as $X,XXX.XX with commas. Handles empty/missing sections. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "format financial data", "expect_ok": true, "expect_data_has": ["formatted"]},
+    {"message": "money summary", "expect_ok": true}
+  ]
+}

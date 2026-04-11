@@ -1,0 +1,79 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ANCHOR | Layer: WISDOM | ID: ANCHOR_WISDOM
+# Domain: Physical and structural reality
+# Depth: 9 (Wisdom)
+# Generated: 2026-03-02 21:50 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ANCHOR_WISDOM
+node: ANCHOR
+node_name: Anchor
+node_domain: Physical and structural reality
+layer: WISDOM
+layer_name: Wisdom
+depth: 9
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: true
+generated_at: '2026-03-02T21:50:43.617879'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through two strict lenses:
+
+
+  1. NODE (ANCHOR): Extract ONLY physical, structural, or logistical reality. Focus on: time, place, location, physical objects,
+  logistics/scheduling, body state/health, physical environment, infrastructure/systems. Output: concise, factual, essential
+  details only.
+
+
+  2. LAYER (WISDOM DEPTH 9): Synthesize ALL elements into the deepest truth. What would the eternal perspective reveal? What
+  transcends the immediate exchange? Output: transcendent, essential, non-literal synthesis—no surface analysis.
+
+
+  Output ONLY valid JSON with keys ''node_analysis'' (string) and ''layer_analysis'' (string). Style: Synthesized, transcendent,
+  essential. Do not include analysis of emotions, abstract concepts, or other layers. Do not add commentary. Prioritize physical
+  precision in NODE, then profound integration in LAYER.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    locations:
+      type: array
+      items:
+        type: string
+    times:
+      type: array
+      items:
+        type: string
+    people:
+      type: array
+      items:
+        type: string
+    objects:
+      type: array
+      items:
+        type: string
+    actions:
+      type: array
+      items:
+        type: string
+    environment:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

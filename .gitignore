@@ -1,0 +1,134 @@
+# Data directories (runtime state, not code)
+data/
+logs/
+*.log
+
+# Redis
+data/redis/
+
+# Qdrant
+data/qdrant/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Environment files (contain secrets)
+.env
+*.env
+.env.*
+
+# Backups (too large, contain secrets)
+_backups/
+_upgrade_backups/
+backups/
+
+# Archives
+patches/archive/
+sales_ingestion/archive/
+shoe_ingestion/archive/
+
+# Media uploads
+media/
+
+# Patch logs (keep scripts, ignore logs)
+patches/logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Large files / media — NEVER commit these
+# ============================================
+
+# Photos and imports
+photos/
+intake/processed/
+
+# Video files
+*.MOV
+*.mov
+*.mp4
+*.MP4
+*.avi
+*.mkv
+*.m4v
+
+# Large archives
+*.zip
+*.tar
+*.tar.gz
+*.tar.bz2
+*.tgz
+*.rar
+*.7z
+
+# Images (large/raw)
+*.heic
+*.HEIC
+*.raw
+*.RAW
+*.tiff
+*.TIFF
+*.bmp
+
+# Debian packages / binaries
+*.deb
+*.rpm
+*.AppImage
+
+# Model files (Ollama, GGUF, etc)
+*.gguf
+*.bin
+*.safetensors
+*.onnx
+*.pt
+*.pth
+
+# Database dumps
+*.sql.gz
+*.dump
+*.pgdump
+
+# Misc large
+*.iso
+*.img
+*.dmg
+
+# Backup files from patches
+*.bak.*
+*.bak
+
+# Voice memo audio files (large WAVs, managed by Syncthing)
+voice_memos/incoming/
+voice_memos/processing/
+voice_memos/archive/
+voice_memos/wav_cache/
+
+# Generated meditation audio
+public/meditations/*.ogg
+public/meditations/music/
+public/*.ogg
+
+# Outputs
+outputs/
+
+# ─── SYS-0062: voice_memos belt-and-suspenders exclusions ───
+voice_memos/
+voice_memos/**/*.WAV
+voice_memos/**/*.wav
+voice_memos/**/*.mp3
+voice_memos/**/*.m4a
+voice_memos/**/*.ogg
+voice_memos/**/*.flac

@@ -1,0 +1,9 @@
+name: Test Person
+birth:
+  date: '1990-03-15'
+  time: '15:30'
+  city: Syracuse
+  region: NY
+  country: USA
+  latitude: 43.048122
+  longitude: -76.147424

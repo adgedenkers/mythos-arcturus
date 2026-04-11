@@ -1,0 +1,14 @@
+# All Min — Everything at minimum (floor test)
+name: all_min
+description: "All sliders at minimum. Tests the floor of each dimension."
+
+sliders:
+  verbosity: 10
+  warmth: 10
+  humor: 0
+  truth: 50
+  speculation: 10
+  autonomy: 10
+  mystical: 10
+  formality: 10
+  challenge: 10

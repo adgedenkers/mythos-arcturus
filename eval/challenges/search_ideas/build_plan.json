@@ -1,0 +1,77 @@
+{
+  "plan_id": "search_ideas",
+  "version": "1.0",
+  "description": "Build a Mythos skill that searches the idea inbox by keyword, domain, or disposition",
+  "pattern": "memory_search",
+  "model_hint": "qwen3-coder:30b",
+
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "connection_pattern": "psycopg2 with RealDictCursor, loaded from /opt/mythos/.env via dotenv",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse",
+      "skill_directory": "/opt/mythos/skills/data/",
+      "venv_python": "/opt/mythos/.venv/bin/python3"
+    },
+    "table_schema": "Table: idea_inbox\nColumns:\n  - id (uuid, NOT NULL, PK, default gen_random_uuid())\n  - created_at (timestamptz, NOT NULL, default now())\n  - conversation_context (text, nullable) -- context of where the idea came from\n  - list_type (varchar(50), nullable)\n  - items (jsonb, NOT NULL) -- the actual idea items as JSON array\n  - item_count (integer, nullable)\n  - chosen_item (integer, nullable)\n  - chosen_text (text, nullable)\n  - reviewed (boolean, default false)\n  - disposition (varchar(20), default 'pending') -- values: 'pending', 'kept', 'dismissed', 'merged', 'deferred'\n  - domain (varchar(50), nullable) -- values vary: technical, spiritual, personal, etc.\n  - tags (jsonb, nullable)\n\nIndexes:\n  - idea_inbox_pkey (id)\n  - idx_inbox_created (created_at)\n  - idx_inbox_disposition (disposition)\n  - idx_inbox_domain (domain)\n  - idx_inbox_pending (disposition) WHERE disposition = 'pending'\n\nNOTE: No FTS index. Use ILIKE on conversation_context and chosen_text for search.",
+    "scaffold": "class SearchIdeasSkill(SkillBase):\n    name = 'search_ideas'\n    version = '1.0'\n    category = 'data'\n    description = 'Search the idea inbox by keyword, domain, or status'\n    triggers = ['idea', 'ideas', 'idea inbox', 'backlog', 'thought', 'suggestion', 'brainstorm', 'what ideas', 'pending ideas', 'remember that idea', 'i had an idea']\n    cache_ttl = 300\n\n    async def execute(self, request: SkillRequest) -> SkillResponse:\n        # 1. Extract search terms\n        # 2. Detect filters (domain, disposition)\n        # 3. If no terms and no filters: return pending ideas count\n        # 4. Search with _search_ideas() using ILIKE on conversation_context and chosen_text\n        # 5. Format and summarize\n        pass\n\n    def _extract_search_terms(self, message: str) -> str:\n        pass\n\n    def _detect_filters(self, message: str) -> dict:\n        # Check for disposition: 'pending', 'kept', 'dismissed', 'deferred'\n        # Check for domain: 'technical', 'spiritual', 'personal', 'financial'\n        # Return {'disposition': str|None, 'domain': str|None}\n        pass\n\n    def _search_ideas(self, search_terms: str, disposition: str = None, domain: str = None, limit: int = 15) -> list:\n        # ILIKE on conversation_context OR chosen_text\n        # Optional WHERE disposition = %s, domain = %s\n        pass\n\n    def _format_results(self, rows: list) -> list:\n        pass\n\n    def _build_summary(self, results: list, search_terms: str) -> str:\n        pass",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "extract_whitespace": "After removing each trigger phrase, normalize whitespace: message = ' '.join(message.split())",
+      "connection_cleanup": "Always use try/except/finally. In finally: close cursor and connection if they exist.",
+      "no_unicode": "Do NOT use any unicode characters like em-dashes in comments. ASCII only."
+    }
+  },
+
+  "build_plan": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton. #!/usr/bin/env python3, docstring, imports (os, logging, json, psycopg2, psycopg2.extras.RealDictCursor, dotenv, engine.base). Write _get_conn() using EXACTLY this pattern:\n\ndef _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )\n\nThen SearchIdeasSkill class with all attributes. All methods have 'pass' as body. ASCII only.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms() and _detect_filters(). For _extract_search_terms: lowercase, remove trigger phrases LONGEST FIRST: 'remember that idea', 'i had an idea', 'pending ideas', 'idea inbox', 'what ideas', 'brainstorm', 'suggestion', 'backlog', 'thought', 'ideas', 'idea', 'search for', 'search about', 'search', 'find', 'about'. After each removal: message = ' '.join(message.split()). Strip punctuation, return if len >= 2. For _detect_filters: check for disposition words ('pending', 'kept', 'dismissed', 'deferred') and domain words ('technical', 'spiritual', 'personal', 'financial'). Return {'disposition': str|None, 'domain': str|None}.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _search_ideas(). Use _get_conn(). Build query: SELECT id, conversation_context, items, item_count, chosen_text, disposition, domain, tags, created_at FROM idea_inbox WHERE 1=1. If search_terms not empty: append AND (conversation_context ILIKE %s OR chosen_text ILIKE %s) and add f'%{search_terms}%' TWICE to params list. If disposition: append AND disposition = %s. If domain: append AND domain = %s. Append ORDER BY created_at DESC LIMIT %s. Use try/finally to close cursor and connection. Return list of row dicts.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). _format_results: for each row, dict with id (as string), context (conversation_context truncated 200 chars with '...' if longer), chosen_text, items (keep as-is, it is jsonb), item_count, disposition, domain, created_at as ISO string. _build_summary: if no results 'No ideas found matching X.' If results: 'Found N idea(s) matching X:' then for top 3, show chosen_text if available, else first 100 chars of conversation_context, plus disposition in parentheses. If N > 3 add 'and N-3 more.'",
+      "test": "parse_check"
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Extract search terms. Detect filters from request.message. If no terms AND no filters: query SELECT COUNT(*) as total FROM idea_inbox WHERE disposition = 'pending', return SkillResponse with count and summary like 'You have N pending ideas in the inbox.' If terms or filters exist: call _search_ideas with appropriate args. Format and summarize. Return SkillResponse(skill_name=self.name, data={'matches': formatted, 'search_terms': terms, 'count': len(formatted), 'filters': filters}, summary=summary, confidence=0.95, sources=['mythos.idea_inbox']). Wrap in try/except/finally.",
+      "test": "import_check"
+    },
+    {
+      "pass": 6,
+      "instruction": "Review the complete file. Ensure: _get_conn uses POSTGRES_HOST, all connections close in finally, summary never empty, no unicode, id field cast to string since it is uuid. Production-ready.",
+      "test": "full_behavioral",
+      "recursive": true
+    }
+  ],
+
+  "test_cases": [
+    {
+      "message": "search ideas about consulting",
+      "expect_ok": true,
+      "expect_data_has": ["matches"]
+    },
+    {
+      "message": "what pending ideas do I have",
+      "expect_ok": true
+    },
+    {
+      "message": "good morning iris",
+      "expect_ok": true,
+      "note": "No terms - should return pending count"
+    }
+  ]
+}

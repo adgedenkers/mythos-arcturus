@@ -1,0 +1,108 @@
+{
+  "plan_id": "memory_search_composite",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_071348",
+  "total_passes": 6,
+  "total_ollama_calls": 6,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 10,
+    "failed": 0,
+    "total": 10
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton. #!/usr/bin/env python3, docstring, imports: logging, importlib, and engine.base (SkillBase, SkillRequest, SkillResponse). NO psycopg2, NO os, NO dotenv. Then MemorySearchSkill class with all attributes. Define STORE_SKILLS as a class-level dict mapping store names to tuples of (module_path, class_name):\n\nSTORE_SKILLS = {\n    'voice_memos': ('data.search_voice_memos', 'SearchVoiceMemoSkill'),\n    'conversations': ('data.search_conversations', 'SearchConversationsSkill'),\n    'life_events': ('data.search_life_events', 'SearchLifeEventsSkill'),\n    'ideas': ('data.search_ideas', 'SearchIdeasSkill'),\n    'documents': ('data.search_documents', 'SearchDocumentsSkill'),\n}\n\nAll methods have 'pass' as body. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.73,
+      "final_code_lines": 45
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _run_router(). Import the router: module = importlib.import_module('data.memory_router'). Get class: RouterClass = getattr(module, 'MemoryRouterSkill'). Instantiate: router = RouterClass(). Run: response = await router.run(request). If response.ok, return response.data. If not ok, return a default dict: {'targets': list(self.STORE_SKILLS.keys()), 'scores': {}, 'search_terms': request.message}. Wrap in try/except -- on error, return the default dict (search everything as fallback).",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.29,
+      "final_code_lines": 105
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _run_search_skill(). Look up (module_path, class_name) from self.STORE_SKILLS[store_name]. Import: module = importlib.import_module(module_path). Get class: SkillClass = getattr(module, class_name). Instantiate and run: response = await SkillClass().run(request). Return response. Wrap in try/except -- on error, return SkillResponse(skill_name=store_name, error=str(e)).",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.65,
+      "final_code_lines": 113
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _merge_results(). Input is dict of {store_name: SkillResponse}. Build merged_data: for each store with response.ok, add store_name: response.data to merged_data. Also add a 'stores_searched' key listing all store names, and 'stores_with_results' listing only those with ok responses. Build merged_summary: start with empty list of summary parts. For each store with ok response and non-empty summary, append 'STORE_LABEL: summary' where STORE_LABEL is a human-friendly name (Voice Memos, Conversations, Life Events, Ideas, Documents). Join with newline. If no results from any store, summary is 'No results found across any memory store.' Return (merged_data, merged_summary).",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 5.31,
+      "final_code_lines": 133
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Step 1: run router with _run_router(request) to get targets and search_terms. Step 2: for each target store in the router results, call _run_search_skill(store, request) and collect responses in a dict. Step 3: call _merge_results on the collected responses. Step 4: return SkillResponse(skill_name=self.name, data=merged_data, summary=merged_summary, confidence=0.9, sources=['memory_search_composite']). Wrap in try/except. On error: return SkillResponse(skill_name=self.name, error=str(e), summary='Memory search encountered an error.').",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 5.8,
+      "final_code_lines": 146
+    },
+    {
+      "pass": 6,
+      "instruction": "Review the complete file. Ensure: NO database imports, uses importlib for all sub-skill imports, STORE_SKILLS has all five correct module paths and class names, summary is never empty, fallback to searching all stores if router fails. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 6.02,
+      "final_code_lines": 146
+    }
+  ]
+}

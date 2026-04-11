@@ -1,0 +1,32 @@
+#!/opt/mythos/.venv/bin/python3
+"""iris-voice - CLI for Iris Voice System"""
+import sys, os, argparse, logging
+sys.path.insert(0, "/opt/mythos")
+ef = "/opt/mythos/.env"
+if os.path.exists(ef):
+    with open(ef) as f:
+        for l in f:
+            l = l.strip()
+            if l and not l.startswith("#") and "=" in l:
+                k,_,v = l.partition("=")
+                os.environ.setdefault(k.strip(), v.strip())
+
+def main():
+    p = argparse.ArgumentParser(description="Iris Voice System")
+    p.add_argument("--start", action="store_true", help="Start web voice server")
+    p.add_argument("--test-tts", type=str, metavar="TEXT", help="Test TTS locally (aplay)")
+    p.add_argument("--output", type=str, default=None)
+    p.add_argument("--port", type=int, default=8777, help="Web server port")
+    p.add_argument("--config", type=str, default="/opt/mythos/voice/config.yaml")
+    args = p.parse_args()
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
+    if args.test_tts:
+        from voice.voice_lab import test_tts
+        test_tts(args.test_tts, config_path=args.config, output_path=args.output)
+    elif args.start:
+        from voice.web_server import start_server
+        start_server(port=args.port)
+    else:
+        p.print_help()
+
+if __name__ == "__main__": main()

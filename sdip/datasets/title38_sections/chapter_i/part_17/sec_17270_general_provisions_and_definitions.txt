@@ -1,0 +1,63 @@
+TITLE 1: Title 38—Pensions, Bonuses, and Veterans' Relief--Volume 1
+CHAPTER I: CHAPTER I—DEPARTMENT OF VETERANS AFFAIRS
+PART 17: PART 17—MEDICAL
+SECTION: § 17.270 General provisions and definitions.
+NODE: 38:1.0.1.1.19.0.202.142
+
+============================================================
+
+(a) Overview of CHAMPVA. CHAMPVA is the Civilian Health and Medical Program of the Department of Veterans Affairs (VA). Generally, CHAMPVA furnishes medical care in the same or similar manner, and subject to the same or similar limitations, as medical care furnished to certain dependents and survivors of active duty and retired members of the Armed Forces under chapter 55 of title 10, United States Code (CHAMPUS), commonly referred to as the TRICARE Select plan. Under CHAMPVA, VA shares the cost of medically necessary services and supplies with eligible beneficiaries within the 50 United States, the District of Columbia, the U.S. territories, and abroad. Under CHAMPVA, medical services and supplies may be provided as follows:
+
+(1) By an authorized non-VA provider.
+
+(2) By a VA provider at a VA facility, on a resource-available basis through the CHAMPVA In-house Treatment Initiative (CITI) to CHAMPVA beneficiaries who are not also eligible for Medicare.
+
+(3) Through VA Medications by Mail (MbM).
+
+(i) Only CHAMPVA beneficiaries who do not have any other type of health insurance that pays for prescriptions, including Medicare Part D, may use MbM.
+
+(ii) Smoking cessation pharmaceutical supplies will only be provided through MbM and only to CHAMPVA beneficiaries that are not also eligible for Medicare.
+
+(b) Definitions. The following definitions apply to CHAMPVA (§§ 17.270 through 17.278):
+
+Accepted assignment refers to the action of an authorized non-VA provider who accepts responsibility for the care of a CHAMPVA beneficiary and thereby agrees to accept the CHAMPVA determined allowable amount as full payment for services and supplies rendered to the beneficiary. (The provider's acceptance of the CHAMPVA determined allowable amount extinguishes the beneficiary's payment liability to the provider with the exception of applicable cost-shares and deductibles.)
+
+Authorized non-VA provider means an individual or institutional non-VA provider of CHAMPVA-covered medical services and supplies that meets any of the following criteria:
+
+(i) Is licensed or certified by a state to provide the medical services and supplies; or
+
+(ii) Where a state does not offer licensure or certification, is otherwise certified by an appropriate national or professional association that sets standards for the specific medical provider.
+
+Calendar year means January 1 through December 31.
+
+CHAMPVA beneficiary means a person enrolled under § 17.271.
+
+CHAMPVA-covered services and supplies mean those medical services and supplies that are medically necessary and appropriate for the treatment of a condition and that are not specifically excluded under § 17.272(a)(1) through (84).
+
+CHAMPVA determined allowable amount has the meaning set forth in § 17.272(b)(1).
+
+CHAMPVA In-house Treatment Initiative (CITI) means the initiative under 38 U.S.C. 1781(b) under which participating VA medical facilities provide medical services and supplies to CHAMPVA beneficiaries who are not also eligible for Medicare, subject to availability of space and resources.
+
+Child has the definition established in 38 U.S.C. 101.
+
+Claim means a request by an authorized non-VA provider or by a CHAMPVA beneficiary for payment or reimbursement for medical services and supplies provided to a CHAMPVA beneficiary.
+
+Fiscal year means October 1 through September 30.
+
+Medications by Mail (MbM) means the initiative under which VA provides outpatient prescription medications through the mail to CHAMPVA beneficiaries.
+
+Other health insurance (OHI) means health insurance plans or programs (including Medicare) or third-party coverage that provide coverage to a CHAMPVA beneficiary for expenses incurred for medical services and supplies.
+
+Payer refers to OHI, as defined in this section, that is obligated to pay for CHAMPVA-covered medical services and supplies. In a situation in which, in addition to CHAMPVA, one or more payers is/are responsible to pay for such services and supplies (i.e., a “double coverage” situation), there would be a primary payer (i.e., the payer obligated to pay first), secondary payer (i.e., the payer obligated to pay after the primary payer), etc. In double coverage situations, CHAMPVA would be the last payer.
+
+Service-connected has the definition established in 38 U.S.C. 101.
+
+Spouse refers to a person who is married to a veteran and whose marriage is valid as determined under 38 U.S.C. 103(c).
+
+Surviving spouse refers to a person who was married to and is the widow(er) of a veteran as determined under 38 U.S.C. 103(c).
+
+(c) Discretionary authority. When it is determined to be in the best interest of VA, VA may waive any requirement in §§ 17.270 through 17.278, except any requirement specifically set forth in 38 U.S.C. 1781, or otherwise imposed by statute. Such discretionary authority would be used only under very unusual and limited circumstances and not to deny any individual any right, benefit, or privilege provided to him or her by statute or these regulations. Any such waiver will apply only to the individual circumstance or case involved and will in no way be construed to be precedent-setting.
+
+[Citation: [87 FR 41599, July 13, 2022]]
+
+[Part Authority: Authority:38 U.S.C. 501, and as noted in specific sections. Section 17.30 also issued under 38 U.S.C. 1701. Section 17.32 also issued under 38 U.S.C. 7331-7334. Section 17.35 is also issued under 38 U.S.C. 1724. Section 17.37 is also issued under 38 U.S.C. 101, 1701, 1705, 1710, 1720J, 1721, 1722. Section 17.38 is also issued under 38 U.S.C. 1701 and 1703. Section 17.43 also issued under 38 U.S.C. 109, 1784, 8111, and 8153. Section 17.44 also issued under E.O. 10122, 15 FR 2173, 3 CFR, 1949-1953 Comp., p. 313, E.O. 10400, 17 FR 8648, 3 CFR, 1949-1953 Comp., p. 900, and E.O. 11733, 38 FR 20431, 3 CFR, 1971-1975 Comp., p. 792. Section 17.46 is also issued under 38 U.S.C. 1710. Section 17.47 is also issued under 38 U.S.C. 1701, 1710, 1721, 1722, 1729, 3104(a)(9), 7333, Pub. L. 99-272; 42 U.S.C. 1396 et seq. Section 17.52 is also issued under 38 U.S.C. 1701, 1703, 1710, 1712, and 3104. Section 17.55 is also issued under 38 U.S.C. 513, 1703, and 1728. Section 17.56 is also issued under 38 U.S.C. 1703 and 1728. Sections 17.61 through 17.74 are also issued under 38 U.S.C. 1730. Section 17.86 also issued under 38 U.S.C. 1785. Section 17.101 is also issued under 38 U.S.C. 101, 1701, 1705, 1710, 1721, 1722, 1729. Section 17.102 also issued under 38 U.S.C. 109, 1711, 1729, 1784, 1784A, 1785, 8111, 8153. Section 17.105 is also issued under 38 U.S.C. 501, 1721, 1722A, 1724, and 1725A. Section 17.108 is also issued under 38 U.S.C. 501, 1703, 1710, 1725A, 1720J, and 1730A. Section 17.110 is also issued under 38 U.S.C. 501, 1703, 1710, 1720D, 1720J, 1722A, and 1730A. Section 17.111 is also issued under 38 U.S.C. 101(28), 501, 1701(7), 1703, 1710, 1710B, 1720B, 1720D, 1722A, and 1730A. Section 17.125 is also issued under 38 U.S.C. 7304. Sections 17.156 and 17.157 are also issued under 38 U.S.C. 3901 and 3902. Section 17.158 is also issued under 38 U.S.C. 3902 and 3903. Section 17.169 is also issued under 38 U.S.C. 1712C. Sections 17.243 through 17.248 are also issued under 38 U.S.C. 7302 note. Sections 17.270, and 17.272 through 17.277 are also issued under 38 U.S.C. 1781. Section 17.271 is also issued under 38 U.S.C. 1720G(a)(7)(A) and 1781. Section 17.278 is also issued under 38 U.S.C. 1781 and 42 U.S.C. 2651. Section 17.279 is also issued under 5 U.S.C. 552 and 552a; 38 U.S.C. 1781, 5701, and 7332. Sections 17.380, 17.390 and 17.412 are also issued under sec. 260, Pub. L. 114-223, 130 Stat. 857, and sec. 236, Public Law 115-141, 132 Stat. 348, and sec. 236, div. J, Pub. L 115-141, 132 Stat. 348. Section 17.395 is also issued under 38 U.S.C. 1788. Section 17.410 is also issued under 38 U.S.C. 1787. Section 17.415 is also issued under 38 U.S.C. 7301, 7304, 7402, and 7403. Section 17.417 also issued under 38 U.S.C. 1701 (note), 1709A, 1712A (note), 1722B, 1730C, 7301, 7306, 7330A, 7331, 7401-7403, 7405, 7406, 7408. Section 17.419 also issued under 38 U.S.C. 1701 (note), 7301, 7306, 7330A, 7401-7403, 7405, 7406, 7408). Section 17.450 is also issued under 38 U.S.C. 1703E. Sections 17.525 through 17.531 are also issued under 38 U.S.C. 7691 through 7697. Sections 17.545 through 17.553 are also issued under 38 U.S.C. 7698, 7699, 7699A, and 7699B. Sections 17.600 through 17.612 are also issued under 38 U.S.C. 7601-7619, 7633, 7634, 7636, and sec. 104(a), div. V, Public Law 117-328. Sections 17.613 through 17.618 are also issued under Pub. L. 115-182, sec. 304. Sections 17.640 and 17.647 are also issued under sec. 4, Pub. L. 114-2, 129 Stat. 30. Sections 17.641 through 17.646 are also issued under 38 U.S.C. 501(a) and sec. 4, Pub. L. 114-2, 129 Stat. 30. Section 17.655 also issued under 38 U.S.C. 501(a), 7304, 7405. Sections 17.1200 through 17.1230 are also issued under 38 U.S.C. 1720J. Section 17.3200 also issued under 38 U.S.C. 1162, 1701, 1707, 1710, 1714, 1717, 3901. Section 17.3210 also issued under 38 U.S.C. 1701, 1710. Section 17.3220 also issued under 38 U.S.C. 1701(6)(F), 1710. Section 17.3230 also issued under 38 U.S.C. 1701(6)(F), 1710, 1714(a). Section 17.3250 also issued under 38 U.S.C. 1701, 1710, 1725, 1728. Section 17.3500 is also issued under Pub. L. 102-139 sec. 101. Sections 17.4000 through 17.4040 also issued under 38 U.S.C. 1703, 1703B, and 1703C. Section 17.4100 et seq. is also issued under 38 U.S.C. 1703A. Section 17.4600 is also issued under 38 U.S.C. 1725A and 1730A.]

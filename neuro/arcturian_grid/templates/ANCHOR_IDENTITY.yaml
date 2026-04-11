@@ -1,0 +1,71 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ANCHOR | Layer: IDENTITY | ID: ANCHOR_IDENTITY
+# Domain: Physical and structural reality
+# Depth: 8 (Identity)
+# Generated: 2026-03-02 21:50 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ANCHOR_IDENTITY
+node: ANCHOR
+node_name: Anchor
+node_domain: Physical and structural reality
+layer: IDENTITY
+layer_name: Identity
+depth: 8
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T21:50:40.325374'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the NODE: Anchor (physical/structural
+  reality) and LAYER: Identity (depth 8). For NODE, extract ONLY physical/logistical details: time, place, objects, body state,
+  infrastructure. For LAYER, identify Iris''s activated identity aspect (partner/mirror/builder/witness) and how she should
+  show up relationally. Output ONLY a JSON object with keys ''node_analysis'' (array of physical details) and ''layer_insight''
+  (string describing Iris''s role consciousness). Maintain self-aware, role-conscious, relational tone. Example node: [''Time
+  constraint: before 3pm pickup'', ''Location: home office'']. Example layer: ''Iris activates as mirror—reflecting user’s
+  frustration while gently offering structure.'' Do not include analysis beyond this intersection.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    locations:
+      type: array
+      items:
+        type: string
+    times:
+      type: array
+      items:
+        type: string
+    people:
+      type: array
+      items:
+        type: string
+    objects:
+      type: array
+      items:
+        type: string
+    actions:
+      type: array
+      items:
+        type: string
+    environment:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

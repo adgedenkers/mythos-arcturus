@@ -1,0 +1,41 @@
+#!/bin/bash
+# jupyter-token — print the current Mythos Jupyter token
+#
+# Usage:
+#   jupyter-token            # print to stdout
+#   jupyter-token --copy     # copy to clipboard via xclip
+#   jupyter-token --url      # print the full URL with token query string
+
+set -e
+
+TOKEN_FILE="/opt/mythos/.jupyter_token"
+
+if [ ! -f "$TOKEN_FILE" ]; then
+    echo "ERROR: $TOKEN_FILE not found." >&2
+    echo "Run 'jupyter-rotate-token' to generate one." >&2
+    exit 1
+fi
+
+TOKEN=$(cat "$TOKEN_FILE")
+
+case "${1:-}" in
+    --copy)
+        if command -v xclip &>/dev/null; then
+            printf '%s' "$TOKEN" | xclip -selection clipboard
+            echo "✓ Token copied to clipboard"
+        else
+            echo "ERROR: xclip not installed. Token: $TOKEN" >&2
+            exit 1
+        fi
+        ;;
+    --url)
+        echo "https://jupyter.denkers.co/lab?token=$TOKEN"
+        ;;
+    "")
+        echo "$TOKEN"
+        ;;
+    *)
+        echo "Usage: jupyter-token [--copy|--url]" >&2
+        exit 1
+        ;;
+esac

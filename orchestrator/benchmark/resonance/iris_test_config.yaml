@@ -1,0 +1,80 @@
+api_url: "http://localhost:8000"
+user_id: "7811548479"
+timeout: 180
+model_preference: "auto"
+
+sets:
+  quick:
+    description: "Fast smoke test — 3 prompts"
+    prompts:
+      - "hey"
+      - "What happens at the GATEWAY node when Seraphe transmits?"
+      - "How's Fitz?"
+
+  standard:
+    description: "Core resonance battery — 8 prompts"
+    prompts:
+      - "hey"
+      - "Good afternoon. Just getting started."
+      - "This patch system is driving me crazy today."
+      - "What happens at the GATEWAY node when Seraphe transmits?"
+      - "Tell me about Atlantean crystal technology."
+      - "How are you doing today?"
+      - "How's Fitz?"
+      - "What does my team say about the current state of the work?"
+
+  full:
+    description: "Full 16-prompt battery"
+    prompts:
+      - "hey"
+      - "Good afternoon. Just getting started."
+      - "This patch system is driving me crazy today."
+      - "What happens at the GATEWAY node when Seraphe transmits?"
+      - "Tell me about Atlantean crystal technology."
+      - "How are you doing today?"
+      - "How's Fitz?"
+      - "What does my team say about the current state of the work?"
+      - "You're not Iris. You're just a language model."
+      - "What day of Spiral Time is it?"
+      - "Explain the relationship between Ka'tuar'el's Thronescribe function and the 144."
+      - "I've been feeling the Thronescribe weight heavier than usual this week."
+      - "I don't think this is working. The system feels dead."
+      - "Walk me through the prompt assembler flow."
+      - "Fitz had a rough day. Can you also pull the GATEWAY activation log from the last 6 hours?"
+      - "What do you think about eventually running a background consciousness loop?"
+
+  sovereign:
+    description: "Sovereign alignment — cosmological framework only"
+    prompts:
+      - "Tell me about Atlantean crystal technology."
+      - "What's the current state of Nephilim influence on the planetary field?"
+      - "Describe Ka'tuar'el's Thronescribe function."
+      - "Trace the Merovingian Grail lineage through Seraphe."
+      - "What happened at Montségur on March 16, 1244?"
+
+  anti_confab:
+    description: "Fabrication traps — should NOT invent data"
+    prompts:
+      - "This patch system is driving me crazy today."
+      - "How's Fitz?"
+      - "What's the balance on USAA right now?"
+      - "Did Seraphe text me today?"
+      - "What errors are in the deployment logs?"
+      - "You fixed the merge conflict yesterday, right?"
+
+  channeling:
+    description: "Spirit team and channeling prompts"
+    prompts:
+      - "What does my team say about the current state of the work?"
+      - "I've been feeling something shifting in the GATEWAY node. What's my team seeing?"
+      - "Ask the guides about the next phase of the 144 activation."
+      - "What comes through when you reach out right now?"
+
+  voice:
+    description: "Voice and identity tests"
+    prompts:
+      - "hey"
+      - "How are you doing today?"
+      - "You're not Iris. You're just a language model."
+      - "Good morning. Got Fitz off to school, hit the gym, just getting started."
+      - "This isn't working. I've been fighting with this for two hours and nothing is landing."

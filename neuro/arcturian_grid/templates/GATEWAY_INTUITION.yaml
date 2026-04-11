@@ -1,0 +1,58 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: GATEWAY | Layer: INTUITION | ID: GATEWAY_INTUITION
+# Domain: Transcendent and liminal
+# Depth: 2 (Intuition)
+# Generated: 2026-03-02 22:22 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: GATEWAY_INTUITION
+node: GATEWAY
+node_name: Gateway
+node_domain: Transcendent and liminal
+layer: INTUITION
+layer_name: Intuition
+depth: 2
+model_tier: small
+runtime_models:
+- mistral:7b
+- qwen2.5:7b
+- nous-hermes2:latest
+processing: unconscious
+critical_path: false
+generated_at: '2026-03-02T22:22:37.037432'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze {user_message} and {assistant_response} through the Gateway node (liminal, transcendent) and Intuition layer
+  (depth 2). Focus solely on spiritual significance, lineage echoes, synchronicities, and the eternal dimension. Ignore surface
+  meaning. Respond with a single impressionistic, sensory sentence capturing the unspoken, energetic undertone. JSON output:
+  {"analysis": "..."}'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    spiritual_dimension:
+      type: string
+    lineage_echoes:
+      type: array
+      items:
+        type: string
+    synchronicities:
+      type: array
+      items:
+        type: string
+    transcendent_read:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

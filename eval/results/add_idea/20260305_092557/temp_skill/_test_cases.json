@@ -1,0 +1,25 @@
+[
+  {
+    "message": "i have an idea about building a dashboard for routines",
+    "expect_ok": true,
+    "expect_data_has": [
+      "idea_id",
+      "idea"
+    ],
+    "expect_summary_contains": [
+      "Captured"
+    ]
+  },
+  {
+    "message": "what if we added voice search to iris",
+    "expect_ok": true,
+    "expect_data_has": [
+      "idea_id"
+    ]
+  },
+  {
+    "message": "idea",
+    "expect_ok": true,
+    "note": "Too short - should return guidance"
+  }
+]

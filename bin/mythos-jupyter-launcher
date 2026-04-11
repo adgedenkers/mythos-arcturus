@@ -1,0 +1,47 @@
+#!/bin/bash
+# mythos-jupyter-launcher — invoked by mythos-jupyter.service
+# Reads the Jupyter token from /opt/mythos/.jupyter_token and launches
+# Jupyter Lab bound to 127.0.0.1:8899.
+#
+# The token file must be mode 0600 and owned by adge. If it's missing,
+# we refuse to start (no anonymous Jupyter, ever).
+
+set -e
+
+TOKEN_FILE="/opt/mythos/.jupyter_token"
+VENV_PY="/opt/mythos/.venv-jupyter/bin/python3"
+
+if [ ! -f "$TOKEN_FILE" ]; then
+    echo "FATAL: $TOKEN_FILE not found. Run 'jupyter-rotate-token' to create one." >&2
+    exit 1
+fi
+
+if [ ! -x "$VENV_PY" ]; then
+    echo "FATAL: $VENV_PY not found. The mythos-jupyter venv is missing." >&2
+    exit 1
+fi
+
+TOKEN=$(cat "$TOKEN_FILE")
+
+if [ -z "$TOKEN" ]; then
+    echo "FATAL: $TOKEN_FILE is empty." >&2
+    exit 1
+fi
+
+# Launch Jupyter Lab:
+#   --no-browser: we're a service, no X
+#   --ip=127.0.0.1: localhost only, cloudflared tunnel handles public
+#   --port=8899: fixed, matches cloudflared ingress
+#   --ServerApp.token: token from file
+#   --ServerApp.password='': no password, token only
+#   --ServerApp.root_dir: notebooks live here
+#   --ServerApp.allow_root=False: we run as adge anyway, but make it explicit
+exec "$VENV_PY" -m jupyterlab \
+    --no-browser \
+    --ip=127.0.0.1 \
+    --port=8899 \
+    --ServerApp.token="$TOKEN" \
+    --ServerApp.password='' \
+    --ServerApp.root_dir=/opt/mythos/notebooks \
+    --ServerApp.allow_root=False \
+    --ServerApp.disable_check_xsrf=False

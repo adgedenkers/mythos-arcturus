@@ -1,0 +1,24 @@
+TITLE 1: Title 38—Pensions, Bonuses, and Veterans' Relief--Volume 1
+CHAPTER I: CHAPTER I—DEPARTMENT OF VETERANS AFFAIRS
+PART 4: PART 4—SCHEDULE FOR RATING DISABILITIES
+SUBPART B: Subpart B—Disability Ratings
+SECTION: § 4.130 Schedule of ratings—Mental disorders.
+NODE: 38:1.0.1.1.5.2.113.72
+
+============================================================
+
+The nomenclature employed in this portion of the rating schedule is based upon the American Psychiatric Association's Diagnostic and Statistical Manual of Mental Disorders, Fifth Edition (DSM-5) (see § 4.125 for availability information). Rating agencies must be thoroughly familiar with this manual to properly implement the directives in § 4.125 through § 4.129 and to apply the general rating formula for mental disorders in § 4.130. The schedule for rating for mental disorders is set forth as follows:
+
+9201 Schizophrenia 9202 [Removed] 9203 [Removed] 9204 [Removed] 9205 [Removed] 9208 Delusional disorder 9210 Other specified and unspecified schizophrenia spectrum and other psychotic disorders 9211 Schizoaffective disorder 9300 Delirium 9301 Major or mild neurocognitive disorder due to HIV or other infections 9304 Major or mild neurocognitive disorder due to traumatic brain injury 9305 Major or mild vascular neurocognitive disorder 9310 Unspecified neurocognitive disorder 9312 Major or mild neurocognitive disorder due to Alzheimer's disease 9326 Major or mild neurocognitive disorder due to another medical condition or substance/medication-induced major or mild neurocognitive disorder 9327 [Removed] 9400 Generalized anxiety disorder 9403 Specific phobia; social anxiety disorder (social phobia) 9404 Obsessive compulsive disorder 9410 Other specified anxiety disorder 9411 Posttraumatic stress disorder 9412 Panic disorder and/or agoraphobia 9413 Unspecified anxiety disorder 9416 Dissociative amnesia; dissociative identity disorder 9417 Depersonalization/Derealization disorder 9421 Somatic symptom disorder 9422 Other specified somatic symptom and related disorder 9423 Unspecified somatic symptom and related disorder 9424 Conversion disorder (functional neurological symptom disorder) 9425 Illness anxiety disorder 9431 Cyclothymic disorder
+
+9432 Bipolar disorder 9433 Persistent depressive disorder (dysthymia) 9434 Major depressive disorder 9435 Unspecified depressive disorder 9440 Chronic adjustment disorder
+
+9520 Anorexia nervosa 9521 Bulimia nervosa
+
+[Section Authority: (Authority: 38 U.S.C. 1155)]
+
+[Citation: [79 FR 45100, Aug. 4, 2014]]
+
+[Part Authority: Authority:38 U.S.C. 1155, unless otherwise noted.]
+
+[Part Source: Source:29 FR 6718, May 22, 1964, unless otherwise noted.]

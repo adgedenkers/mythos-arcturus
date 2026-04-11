@@ -1,0 +1,57 @@
+[
+  {
+    "Object": "Pluto",
+    "Object_Longitude": 194.7534,
+    "Star": "Zubenelgenubi",
+    "Star_Longitude": 194.7595,
+    "Star_J2000": 195.058,
+    "Magnitude": 2.75,
+    "Constellation": "Libra",
+    "Orb": 0.0061,
+    "Significance": "Negative social reform; malevolence; unforgiving"
+  },
+  {
+    "Object": "Moon",
+    "Object_Longitude": 344.737,
+    "Star": "Achernar",
+    "Star_Longitude": 345.0185,
+    "Star_J2000": 345.317,
+    "Magnitude": 0.45,
+    "Constellation": "Eridanus",
+    "Orb": 0.2815,
+    "Significance": "Royal honors; religious and philosophical leanings"
+  },
+  {
+    "Object": "Descendant",
+    "Object_Longitude": 56.2572,
+    "Star": "Algol",
+    "Star_Longitude": 55.8685,
+    "Star_J2000": 56.167,
+    "Magnitude": 2.09,
+    "Constellation": "Perseus",
+    "Orb": 0.3887,
+    "Significance": "Intense transformation; female rage; losing one's head"
+  },
+  {
+    "Object": "South Node",
+    "Object_Longitude": 358.3357,
+    "Star": "Scheat",
+    "Star_Longitude": 359.0485,
+    "Star_J2000": 359.347,
+    "Magnitude": 2.44,
+    "Constellation": "Pegasus",
+    "Orb": 0.7128,
+    "Significance": "Extreme misfortune; drowning; imprisonment; murder"
+  },
+  {
+    "Object": "Uranus",
+    "Object_Longitude": 222.687,
+    "Star": "Alphecca",
+    "Star_Longitude": 221.8685,
+    "Star_J2000": 222.167,
+    "Magnitude": 2.22,
+    "Constellation": "Corona Borealis",
+    "Orb": 0.8185,
+    "Significance": "Artistic ability; love of flowers; lassitude; honored"
+  }
+]

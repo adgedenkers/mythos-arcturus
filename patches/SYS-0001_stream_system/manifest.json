@@ -1,0 +1,63 @@
+{
+  "manifest_version": "1.0.0",
+  "patch": {
+    "number": "SYS-0001",
+    "semantic_version": "1.22.0",
+    "name": "stream_system",
+    "title": "Stream Development System",
+    "description": "Enables parallel development across named streams (NEU, LOG, MNE, SEN, SYS) with prefixed patch numbering, ownership boundaries, and cross-stream request tracking. Updates patch monitor to recognize stream-prefixed zip files.",
+    "date": "2026-03-04",
+    "author": "Ka'tuar'el + Claude"
+  },
+  "versioning": {
+    "current_system_version": "1.21.66",
+    "new_system_version": "1.22.0",
+    "version_increment": "minor",
+    "reason": "New development workflow system — stream-based parallel development"
+  },
+  "dependencies": {
+    "required_patches": [],
+    "required_services": ["mythos-patch-monitor"],
+    "python_packages": [],
+    "system_packages": [],
+    "minimum_system_version": "1.21.0"
+  },
+  "changes": {
+    "files_added": [
+      "docs/STREAMS.md",
+      "docs/STREAMS.json",
+      "docs/REQUESTS.md",
+      "docs/streams/stream_status.sh"
+    ],
+    "files_modified": [
+      "mythos_patch_monitor.py"
+    ],
+    "database_changes": [],
+    "services_affected": ["mythos-patch-monitor"]
+  },
+  "installation": {
+    "estimated_time_minutes": 1,
+    "requires_restart": true,
+    "requires_sudo": true,
+    "safe_mode": true
+  },
+  "testing": {
+    "verification_steps": [
+      "Confirm patch monitor is active: systemctl is-active mythos-patch-monitor",
+      "Confirm stream files exist: ls /opt/mythos/docs/STREAMS.md",
+      "Run stream status: bash /opt/mythos/docs/streams/stream_status.sh",
+      "Test new pattern: drop a test zip named NEU-0000_test.zip in ~/Downloads"
+    ],
+    "verification_commands": [
+      "systemctl is-active mythos-patch-monitor",
+      "grep 'A-Z.*3' /opt/mythos/mythos_patch_monitor.py",
+      "ls /opt/mythos/docs/STREAMS.md /opt/mythos/docs/STREAMS.json /opt/mythos/docs/REQUESTS.md"
+    ]
+  },
+  "rollback": {
+    "safe": true,
+    "complexity": "low",
+    "automated": false,
+    "notes": "Restore mythos_patch_monitor.py.bak_SYS0001 and restart service"
+  }
+}

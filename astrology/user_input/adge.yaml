@@ -1,0 +1,14 @@
+name: Adge
+calendar: gregorian
+
+birth:
+  date: "1977-11-22"
+  time: "08:30"
+  timezone: "America/New_York"
+
+location:
+  city: Albany
+  region: NY
+  country: USA
+  latitude: 42.65630912614472
+  longitude: -73.803737090229

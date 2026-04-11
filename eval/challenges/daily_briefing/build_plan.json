@@ -1,0 +1,31 @@
+{
+  "plan_id": "daily_briefing",
+  "version": "1.0",
+  "description": "Composite skill that chains spiral time, calendar, routines, and upcoming bills into one daily briefing",
+  "pattern": "composite_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "scaffold": "class DailyBriefingSkill(SkillBase):\n    name = 'daily_briefing'\n    version = '1.0'\n    category = 'composite'\n    description = 'Daily briefing combining spiral time, calendar, routines, and bills'\n    triggers = ['good morning', 'daily briefing', 'brief me', 'start my day', 'morning report', 'whats today look like', 'what do i have today']\n    cache_ttl = 300\n\n    SUB_SKILLS maps skill module paths to class names",
+    "mandatory_patterns": {
+      "no_database": "This is a composite. No _get_conn, no psycopg2. Uses importlib to call sub-skills.",
+      "import_pattern": "import importlib; module = importlib.import_module('data.skill_name'); SkillClass = getattr(module, 'ClassName'); response = await SkillClass().run(request)",
+      "no_unicode": "ASCII only.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name, data, summary, confidence, sources, error."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: logging, importlib, engine.base. NO database imports. Class DailyBriefingSkill with attributes. Define SUB_SKILLS as class dict:\n\nSUB_SKILLS = {\n    'spiral_time': ('data.spiral_time', 'SpiralTimeSkill'),\n    'calendar': ('data.query_calendar', 'QueryCalendarSkill'),\n    'routines': ('data.query_routines', 'QueryRoutinesSkill'),\n    'bills': ('data.query_bills_due', 'QueryBillsDueSkill'),\n}\n\nMethods: execute, _run_skill, _build_briefing. All 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _run_skill(self, module_path, class_name, request). Import module with importlib.import_module(module_path). Get class with getattr. Instantiate and run: response = await cls().run(request). Return response. Wrap in try/except, on error return SkillResponse(skill_name=class_name, error=str(e)).", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement _build_briefing(self, results). Takes dict of {label: SkillResponse}. Build sections list. For each label in order ['spiral_time', 'calendar', 'routines', 'bills']: if response.ok and response.summary, append the summary. Join all sections with ' | '. If no sections have data, return 'Good morning. No briefing data available today.' Return the combined string.", "test": "parse_check"},
+    {"pass": 4, "instruction": "Implement execute(). For each skill in SUB_SKILLS: call _run_skill and collect results in a dict. Call _build_briefing with the results dict. Collect all data from ok responses into merged_data dict keyed by label. Return SkillResponse(skill_name=self.name, data=merged_data, summary=briefing, confidence=0.9, sources=['daily_briefing']). try/except.", "test": "import_check"},
+    {"pass": 5, "instruction": "Review. No database imports. importlib used correctly. All four sub-skills referenced. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "good morning iris", "expect_ok": true, "expect_summary_contains": ["Routine"]},
+    {"message": "daily briefing", "expect_ok": true},
+    {"message": "whats today look like", "expect_ok": true}
+  ]
+}

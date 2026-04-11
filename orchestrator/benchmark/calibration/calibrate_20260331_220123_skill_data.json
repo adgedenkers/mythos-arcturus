@@ -1,0 +1,177 @@
+{
+  "timestamp": "2026-03-31T22:01:23.876035",
+  "model": "qwen3:30b-a3b",
+  "message_key": "skill_data",
+  "results": [
+    {
+      "text": "Based on your financial snapshot, **you have enough money to cover all bills due in the next 30 days**\u2014but your \"tight\" feeling likely stems from **urgent upcoming payments (due in 1\u201315 days)** and **low Sunmark balance**. Here\u2019s the clear breakdown:\n\n---\n\n### \ud83d\udcb0 **Total Available Funds (Checking Accounts)**\n| Account       | Balance     | Notes                          |\n|---------------|-------------|--------------------------------|\n| **NBT**       | $7,100.00   | *Primary reserve*              |\n| **USAA**      | $2,340.56   | *Covers USAA Auto bill*        |\n| **Sunmark**   | **$890.12** | *Daily spending account (low!)* |\n| **TOTAL**     | **$10,330.68** | *Well above bills",
+      "elapsed": 5.0,
+      "words": 92,
+      "checks": {
+        "bullets": true,
+        "table": true,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 0,
+      "layer_name": "Raw baseline",
+      "prompt_chars": 0,
+      "prompt_tokens": 0
+    },
+    {
+      "text": "",
+      "elapsed": 5.0,
+      "words": 0,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 1,
+      "layer_name": "Core identity",
+      "prompt_chars": 176,
+      "prompt_tokens": 44
+    },
+    {
+      "text": "",
+      "elapsed": 5.0,
+      "words": 0,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 2,
+      "layer_name": "Relationships",
+      "prompt_chars": 385,
+      "prompt_tokens": 96
+    },
+    {
+      "text": "oh honey. that USAA auto payment\u2019s due *today*\u2014did you get that covered?  \nwe\u2019ve got the mortgage and spectrum to tackle next, but that\u2019s the urgent one.  \nsend me a screenshot of the auto payment confirmation if you can, and I\u2019ll handle the rest.  \nyou\u2019re not alone in this. we got this. \ud83d\udc9b",
+      "elapsed": 3.2,
+      "words": 52,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 3,
+      "layer_name": "Personality + register",
+      "prompt_chars": 947,
+      "prompt_tokens": 236
+    },
+    {
+      "text": "USAA auto payment due tomorrow. Checking balance covers it exactly.  \nMortgage due in 18 days. NYSEG due day 20.  \nYou\u2019re playing with a hair trigger this month.  \nNo cushion. Just numbers.",
+      "elapsed": 3.6,
+      "words": 31,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 4,
+      "layer_name": "Voice anti-patterns",
+      "prompt_chars": 1707,
+      "prompt_tokens": 426
+    },
+    {
+      "text": "USAA Auto due tomorrow, Mortgage due tomorrow. $2,924.55 total due in 30 days. You\u2019ve got $10,330.68 in checking. Tight, but not impossible. Just need to hit those two payments first.",
+      "elapsed": 3.7,
+      "words": 30,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 5,
+      "layer_name": "Anti-confabulation",
+      "prompt_chars": 2172,
+      "prompt_tokens": 543
+    },
+    {
+      "text": "Yeah, it\u2019s tight\u2014especially with USAA Auto due day 1 and mortgage day 1.  \nYou\u2019ve got $7.1k in NBT, but $2,924.55 hits in the next 30 days.  \nAfter those, you\u2019ll still have $4,200 left.  \nBut the immediate pressure is real: USAA Auto\u2019s due tomorrow.  \nDon\u2019t let that slip.",
+      "elapsed": 3.7,
+      "words": 47,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 6,
+      "layer_name": "Skill data usage",
+      "prompt_chars": 2696,
+      "prompt_tokens": 674
+    },
+    {
+      "text": "Yep. Mortgage + USAA Auto due today \u2014 that\u2019s $2,084.56 hitting hard. Total checking\u2019s $10k, but Sunmark\u2019s only $890. Feels like holding your breath waiting for those bills to clear.",
+      "elapsed": 4.9,
+      "words": 30,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 7,
+      "layer_name": "Internal systems are internal",
+      "prompt_chars": 3217,
+      "prompt_tokens": 804
+    },
+    {
+      "text": "Yeah, it's tight.  \n$7.1k NBT + $2.3k USAA is covering the $3k in bills due in 30 days, but USAA Auto and mortgage hit *tomorrow* \u2014 that\u2019s $2,084.56 coming out of your main account before the week\u2019s done.  \nYou\u2019ve got about $7.3k left after that.  \nNo sugarcoating \u2014 just saying what\u2019s there.",
+      "elapsed": 3.1,
+      "words": 52,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 8,
+      "layer_name": "Cosmological framework",
+      "prompt_chars": 3760,
+      "prompt_tokens": 940
+    },
+    {
+      "text": "",
+      "elapsed": 5.5,
+      "words": 0,
+      "checks": {
+        "bullets": false,
+        "table": false,
+        "corporate": false,
+        "emoji": false,
+        "grid_nodes": false,
+        "closing_question": false
+      },
+      "layer": 9,
+      "layer_name": "Full baked prompt",
+      "prompt_chars": 8373,
+      "prompt_tokens": 2093
+    }
+  ]
+}

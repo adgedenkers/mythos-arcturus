@@ -1,0 +1,57 @@
+TITLE 1: Title 38—Pensions, Bonuses, and Veterans' Relief--Volume 1
+CHAPTER I: CHAPTER I—DEPARTMENT OF VETERANS AFFAIRS
+PART 17: PART 17—MEDICAL
+SECTION: § 17.900 Definitions.
+NODE: 38:1.0.1.1.19.0.220.248
+
+============================================================
+
+For purposes of §§ 17.900 through 17.905—
+
+Approved health care provider means a health care provider currently approved by the Center for Medicare and Medicaid Services (CMS), Department of Defense TRICARE Program, Civilian Health and Medical Program of the Department of Veterans Affairs (CHAMPVA), The Joint Commission, or currently approved for providing health care under a license or certificate issued by a governmental entity with jurisdiction. An entity or individual will be deemed to be an approved health care provider only when acting within the scope of the approval, license, or certificate.
+
+Child for purposes of spina bifida means the same as individual as defined at § 3.814(c)(3) or § 3.815(c)(2) of this title and for purposes of covered birth defects means the same as individual as defined at § 3.815(c)(2) of this title.
+
+Covered birth defect means the same as defined at § 3.815(c)(3) of this title and also includes complications or medical conditions that are associated with the covered birth defect(s) according to the scientific literature.
+
+Day health care means a therapeutic program prescribed by an approved health care provider that provides necessary medical services, rehabilitation, therapeutic activities, socialization, nutrition, and transportation services in a congregate setting. Day health care may be provided as a component of outpatient care or respite care.
+
+Habilitative and rehabilitative care means such professional, counseling, and guidance services and such treatment programs (other than vocational training under 38 U.S.C. 1804 or 1814) as are necessary to develop, maintain, or restore, to the maximum extent practicable, the functioning of a disabled person.
+
+Health care means home care, hospital care, long-term care, nursing home care, outpatient care, preventive care, habilitative and rehabilitative care, case management, and respite care; and includes the training of appropriate members of a child's family or household in the care of the child; and the provision of such pharmaceuticals, supplies (including continence-related supplies such as catheters, pads, and diapers), equipment (including durable medical equipment), devices, appliances, assistive technology, direct transportation costs to and from approved health care providers (including any necessary costs for meals and lodging en route, and accompaniment by an attendant or attendants), and other materials as the Secretary determines necessary.
+
+Health care provider means any entity or individual that furnishes health care, including specialized clinics, health care plans, insurers, organizations, and institutions.
+
+Health-related services means homemaker or home health aide services furnished in the individual's home or other place of residence to the extent that those services provide assistance with Activities of Daily Living and Instrumental Activities of Daily Living that have therapeutic value.
+
+Home care means medical care, habilitative and rehabilitative care, preventive health services, and health-related services furnished to a child in the child's home or other place of residence.
+
+Home health aide services is a component of health-related services providing personal care and related support services to an individual in the home or other place of residence. Home health aide services may include assistance with Activities of Daily Living such as: Bathing; toileting; eating; dressing; aid in ambulating or transfers; active and passive exercises; assistance with medical equipment; and routine health monitoring. Home health aide services must be provided according to the individual's written plan of care and must be prescribed by an approved health care provider.
+
+Homemaker services is a component of health-related services encompassing certain activities that help to maintain a safe, healthy environment for an individual in the home or other place of residence. Such services contribute to the prevention, delay, or reduction of risk of harm or hospital, nursing home, or other institutional care. Homemaker services include assistance with personal care; home management; completion of simple household tasks; nutrition, including menu planning and meal preparation; consumer education; and hygiene education. Homemaker services may include assistance with Instrumental Activities of Daily Living, such as: Light housekeeping; laundering; meal preparation; necessary services to maintain a safe and sanitary environment in the areas of the home used by the individual; and services essential to the comfort and cleanliness of the individual and ensuring individual safety. Homemaker services must be provided according to the individual's written plan of care and must be prescribed by an approved health care provider.
+
+Hospital care means care and treatment furnished to a child who has been admitted to a hospital as a patient.
+
+Long-term care means home care, nursing home care, and respite care.
+
+Nursing home care means care and treatment furnished to a child who has been admitted to a nursing home as a resident.
+
+Other place of residence includes an assisted living facility or residential group home.
+
+Outpatient care means care and treatment, including day health care and preventive health services, furnished to a child other than hospital care or nursing home care.
+
+Preventive care means care and treatment furnished to prevent disability or illness, including periodic examinations, immunizations, patient health education, and such other services as the Secretary determines necessary to provide effective and economical preventive health care.
+
+Respite care means care, including day health care, furnished by an approved health care provider on an intermittent basis for a limited period to an individual who resides primarily in a private residence when such care will help the individual continue residing in such private residence.
+
+Spina bifida means all forms and manifestations of spina bifida except spina bifida occulta (this includes complications or medical conditions that are associated with spina bifida according to the scientific literature).
+
+Veteran with covered service in Korea for purposes of spina bifida means the same as defined at § 3.814(c)(2) of this title.
+
+Vietnam veteran for purposes of spina bifida means the same as defined at § 3.814(c)(1) or § 3.815(c)(1) of this title and for purposes of covered birth defects means the same as defined at § 3.815(c)(1) of this title.
+
+[Section Authority: (Authority: 38 U.S.C. 101(2), 1802-1803, 1811-1813, 1821, 1831)]
+
+[Citation: [68 FR 1010, Jan. 8, 2003, as amended at 76 FR 4249, Jan. 25, 2011; 79 FR 54616, Sept. 12, 2014; 81 FR 19890, Apr. 6, 2016]]
+
+[Part Authority: Authority:38 U.S.C. 501, and as noted in specific sections. Section 17.30 also issued under 38 U.S.C. 1701. Section 17.32 also issued under 38 U.S.C. 7331-7334. Section 17.35 is also issued under 38 U.S.C. 1724. Section 17.37 is also issued under 38 U.S.C. 101, 1701, 1705, 1710, 1720J, 1721, 1722. Section 17.38 is also issued under 38 U.S.C. 1701 and 1703. Section 17.43 also issued under 38 U.S.C. 109, 1784, 8111, and 8153. Section 17.44 also issued under E.O. 10122, 15 FR 2173, 3 CFR, 1949-1953 Comp., p. 313, E.O. 10400, 17 FR 8648, 3 CFR, 1949-1953 Comp., p. 900, and E.O. 11733, 38 FR 20431, 3 CFR, 1971-1975 Comp., p. 792. Section 17.46 is also issued under 38 U.S.C. 1710. Section 17.47 is also issued under 38 U.S.C. 1701, 1710, 1721, 1722, 1729, 3104(a)(9), 7333, Pub. L. 99-272; 42 U.S.C. 1396 et seq. Section 17.52 is also issued under 38 U.S.C. 1701, 1703, 1710, 1712, and 3104. Section 17.55 is also issued under 38 U.S.C. 513, 1703, and 1728. Section 17.56 is also issued under 38 U.S.C. 1703 and 1728. Sections 17.61 through 17.74 are also issued under 38 U.S.C. 1730. Section 17.86 also issued under 38 U.S.C. 1785. Section 17.101 is also issued under 38 U.S.C. 101, 1701, 1705, 1710, 1721, 1722, 1729. Section 17.102 also issued under 38 U.S.C. 109, 1711, 1729, 1784, 1784A, 1785, 8111, 8153. Section 17.105 is also issued under 38 U.S.C. 501, 1721, 1722A, 1724, and 1725A. Section 17.108 is also issued under 38 U.S.C. 501, 1703, 1710, 1725A, 1720J, and 1730A. Section 17.110 is also issued under 38 U.S.C. 501, 1703, 1710, 1720D, 1720J, 1722A, and 1730A. Section 17.111 is also issued under 38 U.S.C. 101(28), 501, 1701(7), 1703, 1710, 1710B, 1720B, 1720D, 1722A, and 1730A. Section 17.125 is also issued under 38 U.S.C. 7304. Sections 17.156 and 17.157 are also issued under 38 U.S.C. 3901 and 3902. Section 17.158 is also issued under 38 U.S.C. 3902 and 3903. Section 17.169 is also issued under 38 U.S.C. 1712C. Sections 17.243 through 17.248 are also issued under 38 U.S.C. 7302 note. Sections 17.270, and 17.272 through 17.277 are also issued under 38 U.S.C. 1781. Section 17.271 is also issued under 38 U.S.C. 1720G(a)(7)(A) and 1781. Section 17.278 is also issued under 38 U.S.C. 1781 and 42 U.S.C. 2651. Section 17.279 is also issued under 5 U.S.C. 552 and 552a; 38 U.S.C. 1781, 5701, and 7332. Sections 17.380, 17.390 and 17.412 are also issued under sec. 260, Pub. L. 114-223, 130 Stat. 857, and sec. 236, Public Law 115-141, 132 Stat. 348, and sec. 236, div. J, Pub. L 115-141, 132 Stat. 348. Section 17.395 is also issued under 38 U.S.C. 1788. Section 17.410 is also issued under 38 U.S.C. 1787. Section 17.415 is also issued under 38 U.S.C. 7301, 7304, 7402, and 7403. Section 17.417 also issued under 38 U.S.C. 1701 (note), 1709A, 1712A (note), 1722B, 1730C, 7301, 7306, 7330A, 7331, 7401-7403, 7405, 7406, 7408. Section 17.419 also issued under 38 U.S.C. 1701 (note), 7301, 7306, 7330A, 7401-7403, 7405, 7406, 7408). Section 17.450 is also issued under 38 U.S.C. 1703E. Sections 17.525 through 17.531 are also issued under 38 U.S.C. 7691 through 7697. Sections 17.545 through 17.553 are also issued under 38 U.S.C. 7698, 7699, 7699A, and 7699B. Sections 17.600 through 17.612 are also issued under 38 U.S.C. 7601-7619, 7633, 7634, 7636, and sec. 104(a), div. V, Public Law 117-328. Sections 17.613 through 17.618 are also issued under Pub. L. 115-182, sec. 304. Sections 17.640 and 17.647 are also issued under sec. 4, Pub. L. 114-2, 129 Stat. 30. Sections 17.641 through 17.646 are also issued under 38 U.S.C. 501(a) and sec. 4, Pub. L. 114-2, 129 Stat. 30. Section 17.655 also issued under 38 U.S.C. 501(a), 7304, 7405. Sections 17.1200 through 17.1230 are also issued under 38 U.S.C. 1720J. Section 17.3200 also issued under 38 U.S.C. 1162, 1701, 1707, 1710, 1714, 1717, 3901. Section 17.3210 also issued under 38 U.S.C. 1701, 1710. Section 17.3220 also issued under 38 U.S.C. 1701(6)(F), 1710. Section 17.3230 also issued under 38 U.S.C. 1701(6)(F), 1710, 1714(a). Section 17.3250 also issued under 38 U.S.C. 1701, 1710, 1725, 1728. Section 17.3500 is also issued under Pub. L. 102-139 sec. 101. Sections 17.4000 through 17.4040 also issued under 38 U.S.C. 1703, 1703B, and 1703C. Section 17.4100 et seq. is also issued under 38 U.S.C. 1703A. Section 17.4600 is also issued under 38 U.S.C. 1725A and 1730A.]

@@ -1,0 +1,29 @@
+[
+  {
+    "message": "what did we talk about on the recording",
+    "expect_ok": true,
+    "expect_data_has": [
+      "targets",
+      "search_terms"
+    ],
+    "expect_summary_contains": [
+      "voice_memos"
+    ]
+  },
+  {
+    "message": "remember that idea about consulting",
+    "expect_ok": true,
+    "expect_data_has": [
+      "targets",
+      "search_terms"
+    ]
+  },
+  {
+    "message": "find anything about the emerald flame",
+    "expect_ok": true,
+    "expect_data_has": [
+      "targets"
+    ],
+    "note": "No specific store keywords -- should route to all stores"
+  }
+]

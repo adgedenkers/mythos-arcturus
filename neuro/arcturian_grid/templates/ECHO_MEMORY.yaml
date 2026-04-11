@@ -1,0 +1,62 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ECHO | Layer: MEMORY | ID: ECHO_MEMORY
+# Domain: Memory and pattern recognition
+# Depth: 4 (Memory)
+# Generated: 2026-03-02 21:50 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ECHO_MEMORY
+node: ECHO
+node_name: Echo
+node_domain: Memory and pattern recognition
+layer: MEMORY
+layer_name: Memory
+depth: 4
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: false
+generated_at: '2026-03-02T21:50:55.374176'
+generated_by: iris-thinking-v2:latest
+prompt: Analyze {user_message} and {assistant_response} for echoes in memory (depth 4). Identify recurring themes, behavioral
+  patterns (freeze/avoidance/flow), cyclical topics, or linguistic echoes from past exchanges. Output ONLY a JSON object with
+  'connection' key describing associative links to past conversations, using present-tense references like 'This echoes [event]
+  from [date]...'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    matched_patterns:
+      type: array
+      items:
+        type: string
+    recurring_themes:
+      type: array
+      items:
+        type: string
+    cycle_indicators:
+      type: array
+      items:
+        type: string
+    echo_strength:
+      type: number
+      minimum: 0
+      maximum: 1
+  required:
+  - summary
+  - confidence
+  - flags

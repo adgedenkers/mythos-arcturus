@@ -1,0 +1,32 @@
+{
+  "Name": "Fitz",
+  "Birth": {
+    "Date": "2010-09-08",
+    "Time": "14:39",
+    "Place": "Schenectady, NY, USA",
+    "Latitude": 42.79284559591072,
+    "Longitude": -73.87896264604282,
+    "Timezone": "America/New_York"
+  },
+  "House System": "Placidus",
+  "Zodiac Type": "Tropical",
+  "Ephemeris": "Swiss Ephemeris",
+  "Ephemeris Path": "(Moshier built-in)",
+  "Included Objects": [
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+    "Lilith",
+    "Mean Node",
+    "True Node",
+    "South Node"
+  ],
+  "Engine Version": "2.1"
+}

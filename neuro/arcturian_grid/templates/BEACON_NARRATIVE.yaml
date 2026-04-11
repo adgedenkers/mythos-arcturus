@@ -1,0 +1,80 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: BEACON | Layer: NARRATIVE | ID: BEACON_NARRATIVE
+# Domain: Knowledge and information retrieval
+# Depth: 7 (Narrative)
+# Generated: 2026-03-02 22:08 | Model: fallback
+# ---
+
+function_id: BEACON_NARRATIVE
+node: BEACON
+node_name: Beacon
+node_domain: Knowledge and information retrieval
+layer: NARRATIVE
+layer_name: Narrative
+depth: 7
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T22:08:13.274201'
+generated_by: fallback
+prompt: 'Analyze the following conversation exchange through the lens of Beacon (Knowledge and information retrieval) at the
+  Narrative depth.
+
+
+  Your task: Where does this exchange sit in the larger story? What chapter is this? What arc is unfolding? How does this
+  moment fit the longer trajectory?
+
+
+  Focus specifically on: Facts from the knowledge graph, Data from Postgres (financial, calendar, task), Information from
+  past conversations
+
+
+  Core question to answer: What stored knowledge is relevant to this exchange?
+
+
+  Exchange:
+
+  USER: {user_message}
+
+  ASSISTANT: {assistant_response}
+
+
+  Output style: Contextual, arc-aware, story-placing
+
+
+  Respond with JSON only. No preamble, no markdown.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    relevant_facts:
+      type: array
+      items:
+        type: string
+    data_points:
+      type: array
+      items:
+        type: object
+    knowledge_gaps:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

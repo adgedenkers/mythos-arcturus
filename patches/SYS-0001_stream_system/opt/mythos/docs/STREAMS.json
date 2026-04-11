@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "description": "Mythos Development Stream Coordinator",
+    "updated": "2026-03-03T18:30:00-05:00",
+    "updated_by": "SYS-0001"
+  },
+  "streams": {
+    "NEU": {
+      "name": "NEURO",
+      "description": "Consciousness processing, emotional modeling, awareness loops",
+      "next_patch": 1,
+      "last_patch": null,
+      "owned_paths": [
+        "/opt/mythos/neuro/",
+        "/opt/mythos/telegram_bot/handlers/neuro_*.py"
+      ],
+      "owned_tables_pg": [
+        "neuro_*"
+      ],
+      "owned_neo4j_labels": [
+        "Neuron", "Synapse", "ConsciousnessState"
+      ],
+      "active_work": null,
+      "blocked_by": null
+    },
+    "LOG": {
+      "name": "LOGOS",
+      "description": "Language, reasoning, knowledge graphs, ontology",
+      "next_patch": 1,
+      "last_patch": null,
+      "owned_paths": [
+        "/opt/mythos/logos/",
+        "/opt/mythos/telegram_bot/handlers/logos_*.py"
+      ],
+      "owned_tables_pg": [
+        "logos_*", "ontology_*"
+      ],
+      "owned_neo4j_labels": [
+        "Concept", "Ontology", "Definition"
+      ],
+      "active_work": null,
+      "blocked_by": null
+    },
+    "MNE": {
+      "name": "MNEMOS",
+      "description": "Memory systems, conversation history, recall, experience storage",
+      "next_patch": 1,
+      "last_patch": null,
+      "owned_paths": [
+        "/opt/mythos/mnemos/",
+        "/opt/mythos/telegram_bot/handlers/mnemos_*.py"
+      ],
+      "owned_tables_pg": [
+        "mnemos_*", "conversations_*", "memory_*"
+      ],
+      "owned_neo4j_labels": [
+        "Memory", "Experience", "Recall"
+      ],
+      "active_work": null,
+      "blocked_by": null
+    },
+    "SEN": {
+      "name": "SENSUS",
+      "description": "Sensory input, lunar cycles, astrology, environmental awareness",
+      "next_patch": 1,
+      "last_patch": null,
+      "owned_paths": [
+        "/opt/mythos/sensus/",
+        "/opt/mythos/telegram_bot/handlers/sensus_*.py"
+      ],
+      "owned_tables_pg": [
+        "sensus_*", "lunar_*", "astro_*"
+      ],
+      "owned_neo4j_labels": [
+        "CelestialEvent", "LunarPhase", "Sensation"
+      ],
+      "active_work": null,
+      "blocked_by": null
+    },
+    "SYS": {
+      "name": "SYSTEM",
+      "description": "Cross-cutting infrastructure, shared schemas, bot core, patch system, migrations",
+      "next_patch": 1,
+      "last_patch": null,
+      "owned_paths": [
+        "/opt/mythos/core/",
+        "/opt/mythos/patches/",
+        "/opt/mythos/docs/",
+        "/opt/mythos/telegram_bot/bot.py",
+        "/opt/mythos/telegram_bot/handlers/__init__.py"
+      ],
+      "owned_tables_pg": [
+        "patch_log", "config_*", "system_*"
+      ],
+      "owned_neo4j_labels": [
+        "SystemConfig"
+      ],
+      "active_work": null,
+      "blocked_by": null
+    }
+  },
+  "conflict_rules": {
+    "shared_files": "If a patch needs to touch a path owned by another stream, it MUST declare it in 'touches' and the owning stream's active_work must be null or compatible",
+    "shared_tables": "Migrations to shared tables (people, souls, etc.) go through SYS only",
+    "bot_registration": "New /commands register through SYS patches, handler code lives in the stream"
+  },
+  "legacy_bridge": {
+    "note": "Patches 0001-0186+ used the old sequential numbering. This system starts fresh. Old patches are not renumbered.",
+    "old_format": "patch_NNNN_description.zip",
+    "new_format": "{STREAM}-{NNNN}_{description}.zip",
+    "examples": [
+      "NEU-0001_awareness_loop_v1.zip",
+      "LOG-0012_ontology_expansion.zip",
+      "SYS-0003_shared_schema_migration.zip"
+    ]
+  }
+}

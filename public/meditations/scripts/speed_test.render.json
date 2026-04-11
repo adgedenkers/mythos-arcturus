@@ -1,0 +1,74 @@
+{
+  "title": "Speed Test",
+  "slug": "speed_test",
+  "author": "unknown",
+  "rendered_at": "2026-03-25T23:48:59.755601",
+  "source_spec": "/tmp/speed_test.yaml",
+  "output_file": "/opt/mythos/public/meditations/meditation_20260325_234859_speed_test.ogg",
+  "total_duration_s": 30.3,
+  "total_duration_min": 0.5,
+  "background": {
+    "track": null,
+    "volume": null,
+    "fade_in": null,
+    "fade_out": null
+  },
+  "phases": [
+    {
+      "id": "test",
+      "label": "Test",
+      "tone": "neutral",
+      "speed": 0.72
+    }
+  ],
+  "segments": [
+    {
+      "index": 0,
+      "type": "speech",
+      "text": "Close your eyes.",
+      "speed": 0.72,
+      "phase": "test",
+      "tone": "neutral",
+      "duration_s": 2.33
+    },
+    {
+      "index": 1,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "test",
+      "tone": "neutral"
+    },
+    {
+      "index": 2,
+      "type": "speech",
+      "text": "Let your hands rest where they want to rest.",
+      "speed": 0.72,
+      "phase": "test",
+      "tone": "neutral",
+      "duration_s": 3.7
+    },
+    {
+      "index": 3,
+      "type": "pause",
+      "seconds": 3.0,
+      "phase": "test",
+      "tone": "neutral"
+    },
+    {
+      "index": 4,
+      "type": "speech",
+      "text": "Not a performance of relaxation. Just a quiet permission for everything to stop pretending.",
+      "speed": 0.72,
+      "phase": "test",
+      "tone": "neutral",
+      "duration_s": 8.3
+    },
+    {
+      "index": 5,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "test",
+      "tone": "neutral"
+    }
+  ]
+}

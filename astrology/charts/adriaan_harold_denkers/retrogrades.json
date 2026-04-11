@@ -1,0 +1,32 @@
+[
+  {
+    "Object": "Venus",
+    "Sign": "Scorpio",
+    "House": 11,
+    "Longitude": 218.075318
+  },
+  {
+    "Object": "Chiron",
+    "Sign": "Taurus",
+    "House": 4,
+    "Longitude": 36.340702
+  },
+  {
+    "Object": "Mean Node",
+    "Sign": "Virgo",
+    "House": 9,
+    "Longitude": 173.313961
+  },
+  {
+    "Object": "True Node",
+    "Sign": "Virgo",
+    "House": 9,
+    "Longitude": 174.296423
+  },
+  {
+    "Object": "South Node",
+    "Sign": "Pisces",
+    "House": 3,
+    "Longitude": 353.313961
+  }
+]

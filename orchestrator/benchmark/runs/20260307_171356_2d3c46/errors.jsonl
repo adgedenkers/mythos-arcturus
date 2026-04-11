@@ -1,0 +1,21 @@
+{"task_id": "R-08", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 4, "status": "error", "occurred_at": "2026-03-07T22:13:56.345337+00:00"}
+{"task_id": "R-02", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 3, "status": "error", "occurred_at": "2026-03-07T22:13:56.346975+00:00"}
+{"task_id": "M-02", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 3, "status": "error", "occurred_at": "2026-03-07T22:13:56.349145+00:00"}
+{"task_id": "R-06", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 2, "status": "error", "occurred_at": "2026-03-07T22:13:56.350557+00:00"}
+{"task_id": "R-04", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 3, "status": "error", "occurred_at": "2026-03-07T22:13:56.352135+00:00"}
+{"task_id": "R-03", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 3, "status": "error", "occurred_at": "2026-03-07T22:13:56.355347+00:00"}
+{"task_id": "R-05", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 2, "status": "error", "occurred_at": "2026-03-07T22:13:56.355453+00:00"}
+{"task_id": "M-01", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 2, "status": "error", "occurred_at": "2026-03-07T22:13:56.360016+00:00"}
+{"task_id": "M-04", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 4, "status": "error", "occurred_at": "2026-03-07T22:13:56.360051+00:00"}
+{"task_id": "R-07", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 3, "status": "error", "occurred_at": "2026-03-07T22:13:56.363210+00:00"}
+{"task_id": "V-01", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 4, "status": "error", "occurred_at": "2026-03-07T22:13:56.365583+00:00"}
+{"task_id": "R-01", "model": "deepseek-r1:32b", "error": "404 Client Error: Not Found for url: http://localhost:11434/api/chat", "response_ms": 2, "status": "error", "occurred_at": "2026-03-07T22:13:56.365622+00:00"}
+{"task_id": "R-02", "model": "gemma3:27b", "error": "TIMEOUT after 120s", "response_ms": 120007, "status": "timeout", "occurred_at": "2026-03-07T22:15:56.349227+00:00"}
+{"task_id": "M-04", "model": "gemma3:27b", "error": "TIMEOUT after 120s", "response_ms": 120035, "status": "timeout", "occurred_at": "2026-03-07T22:15:56.389232+00:00"}
+{"task_id": "R-05", "model": "gemma3:27b", "error": "TIMEOUT after 120s", "response_ms": 120053, "status": "timeout", "occurred_at": "2026-03-07T22:15:56.405683+00:00"}
+{"task_id": "R-03", "model": "gemma3:27b", "error": "TIMEOUT after 120s", "response_ms": 120059, "status": "timeout", "occurred_at": "2026-03-07T22:15:56.409287+00:00"}
+{"task_id": "R-06", "model": "gemma3:27b", "error": "TIMEOUT after 120s", "response_ms": 120103, "status": "timeout", "occurred_at": "2026-03-07T22:15:56.450251+00:00"}
+{"task_id": "M-01", "model": "gemma3:27b", "error": "TIMEOUT after 120s", "response_ms": 120102, "status": "timeout", "occurred_at": "2026-03-07T22:15:56.458246+00:00"}
+{"task_id": "R-07", "model": "gemma3:27b", "error": "TIMEOUT after 120s", "response_ms": 120102, "status": "timeout", "occurred_at": "2026-03-07T22:15:56.460179+00:00"}
+{"task_id": "V-01", "model": "gemma3:27b", "error": "TIMEOUT after 120s", "response_ms": 120102, "status": "timeout", "occurred_at": "2026-03-07T22:15:56.461466+00:00"}
+{"task_id": "R-01", "model": "gemma3:27b", "error": "TIMEOUT after 120s", "response_ms": 120101, "status": "timeout", "occurred_at": "2026-03-07T22:15:56.463593+00:00"}

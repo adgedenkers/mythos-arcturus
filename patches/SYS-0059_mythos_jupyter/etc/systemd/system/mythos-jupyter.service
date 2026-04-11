@@ -1,0 +1,37 @@
+[Unit]
+Description=Mythos Jupyter Lab — demo graph notebooks
+After=network-online.target
+Wants=network-online.target
+# Don't tie to docker so demo containers can be stopped/started independently
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos/notebooks
+Environment="PATH=/opt/mythos/.venv-jupyter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="JUPYTER_CONFIG_DIR=/opt/mythos/.jupyter"
+Environment="JUPYTER_DATA_DIR=/opt/mythos/.jupyter/data"
+Environment="JUPYTER_RUNTIME_DIR=/opt/mythos/.jupyter/runtime"
+
+# Jupyter Lab is launched via a wrapper that reads the token from a file owned
+# by adge (mode 0600) and passes it on the command line. This keeps the token
+# out of the unit file and out of process listings for other users.
+ExecStart=/opt/mythos/bin/mythos-jupyter-launcher
+
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=20
+
+# Hardening — Jupyter has no business touching anything outside its scope
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/mythos/notebooks /opt/mythos/.jupyter /opt/mythos/demo/repos /tmp
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target

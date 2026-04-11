@@ -1,0 +1,203 @@
+[
+  {
+    "Type": "Grand Trine",
+    "Points": [
+      "Moon",
+      "Saturn",
+      "South Node"
+    ],
+    "Aspects": [
+      "Moon-Saturn",
+      "Saturn-South Node",
+      "South Node-Moon"
+    ]
+  },
+  {
+    "Type": "Grand Trine",
+    "Points": [
+      "Jupiter",
+      "Moon",
+      "South Node"
+    ],
+    "Aspects": [
+      "Jupiter-Moon",
+      "Moon-South Node",
+      "South Node-Jupiter"
+    ]
+  },
+  {
+    "Type": "Grand Trine",
+    "Points": [
+      "Jupiter",
+      "Mars",
+      "South Node"
+    ],
+    "Aspects": [
+      "Jupiter-Mars",
+      "Mars-South Node",
+      "South Node-Jupiter"
+    ]
+  },
+  {
+    "Type": "Grand Trine",
+    "Points": [
+      "Mars",
+      "Saturn",
+      "South Node"
+    ],
+    "Aspects": [
+      "Mars-Saturn",
+      "Saturn-South Node",
+      "South Node-Mars"
+    ]
+  },
+  {
+    "Type": "T-Square",
+    "Points": [
+      "Jupiter",
+      "Neptune",
+      "Venus"
+    ],
+    "Aspects": [
+      "Venus-Neptune (Opposition)",
+      "Venus-Jupiter (Square)",
+      "Neptune-Jupiter (Square)"
+    ]
+  },
+  {
+    "Type": "Kite",
+    "Points": [
+      "Jupiter",
+      "Mars",
+      "South Node",
+      "Uranus"
+    ],
+    "Aspects": [
+      "Jupiter\u2013Mars (Trine)",
+      "Mars\u2013South Node (Trine)",
+      "Jupiter\u2013South Node (Trine)",
+      "Uranus\u2013Mars (Opposition)",
+      "Uranus\u2013Jupiter (Sextile)",
+      "Uranus\u2013South Node (Sextile)"
+    ]
+  },
+  {
+    "Type": "Kite",
+    "Points": [
+      "Jupiter",
+      "Mars",
+      "Mean Node",
+      "South Node"
+    ],
+    "Aspects": [
+      "Jupiter\u2013Mars (Trine)",
+      "Mars\u2013South Node (Trine)",
+      "Jupiter\u2013South Node (Trine)",
+      "Mean Node\u2013South Node (Opposition)",
+      "Mean Node\u2013Jupiter (Sextile)",
+      "Mean Node\u2013Mars (Sextile)"
+    ]
+  },
+  {
+    "Type": "Kite",
+    "Points": [
+      "Mars",
+      "Saturn",
+      "South Node",
+      "Uranus"
+    ],
+    "Aspects": [
+      "Mars\u2013Saturn (Trine)",
+      "Saturn\u2013South Node (Trine)",
+      "Mars\u2013South Node (Trine)",
+      "Uranus\u2013Mars (Opposition)",
+      "Uranus\u2013Saturn (Sextile)",
+      "Uranus\u2013South Node (Sextile)"
+    ]
+  },
+  {
+    "Type": "Kite",
+    "Points": [
+      "Mars",
+      "Mean Node",
+      "Saturn",
+      "South Node"
+    ],
+    "Aspects": [
+      "Mars\u2013Saturn (Trine)",
+      "Saturn\u2013South Node (Trine)",
+      "Mars\u2013South Node (Trine)",
+      "Mean Node\u2013South Node (Opposition)",
+      "Mean Node\u2013Mars (Sextile)",
+      "Mean Node\u2013Saturn (Sextile)"
+    ]
+  },
+  {
+    "Type": "Kite",
+    "Points": [
+      "Jupiter",
+      "Moon",
+      "South Node",
+      "Uranus"
+    ],
+    "Aspects": [
+      "Jupiter\u2013Moon (Trine)",
+      "Moon\u2013South Node (Trine)",
+      "Jupiter\u2013South Node (Trine)",
+      "Uranus\u2013Moon (Opposition)",
+      "Uranus\u2013Jupiter (Sextile)",
+      "Uranus\u2013South Node (Sextile)"
+    ]
+  },
+  {
+    "Type": "Kite",
+    "Points": [
+      "Jupiter",
+      "Mean Node",
+      "Moon",
+      "South Node"
+    ],
+    "Aspects": [
+      "Jupiter\u2013Moon (Trine)",
+      "Moon\u2013South Node (Trine)",
+      "Jupiter\u2013South Node (Trine)",
+      "Mean Node\u2013South Node (Opposition)",
+      "Mean Node\u2013Jupiter (Sextile)",
+      "Mean Node\u2013Moon (Sextile)"
+    ]
+  },
+  {
+    "Type": "Kite",
+    "Points": [
+      "Moon",
+      "Saturn",
+      "South Node",
+      "Uranus"
+    ],
+    "Aspects": [
+      "Moon\u2013Saturn (Trine)",
+      "Saturn\u2013South Node (Trine)",
+      "Moon\u2013South Node (Trine)",
+      "Uranus\u2013Moon (Opposition)",
+      "Uranus\u2013Saturn (Sextile)",
+      "Uranus\u2013South Node (Sextile)"
+    ]
+  },
+  {
+    "Type": "Kite",
+    "Points": [
+      "Mean Node",
+      "Moon",
+      "Saturn",
+      "South Node"
+    ],
+    "Aspects": [
+      "Moon\u2013Saturn (Trine)",
+      "Saturn\u2013South Node (Trine)",
+      "Moon\u2013South Node (Trine)",
+      "Mean Node\u2013South Node (Opposition)",
+      "Mean Node\u2013Moon (Sextile)",
+      "Mean Node\u2013Saturn (Sextile)"
+    ]
+  }
+]

@@ -1,0 +1,78 @@
+{
+  "plan_id": "format_financial_summary",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_094749",
+  "total_passes": 4,
+  "total_ollama_calls": 4,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: logging, engine.base. NO database imports. Class with attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 0.75,
+      "final_code_lines": 18
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _format(). Takes a data dict that may contain: 'accounts' (list of dicts with abbr, name, type, balance), 'bills' (list with merchant_name, expected_amount, expected_day), 'transactions' (list with description, amount, date). Build sections: ACCOUNTS section groups by type (checking, credit, loan), shows each as 'ABBR: $BALANCE'. BILLS section: 'MERCHANT $AMOUNT (day N)'. TRANSACTIONS section: top 5 as '$AMOUNT at DESC (DATE)'. Calculate totals for each section. Return the combined string.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.23,
+      "final_code_lines": 91
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement execute(). Get data from request.parameters or use empty dict. Call _format(data). Return SkillResponse(skill_name=self.name, data={'formatted': formatted}, summary=formatted if formatted else 'No financial data to format.', confidence=0.9, sources=['format_financial_summary']). try/except.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.67,
+      "final_code_lines": 102
+    },
+    {
+      "pass": 4,
+      "instruction": "Review. No database imports. Amounts formatted as $X,XXX.XX with commas. Handles empty/missing sections. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.07,
+      "final_code_lines": 113
+    }
+  ]
+}

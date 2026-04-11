@@ -1,0 +1,35 @@
+{
+  "plan_id": "complete_routine",
+  "version": "1.0",
+  "description": "Mark a routine as completed for today",
+  "pattern": "action_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "table_schema": "Table: routines\n  - id (integer, PK)\n  - title (text, NOT NULL) -- IMPORTANT: column is 'title' NOT 'name'\n  - is_active (boolean)\n\nTable: routine_completions\n  - id (integer, PK, serial)\n  - routine_id (integer, FK to routines.id)\n  - due_date (date, NOT NULL)\n  - status (varchar(20), default 'pending') -- values: 'pending', 'completed', 'skipped'\n  - completed_at (timestamp)\n  - completed_by (varchar(50))\n  - notes (text)\n  UNIQUE constraint on (routine_id, due_date)\n\nCurrent active routines (use these titles for matching):\n  - 'Check calendar'\n  - 'Import Bank Transactions'\n  - 'Review transactions'",
+    "scaffold": "class CompleteRoutineSkill(SkillBase):\n    name = 'complete_routine'\n    version = '1.0'\n    category = 'action'\n    description = 'Mark a routine as completed for today'\n    triggers = ['done with', 'completed', 'finished', 'did my', 'mark complete', 'routine done', 'check off', 'done']\n    cache_ttl = 0\n\n    async def execute(self, request) -> SkillResponse:\n        # 1. Extract which routine from message\n        # 2. Find matching routine by title (fuzzy match)\n        # 3. INSERT or UPDATE routine_completions for today\n        # 4. Return confirmation\n        pass\n\n    def _find_routine(self, message) -> dict | None:\n        # Query active routines, find best match by title ILIKE\n        pass\n\n    def _mark_complete(self, routine_id, routine_title) -> int:\n        # INSERT INTO routine_completions ON CONFLICT UPDATE\n        pass",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "connection_cleanup": "Always try/except/finally. Close cursor and connection in finally. COMMIT after INSERT/UPDATE.",
+      "no_unicode": "ASCII only in comments.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name (str), data (dict), summary (str), confidence (float), sources (list), error (str|None). NEVER use 'success', 'message', 'text', 'ok', 'result'.",
+      "column_name": "CRITICAL: routines table uses 'title' NOT 'name'. Always use r.title or routines.title."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: os, logging, datetime (date, datetime), psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _find_routine(). Lowercase the message. Remove trigger phrases: 'mark complete', 'routine done', 'check off', 'done with', 'completed', 'finished', 'did my', 'done'. Normalize whitespace. Use _get_conn(). Query: SELECT id, title FROM routines WHERE is_active = true AND LOWER(title) ILIKE %s with f'%{cleaned}%'. If exactly one match, return it. If multiple, return first. If none, try each word individually. Return dict with id and title, or None. CRITICAL: use 'title' not 'name'. try/finally close.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement _mark_complete(). Use _get_conn(). Get today = date.today(). Use INSERT ON CONFLICT: INSERT INTO routine_completions (routine_id, due_date, status, completed_at, completed_by) VALUES (%s, %s, 'completed', NOW(), 'adge') ON CONFLICT (routine_id, due_date) DO UPDATE SET status = 'completed', completed_at = NOW(), completed_by = 'adge' RETURNING id. Params: (routine_id, today). conn.commit(). Return the id. try/finally close.", "test": "parse_check"},
+    {"pass": 4, "instruction": "Implement execute(). Call _find_routine(request.message). If None: return SkillResponse(skill_name=self.name, data={}, summary='Could not find a matching routine. Active routines: Check calendar, Import Bank Transactions, Review transactions.', confidence=0.3, sources=['mythos.routines']). If found: call _mark_complete(routine['id'], routine['title']). Return SkillResponse(skill_name=self.name, data={'routine_id': routine['id'], 'routine_title': routine['title'], 'completion_id': comp_id}, summary=f'Marked \"{routine[\"title\"]}\" as complete for today.', confidence=0.95, sources=['mythos.routines', 'mythos.routine_completions']). try/except/finally.", "test": "import_check"},
+    {"pass": 5, "instruction": "Review. Uses 'title' NOT 'name' for routines. _get_conn uses POSTGRES_HOST. conn.commit() after INSERT. ON CONFLICT handles re-completion gracefully. SkillResponse uses ONLY valid kwargs. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "done with check calendar", "expect_ok": true, "expect_data_has": ["routine_id", "routine_title"], "expect_summary_contains": ["complete"]},
+    {"message": "finished reviewing transactions", "expect_ok": true, "expect_data_has": ["routine_id"]},
+    {"message": "done with something random", "expect_ok": true, "note": "No matching routine - should list available ones"}
+  ]
+}

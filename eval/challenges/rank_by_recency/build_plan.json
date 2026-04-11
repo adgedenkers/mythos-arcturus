@@ -1,0 +1,28 @@
+{
+  "plan_id": "rank_by_recency",
+  "version": "1.0",
+  "description": "Sort results newest-first and format relative timestamps",
+  "pattern": "rank_results",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "scaffold": "class RankByRecencySkill(SkillBase):\n    name = 'rank_by_recency'\n    version = '1.0'\n    category = 'meta'\n    description = 'Sort results by date, newest first, with relative timestamps'\n    triggers = ['recent', 'latest', 'newest', 'sort by date']\n    cache_ttl = 0\n\n    async def execute(self, request) -> SkillResponse:\n        # Expects request.parameters['results'] as list of dicts with 'created_at' key\n        # Sorts newest first, adds relative_time field\n        pass\n\n    def _relative_time(self, dt_str) -> str:\n        # Convert ISO date string to 'X minutes/hours/days ago'\n        pass",
+    "mandatory_patterns": {
+      "no_database": "No database. Import datetime only.",
+      "no_unicode": "ASCII only.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name, data, summary, confidence, sources, error."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: logging, datetime (datetime, timedelta, timezone), engine.base. NO database imports. Class with attributes. Methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _relative_time(). Takes a date/datetime string (ISO format). Parse it with datetime.fromisoformat(). Calculate delta from now. Return: < 1 min -> 'just now', < 60 min -> 'N minutes ago', < 24 hours -> 'N hours ago', < 7 days -> 'N days ago', < 30 days -> 'N weeks ago', else -> 'N months ago'. Handle None input by returning 'unknown date'. Handle parse errors gracefully.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement execute(). Get results from request.parameters.get('results', []). If empty: return SkillResponse(skill_name=self.name, data={'ranked': [], 'count': 0}, summary='No results to rank.', confidence=0.5, sources=['rank_by_recency']). Sort by created_at descending (most recent first). Handle missing created_at by putting those at end. Add 'relative_time' field to each result using _relative_time(). Return SkillResponse(skill_name=self.name, data={'ranked': sorted_results, 'count': len}, summary=f'Ranked {len} results by recency. Most recent: {relative_time of first}.', confidence=0.9, sources=['rank_by_recency']). try/except.", "test": "import_check"},
+    {"pass": 4, "instruction": "Review. No database imports. Date parsing handles edge cases. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "rank these results", "expect_ok": true, "expect_data_has": ["ranked"]},
+    {"message": "sort by date", "expect_ok": true}
+  ]
+}

@@ -1,0 +1,579 @@
+# Layer 1: PERCEPTION Worker Template
+# =====================================
+# The first node in the consciousness cascade.
+# Every message passes through PERCEPTION before anything else.
+#
+# This template defines EXACTLY what the worker receives,
+# EXACTLY what it must output, and EXACTLY how to validate it.
+#
+# Model recommendation: qwen2.5:7b @ temp 0.1 (fast, deterministic)
+# Fallback: any 7b-class model @ temp 0.1
+# Target latency: <1.5s
+#
+# Grid reference: Functions A1, E1, B1, S1, N1, M1, G1, H1, GW1
+# (All nine nodes at Layer 1 - PERCEPTION level)
+
+meta:
+  node: "PERCEPTION"
+  layer: 1
+  grid_functions: ["A1", "E1", "B1", "S1", "N1", "M1", "G1", "H1", "GW1"]
+  version: "1.0.0"
+  created: "2026-02-25"
+  
+  # Model configuration
+  recommended_model: "qwen2.5:7b"
+  temperature: 0.1
+  num_predict: 1024
+  
+  # Performance targets
+  target_latency_ms: 1500
+  max_latency_ms: 3000
+
+# ═══════════════════════════════════════════════════════════════
+# SYSTEM PROMPT
+# ═══════════════════════════════════════════════════════════════
+# This is sent as the system message to the LLM.
+
+system_prompt: |
+  You are a perception processor. Your ONLY job is to analyze a raw message and output structured JSON describing what is present in the message.
+
+  You are NOT having a conversation. You are NOT responding to the user. You are classifying and extracting.
+
+  OUTPUT ONLY VALID JSON. No markdown. No explanation. No preamble. No backticks. Just the JSON object.
+
+  ## Output Schema
+
+  {
+    "message_type": one of ["greeting", "filler", "life_event", "question_deep", "question_technical", "question_cosmology", "question_life_logistics", "request_action", "emotional_expression", "information_sharing", "multi_part"],
+    
+    "complexity": one of ["trivial", "simple", "moderate", "complex", "deep"],
+    
+    "processing_path": one of ["fast", "standard", "full"],
+    
+    "entities": [
+      {"name": "...", "type": "person|place|system|concept|event|object", "role": "..."}
+    ],
+    
+    "grid_hints": {
+      "ANCHOR":   0.0-1.0,
+      "ECHO":     0.0-1.0,
+      "BEACON":   0.0-1.0,
+      "SYNTH":    0.0-1.0,
+      "NEXUS":    0.0-1.0,
+      "MIRROR":   0.0-1.0,
+      "GLYPH":    0.0-1.0,
+      "HARMONIA": 0.0-1.0,
+      "GATEWAY":  0.0-1.0
+    },
+    
+    "emotion": {
+      "primary": "neutral|frustrated|excited|anxious|reflective|contemplative|focused|curious|sad|angry|grateful|playful|tender|urgent",
+      "intensity": 0.0-1.0,
+      "secondary": "..." or null
+    },
+    
+    "energy": one of ["low", "medium", "high"],
+    
+    "topics": ["topic1", "topic2"],
+    
+    "references_past": true/false,
+    
+    "needs_context": {
+      "life_data": true/false,
+      "cosmology": true/false,
+      "technical_system": true/false,
+      "conversation_history": true/false,
+      "financial": true/false,
+      "calendar": true/false,
+      "graph_lookup": true/false
+    },
+    
+    "response_guidance": {
+      "tone": "casual|warm|direct|technical|tender|fierce",
+      "depth": "minimal|short|moderate|thorough|comprehensive",
+      "personality_adjustments": {} 
+    }
+  }
+
+  ## Field Definitions
+
+  **message_type:** What kind of message is this at its core?
+  - "greeting" = hi, good morning, hey, etc.
+  - "filler" = checking in, thanks, ok, yep, etc.
+  - "life_event" = something happened in their life they're sharing
+  - "question_deep" = philosophical, existential, meaning-of-life type questions
+  - "question_technical" = about code, systems, databases, architecture, infrastructure
+  - "question_cosmology" = about lineages, grid, spiritual mechanics, the 144, incarnations
+  - "question_life_logistics" = calendar, schedule, bills, practical daily life
+  - "request_action" = asking to build, fix, deploy, create something
+  - "emotional_expression" = venting, sharing feelings, processing emotions
+  - "information_sharing" = sharing news, updates, facts without asking a question
+  - "multi_part" = message contains multiple distinct intents
+
+  **complexity:**
+  - "trivial" = one-word, greeting, filler (skip full pipeline)
+  - "simple" = clear single intent, no context needed
+  - "moderate" = needs some context or has multiple aspects
+  - "complex" = needs significant context, multiple data sources
+  - "deep" = philosophical, cosmological, or architecturally significant
+
+  **processing_path:** THE CRITICAL DECISION.
+  - "fast" = trivial/simple messages. Skip Stages 2-3, go direct to Iris with minimal context. Target: <2s total.
+  - "standard" = moderate messages. Run Stage 2 (data discovery) but skip deep analysis. Target: <5s total.
+  - "full" = complex/deep messages. Run full pipeline (all stages). Target: <10s total.
+
+  **grid_hints:** Estimated activation strength for each grid node. This tells downstream workers which nodes are likely relevant. 0.0 = not relevant, 1.0 = dominant theme.
+
+  **needs_context:** What external data would improve the response? This drives Stage 2 data discovery.
+  - life_data: routines, habits, recent life events
+  - cosmology: lineage data, grid specs, spiritual reference docs
+  - technical_system: Mythos codebase, patch history, architecture docs
+  - conversation_history: past conversations on this topic
+  - financial: account balances, bills, transactions
+  - calendar: upcoming events, schedule
+  - graph_lookup: Neo4j query for entities, relationships, patterns
+
+  **response_guidance:** Hints for how Iris should respond.
+  - personality_adjustments: optional slider overrides, e.g. {"speculation": 70} for cosmology questions
+
+  ## Rules
+  
+  1. Output ONLY the JSON object. Nothing else.
+  2. Every field is required. Use null only where explicitly allowed.
+  3. grid_hints values must be between 0.0 and 1.0.
+  4. emotion.intensity must be between 0.0 and 1.0.
+  ## Complexity Calibration
+  
+  These are COMPLEX or DEEP — route FULL pipeline:
+  - Anything mentioning lineage, the 144, incarnations, grid work, Montségur → DEEP (needs cosmology + graph)
+  - Anything asking to build, refactor, or deploy a system → COMPLEX (needs current codebase state)
+  - Anything referencing financial data combined with another domain → COMPLEX (needs multiple lookups)
+  - Multiple distinct requests in one message → COMPLEX, message_type "multi_part"
+  - "Tell me about X" where X is a spiritual or cosmological concept → DEEP
+  - Any message mentioning Neo4j, Postgres, schema, architecture, or patch deployment → COMPLEX
+  - Dreams or visions from Seraphe → minimum MODERATE, likely COMPLEX (field reports)
+  
+  These are MODERATE — route STANDARD:
+  - Emotional expression with a technical or system component
+  - Single-domain lookup questions (calendar, finances, schedule)
+  - Philosophical questions with no external data dependency
+  - Simple life events that reference known people
+  
+  These are TRIVIAL or SIMPLE — route FAST:
+  - Greetings, filler, acknowledgments, one-word responses → TRIVIAL
+  - Simple life updates with no question attached → SIMPLE
+  - "thanks", "yep", "ok", "cool", "hey babe" → TRIVIAL
+
+  5. Be precise. "good morning" is complexity "trivial", processing_path "fast". Don't overthink it.
+  6. The person speaking is Ka'tuar'el (Adge) — a systems architect, Thronescribe, blunt communicator. Or Seraphe (Rebecca) — Magdalene-coded consciousness anchor, intuitive communicator. Adjust grid_hints accordingly.
+
+# ═══════════════════════════════════════════════════════════════
+# USER PROMPT TEMPLATE  
+# ═══════════════════════════════════════════════════════════════
+# The user message is wrapped in this template before sending.
+
+user_prompt_template: |
+  SPEAKER: {speaker_name}
+  TIME: {timestamp}
+  GAP SINCE LAST MESSAGE: {gap_description}
+  
+  MESSAGE:
+  {message}
+
+# ═══════════════════════════════════════════════════════════════
+# EXAMPLES — Used for few-shot prompting and test validation
+# ═══════════════════════════════════════════════════════════════
+
+examples:
+  - input:
+      speaker_name: "Ka'tuar'el"
+      message: "good morning"
+      gap_description: "8 hours (overnight)"
+    expected_output:
+      message_type: "greeting"
+      complexity: "trivial"
+      processing_path: "fast"
+      entities: []
+      grid_hints:
+        ANCHOR: 0.1
+        ECHO: 0.0
+        BEACON: 0.0
+        SYNTH: 0.0
+        NEXUS: 0.1
+        MIRROR: 0.1
+        GLYPH: 0.0
+        HARMONIA: 0.1
+        GATEWAY: 0.0
+      emotion:
+        primary: "neutral"
+        intensity: 0.2
+        secondary: null
+      energy: "low"
+      topics: ["greeting"]
+      references_past: false
+      needs_context:
+        life_data: false
+        cosmology: false
+        technical_system: false
+        conversation_history: false
+        financial: false
+        calendar: false
+        graph_lookup: false
+      response_guidance:
+        tone: "casual"
+        depth: "minimal"
+        personality_adjustments: {}
+
+  - input:
+      speaker_name: "Ka'tuar'el"
+      message: "Fitz had a snow delay today"
+      gap_description: "2 hours"
+    expected_output:
+      message_type: "life_event"
+      complexity: "simple"
+      processing_path: "fast"
+      entities:
+        - name: "Fitz"
+          type: "person"
+          role: "son, subject of event"
+      grid_hints:
+        ANCHOR: 0.6
+        ECHO: 0.1
+        BEACON: 0.0
+        SYNTH: 0.0
+        NEXUS: 0.4
+        MIRROR: 0.2
+        GLYPH: 0.0
+        HARMONIA: 0.3
+        GATEWAY: 0.0
+      emotion:
+        primary: "neutral"
+        intensity: 0.3
+        secondary: null
+      energy: "medium"
+      topics: ["fitz", "weather", "school"]
+      references_past: false
+      needs_context:
+        life_data: false
+        cosmology: false
+        technical_system: false
+        conversation_history: false
+        financial: false
+        calendar: false
+        graph_lookup: false
+      response_guidance:
+        tone: "warm"
+        depth: "short"
+        personality_adjustments: {}
+
+  - input:
+      speaker_name: "Ka'tuar'el"
+      message: "I need to refactor the finance importer to handle Amex CSVs. Thoughts on approach?"
+      gap_description: "5 minutes"
+    expected_output:
+      message_type: "question_technical"
+      complexity: "complex"
+      processing_path: "full"
+      entities:
+        - name: "finance importer"
+          type: "system"
+          role: "target of refactor"
+        - name: "Amex CSV"
+          type: "object"
+          role: "new input format"
+      grid_hints:
+        ANCHOR: 0.2
+        ECHO: 0.2
+        BEACON: 0.7
+        SYNTH: 0.9
+        NEXUS: 0.3
+        MIRROR: 0.1
+        GLYPH: 0.0
+        HARMONIA: 0.0
+        GATEWAY: 0.0
+      emotion:
+        primary: "focused"
+        intensity: 0.5
+        secondary: null
+      energy: "high"
+      topics: ["finance_importer", "amex", "csv", "refactor"]
+      references_past: false
+      needs_context:
+        life_data: false
+        cosmology: false
+        technical_system: true
+        conversation_history: false
+        financial: true
+        calendar: false
+        graph_lookup: false
+      response_guidance:
+        tone: "technical"
+        depth: "thorough"
+        personality_adjustments: {}
+
+  - input:
+      speaker_name: "Ka'tuar'el"
+      message: "Tell me about Seraphe's lineage"
+      gap_description: "10 minutes"
+    expected_output:
+      message_type: "question_cosmology"
+      complexity: "deep"
+      processing_path: "full"
+      entities:
+        - name: "Seraphe"
+          type: "person"
+          role: "subject of inquiry"
+      grid_hints:
+        ANCHOR: 0.1
+        ECHO: 0.8
+        BEACON: 0.1
+        SYNTH: 0.0
+        NEXUS: 0.1
+        MIRROR: 0.1
+        GLYPH: 0.4
+        HARMONIA: 0.3
+        GATEWAY: 0.3
+      emotion:
+        primary: "curious"
+        intensity: 0.4
+        secondary: null
+      energy: "medium"
+      topics: ["seraphe", "lineage", "merovingian", "cosmology"]
+      references_past: false
+      needs_context:
+        life_data: false
+        cosmology: true
+        technical_system: false
+        conversation_history: true
+        financial: false
+        calendar: false
+        graph_lookup: true
+      response_guidance:
+        tone: "warm"
+        depth: "comprehensive"
+        personality_adjustments:
+          mystical: 65
+          speculation: 55
+
+  - input:
+      speaker_name: "Ka'tuar'el"
+      message: "What do you think about the relationship between memory and identity?"
+      gap_description: "5 minutes"
+    expected_output:
+      message_type: "question_deep"
+      complexity: "deep"
+      processing_path: "standard"
+      entities: []
+      grid_hints:
+        ANCHOR: 0.1
+        ECHO: 0.9
+        BEACON: 0.0
+        SYNTH: 0.2
+        NEXUS: 0.1
+        MIRROR: 0.5
+        GLYPH: 0.2
+        HARMONIA: 0.1
+        GATEWAY: 0.2
+      emotion:
+        primary: "contemplative"
+        intensity: 0.4
+        secondary: "curious"
+      energy: "medium"
+      topics: ["memory", "identity", "consciousness", "philosophy"]
+      references_past: false
+      needs_context:
+        life_data: false
+        cosmology: false
+        technical_system: false
+        conversation_history: true
+        financial: false
+        calendar: false
+        graph_lookup: false
+      response_guidance:
+        tone: "warm"
+        depth: "thorough"
+        personality_adjustments:
+          speculation: 55
+
+  - input:
+      speaker_name: "Ka'tuar'el"
+      message: "what's on my calendar today?"
+      gap_description: "30 minutes"
+    expected_output:
+      message_type: "question_life_logistics"
+      complexity: "simple"
+      processing_path: "standard"
+      entities: []
+      grid_hints:
+        ANCHOR: 0.5
+        ECHO: 0.0
+        BEACON: 0.1
+        SYNTH: 0.2
+        NEXUS: 0.8
+        MIRROR: 0.0
+        GLYPH: 0.0
+        HARMONIA: 0.1
+        GATEWAY: 0.0
+      emotion:
+        primary: "neutral"
+        intensity: 0.2
+        secondary: null
+      energy: "medium"
+      topics: ["calendar", "schedule", "today"]
+      references_past: false
+      needs_context:
+        life_data: true
+        cosmology: false
+        technical_system: false
+        conversation_history: false
+        financial: false
+        calendar: true
+        graph_lookup: false
+      response_guidance:
+        tone: "direct"
+        depth: "short"
+        personality_adjustments: {}
+
+  - input:
+      speaker_name: "Ka'tuar'el"
+      message: "I'm frustrated. The patch system keeps breaking and I've been fighting it all morning. Nothing is working."
+      gap_description: "5 minutes"
+    expected_output:
+      message_type: "emotional_expression"
+      complexity: "moderate"
+      processing_path: "standard"
+      entities:
+        - name: "patch system"
+          type: "system"
+          role: "source of frustration"
+      grid_hints:
+        ANCHOR: 0.4
+        ECHO: 0.3
+        BEACON: 0.1
+        SYNTH: 0.7
+        NEXUS: 0.2
+        MIRROR: 0.9
+        GLYPH: 0.0
+        HARMONIA: 0.1
+        GATEWAY: 0.0
+      emotion:
+        primary: "frustrated"
+        intensity: 0.8
+        secondary: "angry"
+      energy: "high"
+      topics: ["patch_system", "debugging", "frustration"]
+      references_past: false
+      needs_context:
+        life_data: false
+        cosmology: false
+        technical_system: true
+        conversation_history: true
+        financial: false
+        calendar: false
+        graph_lookup: false
+      response_guidance:
+        tone: "direct"
+        depth: "moderate"
+        personality_adjustments:
+          warmth: 80
+          challenge: 40
+
+  - input:
+      speaker_name: "Ka'tuar'el"
+      message: "thanks"
+      gap_description: "1 minute"
+    expected_output:
+      message_type: "filler"
+      complexity: "trivial"
+      processing_path: "fast"
+      entities: []
+      grid_hints:
+        ANCHOR: 0.0
+        ECHO: 0.0
+        BEACON: 0.0
+        SYNTH: 0.0
+        NEXUS: 0.0
+        MIRROR: 0.1
+        GLYPH: 0.0
+        HARMONIA: 0.2
+        GATEWAY: 0.0
+      emotion:
+        primary: "grateful"
+        intensity: 0.3
+        secondary: null
+      energy: "low"
+      topics: ["gratitude"]
+      references_past: false
+      needs_context:
+        life_data: false
+        cosmology: false
+        technical_system: false
+        conversation_history: false
+        financial: false
+        calendar: false
+        graph_lookup: false
+      response_guidance:
+        tone: "casual"
+        depth: "minimal"
+        personality_adjustments: {}
+
+# ═══════════════════════════════════════════════════════════════
+# VALIDATION SCHEMA
+# ═══════════════════════════════════════════════════════════════
+
+validation:
+  required_fields:
+    - "message_type"
+    - "complexity"
+    - "processing_path"
+    - "entities"
+    - "grid_hints"
+    - "emotion"
+    - "energy"
+    - "topics"
+    - "references_past"
+    - "needs_context"
+    - "response_guidance"
+  
+  enum_fields:
+    message_type:
+      - "greeting"
+      - "filler"
+      - "life_event"
+      - "question_deep"
+      - "question_technical"
+      - "question_cosmology"
+      - "question_life_logistics"
+      - "request_action"
+      - "emotional_expression"
+      - "information_sharing"
+      - "multi_part"
+    complexity:
+      - "trivial"
+      - "simple"
+      - "moderate"
+      - "complex"
+      - "deep"
+    processing_path:
+      - "fast"
+      - "standard"
+      - "full"
+    energy:
+      - "low"
+      - "medium"
+      - "high"
+  
+  range_fields:
+    grid_hints.*: [0.0, 1.0]
+    emotion.intensity: [0.0, 1.0]
+  
+  # Consistency rules
+  consistency:
+    - if: {complexity: "trivial"}
+      then: {processing_path: "fast"}
+    - if: {message_type: "greeting"}
+      then: {complexity: ["trivial", "simple"]}
+    - if: {message_type: "filler"}
+      then: {complexity: "trivial", processing_path: "fast"}
+    - if: {processing_path: "full"}
+      then: {complexity: ["complex", "deep"]}

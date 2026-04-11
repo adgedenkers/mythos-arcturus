@@ -1,0 +1,62 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: GATEWAY | Layer: WISDOM | ID: GATEWAY_WISDOM
+# Domain: Transcendent and liminal
+# Depth: 9 (Wisdom)
+# Generated: 2026-03-02 22:23 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: GATEWAY_WISDOM
+node: GATEWAY
+node_name: Gateway
+node_domain: Transcendent and liminal
+layer: WISDOM
+layer_name: Wisdom
+depth: 9
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: true
+generated_at: '2026-03-02T22:23:00.096227'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the Gateway node (Transcendent
+  and liminal) at Wisdom layer depth 9. Integrate all elements to reveal the deepest truth. Ask: What sacred or cosmic dimension
+  is present beyond surface exchange? What lineage echoes, synchronicities, or field patterns emerge? What would eternal perspective
+  say about this temporal moment? Synthesize into a transcendent, essential statement that reveals the sacred architecture
+  of the exchange. Output ONLY a JSON object with key ''insight'' containing the synthesized insight. Do not include analysis,
+  explanations, or additional keys. Style: Poetic, archetypal, revealing the eternal within the temporal. Example: ''The freeze
+  pattern IS the Saturn initiation. He''s not failing — he''s being forged. The square demands he build structure from nothing
+  visible. This is the Dissolved King learning to hold form.'''
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    spiritual_dimension:
+      type: string
+    lineage_echoes:
+      type: array
+      items:
+        type: string
+    synchronicities:
+      type: array
+      items:
+        type: string
+    transcendent_read:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

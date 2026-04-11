@@ -1,0 +1,108 @@
+{
+  "plan_id": "search_documents",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_062927",
+  "total_passes": 6,
+  "total_ollama_calls": 6,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 7,
+    "failed": 0,
+    "total": 7
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton. #!/usr/bin/env python3, docstring, imports (os, logging, psycopg2, psycopg2.extras.RealDictCursor, dotenv, engine.base). Write _get_conn() using EXACTLY this pattern:\n\ndef _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )\n\nThen SearchDocumentsSkill class with all attributes. All methods have 'pass' as body. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.04,
+      "final_code_lines": 53
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms() and _detect_doc_type(). For _extract_search_terms: lowercase, remove trigger phrases LONGEST FIRST: 'find the doc', 'find document', 'document about', 'file called', 'where is the', 'find file', 'documents', 'document', 'scroll', 'docs', 'doc', 'search for', 'search about', 'search', 'find', 'about'. After each removal: message = ' '.join(message.split()). Strip punctuation, return if len >= 2. For _detect_doc_type: check for type words ('markdown', 'md', 'pdf', 'scroll', 'config', 'yaml', 'json'). Map 'md' to 'markdown'. Return the type string or None.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 7.88,
+      "final_code_lines": 153
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _search_docs(). Use _get_conn(). Build query: SELECT id, title, doc_type, file_path, created_at, updated_at FROM document_registry WHERE 1=1. If search_terms not empty: append AND title ILIKE %s with f'%{search_terms}%'. If doc_type: append AND doc_type = %s. Append ORDER BY updated_at DESC NULLS LAST, created_at DESC LIMIT %s. Use try/finally to close cursor and connection. Return list of row dicts.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 7.91,
+      "final_code_lines": 152
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). _format_results: dict with id, title, doc_type, file_path, created_at and updated_at as ISO strings (or None if null). _build_summary: if no results 'No documents found matching X.' If results: 'Found N document(s) matching X:' then for each (up to 5): 'title (type, path)'. Simple and clean.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 9.75,
+      "final_code_lines": 154
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Extract search terms. Detect doc type. If no terms AND no type filter: query SELECT COUNT(*) as total FROM document_registry, return SkillResponse with count and summary 'Document registry has N documents. Search by title or type.' Otherwise: _search_docs, _format_results, _build_summary. Return SkillResponse(skill_name=self.name, data={'matches': formatted, 'search_terms': terms, 'count': len(formatted)}, summary=summary, confidence=0.95, sources=['mythos.document_registry']). Wrap in try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 10.27,
+      "final_code_lines": 197
+    },
+    {
+      "pass": 6,
+      "instruction": "Review the complete file. Ensure: _get_conn uses POSTGRES_HOST, all connections close in finally, summary never empty, no unicode, production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 10.62,
+      "final_code_lines": 200
+    }
+  ]
+}

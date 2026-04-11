@@ -1,0 +1,29 @@
+{
+  "plan_id": "person_deep_dive",
+  "version": "1.0",
+  "description": "Composite skill: look up a person, get their natal chart, search life events and voice memos related to them",
+  "pattern": "composite_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "mandatory_patterns": {
+      "no_database": "Composite. No _get_conn, no psycopg2. Uses importlib.",
+      "import_pattern": "importlib.import_module then getattr then await cls().run(request)",
+      "no_unicode": "ASCII only.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name, data, summary, confidence, sources, error."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: logging, importlib, engine.base. Class PersonDeepDiveSkill with name='person_deep_dive', triggers=['tell me about person', 'deep dive', 'everything about', 'who is', 'profile for', 'full profile', 'person deep dive']. Define SUB_SKILLS:\n\nSUB_SKILLS = {\n    'person': ('data.people_lookup', 'PeopleLookupSkill'),\n    'chart': ('data.query_natal_chart', 'QueryNatalChartSkill'),\n    'events': ('data.search_life_events', 'SearchLifeEventsSkill'),\n    'memos': ('data.search_voice_memos', 'SearchVoiceMemoSkill'),\n}\n\nMethods: execute, _run_skill, _build_profile. All 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _run_skill (importlib, getattr, await run, try/except). Implement _build_profile: collect summaries from ok responses in order [person, chart, events, memos]. Label each section: 'Person: ...', 'Natal Chart: ...', 'Life Events: ...', 'Voice Memos: ...'. Join with newline. Default: 'No profile data found.' Return string.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement execute(). Run all four sub-skills. Build profile. Merge data. Return SkillResponse(skill_name=self.name, data=merged, summary=profile, confidence=0.9, sources=['person_deep_dive']). try/except.", "test": "import_check"},
+    {"pass": 4, "instruction": "Review. No database imports. All four sub-skills referenced. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "tell me everything about adge", "expect_ok": true},
+    {"message": "deep dive on seraphe", "expect_ok": true},
+    {"message": "who is fitz", "expect_ok": true}
+  ]
+}

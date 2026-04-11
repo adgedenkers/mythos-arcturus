@@ -1,0 +1,36 @@
+# subsystem-versions.yaml — Current version of each Mythos subsystem
+# Updated by patch install scripts and integrity checks
+# Watched by doc-watcher for auto-commit to GitHub
+
+# Format:
+#   subsystem_name:
+#     version: "X.Y.Z"
+#     patch: "NNNN"          # Patch that introduced this version
+#     updated: "YYYY-MM-DD"  # Date of last update
+#     status: "active|deprecated|pending"
+
+doc_watcher:
+  version: "1.0.0"
+  patch: "0174"
+  updated: "2026-02-27"
+  status: "active"
+
+# --- Seed entries (update as subsystems come online) ---
+
+telegram_bot:
+  version: "unknown"
+  patch: "unknown"
+  updated: "unknown"
+  status: "active"
+
+patch_monitor:
+  version: "unknown"
+  patch: "unknown"
+  updated: "unknown"
+  status: "active"
+
+finance:
+  version: "unknown"
+  patch: "unknown"
+  updated: "unknown"
+  status: "active"

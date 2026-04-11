@@ -1,0 +1,122 @@
+#!/opt/mythos/.venv/bin/python3
+"""
+iris-meditate — render guided meditation scripts to OGG audio.
+
+Usage:
+    iris-meditate <script.txt>
+    iris-meditate <script.txt> --title "Morning Grounding"
+    iris-meditate <script.txt> --voice af_sky
+    iris-meditate --list
+    iris-meditate --estimate <script.txt>
+
+Script format (.txt, one element per line):
+    Find your seat. Take a breath.
+    [pause:5]
+    Feel the weight of your body settling.
+    [pause:10]
+    Allow yourself to arrive.
+
+Voices: af_heart (default), af_bella, af_sarah, af_nova, af_sky, af_nicole
+"""
+
+import sys, os, argparse, logging
+from pathlib import Path
+
+sys.path.insert(0, "/opt/mythos")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(levelname)-7s  %(message)s",
+    datefmt="%H:%M:%S",
+)
+
+VOICES = ["af_heart", "af_bella", "af_sarah", "af_nova", "af_sky", "af_nicole"]
+
+
+def cmd_list():
+    from voice.meditation import list_meditations
+    items = list_meditations()
+    if not items:
+        print("No meditations found in /opt/mythos/public/meditations/")
+        return
+    print(f"\n{'─'*72}")
+    print(f"  {'Title':<32} {'Size':>7}   Created")
+    print(f"{'─'*72}")
+    for m in items:
+        print(f"  {m['title']:<32} {m['size_kb']:>5} KB   {m['created'][:16]}")
+    print(f"{'─'*72}")
+    print(f"  {len(items)} meditation(s)\n")
+
+
+def cmd_estimate(script_file):
+    p = Path(script_file)
+    if not p.exists():
+        print(f"File not found: {script_file}"); sys.exit(1)
+    from voice.meditation import estimate_duration, parse_script
+    script = p.read_text(encoding="utf-8")
+    segs = parse_script(script)
+    dur = estimate_duration(script)
+    n_s = sum(1 for s in segs if s["type"] == "speech")
+    n_p = sum(1 for s in segs if s["type"] == "pause")
+    t_p = sum(s["seconds"] for s in segs if s["type"] == "pause")
+    print(f"\nEstimate: {p.name}")
+    print(f"  Speech segments : {n_s}")
+    print(f"  Pauses          : {n_p}  ({t_p:.0f}s total)")
+    print(f"  Estimated length: {dur/60:.1f} min ({dur:.0f}s)\n")
+
+
+def cmd_render(script_file, title, voice):
+    p = Path(script_file)
+    if not p.exists():
+        print(f"File not found: {script_file}"); sys.exit(1)
+    if voice not in VOICES:
+        print(f"Unknown voice '{voice}'. Available: {', '.join(VOICES)}"); sys.exit(1)
+
+    script = p.read_text(encoding="utf-8")
+    if not title:
+        title = p.stem.replace("_", " ").replace("-", " ")
+
+    from voice.meditation import estimate_duration, render_meditation
+    est = estimate_duration(script)
+
+    print(f"\n🧘 Rendering: {title}")
+    print(f"   Voice     : {voice}")
+    print(f"   Script    : {p}")
+    print(f"   Estimated : {est/60:.1f} min")
+    print(f"   Output    : /opt/mythos/public/meditations/\n")
+
+    out = render_meditation(script, title=title, voice=voice)
+
+    if out is None:
+        print("❌ Render failed — check logs above."); sys.exit(1)
+
+    size_kb = out.stat().st_size / 1024
+    print(f"\n✅ Done!")
+    print(f"   File     : {out.name}")
+    print(f"   Size     : {size_kb:.0f} KB")
+    print(f"   Duration : ~{est/60:.1f} min")
+    print(f"   Path     : {out}\n")
+
+
+def main():
+    p = argparse.ArgumentParser(description="Iris Meditation Renderer", epilog=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("script", nargs="?", help="Path to .txt meditation script")
+    p.add_argument("--title", default="", help="Title (used in filename)")
+    p.add_argument("--voice", default="af_heart", help="Kokoro voice name")
+    p.add_argument("--list", action="store_true", help="List rendered meditations")
+    p.add_argument("--estimate", metavar="SCRIPT", help="Estimate duration without rendering")
+    args = p.parse_args()
+
+    if args.list:
+        cmd_list()
+    elif args.estimate:
+        cmd_estimate(args.estimate)
+    elif args.script:
+        cmd_render(args.script, args.title, args.voice)
+    else:
+        p.print_help(); sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

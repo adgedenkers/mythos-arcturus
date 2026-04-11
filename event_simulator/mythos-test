@@ -1,0 +1,10 @@
+#!/bin/bash
+# Mythos Event Simulator Wrapper
+
+# Source environment
+if [ -f ~/.arcturus_development_env.sh ]; then
+    source ~/.arcturus_development_env.sh
+fi
+
+# Run the Python script
+python3 /opt/mythos/tools/event_simulator.py "$@"

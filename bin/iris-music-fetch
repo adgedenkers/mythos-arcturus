@@ -1,0 +1,279 @@
+#!/opt/mythos/.venv/bin/python3
+"""
+iris-music-fetch — download meditation background tracks from Freesound.
+
+Uses the Freesound APIv2 with your personal API key ($FREESOUND_API_KEY).
+Searches by tag, fetches the actual preview URL from the API response,
+and downloads the OGG preview (no OAuth required for previews).
+
+All tracks filtered to CC0 license only.
+
+Usage:
+    iris-music-fetch                         # list curated searches + status
+    iris-music-fetch --download all          # download all curated categories
+    iris-music-fetch --download bowls        # download a category
+    iris-music-fetch --search "rain loop"    # free search, browse results
+    iris-music-fetch --id 12345 --name rain.ogg  # download specific sound by ID
+
+Tracks land in: /opt/mythos/public/meditations/music/
+
+After downloading, set in /opt/mythos/voice/meditation_config.yaml:
+    background:
+      track: singing_bowl_loop.ogg
+      volume: 0.22
+"""
+
+import sys
+import os
+import argparse
+import json
+import urllib.request
+import urllib.parse
+from pathlib import Path
+
+MUSIC_DIR = Path("/opt/mythos/public/meditations/music")
+API_BASE  = "https://freesound.org/apiv2"
+API_KEY   = os.environ.get("FREESOUND_API_KEY", "")
+
+CURATED = [
+    {"category": "bowls",    "id": "singing_bowl_loop",  "filename": "singing_bowl_loop.ogg",
+     "query": "singing bowl meditation",       "tags": "singing-bowl",
+     "filter": 'duration:[10 TO 120] license:"Creative Commons 0"',
+     "description": "Tibetan singing bowl — sustained tone"},
+    {"category": "bowls",    "id": "tibetan_bowl_deep",  "filename": "tibetan_bowl_deep.ogg",
+     "query": "tibetan bowl deep resonance",   "tags": "tibetan-bowl",
+     "filter": 'duration:[5 TO 120] license:"Creative Commons 0"',
+     "description": "Deep Tibetan bowl — long resonance"},
+    {"category": "bowls",    "id": "crystal_bowl",       "filename": "crystal_bowl.ogg",
+     "query": "crystal singing bowl",          "tags": "crystal-bowl",
+     "filter": 'duration:[5 TO 120] license:"Creative Commons 0"',
+     "description": "Crystal bowl — bright register"},
+    {"category": "drone",    "id": "drone_pad_low",      "filename": "drone_pad_low.ogg",
+     "query": "ambient drone meditation pad",  "tags": "drone",
+     "filter": 'duration:[20 TO 600] license:"Creative Commons 0"',
+     "description": "Low ambient drone pad — spacious"},
+    {"category": "drone",    "id": "om_drone",           "filename": "om_drone.ogg",
+     "query": "om drone chant meditation",     "tags": "om",
+     "filter": 'duration:[10 TO 300] license:"Creative Commons 0"',
+     "description": "OM drone — warm harmonic hum"},
+    {"category": "drone",    "id": "space_ambient",      "filename": "space_ambient.ogg",
+     "query": "space ambient deep meditation", "tags": "ambient",
+     "filter": 'duration:[30 TO 600] license:"Creative Commons 0"',
+     "description": "Deep space ambient — vast, expansive"},
+    {"category": "nature",   "id": "rain_gentle",        "filename": "rain_gentle.ogg",
+     "query": "gentle rain meditation",        "tags": "rain",
+     "filter": 'duration:[30 TO 600] license:"Creative Commons 0"',
+     "description": "Gentle steady rain"},
+    {"category": "nature",   "id": "forest_morning",     "filename": "forest_morning.ogg",
+     "query": "forest birds morning ambience", "tags": "forest",
+     "filter": 'duration:[30 TO 600] license:"Creative Commons 0"',
+     "description": "Forest ambience — birds, light wind"},
+    {"category": "nature",   "id": "stream_quiet",       "filename": "stream_quiet.ogg",
+     "query": "quiet stream water",            "tags": "stream",
+     "filter": 'duration:[20 TO 600] license:"Creative Commons 0"',
+     "description": "Quiet stream over stones"},
+    {"category": "binaural", "id": "binaural_theta",     "filename": "binaural_theta.ogg",
+     "query": "theta binaural beat meditation","tags": "binaural",
+     "filter": 'duration:[30 TO 600] license:"Creative Commons 0"',
+     "description": "Theta binaural (6Hz) — deep meditation"},
+]
+
+CATEGORIES = sorted(set(t["category"] for t in CURATED))
+
+
+def _check_key():
+    if not API_KEY:
+        print("ERROR: $FREESOUND_API_KEY not set.")
+        print("Add to ~/.bash_secure:  export FREESOUND_API_KEY=\"your_key\"")
+        print("Then: source ~/.bash_secure")
+        sys.exit(1)
+
+
+def api_get(endpoint: str, params: dict) -> dict:
+    _check_key()
+    params["token"] = API_KEY
+    url = f"{API_BASE}/{endpoint}?{urllib.parse.urlencode(params)}"
+    req = urllib.request.Request(url, headers={"User-Agent": "iris-music-fetch/2.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")[:400]
+        raise RuntimeError(f"API {e.code}: {body}")
+
+
+def search_sounds(query, tags="", filter_str="", page_size=6):
+    params = {
+        "query":     query,
+        "page_size": page_size,
+        "fields":    "id,name,username,duration,license,previews",
+        "sort":      "rating_desc",
+    }
+    flt = filter_str or ""
+    if tags:
+        flt = (flt + f" tag:{tags}").strip()
+    if flt:
+        params["filter"] = flt
+    return api_get("search/text/", params).get("results", [])
+
+
+def get_sound(sound_id):
+    return api_get(f"sounds/{sound_id}/",
+                   {"fields": "id,name,username,duration,license,previews"})
+
+
+def download_preview(sound, dest: Path) -> bool:
+    previews = sound.get("previews", {})
+    url = previews.get("preview-lq-ogg") or previews.get("preview-hq-ogg")
+    if not url:
+        print(f"    ✗ No OGG preview for sound {sound['id']}")
+        return False
+    sep = "&" if "?" in url else "?"
+    url += f"{sep}token={API_KEY}"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "iris-music-fetch/2.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = resp.read()
+        dest.write_bytes(data)
+        size_kb = len(data) // 1024
+        dur = round(sound.get("duration", 0))
+        lic = sound.get("license", "?").replace("http://creativecommons.org/publicdomain/zero/1.0/", "CC0")
+        print(f"    ✓ {dest.name} ({size_kb} KB, {dur}s) [{lic}] by {sound.get('username','?')}")
+        return True
+    except Exception as e:
+        print(f"    ✗ Download failed: {e}")
+        return False
+
+
+def cmd_list():
+    print(f"\n{'─'*72}")
+    print(f"  Curated meditation tracks  |  {MUSIC_DIR}")
+    print(f"{'─'*72}")
+    for cat in CATEGORIES:
+        print(f"\n  [{cat.upper()}]")
+        for t in [x for x in CURATED if x["category"] == cat]:
+            local = MUSIC_DIR / t["filename"]
+            status = "✓" if local.exists() else " "
+            size   = f"({local.stat().st_size//1024} KB)" if local.exists() else ""
+            print(f"  {status} {t['id']:<26} {t['description']} {size}")
+    already = sum(1 for t in CURATED if (MUSIC_DIR / t["filename"]).exists())
+    print(f"\n  {already}/{len(CURATED)} tracks downloaded")
+    print(f"\n  iris-music-fetch --download all")
+    print(f"  iris-music-fetch --download bowls|drone|nature|binaural")
+    print(f"  iris-music-fetch --search \"rain loop\"\n")
+
+
+def cmd_download(target):
+    if target == "all":
+        targets = CURATED
+    elif target in CATEGORIES:
+        targets = [t for t in CURATED if t["category"] == target]
+    else:
+        targets = [t for t in CURATED if t["id"] == target]
+        if not targets:
+            print(f"Unknown: '{target}'. Options: all, {', '.join(CATEGORIES)}, or track ID")
+            sys.exit(1)
+
+    MUSIC_DIR.mkdir(parents=True, exist_ok=True)
+    print(f"\n🎵 Downloading {len(targets)} track(s)\n")
+    ok = 0
+
+    for t in targets:
+        dest = MUSIC_DIR / t["filename"]
+        if dest.exists():
+            print(f"  ✓ Already: {t['filename']}")
+            ok += 1
+            continue
+
+        print(f"  ↓ {t['id']} — {t['description']}")
+        try:
+            results = search_sounds(t["query"], tags=t.get("tags",""),
+                                    filter_str=t.get("filter",""), page_size=6)
+            if not results:
+                # Retry without tags — Freesound tag coverage varies
+                results = search_sounds(t["query"],
+                                        filter_str='duration:[10 TO 600] license:"Creative Commons 0"',
+                                        page_size=6)
+            if not results:
+                print(f"    ✗ No results — try: iris-music-fetch --search \"{t['query']}\"")
+                continue
+
+            best = max(results, key=lambda s: s.get("duration", 0))
+            print(f"    Found: \"{best['name']}\" ({round(best.get('duration',0))}s) "
+                  f"by {best.get('username','?')}")
+            if download_preview(best, dest):
+                ok += 1
+        except Exception as e:
+            print(f"    ✗ Error: {e}")
+
+    print(f"\n  {ok}/{len(targets)} downloaded → {MUSIC_DIR}")
+    if ok > 0:
+        print(f"\n  Enable in /opt/mythos/voice/meditation_config.yaml:")
+        print(f"    background:")
+        print(f"      track: {targets[0]['filename']}")
+        print(f"      volume: 0.22\n")
+
+
+def cmd_search(query):
+    print(f"\n🔍 Searching Freesound (CC0): \"{query}\"\n")
+    try:
+        results = search_sounds(query,
+                                filter_str='license:"Creative Commons 0"',
+                                page_size=8)
+    except Exception as e:
+        print(f"Search failed: {e}"); sys.exit(1)
+
+    if not results:
+        print("No CC0 results. Try different keywords."); return
+
+    print(f"{'─'*72}")
+    print(f"  {'#':<3} {'ID':<9} {'Dur':>5}  Name")
+    print(f"{'─'*72}")
+    for i, s in enumerate(results):
+        dur  = round(s.get("duration", 0))
+        name = s.get("name", "")[:48]
+        print(f"  {i+1:<3} {s['id']:<9} {dur:>4}s  {name}")
+    print(f"{'─'*72}")
+    print(f"\n  Download one:  iris-music-fetch --id <ID> --name <filename.ogg>\n")
+
+
+def cmd_download_id(sound_id, filename):
+    MUSIC_DIR.mkdir(parents=True, exist_ok=True)
+    dest = MUSIC_DIR / filename
+    if dest.exists():
+        print(f"Already exists: {dest}"); return
+    print(f"\n↓ Fetching sound {sound_id}...")
+    try:
+        sound = get_sound(sound_id)
+        print(f"  \"{sound['name']}\" by {sound['username']} "
+              f"({round(sound.get('duration',0))}s)")
+        download_preview(sound, dest)
+    except Exception as e:
+        print(f"Failed: {e}"); sys.exit(1)
+
+
+def main():
+    p = argparse.ArgumentParser(
+        description="Fetch meditation background tracks from Freesound APIv2",
+        epilog=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--download", metavar="TARGET", help="all | category | track_id")
+    p.add_argument("--search",   metavar="QUERY",  help="Free search — browse results")
+    p.add_argument("--id",       type=int,          help="Download specific sound by Freesound ID")
+    p.add_argument("--name",     metavar="FILE",    help="Filename to save as (use with --id)")
+    p.add_argument("--list",     action="store_true")
+    args = p.parse_args()
+
+    if args.id:
+        if not args.name:
+            print("--id requires --name (e.g. --name bowl.ogg)"); sys.exit(1)
+        cmd_download_id(args.id, args.name)
+    elif args.search:
+        cmd_search(args.search)
+    elif args.download:
+        cmd_download(args.download)
+    else:
+        cmd_list()
+
+
+if __name__ == "__main__":
+    main()

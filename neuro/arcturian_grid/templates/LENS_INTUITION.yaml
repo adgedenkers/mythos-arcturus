@@ -1,0 +1,56 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: LENS | Layer: INTUITION | ID: LENS_INTUITION
+# Domain: Analytical and interpretive frameworks
+# Depth: 2 (Intuition)
+# Generated: 2026-03-02 21:52 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: LENS_INTUITION
+node: LENS
+node_name: Lens
+node_domain: Analytical and interpretive frameworks
+layer: INTUITION
+layer_name: Intuition
+depth: 2
+model_tier: small
+runtime_models:
+- mistral:7b
+- qwen2.5:7b
+- nous-hermes2:latest
+processing: unconscious
+critical_path: false
+generated_at: '2026-03-02T21:52:16.960177'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze {user_message} and {assistant_response} through NODE: Lens (astrology, ADHD, systems, spiritual frameworks)
+  and LAYER: Intuition (depth 2). Focus on felt-sense, subtext, unspoken energy. Output ONLY JSON with keys: ''analysis''
+  (impressionistic, sensory, 2-3 frameworks), ''subtext'' (energetic undertone). Example: ''ADHD: dopamine gate closing; Astrology:
+  Saturn square activating — structure demanded but pathway unclear.'' Avoid clinical terms.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    frameworks_applied:
+      type: array
+      items:
+        type: string
+    interpretations:
+      type: array
+      items:
+        type: object
+    primary_framework:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

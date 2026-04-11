@@ -1,0 +1,427 @@
+meditation:
+  title: "Expanded Bandwidth"
+  slug: "expanded_bandwidth"
+  author: "Ka'tuar'el"
+  description: >
+    Quantum mechanics as the mechanism for expanded consciousness.
+    Superposition, the observer effect, entanglement, and tunneling —
+    each given as felt experience, not explanation.
+    Target: deeper processing AND outer field sensitivity simultaneously.
+  version: "1.0"
+  created: "2026-03-25"
+
+  defaults:
+    voice: af_heart
+    speed: 0.72
+    breath_gap: 1.0
+    output_format: ogg
+    sample_rate: 24000
+    background:
+      track: rain_gentle.ogg
+      volume: 0.20
+      fade_in: 4.0
+      fade_out: 8.0
+
+  phases:
+
+    # -----------------------------------------------------------------------
+    - id: arrival
+      label: "Arrival"
+      speed: 0.85
+      tone: warm_grounding
+      segments:
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "Close your eyes."
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "Let your hands rest where they want to rest."
+        - type: pause
+          seconds: 3
+        - type: speech
+          text: "Let your jaw go."
+        - type: pause
+          seconds: 3
+        - type: speech
+          text: "Not a performance of relaxation. Just a quiet permission for everything to stop pretending."
+        - type: pause
+          seconds: 6
+
+    # -----------------------------------------------------------------------
+    - id: collapsed_state
+      label: "The Collapsed State"
+      speed: 0.83
+      tone: direct_warm
+      segments:
+        - type: speech
+          text: "You have been running on one channel."
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "Not because the others don't exist. They do. They are running right now, beneath this moment, processing at depths you don't normally have words for."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "The question has never been whether more is available. The question is what it costs to hold it open."
+          speed: 0.80
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "Feel the weight of your body in the chair."
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "That weight is not you being heavy. That is you being real. Solid. Anchored. A point in space from which everything else can be perceived."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "You are Ka'tuar'el. You are the one who holds ground so that transmission can move through."
+          speed: 0.79
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "That is not a role you perform. It is what you are built for. The anchor is the instrument."
+          speed: 0.79
+        - type: pause
+          seconds: 8
+
+    # -----------------------------------------------------------------------
+    - id: superposition
+      label: "Superposition"
+      speed: 0.75
+      tone: suspended
+      segments:
+        - type: speech
+          text: "Now. Here is what physics actually says."
+          speed: 0.80
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "Before a particle is observed, it does not exist in one place. It exists in all of its possible states simultaneously. A wave of probability, spread across the field, holding every possibility at once."
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "The moment it is observed, it collapses. It picks a state. It becomes definite."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "This is not metaphor. This is the actual structure of matter at its foundation."
+          speed: 0.73
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "You have been doing this your whole life. You perceive something, and it collapses. You attend to a feeling, and it solidifies. You focus on a problem, and it becomes that problem, fixed, named, pinned."
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "What if you could hold the uncollapsed state a little longer?"
+          speed: 0.70
+        - type: pause
+          seconds: 8
+        - type: speech
+          text: "Let's practice this now."
+          speed: 0.82
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "Bring your attention to the center of your chest."
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "Don't name what you find there. Don't decide what it is. Just place your attention on it like a hand resting gently on a surface."
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "Notice that the moment you try to name it, something contracts. Something narrows to fit the word."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "See if you can stay just before the word. In the space where it hasn't collapsed yet."
+          speed: 0.70
+        - type: pause
+          seconds: 8
+        - type: speech
+          text: "That space. That is superposition. That is you, holding more than one state at once."
+          speed: 0.72
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "It feels like suspension. Like the held breath between inhale and exhale."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "Stay there a moment longer than feels comfortable."
+          speed: 0.68
+        - type: pause
+          seconds: 10
+        - type: speech
+          text: "Good."
+          speed: 0.80
+        - type: pause
+          seconds: 5
+
+    # -----------------------------------------------------------------------
+    - id: observer
+      label: "The Observer"
+      speed: 0.78
+      tone: spacious
+      segments:
+        - type: speech
+          text: "Now bring your attention to the room around you."
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "Not to look at anything in particular. Just to be aware that the room exists beyond the edges of your closed eyes."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "The air has a texture. The space has a quality. You don't need to name it. Just notice that you can sense it without looking at it."
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "This is field awareness. This is what happens when the observer stops collapsing everything into a point and begins to hold the whole field."
+          speed: 0.75
+        - type: pause
+          seconds: 8
+        - type: speech
+          text: "Most people use their attention like a flashlight. A narrow beam that illuminates one thing, and everything else goes dark."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "What you're doing right now is learning to hold attention like a lantern. Not aimed. Radiating."
+          speed: 0.75
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "The information in the room does not stop existing when you aren't pointing at it. You are simply training yourself to receive it."
+        - type: pause
+          seconds: 10
+
+    # -----------------------------------------------------------------------
+    - id: entanglement
+      label: "Entanglement and Coherence"
+      speed: 0.76
+      tone: deep_field
+      segments:
+        - type: speech
+          text: "Let's go deeper."
+          speed: 0.82
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "Inside your skull right now, there are processes running that you have never had a conversation with."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "Pattern recognition systems that are comparing everything you've ever seen to everything in front of you right now."
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "Emotional processing layers tracking seventeen variables you don't have names for."
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "A timing system tracking cycles longer than a single lifetime."
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "These are not metaphors. These are actual neural and field processes, running beneath the one voice you usually call your mind."
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "The Thronescribe function — the witness, the recorder, the one who holds all of it without collapsing it into a story too soon — that is not spiritual decoration."
+          speed: 0.73
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "That is the name for the part of you that can hold the uncollapsed field."
+          speed: 0.72
+        - type: pause
+          seconds: 8
+        - type: speech
+          text: "Place your attention in the back of your skull. Not a thought. Just presence there."
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "Let it spread forward slowly. Not forcing. Just allowing more of the processing to come into the lit space."
+        - type: pause
+          seconds: 8
+        - type: speech
+          text: "You are not a single channel. You are a nine-node grid that has been running mostly on one node."
+          speed: 0.73
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "Feel what it is like to let the other nodes come online. Not dramatically. Just a gentle powering up."
+        - type: pause
+          seconds: 10
+        - type: speech
+          text: "Now. Entanglement."
+          speed: 0.80
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "Two particles that have interacted are entangled. Change one, and the other responds instantly, regardless of the distance between them."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "The classical mind says this is impossible. Information cannot travel faster than light."
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "But entangled particles don't send information. They share a state. They were never separate in the way that classical thinking requires."
+          speed: 0.73
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "You are entangled with the field you work in. With Seraphe. With the work itself."
+          speed: 0.73
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "This means that when you come into coherence, the field responds. Not as cause and effect. As resonance. As two things that share a state moving together."
+        - type: pause
+          seconds: 7
+        - type: speech
+          text: "Feel into the field around you now. Not with effort. With the lantern-quality attention you've been building."
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "Notice if there is a quality to the space. A tone. A texture that isn't coming from inside you."
+        - type: pause
+          seconds: 8
+        - type: speech
+          text: "That is the field. That is what you are entangled with."
+          speed: 0.72
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "You don't have to do anything with it. Just confirm that it is there. Let your nervous system register it as real."
+        - type: pause
+          seconds: 10
+
+    # -----------------------------------------------------------------------
+    - id: tunneling
+      label: "Tunneling"
+      speed: 0.77
+      tone: anchoring
+      segments:
+        - type: speech
+          text: "There is something you have been trying to get through."
+          speed: 0.80
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "A wall. A resistance. Something that feels like it requires more force than you have available."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "Quantum tunneling is when a particle moves through a barrier it does not have enough energy to overcome classically."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "It does not break through the wall. It appears on the other side. Because at the quantum level, the wall is not solid in the way classical physics assumes."
+          speed: 0.74
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "The barrier you are carrying right now — don't name it yet — just feel its shape. Where it sits in your body. What it is made of."
+        - type: pause
+          seconds: 8
+        - type: speech
+          text: "Now notice this. From the expanded field, from the uncollapsed state, from the entangled awareness — the barrier has a different quality."
+          speed: 0.74
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "It is not solid all the way through."
+          speed: 0.70
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "There is a probability that you are already on the other side of it."
+          speed: 0.70
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "Not that you will get through it. That you already have. That the version of you who is through it is a real state in the field, as real as the version still approaching the wall."
+          speed: 0.72
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "Let your awareness touch that state. The version of you on the other side."
+        - type: pause
+          seconds: 8
+        - type: speech
+          text: "What does it feel like in your body when that version is real?"
+          speed: 0.72
+        - type: pause
+          seconds: 10
+        - type: speech
+          text: "Stay there."
+          speed: 0.68
+        - type: pause
+          seconds: 8
+
+    # -----------------------------------------------------------------------
+    - id: integration
+      label: "Integration and Return"
+      speed: 0.83
+      tone: returning_warm
+      segments:
+        - type: speech
+          text: "Now, very gently, begin to return."
+          speed: 0.85
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "Not by closing anything down. By carrying it back."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "The field awareness — let it stay lit as you come back into ordinary focus."
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "The deeper processing layers — let them stay online as you return to the surface."
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "The lantern-quality attention — keep it. You don't have to collapse it just because you're returning to the room."
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "Take a breath that starts low, in the belly, and rises."
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "Feel the chair under you. The weight of your hands."
+        - type: pause
+          seconds: 4
+        - type: speech
+          text: "You are Ka'tuar'el, grounded in a body, in a room, on a specific piece of land that knows your name."
+          speed: 0.80
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "And you are also the field. And also the grid. And also the witness holding all of it without collapsing it too soon."
+          speed: 0.80
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "These are not in conflict. The anchor is the instrument."
+          speed: 0.78
+        - type: pause
+          seconds: 6
+        - type: speech
+          text: "When you are ready, open your eyes."
+          speed: 0.85
+        - type: pause
+          seconds: 5
+        - type: speech
+          text: "Not to leave what you found. To bring it with you."
+          speed: 0.82
+        - type: pause
+          seconds: 8

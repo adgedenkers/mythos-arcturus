@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mythos Financial Report</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e17;
+  --bg-card: #111827;
+  --bg-card-alt: #0f1523;
+  --bg-hover: #1a2332;
+  --border: #1e293b;
+  --border-light: #293548;
+  --text: #e2e8f0;
+  --text-dim: #64748b;
+  --text-muted: #475569;
+  --green: #22c55e;
+  --green-dim: #16a34a;
+  --green-bg: rgba(34,197,94,0.08);
+  --red: #ef4444;
+  --red-dim: #dc2626;
+  --red-bg: rgba(239,68,68,0.08);
+  --amber: #f59e0b;
+  --amber-bg: rgba(245,158,11,0.08);
+  --blue: #3b82f6;
+  --blue-bg: rgba(59,130,246,0.08);
+  --purple: #a855f7;
+  --purple-bg: rgba(168,85,247,0.08);
+  --cyan: #06b6d4;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 20px;
+}
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Header */
+.report-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 30px;
+  background: linear-gradient(135deg, #111827 0%, #1a1f35 100%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.report-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.report-header .subtitle {
+  color: var(--text-dim);
+  font-size: 15px;
+}
+.report-header .balance-row {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 20px;
+}
+.balance-item {
+  text-align: center;
+}
+.balance-item .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.balance-item .value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 600;
+}
+.balance-item .value.positive { color: var(--green); }
+.balance-item .value.negative { color: var(--red); }
+
+/* Month navigation */
+.month-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.month-btn {
+  padding: 8px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  transition: all 0.15s;
+}
+.month-btn:hover { border-color: var(--cyan); color: var(--text); }
+.month-btn.active {
+  background: var(--blue-bg);
+  border-color: var(--blue);
+  color: var(--blue);
+  font-weight: 600;
+}
+
+/* Three column grid */
+.month-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 0.6fr;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+/* Column panels */
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.panel-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.panel-header .badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); }
+.badge-blue { background: var(--blue-bg); color: var(--blue); }
+
+/* Bills table */
+.bills-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.bills-table th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.bills-table th.right { text-align: right; }
+.bills-table td {
+  padding: 7px 12px;
+  border-bottom: 1px solid rgba(30,41,59,0.5);
+  font-size: 13px;
+}
+.bills-table tr:last-child td { border-bottom: none; }
+.bills-table tr.paid { }
+.bills-table tr.unpaid td {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.bills-table tr.unpaid td.merchant { opacity: 0.5; }
+.bills-table td.amount {
+  font-family: 'JetBrains Mono', monospace;
+  text-align: right;
+  font-size: 12px;
+}
+.bills-table td.date-col {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.status-paid {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-right: 6px;
+}
+.status-unpaid {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+  margin-right: 6px;
+}
+.status-late {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  margin-right: 6px;
+}
+
+/* Category spending */
+.category-group {
+  border-bottom: 1px solid var(--border);
+}
+.category-group:last-child { border-bottom: none; }
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.category-header:hover { background: var(--bg-hover); }
+.category-header .cat-name {
+  font-weight: 600;
+  font-size: 13px;
+}
+.category-header .cat-total {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--red);
+}
+.category-header .cat-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 8px;
+}
+.category-header .arrow {
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  margin-right: 8px;
+}
+.category-group.open .arrow { transform: rotate(90deg); }
+.category-txns {
+  display: none;
+  padding: 0 14px 8px;
+}
+.category-group.open .category-txns { display: block; }
+.txn-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0 4px 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+  border-left: 2px solid var(--border);
+  margin-left: 4px;
+}
+.txn-row .txn-desc { flex: 1; }
+.txn-row .txn-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  margin-right: 12px;
+  min-width: 50px;
+}
+.txn-row .txn-amt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  min-width: 70px;
+  text-align: right;
+}
+
+/* Totals panel */
+.totals-section {
+  padding: 14px;
+}
+.totals-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+}
+.totals-row .label { color: var(--text-dim); }
+.totals-row .value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+}
+.totals-row.income .value { color: var(--green); }
+.totals-row.expense .value { color: var(--red); }
+.totals-divider {
+  border-top: 1px solid var(--border);
+  margin: 10px 0;
+}
+.totals-row.net {
+  font-weight: 700;
+  font-size: 15px;
+  padding: 8px 0;
+}
+.totals-row.net .value.positive { color: var(--green); }
+.totals-row.net .value.negative { color: var(--red); }
+
+/* Sub-totals by type */
+.subtotal-header {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  padding: 12px 0 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+.bar-container {
+  margin-top: 14px;
+}
+.bar-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+.bar-label {
+  width: 85px;
+  color: var(--text-dim);
+  font-size: 11px;
+  text-align: right;
+  padding-right: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bar-track {
+  flex: 1;
+  height: 14px;
+  background: rgba(30,41,59,0.5);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+.bar-value {
+  width: 65px;
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  padding-left: 8px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .month-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .month-grid > :nth-child(3) {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 768px) {
+  .month-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: var(--text-muted);
+}
+.loading .spinner {
+  display: inline-block;
+  width: 24px; height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--cyan);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="report-header">
+  <h1>Mythos Financial Report</h1>
+  <div class="subtitle" id="report-subtitle">Loading...</div>
+  <div class="balance-row" id="balance-row"></div>
+</div>
+
+<div class="month-nav" id="month-nav"></div>
+<div id="month-content"><div class="loading"><div class="spinner"></div><br>Building report...</div></div>
+
+<script>
+// ===== DATA INJECTION POINT =====
+// This will be replaced by the generator script with actual DB data
+const REPORT_DATA = "__REPORT_DATA__";
+
+// ===== RENDER ENGINE =====
+
+const categoryColors = {
+  'Shopping': '#8b5cf6',
+  'Groceries': '#22c55e',
+  'Fast Food': '#f59e0b',
+  'Restaurants': '#ef4444',
+  'Entertainment': '#ec4899',
+  'Gas': '#06b6d4',
+  'Utilities': '#6366f1',
+  'Healthcare': '#14b8a6',
+  'Subscriptions': '#a855f7',
+  'Home Improvement': '#f97316',
+  'Insurance': '#64748b',
+  'Internet': '#3b82f6',
+  'Transfer': '#475569',
+  'Income': '#22c55e',
+  'Cash': '#94a3b8',
+  'Bank Fees': '#ef4444',
+  'Travel': '#0ea5e9',
+  'Personal Care': '#d946ef',
+  'Check': '#6b7280',
+  'Government': '#78716c',
+  'Charity': '#fbbf24',
+};
+
+function fmt(n) {
+  if (n === null || n === undefined) return '-';
+  const abs = Math.abs(n);
+  const str = abs.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return n < 0 ? `-$${str}` : `$${str}`;
+}
+
+function renderMonthNav(data) {
+  const nav = document.getElementById('month-nav');
+  nav.innerHTML = '';
+  data.months.forEach((m, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'month-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = m.label;
+    btn.onclick = () => {
+      document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderMonth(m);
+    };
+    nav.appendChild(btn);
+  });
+}
+
+function renderHeader(data) {
+  document.getElementById('report-subtitle').textContent = `Generated ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+  const row = document.getElementById('balance-row');
+  row.innerHTML = '';
+  (data.balances || []).forEach(b => {
+    row.innerHTML += `
+      <div class="balance-item">
+        <div class="label">${b.name}</div>
+        <div class="value mono ${b.balance >= 0 ? 'positive' : 'negative'}">${fmt(b.balance)}</div>
+      </div>`;
+  });
+  // Combined
+  const total = (data.balances || []).reduce((s, b) => s + b.balance, 0);
+  row.innerHTML += `
+    <div class="balance-item">
+      <div class="label">Combined</div>
+      <div class="value mono ${total >= 0 ? 'positive' : 'negative'}">${fmt(total)}</div>
+    </div>`;
+}
+
+function renderMonth(month) {
+  const container = document.getElementById('month-content');
+  
+  // Count paid/total bills
+  const paidCount = month.bills.filter(b => b.paid).length;
+  const totalBills = month.bills.length;
+  const billsTotal = month.bills.filter(b => b.paid).reduce((s, b) => s + b.actual_amount, 0);
+  
+  // Spending categories (exclude income, transfer, etc)
+  const spendingCats = month.categories.filter(c => 
+    !['Income', 'Transfer', 'Interest Income'].includes(c.name) && c.total < 0
+  ).sort((a, b) => a.total - b.total);
+  
+  const incomeCats = month.categories.filter(c => c.total > 0);
+  const totalIncome = incomeCats.reduce((s, c) => s + c.total, 0);
+  const totalSpending = spendingCats.reduce((s, c) => s + c.total, 0);
+  const transferCats = month.categories.filter(c => c.name === 'Transfer');
+  const totalTransfers = transferCats.reduce((s, c) => s + c.total, 0);
+  const maxSpend = Math.abs(spendingCats.length > 0 ? spendingCats[0].total : 1);
+  
+  container.innerHTML = `
+    <div class="month-grid">
+      <!-- COL 1: BILLS -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2>📋 Recurring Bills</h2>
+          <span class="badge ${paidCount === totalBills ? 'badge-green' : 'badge-amber'}">${paidCount}/${totalBills} paid</span>
+        </div>
+        <table class="bills-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Merchant</th>
+              <th>Expected</th>
+              <th class="right">Actual</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${month.bills.map(b => `
+              <tr class="${b.paid ? 'paid' : 'unpaid'}">
+                <td>${b.paid ? (b.late ? '<span class="status-late"></span>' : '<span class="status-paid"></span>') : '<span class="status-unpaid"></span>'}</td>
+                <td class="merchant">${b.merchant}</td>
+                <td class="amount">${fmt(-b.expected)}</td>
+                <td class="amount">${b.paid ? fmt(-b.actual_amount) : '-'}</td>
+                <td class="date-col">${b.paid ? b.paid_date : 'due ~' + b.expected_day}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div style="padding: 10px 14px; border-top: 1px solid var(--border); display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted); font-size: 12px;">Bills Total</span>
+          <span class="mono" style="font-size: 13px; color: var(--red);">${fmt(-billsTotal)}</span>
+        </div>
+      </div>
+      
+      <!-- COL 2: SPENDING BREAKDOWN -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2>📊 Spending Breakdown</h2>
+          <span class="badge badge-red">${fmt(totalSpending)}</span>
+        </div>
+        <div>
+          ${spendingCats.map(cat => `
+            <div class="category-group" onclick="this.classList.toggle('open')">
+              <div class="category-header">
+                <div>
+                  <span class="arrow">▶</span>
+                  <span class="cat-name" style="color: ${categoryColors[cat.name] || '#94a3b8'}">${cat.name}</span>
+                  <span class="cat-count">${cat.transactions.length} txn${cat.transactions.length !== 1 ? 's' : ''}</span>
+                </div>
+                <span class="cat-total">${fmt(cat.total)}</span>
+              </div>
+              <div class="category-txns">
+                ${cat.transactions.sort((a,b) => new Date(a.date) - new Date(b.date)).map(t => `
+                  <div class="txn-row">
+                    <span class="txn-date">${new Date(t.date).toLocaleDateString('en-US', {month:'numeric', day:'numeric'})}</span>
+                    <span class="txn-desc">${t.description}</span>
+                    <span class="txn-amt">${fmt(t.amount)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      
+      <!-- COL 3: TOTALS -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2>💰 Summary</h2>
+        </div>
+        <div class="totals-section">
+          <div class="subtotal-header">Income</div>
+          ${incomeCats.map(c => `
+            <div class="totals-row income">
+              <span class="label">${c.name}</span>
+              <span class="value">${fmt(c.total)}</span>
+            </div>
+          `).join('')}
+          <div class="totals-row income" style="font-weight: 600; padding-top: 8px; border-top: 1px solid var(--border); margin-top: 6px;">
+            <span class="label">Total Income</span>
+            <span class="value">${fmt(totalIncome)}</span>
+          </div>
+          
+          <div class="subtotal-header" style="margin-top: 8px;">Spending</div>
+          <div class="totals-row expense">
+            <span class="label">Total Spending</span>
+            <span class="value">${fmt(totalSpending)}</span>
+          </div>
+          ${totalTransfers !== 0 ? `
+          <div class="totals-row">
+            <span class="label">Transfers</span>
+            <span class="value" style="color: var(--text-dim);">${fmt(totalTransfers)}</span>
+          </div>` : ''}
+          
+          <div class="totals-divider"></div>
+          <div class="totals-row net">
+            <span class="label">Net</span>
+            <span class="value ${(totalIncome + totalSpending) >= 0 ? 'positive' : 'negative'}">${fmt(totalIncome + totalSpending + totalTransfers)}</span>
+          </div>
+          
+          <div class="bar-container">
+            <div class="subtotal-header">By Category</div>
+            ${spendingCats.slice(0, 10).map(cat => `
+              <div class="bar-row">
+                <span class="bar-label">${cat.name}</span>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: ${(Math.abs(cat.total) / maxSpend * 100).toFixed(1)}%; background: ${categoryColors[cat.name] || '#64748b'};"></div>
+                </div>
+                <span class="bar-value">${fmt(cat.total)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Init
+if (typeof REPORT_DATA === 'object') {
+  renderHeader(REPORT_DATA);
+  renderMonthNav(REPORT_DATA);
+  if (REPORT_DATA.months.length > 0) {
+    renderMonth(REPORT_DATA.months[0]);
+  }
+} else {
+  document.getElementById('month-content').innerHTML = '<div class="loading">No data loaded. Run the report generator.</div>';
+}
+</script>
+</body>
+</html>

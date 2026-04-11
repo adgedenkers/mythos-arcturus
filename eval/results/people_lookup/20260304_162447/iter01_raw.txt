@@ -1,0 +1,91 @@
+```python
+#!/usr/bin/env python3
+"""
+People Lookup Skill
+====================
+"""
+
+import os
+import logging
+from typing import Any, Dict
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
+from engine.base import SkillBase, SkillRequest, SkillResponse
+
+load_dotenv('/opt/mythos/.env')
+
+logger = logging.getLogger(__name__)
+
+def _get_conn():
+    return psycopg2.connect(
+        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),
+        database=os.getenv('POSTGRES_DB', 'mythos'),
+        user=os.getenv('POSTGRES_USER', 'postgres'),
+        password=os.getenv('POSTGRES_PASSWORD', ''),
+        port=os.getenv('POSTGRES_PORT', '5432'),
+        cursor_factory=RealDictCursor,
+    )
+
+
+class PeopleLookupSkill(SkillBase):
+    name = "people_lookup"
+    version = "1.0"
+    category = "data"
+    description = "Search for people in the Mythos registry by first name, last name, or known as."
+    triggers = ["who is", "find person", "people", "person", "lookup", "born", "birthday", "birth data"]
+    cache_ttl = 600
+
+    async def execute(self, request: SkillRequest) -> SkillResponse:
+        try:
+            conn = _get_conn()
+            cur = conn.cursor()
+
+            search_term = None
+            for trigger in self.triggers:
+                if trigger in request.message.lower():
+                    words = request.message.lower().replace(trigger, "").strip().split()
+                    if len(words) > 0:
+                        search_term = " ".join(words)
+                        break
+
+            if search_term is not None:
+                cur.execute("""
+                    SELECT id, first_name, last_name, known_as, date_of_birth, birth_city, birth_state
+                    FROM public.people
+                    WHERE lower(first_name) LIKE %s OR lower(last_name) LIKE %s OR lower(known_as) LIKE %s
+                """, (f"%{search_term}%", f"%{search_term}%", f"%{search_term}%"))
+            else:
+                cur.execute("SELECT COUNT(*) FROM public.people")
+
+            if search_term is not None:
+                rows = cur.fetchall()
+                summary_parts = []
+                for row in rows:
+                    name = f"{row['first_name']} {row['last_name']}"
+                    birth_info = ""
+                    if row['date_of_birth']:
+                        birth_info += f" born on {row['date_of_birth']}"
+                    if row['birth_city'] and row['birth_state']:
+                        birth_info += f" in {row['birth_city']}, {row['birth_state']}"
+                    summary_parts.append(f"{name}{birth_info}")
+                summary = ", ".join(summary_parts) if summary_parts else "No matching people found."
+            else:
+                count = cur.fetchone()[0]
+                summary = f"There are {count} people in the registry."
+
+            cur.close()
+            conn.close()
+
+            return SkillResponse(
+                skill_name=self.name,
+                data={},
+                summary=summary,
+                confidence=0.95,
+                sources=["mythos.people"],
+            )
+
+        except Exception as e:
+            logger.error(f"{self.name} failed: {e}", exc_info=True)
+            return SkillResponse(skill_name=self.name, error=str(e))
+```

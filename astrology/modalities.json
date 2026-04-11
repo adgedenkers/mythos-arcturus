@@ -1,0 +1,24 @@
+[
+    {
+      "Modality": "Cardinal",
+      "Signs": ["Aries", "Cancer", "Libra", "Capricorn"],
+      "Keywords": ["Initiation", "Leadership", "Starting"],
+      "Meaning": "Cardinal signs are the initiators of the zodiac. They mark the beginning of each season and take charge of situations.",
+      "Example": "Cardinal energy is like a spark — it gets things going and leads the way forward."
+    },
+    {
+      "Modality": "Fixed",
+      "Signs": ["Taurus", "Leo", "Scorpio", "Aquarius"],
+      "Keywords": ["Stability", "Persistence", "Consistency"],
+      "Meaning": "Fixed signs stabilize energy. They are loyal, determined, and resistant to change, often acting as the backbone of projects.",
+      "Example": "Fixed energy is like an anchor — it holds firm no matter how strong the currents."
+    },
+    {
+      "Modality": "Mutable",
+      "Signs": ["Gemini", "Virgo", "Sagittarius", "Pisces"],
+      "Keywords": ["Adaptability", "Flexibility", "Change"],
+      "Meaning": "Mutable signs bring closure and transformation. They are flexible, resourceful, and go with the flow.",
+      "Example": "Mutable energy is like a chameleon — it changes colors and thrives in many environments."
+    }
+  ]
+  

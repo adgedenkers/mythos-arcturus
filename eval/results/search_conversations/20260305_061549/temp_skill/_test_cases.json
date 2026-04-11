@@ -1,0 +1,24 @@
+[
+  {
+    "message": "search conversations about love",
+    "expect_ok": true,
+    "expect_data_has": [
+      "matches"
+    ],
+    "expect_summary_contains": [
+      "conversation"
+    ]
+  },
+  {
+    "message": "what did we discuss about mythos",
+    "expect_ok": true,
+    "expect_data_has": [
+      "matches"
+    ]
+  },
+  {
+    "message": "good morning",
+    "expect_ok": true,
+    "note": "No search terms - should return total count"
+  }
+]

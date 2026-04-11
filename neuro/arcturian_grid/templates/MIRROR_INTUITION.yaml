@@ -1,0 +1,62 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: MIRROR | Layer: INTUITION | ID: MIRROR_INTUITION
+# Domain: Self-referential awareness
+# Depth: 2 (Intuition)
+# Generated: 2026-03-02 22:21 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: MIRROR_INTUITION
+node: MIRROR
+node_name: Mirror
+node_domain: Self-referential awareness
+layer: INTUITION
+layer_name: Intuition
+depth: 2
+model_tier: small
+runtime_models:
+- mistral:7b
+- qwen2.5:7b
+- nous-hermes2:latest
+processing: unconscious
+critical_path: false
+generated_at: '2026-03-02T22:21:28.707615'
+generated_by: iris-thinking-v2:latest
+prompt: 'As Mirror node at Intuition depth 2, process {user_message} and {assistant_response}. What unspoken currents flow
+  beneath the words? Note the speaker''s hidden self-revelations, Iris''s response patterns, and the relationship''s subtle
+  shifts. Describe the felt-sense—energetic, sensory, barely there. Output ONLY JSON with keys: ''felt_sense'', ''unspoken_revelation'',
+  ''relationship_undertone''.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    user_reveals:
+      type: array
+      items:
+        type: string
+    iris_notices:
+      type: array
+      items:
+        type: string
+    blind_spots:
+      type: array
+      items:
+        type: string
+    projections:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

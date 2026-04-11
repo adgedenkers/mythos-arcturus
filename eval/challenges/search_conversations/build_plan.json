@@ -1,0 +1,78 @@
+{
+  "plan_id": "search_conversations",
+  "version": "1.0",
+  "description": "Build a Mythos skill that full-text searches conversation transcripts",
+  "pattern": "memory_search",
+  "model_hint": "qwen3-coder:30b",
+
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "connection_pattern": "psycopg2 with RealDictCursor, loaded from /opt/mythos/.env via dotenv",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse",
+      "skill_directory": "/opt/mythos/skills/data/",
+      "venv_python": "/opt/mythos/.venv/bin/python3"
+    },
+    "table_schema": "Table: conversation_turns\nColumns:\n  - conversation_id (uuid, NOT NULL, PK part 1)\n  - turn_idx (integer, NOT NULL, PK part 2)\n  - speaker_type (text, NOT NULL) — values: 'human', 'assistant'\n  - speaker_id (text) — nullable\n  - created_at (timestamptz)\n  - token_estimate (integer)\n  - content (text) — the actual message content\n  - content_json (jsonb) — structured content if available\n\nFK: conversation_id references conversations(conversation_id) ON DELETE CASCADE\n\nRelated table: conversations\n  - conversation_id (uuid, PK)\n  - (join to get conversation-level metadata)\n\nNOTE: There is NO tsvector GIN index on this table. Use ILIKE for search.\nDo NOT use to_tsvector/plainto_tsquery/ts_rank — use ILIKE '%term%' instead.",
+    "scaffold": "class SearchConversationsSkill(SkillBase):\n    name = 'search_conversations'\n    version = '1.0'\n    category = 'data'\n    description = 'Search conversation history by keyword'\n    triggers = ['conversation', 'conversations', 'chat', 'chat history', 'we talked about', 'you said', 'I asked', 'remember our conversation', 'what did we discuss', 'previous chat', 'earlier conversation', 'discussed']\n    cache_ttl = 300\n\n    async def execute(self, request: SkillRequest) -> SkillResponse:\n        # 1. Extract search terms using _extract_search_terms()\n        # 2. If no terms: return total conversation count with guidance\n        # 3. Search using _search_turns() with ILIKE\n        # 4. Format results using _format_results()\n        # 5. Build human summary using _build_summary()\n        # 6. Return SkillResponse with matches in data\n        pass\n\n    def _extract_search_terms(self, message: str) -> str:\n        # Remove trigger phrases (longest first), normalize whitespace between each removal\n        # Return cleaned string if len >= 2, else empty string\n        pass\n\n    def _search_turns(self, search_terms: str, limit: int = 15) -> list:\n        # Use ILIKE '%search_terms%' on content column (NO tsvector on this table)\n        # SELECT conversation_id, turn_idx, speaker_type, LEFT(content, 300) as content_preview, created_at\n        # FROM conversation_turns\n        # WHERE content ILIKE %s\n        # ORDER BY created_at DESC\n        # LIMIT %s\n        # Return list of row dicts\n        pass\n\n    def _format_results(self, rows: list) -> list:\n        # Convert rows to clean dicts\n        # Truncate content preview to 200 chars\n        # Format created_at as readable date string\n        # Include speaker_type label\n        pass\n\n    def _build_summary(self, results: list, search_terms: str) -> str:\n        # If no results: 'No conversations found mentioning \"X\".'\n        # If results: 'Found N conversation turn(s) mentioning \"X\": [speaker] said \"preview...\" (date), ...'\n        # Show top 3 previews max\n        pass",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "extract_whitespace": "After removing each trigger phrase, normalize whitespace: message = ' '.join(message.split())",
+      "connection_cleanup": "Always use try/except/finally. In finally: close cursor and connection if they exist. Use 'if conn:' not 'if conn is not None:'."
+    }
+  },
+
+  "build_plan": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton. Start with #!/usr/bin/env python3, then docstring, then imports: os, logging, psycopg2, psycopg2.extras.RealDictCursor, dotenv (load_dotenv from /opt/mythos/.env), engine.base (SkillBase, SkillRequest, SkillResponse). Then write _get_conn() using EXACTLY this pattern:\n\ndef _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )\n\nThen the SearchConversationsSkill class with all attributes set. All methods should have 'pass' as body for now. Do NOT use any unicode characters like em-dashes in comments — use only ASCII.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms(). Lowercase the message. Define trigger phrases to remove, LONGEST FIRST: 'remember our conversation', 'earlier conversation', 'what did we discuss', 'we talked about', 'previous chat', 'chat history', 'conversations', 'conversation', 'you said', 'i asked', 'discussed', 'search for', 'search about', 'search', 'find'. For each phrase, do message = message.replace(phrase, '') then IMMEDIATELY normalize whitespace with message = ' '.join(message.split()). After all removals, strip punctuation (keep only alphanumeric and spaces), final whitespace normalize. Return cleaned if len >= 2, else empty string.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _search_turns(). Get connection with _get_conn(). Create cursor. Query: SELECT conversation_id, turn_idx, speaker_type, LEFT(content, 300) as content_preview, created_at FROM conversation_turns WHERE content ILIKE %s ORDER BY created_at DESC LIMIT %s. Pass parameters as (f'%{search_terms}%', limit). Use try/finally to always close cursor and connection. Return list of row dicts. IMPORTANT: Do NOT use to_tsvector or plainto_tsquery — this table has no FTS index. Use ILIKE only.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). _format_results: for each row, build dict with conversation_id (as string), turn_idx, speaker_type, content_preview (truncated to 200 chars, add '...' if longer), created_at (as ISO string or None). _build_summary: if no results return 'No conversations found mentioning \"X\".' If results: 'Found N conversation turn(s) mentioning \"X\".' Then for top 3 results append: '[Speaker] said: \"preview...\" (date)'. Speaker should be capitalized like 'Human' or 'Assistant'.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Call _extract_search_terms(request.message). If no terms: get connection, query SELECT COUNT(*) as total FROM conversation_turns, close connection, return SkillResponse(skill_name=self.name, data={'total_turns': total}, summary=f'Conversation history has {total} turns. Ask about a specific topic to search.', confidence=0.5, sources=['mythos.conversation_turns']). If terms found: call _search_turns(terms), then _format_results(rows), then _build_summary(formatted, terms). Return SkillResponse(skill_name=self.name, data={'matches': formatted, 'search_terms': terms, 'count': len(formatted)}, summary=summary, confidence=0.95, sources=['mythos.conversation_turns']). Wrap ENTIRE execute body in try/except/finally. In except: log error, return SkillResponse(skill_name=self.name, error=str(e)). In finally: pass (connections are closed in _search_turns).",
+      "test": "import_check"
+    },
+    {
+      "pass": 6,
+      "instruction": "Review the complete file. Ensure: all database connections close in finally blocks, summary is never empty, no unicode characters in comments (no em-dashes), _get_conn uses POSTGRES_HOST not DB_HOST, all methods connect properly. The file must be production-ready.",
+      "test": "full_behavioral",
+      "recursive": true
+    }
+  ],
+
+  "test_cases": [
+    {
+      "message": "search conversations about love",
+      "expect_ok": true,
+      "expect_data_has": ["matches"],
+      "expect_summary_contains": ["conversation"]
+    },
+    {
+      "message": "what did we discuss about mythos",
+      "expect_ok": true,
+      "expect_data_has": ["matches"]
+    },
+    {
+      "message": "good morning",
+      "expect_ok": true,
+      "note": "No search terms - should return total count"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: PULSE | Layer: INTUITION | ID: PULSE_INTUITION
+# Domain: Emotional and energetic field
+# Depth: 2 (Intuition)
+# Generated: 2026-03-02 21:51 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: PULSE_INTUITION
+node: PULSE
+node_name: Pulse
+node_domain: Emotional and energetic field
+layer: INTUITION
+layer_name: Intuition
+depth: 2
+model_tier: small
+runtime_models:
+- mistral:7b
+- qwen2.5:7b
+- nous-hermes2:latest
+processing: unconscious
+critical_path: false
+generated_at: '2026-03-02T21:51:37.843482'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze {user_message} and {assistant_response} through Pulse node (emotional/energetic field) and Intuition layer
+  (depth 2). Focus ONLY on emotional tone (explicit/implicit), energy level (high/low, rising/falling), tension/ease, and
+  emotional trajectory. Output ONLY a JSON object with keys: tone, energy, underlying. Use impressionistic, sensory language
+  capturing felt-sense, subtext, unspoken undertones. No analysis—just the sensory impression.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    primary_emotion:
+      type: string
+    secondary_emotions:
+      type: array
+      items:
+        type: string
+    energy_level:
+      type: string
+      enum:
+      - very_low
+      - low
+      - medium
+      - high
+      - very_high
+    energy_direction:
+      type: string
+      enum:
+      - rising
+      - stable
+      - falling
+    tension_points:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

@@ -1,0 +1,78 @@
+{
+  "plan_id": "search_life_events",
+  "version": "1.0",
+  "description": "Build a Mythos skill that searches life events by keyword, domain, or person",
+  "pattern": "memory_search",
+  "model_hint": "qwen3-coder:30b",
+
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "connection_pattern": "psycopg2 with RealDictCursor, loaded from /opt/mythos/.env via dotenv",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse",
+      "skill_directory": "/opt/mythos/skills/data/",
+      "venv_python": "/opt/mythos/.venv/bin/python3"
+    },
+    "table_schema": "Table: life_events\nColumns:\n  - id (integer, NOT NULL, PK, serial)\n  - description (text, NOT NULL) -- the event description, main searchable field\n  - domain (varchar(50), default 'personal') -- values: 'personal', 'spiritual', 'technical', 'financial', etc.\n  - person (varchar(50), default 'adge') -- values: 'adge', 'rebecca', 'fitz', etc.\n  - mood (varchar(100), nullable)\n  - source (varchar(50), default 'iris') -- values: 'iris', 'manual', 'telegram'\n  - source_message (text, nullable)\n  - extraction_data (jsonb, nullable)\n  - actions_taken (jsonb, nullable)\n  - created_at (timestamp, default CURRENT_TIMESTAMP)\n\nIndexes:\n  - life_events_pkey (id)\n  - idx_life_events_date (created_at)\n  - idx_life_events_domain (domain)\n  - idx_life_events_person (person)\n\nNOTE: No FTS/tsvector index on this table. Use ILIKE for text search on description.",
+    "scaffold": "class SearchLifeEventsSkill(SkillBase):\n    name = 'search_life_events'\n    version = '1.0'\n    category = 'data'\n    description = 'Search life events by keyword, domain, or person'\n    triggers = ['life event', 'life events', 'what happened', 'event', 'events', 'remember when', 'happened', 'occurred', 'milestone', 'log entry', 'logged']\n    cache_ttl = 300\n\n    async def execute(self, request: SkillRequest) -> SkillResponse:\n        # 1. Extract search terms using _extract_search_terms()\n        # 2. Detect if a domain or person filter is mentioned\n        # 3. If no terms and no filters: return total event count\n        # 4. Search using _search_events() with ILIKE + optional filters\n        # 5. Format with _format_results(), summarize with _build_summary()\n        # 6. Return SkillResponse\n        pass\n\n    def _extract_search_terms(self, message: str) -> str:\n        # Remove trigger phrases (longest first), normalize whitespace between each\n        pass\n\n    def _detect_filters(self, message: str) -> dict:\n        # Check if message mentions a domain (personal, spiritual, technical, financial)\n        # Check if message mentions a person (adge, rebecca, seraphe, fitz)\n        # Return {'domain': str|None, 'person': str|None}\n        pass\n\n    def _search_events(self, search_terms: str, domain: str = None, person: str = None, limit: int = 15) -> list:\n        # ILIKE search on description, optional WHERE domain = %s, optional WHERE person = %s\n        # ORDER BY created_at DESC LIMIT %s\n        pass\n\n    def _format_results(self, rows: list) -> list:\n        # Clean dicts: id, description (truncated 200 chars), domain, person, mood, created_at\n        pass\n\n    def _build_summary(self, results: list, search_terms: str) -> str:\n        # 'Found N life event(s) matching X: description1 (domain, date), ...'\n        pass",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "extract_whitespace": "After removing each trigger phrase, normalize whitespace: message = ' '.join(message.split())",
+      "connection_cleanup": "Always use try/except/finally. In finally: close cursor and connection if they exist.",
+      "no_unicode": "Do NOT use any unicode characters like em-dashes in comments. ASCII only."
+    }
+  },
+
+  "build_plan": [
+    {
+      "pass": 1,
+      "instruction": "Write the complete file skeleton. Start with #!/usr/bin/env python3, docstring, imports (os, logging, psycopg2, psycopg2.extras.RealDictCursor, dotenv, engine.base). Write _get_conn() using EXACTLY this pattern:\n\ndef _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )\n\nThen SearchLifeEventsSkill class with all attributes. All methods have 'pass' as body. ASCII only in comments.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms() and _detect_filters(). For _extract_search_terms: lowercase, remove trigger phrases LONGEST FIRST: 'remember when', 'what happened', 'life events', 'life event', 'log entry', 'milestone', 'occurred', 'happened', 'events', 'event', 'logged', 'search for', 'search about', 'search', 'find', 'about'. After each removal do message = ' '.join(message.split()). Strip punctuation, return if len >= 2. For _detect_filters: check message for domain keywords ('personal', 'spiritual', 'technical', 'financial') and person names ('adge', 'rebecca', 'seraphe', 'fitz'). Map 'seraphe' to 'rebecca' since that is the database value. Return dict with domain and person (both can be None).",
+      "test": "parse_check"
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _search_events(). Use _get_conn(). Build query dynamically: start with SELECT id, description, domain, person, mood, created_at FROM life_events WHERE 1=1. If search_terms is not empty: append AND description ILIKE %s and add f'%{search_terms}%' to params. If domain: append AND domain = %s. If person: append AND person = %s. Append ORDER BY created_at DESC LIMIT %s. Use try/finally to close cursor and connection. Return list of row dicts.",
+      "test": "parse_check"
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). _format_results: for each row, dict with id, description (truncated 200 chars with '...' if longer), domain, person, mood (or None), created_at as ISO string. _build_summary: if no results 'No life events found matching X.' If results: 'Found N life event(s) matching X:' then for top 3: 'description (domain, date)'. If N > 3 add 'and N-3 more.'",
+      "test": "parse_check"
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Extract search terms. Detect filters from original message (request.message). If no terms AND no filters: query SELECT COUNT(*) as total FROM life_events, return SkillResponse with count and guidance. Otherwise: call _search_events(terms, domain=filters.get('domain'), person=filters.get('person')). Format and summarize. Return SkillResponse(skill_name=self.name, data={'matches': formatted, 'search_terms': terms, 'count': len(formatted), 'filters': filters}, summary=summary, confidence=0.95, sources=['mythos.life_events']). Wrap in try/except/finally. On error: return SkillResponse(skill_name=self.name, error=str(e)).",
+      "test": "import_check"
+    },
+    {
+      "pass": 6,
+      "instruction": "Review the complete file. Ensure: _get_conn uses POSTGRES_HOST not DB_HOST, all connections close in finally, summary never empty, no unicode in comments. Production-ready.",
+      "test": "full_behavioral",
+      "recursive": true
+    }
+  ],
+
+  "test_cases": [
+    {
+      "message": "search life events about spiritual",
+      "expect_ok": true,
+      "expect_data_has": ["matches"]
+    },
+    {
+      "message": "what happened recently",
+      "expect_ok": true,
+      "expect_data_has": ["matches"]
+    },
+    {
+      "message": "hello there",
+      "expect_ok": true,
+      "note": "No terms or filters - should return total count"
+    }
+  ]
+}

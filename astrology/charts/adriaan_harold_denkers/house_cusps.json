@@ -1,0 +1,74 @@
+{
+  "1": {
+    "Cusp": 258.060311,
+    "Sign": "Sagittarius",
+    "DegMin": "18\u00b003'",
+    "Full": "18\u00b003' Sagittarius"
+  },
+  "2": {
+    "Cusp": 294.000472,
+    "Sign": "Capricorn",
+    "DegMin": "24\u00b000'",
+    "Full": "24\u00b000' Capricorn"
+  },
+  "3": {
+    "Cusp": 335.090809,
+    "Sign": "Pisces",
+    "DegMin": "05\u00b005'",
+    "Full": "05\u00b005' Pisces"
+  },
+  "4": {
+    "Cusp": 10.797818,
+    "Sign": "Aries",
+    "DegMin": "10\u00b047'",
+    "Full": "10\u00b047' Aries"
+  },
+  "5": {
+    "Cusp": 37.821769,
+    "Sign": "Taurus",
+    "DegMin": "07\u00b049'",
+    "Full": "07\u00b049' Taurus"
+  },
+  "6": {
+    "Cusp": 59.111504,
+    "Sign": "Taurus",
+    "DegMin": "29\u00b006'",
+    "Full": "29\u00b006' Taurus"
+  },
+  "7": {
+    "Cusp": 78.060311,
+    "Sign": "Gemini",
+    "DegMin": "18\u00b003'",
+    "Full": "18\u00b003' Gemini"
+  },
+  "8": {
+    "Cusp": 114.000472,
+    "Sign": "Cancer",
+    "DegMin": "24\u00b000'",
+    "Full": "24\u00b000' Cancer"
+  },
+  "9": {
+    "Cusp": 155.090809,
+    "Sign": "Virgo",
+    "DegMin": "05\u00b005'",
+    "Full": "05\u00b005' Virgo"
+  },
+  "10": {
+    "Cusp": 190.797818,
+    "Sign": "Libra",
+    "DegMin": "10\u00b047'",
+    "Full": "10\u00b047' Libra"
+  },
+  "11": {
+    "Cusp": 217.821769,
+    "Sign": "Scorpio",
+    "DegMin": "07\u00b049'",
+    "Full": "07\u00b049' Scorpio"
+  },
+  "12": {
+    "Cusp": 239.111504,
+    "Sign": "Scorpio",
+    "DegMin": "29\u00b006'",
+    "Full": "29\u00b006' Scorpio"
+  }
+}

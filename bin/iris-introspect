@@ -1,0 +1,48 @@
+#!/opt/mythos/.venv/bin/python3
+"""
+iris-introspect - CLI for Iris Introspection Scanner (Patch 0187)
+
+Usage:
+    iris-introspect                  # Full scan with LLM analysis
+    iris-introspect --quick          # Scan only, no LLM
+    iris-introspect --path /opt/mythos/finance  # Single component
+    iris-introspect --report-only    # Re-display last report
+    iris-introspect --queue-status   # Show Redis queue depths
+"""
+import sys
+import argparse
+
+# Ensure mythos is importable
+sys.path.insert(0, "/opt/mythos")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Iris Introspection Scanner - self-analysis of the Mythos codebase"
+    )
+    parser.add_argument("--quick", action="store_true",
+                        help="Skip LLM analysis (fast mode)")
+    parser.add_argument("--path", type=str, default=None,
+                        help="Scan only a specific component path")
+    parser.add_argument("--report-only", action="store_true",
+                        help="Display report from the last run")
+    parser.add_argument("--queue-status", action="store_true",
+                        help="Show Redis documentation queue status")
+    parser.add_argument("--base", type=str, default="/opt/mythos",
+                        help="Base path for Mythos (default: /opt/mythos)")
+
+    args = parser.parse_args()
+
+    from iris.introspection.run import run_introspection
+
+    run_introspection(
+        base_path=args.base,
+        target_path=args.path,
+        quick=args.quick,
+        report_only=args.report_only,
+        queue_status_only=args.queue_status,
+    )
+
+
+if __name__ == "__main__":
+    main()

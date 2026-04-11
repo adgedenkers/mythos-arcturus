@@ -1,0 +1,36 @@
+{
+  "plan_id": "idea_backlog_manager",
+  "version": "1.0",
+  "description": "Manage the idea pipeline: view pending, triage to backlog, set priorities, assign to streams",
+  "pattern": "data_query_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "table_schema": "Table: idea_inbox\n  - id (uuid, PK)\n  - conversation_context (text)\n  - items (jsonb) -- array of idea strings\n  - item_count (integer)\n  - chosen_text (text)\n  - disposition (varchar(20), default 'pending') -- values: 'pending', 'kept', 'dismissed', 'merged', 'deferred'\n  - domain (varchar(50))\n  - tags (jsonb)\n  - created_at (timestamptz)\n\nTable: idea_backlog\n  - id (uuid, PK)\n  - inbox_id (uuid, FK to idea_inbox)\n  - title (text)\n  - description (text)\n  - stream (varchar(10)) -- values: 'NEU', 'LOG', 'MNE', 'SEN', 'SYS'\n  - priority (varchar(20)) -- values: 'low', 'medium', 'high', 'critical'\n  - status (varchar(20)) -- values: 'backlog', 'planned', 'in_progress', 'done'\n  - created_at (timestamptz)\n\nAll IDs are uuid. Cast to str when returning.",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "connection_cleanup": "try/except/finally. Close cursor and connection in finally.",
+      "no_unicode": "ASCII only.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name, data, summary, confidence, sources, error.",
+      "fetchone_dict": "RealDictCursor returns dicts. Use row['column'] not row[0].",
+      "async_required": "execute MUST be 'async def execute'."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: os, logging, json, psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class IdeaBacklogManagerSkill with name='idea_backlog_manager', triggers=['backlog', 'idea backlog', 'pending ideas', 'triage ideas', 'manage ideas', 'idea pipeline', 'backlog status', 'what ideas are pending']. cache_ttl=300. Methods: async def execute, def _get_pending_count, def _get_backlog_status, def _get_stream_breakdown, def _build_summary. All 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _get_pending_count() and _get_backlog_status(). _get_pending_count: SELECT COUNT(*) as cnt FROM idea_inbox WHERE disposition = 'pending'. Return integer. _get_backlog_status: SELECT stream, priority, status, COUNT(*) as cnt FROM idea_backlog GROUP BY stream, priority, status ORDER BY stream, priority. Return list of dicts. Both use _get_conn() with try/finally close. Use row['cnt'] not row[0].", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement _get_stream_breakdown(). Use _get_conn(). Query: SELECT stream, COUNT(*) as total, SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END) as done, SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress, SUM(CASE WHEN status = 'backlog' THEN 1 ELSE 0 END) as backlog FROM idea_backlog GROUP BY stream ORDER BY stream. Return list of dicts. try/finally close.", "test": "parse_check"},
+    {"pass": 4, "instruction": "Implement _build_summary(self, pending, backlog_rows, stream_rows). Build: 'Idea Pipeline: N ideas pending triage.' If backlog_rows: 'Backlog: N items across M streams.' Per stream: 'STREAM: N total (X backlog, Y in progress, Z done)'. If no backlog items: 'Backlog is empty.' Return string.", "test": "parse_check"},
+    {"pass": 5, "instruction": "Implement 'async def execute(self, request)'. Call all three query methods. Build summary. Return SkillResponse(skill_name=self.name, data={'pending_count': pending, 'backlog': backlog_rows, 'streams': stream_rows}, summary=summary, confidence=0.95, sources=['mythos.idea_inbox', 'mythos.idea_backlog']). try/except/finally.", "test": "import_check"},
+    {"pass": 6, "instruction": "Review. _get_conn uses POSTGRES_HOST. execute is async def. UUIDs cast to str. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "show me the idea backlog", "expect_ok": true, "expect_data_has": ["pending_count"]},
+    {"message": "what ideas are pending", "expect_ok": true},
+    {"message": "backlog status", "expect_ok": true}
+  ]
+}

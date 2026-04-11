@@ -1,0 +1,232 @@
+#!/usr/bin/env python3
+"""
+iris-person — CLI for the Iris Person Intelligence Pipeline
+
+Usage:
+    iris-person lookup <name>         Search local people table
+    iris-person research <name>       Full pipeline: local → web → store → queue
+    iris-person deep <person_id>      Run deep research synchronously (for testing)
+    iris-person list                  Show all people in the registry
+
+Examples:
+    iris-person lookup "Fitz"
+    iris-person research "Jesse Jackson"
+    iris-person deep 4
+    iris-person list
+"""
+
+import argparse
+import json
+import os
+import sys
+
+# Load .env (same pattern as trigger_runner.py)
+def load_env():
+    env_path = "/opt/mythos/.env"
+    if os.path.exists(env_path):
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key not in os.environ:
+                    os.environ[key] = value
+
+load_env()
+
+sys.path.insert(0, "/opt/mythos")
+sys.path.insert(0, "/opt/mythos/iris/core")
+
+import psycopg2
+import psycopg2.extras
+
+
+def get_db_config() -> dict:
+    return {
+        "host": os.getenv("POSTGRES_HOST", "localhost"),
+        "port": int(os.getenv("POSTGRES_PORT", 5432)),
+        "database": os.getenv("POSTGRES_DB", "mythos"),
+        "user": os.getenv("POSTGRES_USER", "adge"),
+        "password": os.getenv("POSTGRES_PASSWORD", ""),
+    }
+
+
+def get_db(db_config: dict):
+    host = db_config["host"]
+    if host in ("localhost", "127.0.0.1", ""):
+        return psycopg2.connect(
+            host="/var/run/postgresql",
+            port=db_config["port"],
+            database=db_config["database"],
+            user=db_config["user"],
+            cursor_factory=psycopg2.extras.RealDictCursor,
+        )
+    return psycopg2.connect(**db_config, cursor_factory=psycopg2.extras.RealDictCursor)
+
+
+def cmd_lookup(args):
+    """Search local people table."""
+    from src.person_researcher import lookup_local
+    db_config = get_db_config()
+    result = lookup_local(db_config, args.name)
+
+    if not result:
+        print(f"No local match for: {args.name}")
+        return
+
+    print(f"╔══ Local Match ══╗")
+    print(f"  ID:           {result.id}")
+    print(f"  Name:         {result.full_name}")
+    if result.known_as:
+        print(f"  Known as:     {result.known_as}")
+    if result.date_of_birth:
+        print(f"  Born:         {result.date_of_birth}")
+    if result.birth_city:
+        loc = result.birth_city
+        if result.birth_state:
+            loc += f", {result.birth_state}"
+        if result.birth_country:
+            loc += f", {result.birth_country}"
+        print(f"  Birth place:  {loc}")
+    if result.date_of_death:
+        print(f"  Died:         {result.date_of_death}")
+    print(f"  Canonical ID: {result.canonical_id}")
+    print(f"  Completeness: {result.completeness:.0%}")
+    if result.notes:
+        preview = result.notes[:200].replace("\n", " ")
+        print(f"  Notes:        {preview}...")
+
+
+def cmd_research(args):
+    """Full pipeline: local → web → store → queue deep research."""
+    from src.person_researcher import research_person
+    db_config = get_db_config()
+
+    print(f"── Researching: {args.name} ──")
+    result = research_person(db_config, args.name, requested_by="cli")
+
+    p = result.person
+    print(f"\n╔══ Research Result ══╗")
+    print(f"  Name:            {p.full_name}")
+    print(f"  Found locally:   {result.found_locally}")
+    print(f"  Web researched:  {result.web_researched}")
+    print(f"  Deep queued:     {result.queued_deep_research}")
+    print(f"  Duration:        {result.duration_ms}ms")
+
+    if p.date_of_birth:
+        print(f"  Born:            {p.date_of_birth}")
+    if p.birth_city:
+        loc = p.birth_city
+        if p.birth_state:
+            loc += f", {p.birth_state}"
+        if p.birth_country:
+            loc += f", {p.birth_country}"
+        print(f"  Birth place:     {loc}")
+    if p.date_of_death:
+        print(f"  Died:            {p.date_of_death}")
+    if p.id:
+        print(f"  Person ID:       {p.id}")
+    if p.canonical_id:
+        print(f"  Canonical ID:    {p.canonical_id}")
+
+    if p.bio_summary:
+        print(f"\n── Bio ──")
+        # Word-wrap at 80 chars
+        words = p.bio_summary.split()
+        line = ""
+        for word in words:
+            if len(line) + len(word) + 1 > 78:
+                print(f"  {line}")
+                line = word
+            else:
+                line = f"{line} {word}" if line else word
+        if line:
+            print(f"  {line}")
+
+    if result.error:
+        print(f"\n  ERROR: {result.error}")
+
+    print(f"\n── Summary ──")
+    print(f"  {result.to_summary()}")
+
+
+def cmd_deep(args):
+    """Run deep research synchronously for testing."""
+    from src.person_researcher import run_deep_research
+    db_config = get_db_config()
+
+    print(f"── Running deep research for person_id={args.person_id} ──")
+    print(f"  (This may take 30-60 seconds with LLM calls)")
+    run_deep_research(db_config, args.person_id)
+    print(f"── Complete ──")
+
+
+def cmd_list(args):
+    """List all people in the registry."""
+    db_config = get_db_config()
+    conn = get_db(db_config)
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, first_name, last_name, known_as, date_of_birth,
+               birth_city, canonical_id,
+               LENGTH(notes) as notes_len
+        FROM people
+        ORDER BY last_name, first_name
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if not rows:
+        print("No people in registry")
+        return
+
+    print(f"{'═' * 90}")
+    print(f"{'ID':>4}  {'Name':<25} {'Known As':<12} {'Born':<12} {'City':<15} {'Notes':>6}")
+    print(f"{'═' * 90}")
+
+    for row in rows:
+        name = f"{row['first_name']} {row['last_name']}"
+        known = row['known_as'] or ""
+        dob = str(row['date_of_birth']) if row['date_of_birth'] else ""
+        city = row['birth_city'] or ""
+        notes = f"{row['notes_len']}ch" if row['notes_len'] else ""
+        print(f"  {row['id']:>2}  {name:<25} {known:<12} {dob:<12} {city:<15} {notes:>6}")
+
+    print(f"\nTotal: {len(rows)} people")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Iris Person Intelligence Pipeline CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__,
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_lookup = sub.add_parser("lookup", help="Search local people table")
+    p_lookup.add_argument("name", help="Name to search for")
+
+    p_research = sub.add_parser("research", help="Full research pipeline")
+    p_research.add_argument("name", help="Person to research")
+
+    p_deep = sub.add_parser("deep", help="Run deep research for a person_id")
+    p_deep.add_argument("person_id", type=int, help="Person ID from people table")
+
+    p_list = sub.add_parser("list", help="List all people in registry")
+
+    args = parser.parse_args()
+    cmd_map = {
+        "lookup": cmd_lookup,
+        "research": cmd_research,
+        "deep": cmd_deep,
+        "list": cmd_list,
+    }
+    cmd_map[args.command](args)
+
+
+if __name__ == "__main__":
+    main()

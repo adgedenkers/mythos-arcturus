@@ -1,0 +1,36 @@
+{
+  "plan_id": "spending_analysis",
+  "version": "1.0",
+  "description": "Analyze spending by category with totals, trends, and month-over-month comparison",
+  "pattern": "data_query_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "table_schema": "Table: transactions\n  - id (integer, PK)\n  - account_id (integer, FK to accounts)\n  - transaction_date (date, NOT NULL)\n  - description (text)\n  - merchant_name (varchar(255))\n  - amount (numeric(12,2)) -- negative = spending, positive = income\n  - category_primary (varchar(100)) -- e.g. 'Food', 'Utilities', 'Entertainment'\n  - category_secondary (varchar(100))\n\nTable: accounts\n  - id (integer, PK)\n  - abbreviation (varchar)\n  - account_type (varchar) -- 'checking', 'credit', 'loan'",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "connection_cleanup": "try/except/finally. Close cursor and connection in finally.",
+      "no_unicode": "ASCII only.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name, data, summary, confidence, sources, error.",
+      "fetchone_dict": "RealDictCursor returns dicts. Use row['column'] not row[0].",
+      "async_required": "execute MUST be 'async def execute'."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: os, logging, datetime (date, timedelta), psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class SpendingAnalysisSkill with name='spending_analysis', triggers=['spending', 'spending analysis', 'category breakdown', 'where is my money going', 'spending trends', 'how much am i spending', 'budget', 'expenses', 'monthly spending']. cache_ttl=600. Methods: async def execute, def _get_category_totals, def _get_monthly_comparison, def _build_summary. All 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _get_category_totals(self, days=30). Use _get_conn(). Query: SELECT category_primary, SUM(amount) as total, COUNT(*) as count FROM transactions WHERE transaction_date >= CURRENT_DATE - %s AND amount < 0 GROUP BY category_primary ORDER BY total ASC (most negative = most spending first). Params: (days,). Also get grand total: SELECT SUM(amount) as grand_total FROM transactions WHERE transaction_date >= CURRENT_DATE - %s AND amount < 0. Return dict with categories list and grand_total. try/finally close.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement _get_monthly_comparison(self). Use _get_conn(). Get this month total: SELECT SUM(amount) as total FROM transactions WHERE date_trunc('month', transaction_date) = date_trunc('month', CURRENT_DATE) AND amount < 0. Get last month total: SELECT SUM(amount) as total FROM transactions WHERE date_trunc('month', transaction_date) = date_trunc('month', CURRENT_DATE - interval '1 month') AND amount < 0. Calculate change_pct = ((this - last) / abs(last)) * 100 if last != 0 else 0. Return dict with this_month, last_month, change_pct. try/finally close.", "test": "parse_check"},
+    {"pass": 4, "instruction": "Implement _build_summary(self, categories_data, comparison). Build: 'Spending last 30 days: $TOTAL across N categories.' Then top 5 categories: 'CATEGORY: $AMOUNT (N transactions)'. Then comparison: 'This month: $X vs last month: $Y (UP/DOWN Z%)'. Format all amounts as $X,XXX.XX (use abs() since amounts are negative). Return string.", "test": "parse_check"},
+    {"pass": 5, "instruction": "Implement 'async def execute(self, request)'. Call _get_category_totals() and _get_monthly_comparison(). Build summary. Return SkillResponse(skill_name=self.name, data={'categories': cat_data, 'comparison': comp_data}, summary=summary, confidence=0.95, sources=['mythos.transactions']). try/except/finally.", "test": "import_check"},
+    {"pass": 6, "instruction": "Review. _get_conn uses POSTGRES_HOST. execute is async def. Amounts use abs() for display. Handles zero/null totals. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "show me spending analysis", "expect_ok": true, "expect_data_has": ["categories"]},
+    {"message": "where is my money going", "expect_ok": true},
+    {"message": "monthly spending breakdown", "expect_ok": true}
+  ]
+}

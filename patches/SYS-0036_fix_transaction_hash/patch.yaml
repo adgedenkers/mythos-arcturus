@@ -1,0 +1,12 @@
+stream: SYS
+number: 36
+description: fix_transaction_hash
+patch_type: MINOR
+summary: |
+  Fix transaction dedup to use row-index hashing by default (no more lost transactions).
+  Add file-level import tracking to prevent re-importing the same file.
+  Remove --allow-dupes flag (now the default behavior).
+  Clean up duplicate recalc_balances function.
+changes:
+  - /opt/mythos/finance/importer.py: New hash strategy + file-level dedup + cleanup
+  - PostgreSQL: Add file_hash column to import_logs, add unique constraint

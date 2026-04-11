@@ -1,0 +1,23 @@
+[
+  {
+    "message": "what bills are due this week",
+    "expect_ok": true,
+    "expect_data_has": [
+      "bills"
+    ]
+  },
+  {
+    "message": "upcoming bills next 14 days",
+    "expect_ok": true,
+    "expect_data_has": [
+      "bills"
+    ]
+  },
+  {
+    "message": "bills due",
+    "expect_ok": true,
+    "expect_data_has": [
+      "bills"
+    ]
+  }
+]

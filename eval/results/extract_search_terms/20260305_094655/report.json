@@ -1,0 +1,78 @@
+{
+  "plan_id": "extract_search_terms",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_094655",
+  "total_passes": 4,
+  "total_ollama_calls": 4,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 11,
+    "failed": 0,
+    "total": 11
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: logging, re, engine.base. NO database imports. Define class with attributes. Define two class-level constants: TRIGGER_PHRASES as a list of strings sorted longest first (include at least 30 phrases covering: 'do you remember anything about', 'what did we talk about', 'find anything about', 'search everything for', 'can you find', 'show me', 'look up', 'search for', 'tell me about', 'what do you know about', 'have we ever discussed', 'i want to find', etc.). FILLER_WORDS as a set: {'the', 'a', 'an', 'is', 'was', 'are', 'were', 'do', 'does', 'did', 'have', 'has', 'had', 'been', 'be', 'will', 'would', 'could', 'should', 'can', 'may', 'might', 'my', 'your', 'our', 'me', 'you', 'we', 'i', 'it', 'its', 'that', 'this', 'what', 'when', 'where', 'which', 'who', 'how', 'any', 'some', 'all', 'about', 'for', 'from', 'with', 'at', 'of', 'in', 'on', 'to', 'and', 'or', 'but', 'not', 'if', 'so', 'up', 'out', 'just', 'also', 'very', 'really', 'please'}. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 2.87,
+      "final_code_lines": 74
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _clean(). Lowercase. For each phrase in TRIGGER_PHRASES: message = message.replace(phrase, ''); message = ' '.join(message.split()). Then split into words, remove any word in FILLER_WORDS. Remove words shorter than 2 characters. Rejoin. Strip punctuation except hyphens. Final whitespace normalize. Return result or empty string.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.81,
+      "final_code_lines": 102
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement execute(). Call _clean(request.message). Return SkillResponse(skill_name=self.name, data={'original': request.message, 'cleaned': cleaned, 'keywords': cleaned.split() if cleaned else []}, summary=f'Extracted search terms: \"{cleaned}\"' if cleaned else 'No meaningful search terms found.', confidence=0.9 if cleaned else 0.3, sources=['extract_search_terms']). try/except.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.32,
+      "final_code_lines": 117
+    },
+    {
+      "pass": 4,
+      "instruction": "Review. No database imports. TRIGGER_PHRASES is comprehensive (30+). FILLER_WORDS covers common English. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.5,
+      "final_code_lines": 120
+    }
+  ]
+}

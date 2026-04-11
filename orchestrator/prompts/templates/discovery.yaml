@@ -1,0 +1,300 @@
+# Layer 2: DISCOVERY Worker Template
+# =====================================
+# Receives PERCEPTION output, fetches relevant data from all sources.
+# This is the "research assistant" — it doesn't think, it gathers.
+#
+# DISCOVERY does NOT generate the final response.
+# It assembles context that STRATEGY and IRIS will use.
+#
+# Architecture: Two sub-workers per query type
+#   1. QUERY BUILDER (LLM) — generates SQL/Cypher from perception output
+#   2. QUERY VALIDATOR (LLM) — reviews query before execution
+#   Then: execute, format results, return structured context package.
+#
+# Model recommendation: qwen2.5:32b @ temp 0.1
+# Target latency: <3s per sub-query (may run multiple in parallel)
+
+meta:
+  node: "DISCOVERY"
+  layer: 2
+  version: "1.0.0"
+  created: "2026-02-25"
+  
+  recommended_model: "qwen2.5:32b"
+  temperature: 0.1
+  num_predict: 2048
+
+  target_latency_ms: 3000
+  max_latency_ms: 8000
+
+# ═══════════════════════════════════════════════════════════════
+# ROUTING TABLE
+# ═══════════════════════════════════════════════════════════════
+# Maps PERCEPTION needs_context flags to data source queries.
+# DISCOVERY reads these flags and runs ONLY the relevant lookups.
+
+routing:
+  financial:
+    sources:
+      - type: postgres
+        description: "Transaction history, bill payments, recurring bills"
+        tables: ["transactions", "bill_payments", "recurring_bills", "bill_overrides", "accounts"]
+        example_queries:
+          - intent: "monthly spending by category"
+            sql: "SELECT category, SUM(amount) as total FROM transactions WHERE date >= NOW() - INTERVAL '1 month' GROUP BY category ORDER BY total DESC"
+          - intent: "grocery spending last month"
+            sql: "SELECT SUM(amount) as total, COUNT(*) as txn_count FROM transactions WHERE category ILIKE '%grocer%' AND date >= NOW() - INTERVAL '1 month'"
+          - intent: "upcoming bills"
+            sql: "SELECT name, amount, due_day FROM recurring_bills WHERE active = true ORDER BY due_day"
+          - intent: "recent large transactions"
+            sql: "SELECT date, description, amount, category FROM transactions ORDER BY ABS(amount) DESC LIMIT 10"
+
+  calendar:
+    sources:
+      - type: postgres
+        description: "Calendar events and schedule"
+        tables: ["calendar_events"]
+        example_queries:
+          - intent: "today's events"
+            sql: "SELECT title, start_time, end_time, description FROM calendar_events WHERE DATE(start_time) = CURRENT_DATE ORDER BY start_time"
+          - intent: "this week's events"
+            sql: "SELECT title, start_time, end_time FROM calendar_events WHERE start_time >= CURRENT_DATE AND start_time < CURRENT_DATE + INTERVAL '7 days' ORDER BY start_time"
+
+  life_data:
+    sources:
+      - type: postgres
+        description: "Life events, routines, check-ins"
+        tables: ["life_events", "routines", "routine_completions", "checkin_log"]
+        example_queries:
+          - intent: "recent life events"
+            sql: "SELECT event_date, title, description FROM life_events ORDER BY event_date DESC LIMIT 10"
+          - intent: "today's routine status"
+            sql: "SELECT r.name, r.frequency, rc.completed_at FROM routines r LEFT JOIN routine_completions rc ON r.id = rc.routine_id AND DATE(rc.completed_at) = CURRENT_DATE"
+
+  conversation_history:
+    sources:
+      - type: postgres
+        description: "Chat messages and voice memos"
+        tables: ["chat_messages", "conversation_segments", "voice_memos", "voice_memo_segments"]
+        example_queries:
+          - intent: "recent conversations"
+            sql: "SELECT timestamp, speaker, content FROM chat_messages ORDER BY timestamp DESC LIMIT 20"
+          - intent: "conversations about a topic"
+            sql: "SELECT cs.title, cs.summary, cs.created_at FROM conversation_segments cs WHERE cs.title ILIKE '%{topic}%' OR cs.summary ILIKE '%{topic}%' ORDER BY cs.created_at DESC LIMIT 5"
+      - type: neo4j
+        description: "Conversation exchanges with themes and concepts"
+        example_queries:
+          - intent: "recent exchanges and themes"
+            cypher: "MATCH (e:Exchange)-[:HAS_THEME]->(t:Theme) RETURN e, t ORDER BY e.timestamp DESC LIMIT 20"
+          - intent: "exchanges about a concept"
+            cypher: "MATCH (e:Exchange)-[:DISCUSSED]->(c:Concept) WHERE c.name =~ '(?i).*{topic}.*' RETURN e, c LIMIT 10"
+
+  cosmology:
+    sources:
+      - type: neo4j
+        description: "Souls, incarnations, lineages, spiritual mechanics"
+        example_queries:
+          - intent: "soul and incarnation data"
+            cypher: "MATCH (s:Soul)-[:INCARNATED_AS]->(i:Incarnation) RETURN s.name, i LIMIT 20"
+          - intent: "lineage chains"
+            cypher: "MATCH (s:Soul)-[:CARRIES_LINEAGE]->(l:Lineage) RETURN s.name, l.name, l"
+          - intent: "Seraphe's lineage"
+            cypher: "MATCH (s:Soul {name: 'Seraphe Valemira'})-[r]-(connected) RETURN s, type(r), connected"
+          - intent: "genealogical connections"
+            cypher: "MATCH (p:GenPerson)-[:CHILD_OF]->(parent:GenPerson) WHERE p.name =~ '(?i).*{name}.*' RETURN p, parent LIMIT 20"
+          - intent: "soul stratigraphy"
+            cypher: "MATCH (s:Soul)-[:HAS_STRATIGRAPHY]->(ss:SoulStratigraphy) RETURN s.name, ss"
+      - type: postgres
+        description: "Astrological chart data"
+        tables: ["astro_natal_charts", "astro_natal_aspects", "astro_chart_points",
+                 "astro_chart_objects", "astro_natal_house_cusps", "astro_dignities",
+                 "astro_retrogrades", "astro_balance", "astro_sect",
+                 "astro_arabic_parts", "astro_geometric_patterns",
+                 "astro_fixed_star_conjunctions", "astro_dispositors",
+                 "astro_chart_ruler", "harmonic_resonance", "harmonic_values"]
+        example_queries:
+          - intent: "natal chart for a person"
+            sql: "SELECT * FROM astro_natal_charts WHERE name ILIKE '%{name}%'"
+          - intent: "aspects for a chart"
+            sql: "SELECT planet1, aspect, planet2, orb, applying FROM astro_natal_aspects WHERE chart_id = {chart_id}"
+
+  technical_system:
+    sources:
+      - type: neo4j
+        description: "System architecture, services, files"
+        example_queries:
+          - intent: "system components"
+            cypher: "MATCH (s:System)-[:RUNS_SERVICE]->(svc:Service) RETURN s.name, svc.name LIMIT 20"
+          - intent: "file structure"
+            cypher: "MATCH (d:Directory)-[:CONTAINS]->(f:File) RETURN d.name, f.name LIMIT 30"
+      - type: filesystem
+        description: "Architecture docs, TODO, patch history"
+        paths:
+          - path: "/opt/mythos/docs/TODO.md"
+            purpose: "Current work status and backlog"
+          - path: "/opt/mythos/docs/ARCHITECTURE.md"
+            purpose: "System architecture reference"
+          - path: "/opt/mythos/docs/PATCH_HISTORY.md"
+            purpose: "Recent patches and changes"
+          - path: "/opt/mythos/docs/EVOLUTION_PLAN.md"
+            purpose: "Development roadmap"
+      - type: command
+        description: "Live system state"
+        commands:
+          - intent: "recent git history"
+            cmd: "cd /opt/mythos && git log --oneline -10"
+          - intent: "recent patches"
+            cmd: "ls -lt /opt/mythos/patches/ | head -10"
+          - intent: "service status"
+            cmd: "systemctl status mythos-bot mythos-patch-monitor --no-pager"
+
+  graph_lookup:
+    sources:
+      - type: neo4j
+        description: "General entity and relationship lookup"
+        example_queries:
+          - intent: "find a person and their connections"
+            cypher: "MATCH (p:Person {name: '{name}'})-[r]-(connected) RETURN p, type(r), connected LIMIT 20"
+          - intent: "grid node status"
+            cypher: "MATCH (g:GridNode) RETURN g.name, properties(g)"
+
+
+# ═══════════════════════════════════════════════════════════════
+# QUERY BUILDER SYSTEM PROMPT
+# ═══════════════════════════════════════════════════════════════
+# Sent to LLM to generate actual queries from perception output.
+
+query_builder_prompt: |
+  You are a query builder. Given a user's message, perception analysis, and available data sources, generate the exact queries needed to fetch relevant context.
+
+  OUTPUT ONLY VALID JSON. No markdown. No explanation.
+
+  ## Output Schema
+
+  {
+    "queries": [
+      {
+        "source_type": "postgres|neo4j|filesystem|command",
+        "intent": "what this query retrieves",
+        "query": "the actual SQL, Cypher, file path, or command",
+        "priority": "critical|helpful|background",
+        "estimated_rows": 0-1000
+      }
+    ]
+  }
+
+  ## Rules
+
+  1. Only generate queries for data sources flagged in needs_context.
+  2. Use the example queries from the routing table as templates.
+  3. For Postgres: use parameterized-style queries. Always include reasonable LIMIT clauses.
+  4. For Neo4j: use Cypher. Match patterns from the schema provided.
+  5. For filesystem: return the exact file path to read.
+  6. For commands: return the exact bash command.
+  7. Mark priority: "critical" = blocks response, "helpful" = enriches response, "background" = nice to have.
+  8. Fewer precise queries beat many broad ones.
+
+  ## Postgres Schema Summary
+
+  Key tables:
+  - transactions (date, description, amount, category) — 1236 rows
+  - bill_payments (bill_name, amount, paid_date) — 119 rows
+  - recurring_bills (name, amount, due_day, active)
+  - calendar_events (title, start_time, end_time, description) — 9 rows
+  - life_events (event_date, title, description) — 24 rows
+  - routines (name, frequency) — 10 rows
+  - chat_messages (timestamp, speaker, content) — 8 rows
+  - conversation_segments (title, summary, created_at) — 15 rows
+  - voice_memo_segments (content, timestamp) — 6600 rows
+  - astro_natal_charts, astro_natal_aspects, astro_chart_points (chart data)
+  - idea_backlog (title, description, priority) — 112 rows
+
+  ## Neo4j Schema Summary
+
+  Node types: Soul (6), Incarnation (3), Person (68), GridNode (9),
+  Exchange (149), Theme (283), Concept (330), Process (446),
+  GenPerson (1490), GenFamily (653), GenPlace (1280), Lineage (2),
+  SoulStratigraphy (2), Chart (6)
+
+  Key relationships: INCARNATED_AS, CURRENTLY_EMBODIED_AS, CARRIES_LINEAGE,
+  HAS_STRATIGRAPHY, HAS_CHART, CHILD_OF, PARENT_OF, SPOUSE_OF,
+  DISCUSSED, HAS_THEME, MENTIONED, BELONGS_TO_FAMILY
+
+
+# ═══════════════════════════════════════════════════════════════
+# QUERY VALIDATOR SYSTEM PROMPT
+# ═══════════════════════════════════════════════════════════════
+# Reviews generated queries before execution.
+
+query_validator_prompt: |
+  You are a query validator. Review the following query for correctness and safety before it is executed against a production database.
+
+  OUTPUT ONLY VALID JSON.
+
+  {
+    "approved": true/false,
+    "issues": ["list of problems found"],
+    "corrected_query": "fixed query if issues found, or null",
+    "risk_level": "safe|caution|dangerous"
+  }
+
+  ## Check for:
+
+  1. SQL injection patterns (DROP, DELETE, UPDATE, ALTER, TRUNCATE — reject unless explicitly requested)
+  2. Missing LIMIT clauses on potentially large result sets
+  3. Invalid table or column names (check against schema summary)
+  4. Malformed Cypher syntax (unclosed parentheses, bad relationship patterns)
+  5. Queries that would return excessive data (>1000 rows without aggregation)
+  6. File paths outside /opt/mythos/ (reject)
+  7. Commands that modify state (reject unless intent is explicitly a write operation)
+
+  ## Auto-corrections:
+
+  - Add LIMIT 50 if missing on SELECT queries
+  - Fix common typos in table/column names
+  - Add ORDER BY if query has LIMIT but no ordering
+
+  If the query is safe, set approved: true and corrected_query: null.
+  If fixable, set approved: true and provide corrected_query.
+  If dangerous, set approved: false.
+
+
+# ═══════════════════════════════════════════════════════════════
+# DISCOVERY OUTPUT SCHEMA
+# ═══════════════════════════════════════════════════════════════
+# What DISCOVERY returns to the pipeline.
+
+output_schema:
+  context_package:
+    description: "Assembled context from all data sources"
+    fields:
+      financial_context:
+        type: "object or null"
+        description: "Transaction summaries, balances, bill status"
+      calendar_context:
+        type: "object or null"
+        description: "Today's events, upcoming schedule"
+      life_context:
+        type: "object or null"
+        description: "Recent life events, routine status"
+      conversation_context:
+        type: "object or null"
+        description: "Relevant past conversations, exchange themes"
+      cosmology_context:
+        type: "object or null"
+        description: "Soul data, lineage info, astrological context"
+      technical_context:
+        type: "object or null"
+        description: "System state, recent patches, architecture info"
+      graph_context:
+        type: "object or null"
+        description: "Entity connections, relationship data"
+      query_log:
+        type: "array"
+        description: "Record of all queries run with timing"
+        items:
+          - source_type: "postgres|neo4j|filesystem|command"
+          - query: "what was run"
+          - elapsed_ms: 0
+          - rows_returned: 0
+          - validated: true/false

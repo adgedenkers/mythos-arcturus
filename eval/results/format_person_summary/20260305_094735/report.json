@@ -1,0 +1,85 @@
+{
+  "plan_id": "format_person_summary",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_094735",
+  "total_passes": 4,
+  "total_ollama_calls": 5,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": true,
+    "errors": [],
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: logging, engine.base. NO database imports. Class with attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 0.76,
+      "final_code_lines": 18
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _format(). Takes a person dict. Build display name from parts: prefix, first_name, middle_name, last_name, suffix (skip None/empty). If known_as exists, append ' (aka KNOWN_AS)'. If date_of_birth: append ', born DATE'. If birth_city or birth_state: append ' in CITY, STATE' (skip if both empty, skip state if same as country). If date_of_death: append ', died DATE'. If notes and len < 100: append '. Notes: NOTES'. Return the complete string.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 2.4,
+      "final_code_lines": 65
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement execute(). Get person from request.parameters.get('person', {}). If empty: return SkillResponse(skill_name=self.name, data={}, summary='No person data to format.', confidence=0.3, sources=[]). Call _format(person). Return SkillResponse(skill_name=self.name, data={'formatted': formatted, 'person_id': person.get('id')}, summary=formatted, confidence=0.95, sources=['format_person_summary']). try/except.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.3,
+      "final_code_lines": 96
+    },
+    {
+      "pass": 4,
+      "instruction": "Review. No database imports. Handles missing fields gracefully. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "data missing 'formatted': []"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 7.23,
+      "final_code_lines": 107
+    }
+  ]
+}

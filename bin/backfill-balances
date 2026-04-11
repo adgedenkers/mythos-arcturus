@@ -1,0 +1,4 @@
+#!/bin/bash
+# backfill-balances — Calculate and fill NULL transaction balances
+# Symlinked to /opt/mythos/bin/backfill-balances
+exec /opt/mythos/.venv/bin/python3 /opt/mythos/finance/scripts/backfill_balances.py "$@"

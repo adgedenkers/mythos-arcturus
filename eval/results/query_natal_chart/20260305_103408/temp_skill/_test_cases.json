@@ -1,0 +1,23 @@
+[
+  {
+    "message": "show me adge natal chart",
+    "expect_ok": true,
+    "expect_data_has": [
+      "placements"
+    ],
+    "expect_summary_contains": [
+      "Sun"
+    ]
+  },
+  {
+    "message": "what sign is seraphe moon",
+    "expect_ok": true,
+    "expect_summary_contains": [
+      "Moon"
+    ]
+  },
+  {
+    "message": "natal chart for someone random",
+    "expect_ok": true
+  }
+]

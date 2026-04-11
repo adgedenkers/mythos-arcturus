@@ -1,0 +1,15 @@
+stream: SYS
+number: 37
+description: finance_dashboard_v2
+patch_type: MINOR
+summary: |
+  New finance dashboard v2 with account cards showing upcoming bills/income,
+  and master/detail bills view with payment history drill-down.
+  Old finance pages remain untouched under existing routes.
+changes:
+  - /opt/mythos/api/routes/finance_dashboard.py: New v2 API endpoints
+  - /opt/mythos/web/frontend/src/pages/finance/DashboardV2.jsx: Accounts overview
+  - /opt/mythos/web/frontend/src/pages/finance/BillsDetailV2.jsx: Bills master/detail
+  - /opt/mythos/web/frontend/src/App.jsx: Add new routes
+  - /opt/mythos/web/frontend/src/layouts/CommandCenter.jsx: Add new nav section
+  - /opt/mythos/api/main.py: Register new router

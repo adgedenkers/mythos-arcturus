@@ -1,0 +1,2438 @@
+{
+  "Chart Metadata": {
+    "Name": "Test Person",
+    "Birth": {
+      "Date": "1990-03-15",
+      "Time": "15:30",
+      "Place": "Syracuse, NY, USA",
+      "Latitude": 43.048122,
+      "Longitude": -76.147424,
+      "Timezone": "America/New_York"
+    },
+    "House System": "Placidus",
+    "Zodiac Type": "Tropical",
+    "Ephemeris": "Swiss Ephemeris",
+    "Ephemeris Path": "/opt/mythos/astrology/ephe",
+    "Included Objects": [
+      "Sun",
+      "Moon",
+      "Mercury",
+      "Venus",
+      "Mars",
+      "Jupiter",
+      "Saturn",
+      "Uranus",
+      "Neptune",
+      "Pluto",
+      "Chiron",
+      "Lilith",
+      "Mean Node",
+      "True Node",
+      "Ceres",
+      "Pallas",
+      "Juno",
+      "Vesta",
+      "Eris",
+      "South Node"
+    ],
+    "Engine Version": "2.1"
+  },
+  "Planetary Positions": {
+    "Sun": {
+      "Longitude": 354.99251,
+      "Latitude": -0.000161,
+      "Distance": 0.99462648,
+      "Speed": 0.995894,
+      "Sign": "Pisces",
+      "DegMin": "24\u00b059'",
+      "Full": "24\u00b059' Pisces",
+      "Retrograde": false,
+      "House": 8
+    },
+    "Moon": {
+      "Longitude": 223.960759,
+      "Latitude": -5.156144,
+      "Distance": 0.00270769,
+      "Speed": 11.887245,
+      "Sign": "Scorpio",
+      "DegMin": "13\u00b057'",
+      "Full": "13\u00b057' Scorpio",
+      "Retrograde": false,
+      "House": 3
+    },
+    "Mercury": {
+      "Longitude": 351.895809,
+      "Latitude": -1.742667,
+      "Distance": 1.36353699,
+      "Speed": 1.917814,
+      "Sign": "Pisces",
+      "DegMin": "21\u00b053'",
+      "Full": "21\u00b053' Pisces",
+      "Retrograde": false,
+      "House": 8
+    },
+    "Venus": {
+      "Longitude": 309.44136,
+      "Latitude": 3.17453,
+      "Distance": 0.56888825,
+      "Speed": 0.860933,
+      "Sign": "Aquarius",
+      "DegMin": "09\u00b026'",
+      "Full": "09\u00b026' Aquarius",
+      "Retrograde": false,
+      "House": 6
+    },
+    "Mars": {
+      "Longitude": 303.103869,
+      "Latitude": -0.960253,
+      "Distance": 1.83865337,
+      "Speed": 0.741297,
+      "Sign": "Aquarius",
+      "DegMin": "03\u00b006'",
+      "Full": "03\u00b006' Aquarius",
+      "Retrograde": false,
+      "House": 6
+    },
+    "Jupiter": {
+      "Longitude": 91.400679,
+      "Latitude": 0.047796,
+      "Distance": 4.97135513,
+      "Speed": 0.060985,
+      "Sign": "Cancer",
+      "DegMin": "01\u00b024'",
+      "Full": "01\u00b024' Cancer",
+      "Retrograde": false,
+      "House": 11
+    },
+    "Saturn": {
+      "Longitude": 293.36239,
+      "Latitude": 0.216873,
+      "Distance": 10.45569201,
+      "Speed": 0.075338,
+      "Sign": "Capricorn",
+      "DegMin": "23\u00b021'",
+      "Full": "23\u00b021' Capricorn",
+      "Retrograde": false,
+      "House": 5
+    },
+    "Uranus": {
+      "Longitude": 279.228349,
+      "Latitude": -0.290954,
+      "Distance": 19.61375924,
+      "Speed": 0.024611,
+      "Sign": "Capricorn",
+      "DegMin": "09\u00b013'",
+      "Full": "09\u00b013' Capricorn",
+      "Retrograde": false,
+      "House": 5
+    },
+    "Neptune": {
+      "Longitude": 284.299307,
+      "Latitude": 0.854176,
+      "Distance": 30.52289667,
+      "Speed": 0.017191,
+      "Sign": "Capricorn",
+      "DegMin": "14\u00b017'",
+      "Full": "14\u00b017' Capricorn",
+      "Retrograde": false,
+      "House": 5
+    },
+    "Pluto": {
+      "Longitude": 227.612505,
+      "Latitude": 15.835412,
+      "Distance": 29.06519324,
+      "Speed": -0.013789,
+      "Sign": "Scorpio",
+      "DegMin": "17\u00b036'",
+      "Full": "17\u00b036' Scorpio",
+      "Retrograde": true,
+      "House": 4
+    },
+    "Chiron": {
+      "Longitude": 100.567659,
+      "Latitude": -6.924343,
+      "Distance": 10.86676485,
+      "Speed": 0.000867,
+      "Sign": "Cancer",
+      "DegMin": "10\u00b034'",
+      "Full": "10\u00b034' Cancer",
+      "Retrograde": false,
+      "House": 11
+    },
+    "Lilith": {
+      "Longitude": 224.683395,
+      "Latitude": -5.145383,
+      "Distance": 0.00271063,
+      "Speed": 0.112057,
+      "Sign": "Scorpio",
+      "DegMin": "14\u00b041'",
+      "Full": "14\u00b041' Scorpio",
+      "Retrograde": false,
+      "House": 3
+    },
+    "Mean Node": {
+      "Longitude": 314.550702,
+      "Latitude": 0.0,
+      "Distance": 0.00256956,
+      "Speed": -0.052966,
+      "Sign": "Aquarius",
+      "DegMin": "14\u00b033'",
+      "Full": "14\u00b033' Aquarius",
+      "Retrograde": true,
+      "House": 6
+    },
+    "True Node": {
+      "Longitude": 315.720109,
+      "Latitude": 0.0,
+      "Distance": 0.00256157,
+      "Speed": -0.103283,
+      "Sign": "Aquarius",
+      "DegMin": "15\u00b043'",
+      "Full": "15\u00b043' Aquarius",
+      "Retrograde": true,
+      "House": 6
+    },
+    "Ceres": {
+      "Longitude": 85.784596,
+      "Latitude": 5.423931,
+      "Distance": 2.39290977,
+      "Speed": 0.2213,
+      "Sign": "Gemini",
+      "DegMin": "25\u00b047'",
+      "Full": "25\u00b047' Gemini",
+      "Retrograde": false,
+      "House": 11
+    },
+    "Pallas": {
+      "Longitude": 27.766442,
+      "Latitude": -21.166681,
+      "Distance": 3.17385936,
+      "Speed": 0.454689,
+      "Sign": "Aries",
+      "DegMin": "27\u00b045'",
+      "Full": "27\u00b045' Aries",
+      "Retrograde": false,
+      "House": 9
+    },
+    "Juno": {
+      "Longitude": 235.078346,
+      "Latitude": 12.157895,
+      "Distance": 2.7070183,
+      "Speed": -0.015216,
+      "Sign": "Scorpio",
+      "DegMin": "25\u00b004'",
+      "Full": "25\u00b004' Scorpio",
+      "Retrograde": true,
+      "House": 4
+    },
+    "Vesta": {
+      "Longitude": 353.319364,
+      "Latitude": -4.694263,
+      "Distance": 3.36379623,
+      "Speed": 0.484543,
+      "Sign": "Pisces",
+      "DegMin": "23\u00b019'",
+      "Full": "23\u00b019' Pisces",
+      "Retrograde": false,
+      "House": 8
+    },
+    "Eris": {
+      "Longitude": 16.665165,
+      "Latitude": -17.243721,
+      "Distance": 98.33614295,
+      "Speed": 0.010325,
+      "Sign": "Aries",
+      "DegMin": "16\u00b039'",
+      "Full": "16\u00b039' Aries",
+      "Retrograde": false,
+      "House": 9
+    },
+    "South Node": {
+      "Longitude": 134.550702,
+      "Latitude": -0.0,
+      "Distance": 0.00256956,
+      "Speed": -0.052966,
+      "Sign": "Leo",
+      "DegMin": "14\u00b033'",
+      "Full": "14\u00b033' Leo",
+      "Retrograde": true,
+      "House": 12
+    }
+  },
+  "House Cusps": {
+    "1": {
+      "Cusp": 144.920578,
+      "Sign": "Leo",
+      "DegMin": "24\u00b055'",
+      "Full": "24\u00b055' Leo"
+    },
+    "2": {
+      "Cusp": 166.745616,
+      "Sign": "Virgo",
+      "DegMin": "16\u00b044'",
+      "Full": "16\u00b044' Virgo"
+    },
+    "3": {
+      "Cusp": 193.92514,
+      "Sign": "Libra",
+      "DegMin": "13\u00b055'",
+      "Full": "13\u00b055' Libra"
+    },
+    "4": {
+      "Cusp": 226.999746,
+      "Sign": "Scorpio",
+      "DegMin": "16\u00b059'",
+      "Full": "16\u00b059' Scorpio"
+    },
+    "5": {
+      "Cusp": 263.043107,
+      "Sign": "Sagittarius",
+      "DegMin": "23\u00b002'",
+      "Full": "23\u00b002' Sagittarius"
+    },
+    "6": {
+      "Cusp": 296.42518,
+      "Sign": "Capricorn",
+      "DegMin": "26\u00b025'",
+      "Full": "26\u00b025' Capricorn"
+    },
+    "7": {
+      "Cusp": 324.920578,
+      "Sign": "Aquarius",
+      "DegMin": "24\u00b055'",
+      "Full": "24\u00b055' Aquarius"
+    },
+    "8": {
+      "Cusp": 346.745616,
+      "Sign": "Pisces",
+      "DegMin": "16\u00b044'",
+      "Full": "16\u00b044' Pisces"
+    },
+    "9": {
+      "Cusp": 13.92514,
+      "Sign": "Aries",
+      "DegMin": "13\u00b055'",
+      "Full": "13\u00b055' Aries"
+    },
+    "10": {
+      "Cusp": 46.999746,
+      "Sign": "Taurus",
+      "DegMin": "16\u00b059'",
+      "Full": "16\u00b059' Taurus"
+    },
+    "11": {
+      "Cusp": 83.043107,
+      "Sign": "Gemini",
+      "DegMin": "23\u00b002'",
+      "Full": "23\u00b002' Gemini"
+    },
+    "12": {
+      "Cusp": 116.42518,
+      "Sign": "Cancer",
+      "DegMin": "26\u00b025'",
+      "Full": "26\u00b025' Cancer"
+    }
+  },
+  "Chart Points (Angles)": {
+    "Ascendant": 144.920578,
+    "Midheaven": 46.999746,
+    "Descendant": 324.920578,
+    "IC": 226.999746,
+    "Vertex": 286.970574,
+    "ARMC": 44.533476
+  },
+  "Aspects": [
+    {
+      "Object 1": "North Node",
+      "Object 2": "South Node",
+      "Aspect": "Opposition",
+      "Angle": 180.0,
+      "Exact Difference": 180.0,
+      "Orb": 0.0,
+      "Tier": "major",
+      "Motion": "Exact (partile)",
+      "Description": "Polarization; reflection and projection; potential for balance or conflict."
+    },
+    {
+      "Object 1": "Ascendant",
+      "Object 2": "Descendant",
+      "Aspect": "Opposition",
+      "Angle": 180.0,
+      "Exact Difference": 180.0,
+      "Orb": 0.0,
+      "Tier": "major",
+      "Motion": "Exact (partile)",
+      "Description": "Polarization; reflection and projection; potential for balance or conflict."
+    },
+    {
+      "Object 1": "MC",
+      "Object 2": "IC",
+      "Aspect": "Opposition",
+      "Angle": 180.0,
+      "Exact Difference": 180.0,
+      "Orb": 0.0,
+      "Tier": "major",
+      "Motion": "Exact (partile)",
+      "Description": "Polarization; reflection and projection; potential for balance or conflict."
+    },
+    {
+      "Object 1": "Saturn",
+      "Object 2": "Vesta",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 59.957,
+      "Orb": 0.043,
+      "Tier": "major",
+      "Motion": "Exact (partile)",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "True Node",
+      "Object 2": "Pallas",
+      "Aspect": "Quintile",
+      "Angle": 72.0,
+      "Exact Difference": 72.0463,
+      "Orb": 0.0463,
+      "Tier": "harmonic",
+      "Motion": "Exact (partile)",
+      "Description": "Creative/talent-driven link; refined skill or artistry."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Ascendant",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 149.9281,
+      "Orb": 0.0719,
+      "Tier": "minor",
+      "Motion": "Exact (partile)",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Descendant",
+      "Aspect": "Semi-sextile",
+      "Angle": 30.0,
+      "Exact Difference": 30.0719,
+      "Orb": 0.0719,
+      "Tier": "minor",
+      "Motion": "Exact (partile)",
+      "Description": "Mildly positive; represents potential growth through minor adjustments."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Juno",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 119.9142,
+      "Orb": 0.0858,
+      "Tier": "major",
+      "Motion": "Exact (partile)",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "Pallas",
+      "Aspect": "Decile",
+      "Angle": 36.0,
+      "Exact Difference": 35.8706,
+      "Orb": 0.1294,
+      "Tier": "harmonic",
+      "Motion": "Exact (partile)",
+      "Description": "Semi-quintile; subtle creativity, finesse and technique."
+    },
+    {
+      "Object 1": "Lilith",
+      "Object 2": "North Node",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 89.8673,
+      "Orb": 0.1327,
+      "Tier": "major",
+      "Motion": "Exact (partile)",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Lilith",
+      "Object 2": "South Node",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 90.1327,
+      "Orb": 0.1327,
+      "Tier": "major",
+      "Motion": "Exact (partile)",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Juno",
+      "Object 2": "Ascendant",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 90.1578,
+      "Orb": 0.1578,
+      "Tier": "major",
+      "Motion": "Exact (partile)",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Juno",
+      "Object 2": "Descendant",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 89.8422,
+      "Orb": 0.1578,
+      "Tier": "major",
+      "Motion": "Exact (partile)",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "True Node",
+      "Aspect": "Decile",
+      "Angle": 36.0,
+      "Exact Difference": 36.1757,
+      "Orb": 0.1757,
+      "Tier": "harmonic",
+      "Motion": "Exact (partile)",
+      "Description": "Semi-quintile; subtle creativity, finesse and technique."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "Pluto",
+      "Aspect": "Septile",
+      "Angle": 51.428571,
+      "Exact Difference": 51.6158,
+      "Orb": 0.1873,
+      "Tier": "harmonic",
+      "Motion": "Exact (partile)",
+      "Description": "Subtle, numinous link; inspiration/obsession, 'fated' vibe."
+    },
+    {
+      "Object 1": "Venus",
+      "Object 2": "Uranus",
+      "Aspect": "Semi-sextile",
+      "Angle": 30.0,
+      "Exact Difference": 30.213,
+      "Orb": 0.213,
+      "Tier": "minor",
+      "Motion": "Exact (partile)",
+      "Description": "Mildly positive; represents potential growth through minor adjustments."
+    },
+    {
+      "Object 1": "Neptune",
+      "Object 2": "North Node",
+      "Aspect": "Semi-sextile",
+      "Angle": 30.0,
+      "Exact Difference": 30.2514,
+      "Orb": 0.2514,
+      "Tier": "minor",
+      "Motion": "Exact (partile)",
+      "Description": "Mildly positive; represents potential growth through minor adjustments."
+    },
+    {
+      "Object 1": "Neptune",
+      "Object 2": "South Node",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 149.7486,
+      "Orb": 0.2514,
+      "Tier": "minor",
+      "Motion": "Exact (partile)",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "Eris",
+      "Object 2": "Descendant",
+      "Aspect": "Septile",
+      "Angle": 51.428571,
+      "Exact Difference": 51.7446,
+      "Orb": 0.316,
+      "Tier": "harmonic",
+      "Motion": "Exact (partile)",
+      "Description": "Subtle, numinous link; inspiration/obsession, 'fated' vibe."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "Juno",
+      "Aspect": "Biquintile",
+      "Angle": 144.0,
+      "Exact Difference": 143.6777,
+      "Orb": 0.3223,
+      "Tier": "harmonic",
+      "Motion": "Exact (partile)",
+      "Description": "Harmonic creative flow; specialized talents or genius-level expression."
+    },
+    {
+      "Object 1": "Eris",
+      "Object 2": "MC",
+      "Aspect": "Semi-sextile",
+      "Angle": 30.0,
+      "Exact Difference": 30.3346,
+      "Orb": 0.3346,
+      "Tier": "minor",
+      "Motion": "Exact (partile)",
+      "Description": "Mildly positive; represents potential growth through minor adjustments."
+    },
+    {
+      "Object 1": "Eris",
+      "Object 2": "IC",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 149.6654,
+      "Orb": 0.3346,
+      "Tier": "minor",
+      "Motion": "Exact (partile)",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "Neptune",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 60.3385,
+      "Orb": 0.3385,
+      "Tier": "major",
+      "Motion": "Exact (partile)",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Neptune",
+      "Object 2": "Lilith",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 59.6159,
+      "Orb": 0.3841,
+      "Tier": "major",
+      "Motion": "Exact (partile)",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Mars",
+      "Aspect": "Septile",
+      "Angle": 51.428571,
+      "Exact Difference": 51.8886,
+      "Orb": 0.4601,
+      "Tier": "harmonic",
+      "Motion": "Exact (partile)",
+      "Description": "Subtle, numinous link; inspiration/obsession, 'fated' vibe."
+    },
+    {
+      "Object 1": "Venus",
+      "Object 2": "Ascendant",
+      "Aspect": "Quindecile",
+      "Angle": 165.0,
+      "Exact Difference": 164.5208,
+      "Orb": 0.4792,
+      "Tier": "harmonic",
+      "Motion": "Exact (partile)",
+      "Description": "Intense focus/compulsion; persistent drive toward integration."
+    },
+    {
+      "Object 1": "Chiron",
+      "Object 2": "Juno",
+      "Aspect": "Sesquiquadrate",
+      "Angle": 135.0,
+      "Exact Difference": 134.5107,
+      "Orb": 0.4893,
+      "Tier": "minor",
+      "Motion": "Exact (partile)",
+      "Description": "Minor challenging aspect; irritations that require discipline."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "True Node",
+      "Aspect": "Decile",
+      "Angle": 36.0,
+      "Exact Difference": 36.4918,
+      "Orb": 0.4918,
+      "Tier": "harmonic",
+      "Motion": "Exact (partile)",
+      "Description": "Semi-quintile; subtle creativity, finesse and technique."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "Pallas",
+      "Aspect": "Tridecile",
+      "Angle": 108.0,
+      "Exact Difference": 108.5381,
+      "Orb": 0.5381,
+      "Tier": "harmonic",
+      "Motion": "Separating",
+      "Description": "Quintile family; inventive, elegant problem solving."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Venus",
+      "Aspect": "Semi-square",
+      "Angle": 45.0,
+      "Exact Difference": 45.5512,
+      "Orb": 0.5512,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "MC",
+      "Aspect": "Septile",
+      "Angle": 51.428571,
+      "Exact Difference": 52.0072,
+      "Orb": 0.5787,
+      "Tier": "harmonic",
+      "Motion": "Applying",
+      "Description": "Subtle, numinous link; inspiration/obsession, 'fated' vibe."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "North Node",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 90.5899,
+      "Orb": 0.5899,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "South Node",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 89.4101,
+      "Orb": 0.5899,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "MC",
+      "Aspect": "Semi-square",
+      "Angle": 45.0,
+      "Exact Difference": 44.4009,
+      "Orb": 0.5991,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "IC",
+      "Aspect": "Sesquiquadrate",
+      "Angle": 135.0,
+      "Exact Difference": 135.5991,
+      "Orb": 0.5991,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor challenging aspect; irritations that require discipline."
+    },
+    {
+      "Object 1": "Neptune",
+      "Object 2": "Pallas",
+      "Aspect": "Biseptile",
+      "Angle": 102.857143,
+      "Exact Difference": 103.4671,
+      "Orb": 0.61,
+      "Tier": "harmonic",
+      "Motion": "Separating",
+      "Description": "Septile family; unusual timing/synchrony, creative compulsion."
+    },
+    {
+      "Object 1": "Pluto",
+      "Object 2": "MC",
+      "Aspect": "Opposition",
+      "Angle": 180.0,
+      "Exact Difference": 179.3872,
+      "Orb": 0.6128,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Polarization; reflection and projection; potential for balance or conflict."
+    },
+    {
+      "Object 1": "Pluto",
+      "Object 2": "IC",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 0.6128,
+      "Orb": 0.6128,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Chiron",
+      "Object 2": "Ascendant",
+      "Aspect": "Semi-square",
+      "Angle": 45.0,
+      "Exact Difference": 44.3529,
+      "Orb": 0.6471,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
+    },
+    {
+      "Object 1": "Chiron",
+      "Object 2": "Descendant",
+      "Aspect": "Sesquiquadrate",
+      "Angle": 135.0,
+      "Exact Difference": 135.6471,
+      "Orb": 0.6471,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor challenging aspect; irritations that require discipline."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "Uranus",
+      "Aspect": "Quintile",
+      "Angle": 72.0,
+      "Exact Difference": 72.6675,
+      "Orb": 0.6675,
+      "Tier": "harmonic",
+      "Motion": "Applying",
+      "Description": "Creative/talent-driven link; refined skill or artistry."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "Chiron",
+      "Aspect": "Tridecile",
+      "Angle": 108.0,
+      "Exact Difference": 108.6719,
+      "Orb": 0.6719,
+      "Tier": "harmonic",
+      "Motion": "Applying",
+      "Description": "Quintile family; inventive, elegant problem solving."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "North Node",
+      "Aspect": "Decile",
+      "Angle": 36.0,
+      "Exact Difference": 35.3224,
+      "Orb": 0.6776,
+      "Tier": "harmonic",
+      "Motion": "Separating",
+      "Description": "Semi-quintile; subtle creativity, finesse and technique."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "South Node",
+      "Aspect": "Biquintile",
+      "Angle": 144.0,
+      "Exact Difference": 144.6776,
+      "Orb": 0.6776,
+      "Tier": "harmonic",
+      "Motion": "Separating",
+      "Description": "Harmonic creative flow; specialized talents or genius-level expression."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "True Node",
+      "Aspect": "Sesquiquadrate",
+      "Angle": 135.0,
+      "Exact Difference": 135.6806,
+      "Orb": 0.6806,
+      "Tier": "minor",
+      "Motion": "Separating",
+      "Description": "Minor challenging aspect; irritations that require discipline."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "Ascendant",
+      "Aspect": "Sesquiquadrate",
+      "Angle": 135.0,
+      "Exact Difference": 134.3078,
+      "Orb": 0.6922,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor challenging aspect; irritations that require discipline."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "Descendant",
+      "Aspect": "Semi-square",
+      "Angle": 45.0,
+      "Exact Difference": 45.6922,
+      "Orb": 0.6922,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
+    },
+    {
+      "Object 1": "Ceres",
+      "Object 2": "Juno",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 149.2938,
+      "Orb": 0.7062,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "Lilith",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 0.7226,
+      "Orb": 0.7226,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Chiron",
+      "Object 2": "Vesta",
+      "Aspect": "Tridecile",
+      "Angle": 108.0,
+      "Exact Difference": 107.2483,
+      "Orb": 0.7517,
+      "Tier": "harmonic",
+      "Motion": "Separating",
+      "Description": "Quintile family; inventive, elegant problem solving."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Ceres",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 90.7921,
+      "Orb": 0.7921,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "IC",
+      "Aspect": "Septile",
+      "Angle": 51.428571,
+      "Exact Difference": 52.2286,
+      "Orb": 0.8,
+      "Tier": "harmonic",
+      "Motion": "Applying",
+      "Description": "Subtle, numinous link; inspiration/obsession, 'fated' vibe."
+    },
+    {
+      "Object 1": "Chiron",
+      "Object 2": "Pallas",
+      "Aspect": "Quintile",
+      "Angle": 72.0,
+      "Exact Difference": 72.8012,
+      "Orb": 0.8012,
+      "Tier": "harmonic",
+      "Motion": "Separating",
+      "Description": "Creative/talent-driven link; refined skill or artistry."
+    },
+    {
+      "Object 1": "Chiron",
+      "Object 2": "True Node",
+      "Aspect": "Biquintile",
+      "Angle": 144.0,
+      "Exact Difference": 144.8476,
+      "Orb": 0.8476,
+      "Tier": "harmonic",
+      "Motion": "Separating",
+      "Description": "Harmonic creative flow; specialized talents or genius-level expression."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "Juno",
+      "Aspect": "Semi-square",
+      "Angle": 45.0,
+      "Exact Difference": 44.15,
+      "Orb": 0.85,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
+    },
+    {
+      "Object 1": "Ceres",
+      "Object 2": "Ascendant",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 59.136,
+      "Orb": 0.864,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Ceres",
+      "Object 2": "Descendant",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 120.864,
+      "Orb": 0.864,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "True Node",
+      "Object 2": "Eris",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 60.9451,
+      "Orb": 0.9451,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Pluto",
+      "Object 2": "Eris",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 149.0527,
+      "Orb": 0.9473,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "Lilith",
+      "Object 2": "True Node",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 91.0367,
+      "Orb": 1.0367,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Venus",
+      "Object 2": "Vesta",
+      "Aspect": "Semi-square",
+      "Angle": 45.0,
+      "Exact Difference": 43.878,
+      "Orb": 1.122,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
+    },
+    {
+      "Object 1": "Venus",
+      "Object 2": "Chiron",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 151.1263,
+      "Orb": 1.1263,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "North Node",
+      "Object 2": "True Node",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 1.1694,
+      "Orb": 1.1694,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "True Node",
+      "Object 2": "South Node",
+      "Aspect": "Opposition",
+      "Angle": 180.0,
+      "Exact Difference": 178.8306,
+      "Orb": 1.1694,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Polarization; reflection and projection; potential for balance or conflict."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "Pallas",
+      "Aspect": "Quindecile",
+      "Angle": 165.0,
+      "Exact Difference": 163.8057,
+      "Orb": 1.1943,
+      "Tier": "harmonic",
+      "Motion": "Applying",
+      "Description": "Intense focus/compulsion; persistent drive toward integration."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "Pluto",
+      "Aspect": "Sesquiquadrate",
+      "Angle": 135.0,
+      "Exact Difference": 136.2118,
+      "Orb": 1.2118,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor challenging aspect; irritations that require discipline."
+    },
+    {
+      "Object 1": "North Node",
+      "Object 2": "Pallas",
+      "Aspect": "Quintile",
+      "Angle": 72.0,
+      "Exact Difference": 73.2157,
+      "Orb": 1.2157,
+      "Tier": "harmonic",
+      "Motion": "Separating",
+      "Description": "Creative/talent-driven link; refined skill or artistry."
+    },
+    {
+      "Object 1": "True Node",
+      "Object 2": "MC",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 91.2796,
+      "Orb": 1.2796,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "True Node",
+      "Object 2": "IC",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 88.7204,
+      "Orb": 1.2796,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Neptune",
+      "Aspect": "Quintile",
+      "Angle": 72.0,
+      "Exact Difference": 70.6932,
+      "Orb": 1.3068,
+      "Tier": "harmonic",
+      "Motion": "Applying",
+      "Description": "Creative/talent-driven link; refined skill or artistry."
+    },
+    {
+      "Object 1": "Mars",
+      "Object 2": "Ceres",
+      "Aspect": "Biquintile",
+      "Angle": 144.0,
+      "Exact Difference": 142.6807,
+      "Orb": 1.3193,
+      "Tier": "harmonic",
+      "Motion": "Applying",
+      "Description": "Harmonic creative flow; specialized talents or genius-level expression."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "Chiron",
+      "Aspect": "Opposition",
+      "Angle": 180.0,
+      "Exact Difference": 178.6607,
+      "Orb": 1.3393,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Polarization; reflection and projection; potential for balance or conflict."
+    },
+    {
+      "Object 1": "Venus",
+      "Object 2": "Ceres",
+      "Aspect": "Sesquiquadrate",
+      "Angle": 135.0,
+      "Exact Difference": 136.3432,
+      "Orb": 1.3432,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor challenging aspect; irritations that require discipline."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "South Node",
+      "Aspect": "Biquintile",
+      "Angle": 144.0,
+      "Exact Difference": 142.6549,
+      "Orb": 1.3451,
+      "Tier": "harmonic",
+      "Motion": "Applying",
+      "Description": "Harmonic creative flow; specialized talents or genius-level expression."
+    },
+    {
+      "Object 1": "Neptune",
+      "Object 2": "True Node",
+      "Aspect": "Semi-sextile",
+      "Angle": 30.0,
+      "Exact Difference": 31.4208,
+      "Orb": 1.4208,
+      "Tier": "minor",
+      "Motion": "Separating",
+      "Description": "Mildly positive; represents potential growth through minor adjustments."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "Vesta",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 1.4236,
+      "Orb": 1.4236,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "Saturn",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 58.5334,
+      "Orb": 1.4666,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Saturn",
+      "Object 2": "Ascendant",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 148.4418,
+      "Orb": 1.5582,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "Saturn",
+      "Object 2": "Descendant",
+      "Aspect": "Semi-sextile",
+      "Angle": 30.0,
+      "Exact Difference": 31.5582,
+      "Orb": 1.5582,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Mildly positive; represents potential growth through minor adjustments."
+    },
+    {
+      "Object 1": "Mars",
+      "Object 2": "Eris",
+      "Aspect": "Quintile",
+      "Angle": 72.0,
+      "Exact Difference": 73.5613,
+      "Orb": 1.5613,
+      "Tier": "harmonic",
+      "Motion": "Applying",
+      "Description": "Creative/talent-driven link; refined skill or artistry."
+    },
+    {
+      "Object 1": "Vesta",
+      "Object 2": "Ascendant",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 151.6012,
+      "Orb": 1.6012,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "Vesta",
+      "Object 2": "Descendant",
+      "Aspect": "Semi-sextile",
+      "Angle": 30.0,
+      "Exact Difference": 28.3988,
+      "Orb": 1.6012,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Mildly positive; represents potential growth through minor adjustments."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Saturn",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 61.6301,
+      "Orb": 1.6301,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Vesta",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 1.6731,
+      "Orb": 1.6731,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Mars",
+      "Object 2": "Jupiter",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 148.2968,
+      "Orb": 1.7032,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "Saturn",
+      "Object 2": "Juno",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 58.284,
+      "Orb": 1.716,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "Lilith",
+      "Aspect": "Sesquiquadrate",
+      "Angle": 135.0,
+      "Exact Difference": 133.2827,
+      "Orb": 1.7173,
+      "Tier": "minor",
+      "Motion": "Separating",
+      "Description": "Minor challenging aspect; irritations that require discipline."
+    },
+    {
+      "Object 1": "Juno",
+      "Object 2": "Vesta",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 118.241,
+      "Orb": 1.759,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "True Node",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 91.7593,
+      "Orb": 1.7593,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "North Node",
+      "Aspect": "Sesquiquadrate",
+      "Angle": 135.0,
+      "Exact Difference": 136.85,
+      "Orb": 1.85,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor challenging aspect; irritations that require discipline."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "South Node",
+      "Aspect": "Semi-square",
+      "Angle": 45.0,
+      "Exact Difference": 43.15,
+      "Orb": 1.85,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Minor tension; encourages action through subtle challenge. (Also called Octile.)"
+    },
+    {
+      "Object 1": "Pluto",
+      "Object 2": "True Node",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 88.1076,
+      "Orb": 1.8924,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Lilith",
+      "Object 2": "Eris",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 151.9818,
+      "Orb": 1.9818,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "Ceres",
+      "Object 2": "Pallas",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 58.0182,
+      "Orb": 1.9818,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "North Node",
+      "Object 2": "Eris",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 62.1145,
+      "Orb": 2.1145,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Eris",
+      "Object 2": "South Node",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 117.8855,
+      "Orb": 2.1145,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Lilith",
+      "Object 2": "MC",
+      "Aspect": "Opposition",
+      "Angle": 180.0,
+      "Exact Difference": 177.6836,
+      "Orb": 2.3164,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Polarization; reflection and projection; potential for balance or conflict."
+    },
+    {
+      "Object 1": "Lilith",
+      "Object 2": "IC",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 2.3164,
+      "Orb": 2.3164,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Neptune",
+      "Object 2": "Eris",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 92.3659,
+      "Orb": 2.3659,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Saturn",
+      "Object 2": "Ceres",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 152.4222,
+      "Orb": 2.4222,
+      "Tier": "minor",
+      "Motion": "Separating",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "North Node",
+      "Object 2": "MC",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 92.449,
+      "Orb": 2.449,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "North Node",
+      "Object 2": "IC",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 87.551,
+      "Orb": 2.449,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "South Node",
+      "Object 2": "MC",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 87.551,
+      "Orb": 2.449,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "South Node",
+      "Object 2": "IC",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 92.449,
+      "Orb": 2.449,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Ceres",
+      "Object 2": "Vesta",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 92.4652,
+      "Orb": 2.4652,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Pallas",
+      "Object 2": "Juno",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 152.6881,
+      "Orb": 2.6881,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "Neptune",
+      "Object 2": "MC",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 122.7004,
+      "Orb": 2.7004,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Neptune",
+      "Object 2": "IC",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 57.2996,
+      "Orb": 2.7004,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "Eris",
+      "Aspect": "Quincunx",
+      "Angle": 150.0,
+      "Exact Difference": 152.7044,
+      "Orb": 2.7044,
+      "Tier": "minor",
+      "Motion": "Applying",
+      "Description": "Adjustment aspect; incongruent energies that must compromise or shift."
+    },
+    {
+      "Object 1": "Pallas",
+      "Object 2": "Ascendant",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 117.1541,
+      "Orb": 2.8459,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Pallas",
+      "Object 2": "Descendant",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 62.8459,
+      "Orb": 2.8459,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Pluto",
+      "Object 2": "Lilith",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 2.9291,
+      "Orb": 2.9291,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "MC",
+      "Aspect": "Opposition",
+      "Angle": 180.0,
+      "Exact Difference": 176.961,
+      "Orb": 3.039,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Polarization; reflection and projection; potential for balance or conflict."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "IC",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 3.039,
+      "Orb": 3.039,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Pluto",
+      "Object 2": "North Node",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 86.9382,
+      "Orb": 3.0618,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Pluto",
+      "Object 2": "South Node",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 93.0618,
+      "Orb": 3.0618,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Mercury",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 3.0967,
+      "Orb": 3.0967,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "Juno",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 116.8175,
+      "Orb": 3.1825,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Neptune",
+      "Object 2": "Pluto",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 56.6868,
+      "Orb": 3.3132,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "Chiron",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 123.3931,
+      "Orb": 3.3931,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "Pallas",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 63.6342,
+      "Orb": 3.6342,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "Pluto",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 3.6517,
+      "Orb": 3.6517,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Neptune",
+      "Object 2": "Chiron",
+      "Aspect": "Opposition",
+      "Angle": 180.0,
+      "Exact Difference": 176.2684,
+      "Orb": 3.7316,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Polarization; reflection and projection; potential for balance or conflict."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "Ceres",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 93.8888,
+      "Orb": 3.8888,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Chiron",
+      "Object 2": "Lilith",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 124.1157,
+      "Orb": 4.1157,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "Pluto",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 124.2833,
+      "Orb": 4.2833,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Saturn",
+      "Object 2": "Pallas",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 94.4041,
+      "Orb": 4.4041,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "Venus",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 85.4806,
+      "Orb": 4.5194,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "Uranus",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 55.2676,
+      "Orb": 4.7324,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "MC",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 55.1039,
+      "Orb": 4.8961,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "IC",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 124.8961,
+      "Orb": 4.8961,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "Neptune",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 5.071,
+      "Orb": 5.071,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Venus",
+      "Object 2": "North Node",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 5.1093,
+      "Orb": 5.1093,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Venus",
+      "Object 2": "South Node",
+      "Aspect": "Opposition",
+      "Angle": 180.0,
+      "Exact Difference": 174.8907,
+      "Orb": 5.1093,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Polarization; reflection and projection; potential for balance or conflict."
+    },
+    {
+      "Object 1": "Venus",
+      "Object 2": "Lilith",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 84.758,
+      "Orb": 5.242,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Mars",
+      "Object 2": "Pallas",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 84.6626,
+      "Orb": 5.3374,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "Lilith",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 54.545,
+      "Orb": 5.455,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "Ceres",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 5.6161,
+      "Orb": 5.6161,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Pluto",
+      "Object 2": "Vesta",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 125.7069,
+      "Orb": 5.7069,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Saturn",
+      "Object 2": "Pluto",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 65.7499,
+      "Orb": 5.7499,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Chiron",
+      "Object 2": "Eris",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 83.9025,
+      "Orb": 6.0975,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Venus",
+      "Object 2": "True Node",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 6.2787,
+      "Orb": 6.2787,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Vesta",
+      "Object 2": "MC",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 53.6804,
+      "Orb": 6.3196,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Vesta",
+      "Object 2": "IC",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 126.3196,
+      "Orb": 6.3196,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Venus",
+      "Object 2": "Mars",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 6.3375,
+      "Orb": 6.3375,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Saturn",
+      "Object 2": "MC",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 113.6374,
+      "Orb": 6.3626,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Saturn",
+      "Object 2": "IC",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 66.3626,
+      "Orb": 6.3626,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Jupiter",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 96.4082,
+      "Orb": 6.4082,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Chiron",
+      "Object 2": "MC",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 53.5679,
+      "Orb": 6.4321,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Chiron",
+      "Object 2": "IC",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 126.4321,
+      "Orb": 6.4321,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "Ascendant",
+      "Aspect": "Sextile",
+      "Angle": 60.0,
+      "Exact Difference": 53.5199,
+      "Orb": 6.4801,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Easy flow of energy; opportunities that require initiative."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "Descendant",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 126.4801,
+      "Orb": 6.4801,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Saturn",
+      "Object 2": "Eris",
+      "Aspect": "Square",
+      "Angle": 90.0,
+      "Exact Difference": 83.3028,
+      "Orb": 6.6972,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Dynamic tension; challenges that drive growth and confrontation."
+    },
+    {
+      "Object 1": "Pluto",
+      "Object 2": "Chiron",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 127.0448,
+      "Orb": 7.0448,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Mercury",
+      "Object 2": "Lilith",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 127.2124,
+      "Orb": 7.2124,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "Pluto",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 127.38,
+      "Orb": 7.38,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Pluto",
+      "Object 2": "Juno",
+      "Aspect": "Conjunction",
+      "Angle": 0.0,
+      "Exact Difference": 7.4658,
+      "Orb": 7.4658,
+      "Tier": "major",
+      "Motion": "Separating",
+      "Description": "Merges energies; very powerful; can be harmonious or conflicting depending on planets involved."
+    },
+    {
+      "Object 1": "Uranus",
+      "Object 2": "MC",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 127.7714,
+      "Orb": 7.7714,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Jupiter",
+      "Object 2": "Uranus",
+      "Aspect": "Opposition",
+      "Angle": 180.0,
+      "Exact Difference": 172.1723,
+      "Orb": 7.8277,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Polarization; reflection and projection; potential for balance or conflict."
+    },
+    {
+      "Object 1": "Moon",
+      "Object 2": "Mercury",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 127.935,
+      "Orb": 7.935,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    },
+    {
+      "Object 1": "Sun",
+      "Object 2": "IC",
+      "Aspect": "Trine",
+      "Angle": 120.0,
+      "Exact Difference": 127.9928,
+      "Orb": 7.9928,
+      "Tier": "major",
+      "Motion": "Applying",
+      "Description": "Harmonious and easy energy exchange; talents and natural flows."
+    }
+  ],
+  "Geometric Patterns": [
+    {
+      "Type": "T-Square",
+      "Points": [
+        "Moon",
+        "South Node",
+        "Venus"
+      ],
+      "Aspects": [
+        "Venus-South Node (Opposition)",
+        "Venus-Moon (Square)",
+        "South Node-Moon (Square)"
+      ]
+    },
+    {
+      "Type": "T-Square",
+      "Points": [
+        "Pluto",
+        "South Node",
+        "Venus"
+      ],
+      "Aspects": [
+        "Venus-South Node (Opposition)",
+        "Venus-Pluto (Square)",
+        "South Node-Pluto (Square)"
+      ]
+    },
+    {
+      "Type": "Yod",
+      "Points": [
+        "Ascendant",
+        "Saturn",
+        "Sun"
+      ],
+      "Apex": "Ascendant"
+    }
+  ],
+  "Fixed Star Conjunctions": [
+    {
+      "Object": "Vesta",
+      "Object_Longitude": 353.3194,
+      "Star": "Markab",
+      "Star_Longitude": 353.3601,
+      "Star_J2000": 353.497,
+      "Magnitude": 2.49,
+      "Constellation": "Pegasus",
+      "Orb": 0.0408,
+      "Significance": "Sorrow, destructiveness; spiritual guidance through trials"
+    }
+  ],
+  "Arabic Parts": {
+    "Part of Fortune": {
+      "Longitude": 13.888827,
+      "Sign": "Aries",
+      "DegMin": "13\u00b053'",
+      "Full": "13\u00b053' Aries",
+      "House": 8,
+      "Formula": "ASC + Moon - Sun (day)"
+    },
+    "Part of Spirit": {
+      "Longitude": 275.952329,
+      "Sign": "Capricorn",
+      "DegMin": "05\u00b057'",
+      "Full": "05\u00b057' Capricorn",
+      "House": 5,
+      "Formula": "ASC + Sun - Moon (day)"
+    },
+    "Part of Eros": {
+      "Longitude": 178.409609,
+      "Sign": "Virgo",
+      "DegMin": "28\u00b024'",
+      "Full": "28\u00b024' Virgo",
+      "House": 2,
+      "Formula": "ASC + Venus - Part of Spirit"
+    },
+    "Part of Marriage": {
+      "Longitude": 160.399796,
+      "Sign": "Virgo",
+      "DegMin": "10\u00b023'",
+      "Full": "10\u00b023' Virgo",
+      "House": 1,
+      "Formula": "ASC + DSC - Venus"
+    },
+    "Part of Death": {
+      "Longitude": 267.705435,
+      "Sign": "Sagittarius",
+      "DegMin": "27\u00b042'",
+      "Full": "27\u00b042' Sagittarius",
+      "House": 5,
+      "Formula": "ASC + 8th cusp - Moon"
+    },
+    "Part of Commerce": {
+      "Longitude": 141.823877,
+      "Sign": "Leo",
+      "DegMin": "21\u00b049'",
+      "Full": "21\u00b049' Leo",
+      "House": 12,
+      "Formula": "ASC + Mercury - Sun"
+    },
+    "Part of Courage": {
+      "Longitude": 74.13562,
+      "Sign": "Gemini",
+      "DegMin": "14\u00b008'",
+      "Full": "14\u00b008' Gemini",
+      "House": 10,
+      "Formula": "ASC + Mars - Part of Fortune"
+    },
+    "Part of Fatality": {
+      "Longitude": 83.290458,
+      "Sign": "Gemini",
+      "DegMin": "23\u00b017'",
+      "Full": "23\u00b017' Gemini",
+      "House": 11,
+      "Formula": "ASC + Saturn - Sun"
+    },
+    "Part of Passion": {
+      "Longitude": 93.031937,
+      "Sign": "Cancer",
+      "DegMin": "03\u00b001'",
+      "Full": "03\u00b001' Cancer",
+      "House": 11,
+      "Formula": "ASC + Mars - Sun"
+    }
+  },
+  "Essential Dignities": {
+    "Sun": {
+      "Status": [
+        "Peregrine"
+      ],
+      "Sign": "Pisces"
+    },
+    "Moon": {
+      "Status": [
+        "Fall"
+      ],
+      "Sign": "Scorpio"
+    },
+    "Mercury": {
+      "Status": [
+        "Detriment",
+        "Fall"
+      ],
+      "Sign": "Pisces"
+    },
+    "Venus": {
+      "Status": [
+        "Peregrine"
+      ],
+      "Sign": "Aquarius"
+    },
+    "Mars": {
+      "Status": [
+        "Peregrine"
+      ],
+      "Sign": "Aquarius"
+    },
+    "Jupiter": {
+      "Status": [
+        "Exaltation"
+      ],
+      "Sign": "Cancer"
+    },
+    "Saturn": {
+      "Status": [
+        "Domicile"
+      ],
+      "Sign": "Capricorn"
+    }
+  },
+  "Sect": {
+    "Sect": "Day",
+    "Sect Light": "Sun",
+    "Sect Benefic": "Jupiter",
+    "Sect Malefic": "Saturn",
+    "Contra Light": "Moon",
+    "Contra Benefic": "Venus",
+    "Contra Malefic": "Mars"
+  },
+  "Chart Ruler": {
+    "Ascendant Sign": "Leo",
+    "Traditional Ruler": "Sun",
+    "Traditional Ruler Sign": "Pisces",
+    "Traditional Ruler House": 8
+  },
+  "Dispositor Chain": {
+    "Chain": {
+      "Sun": "Jupiter",
+      "Moon": "Mars",
+      "Mercury": "Jupiter",
+      "Venus": "Saturn",
+      "Mars": "Saturn",
+      "Jupiter": "Moon",
+      "Saturn": "Saturn",
+      "Uranus": "Saturn",
+      "Neptune": "Saturn",
+      "Pluto": "Mars"
+    },
+    "Final Dispositors": [
+      "Saturn"
+    ],
+    "Mutual Receptions": [],
+    "Circular Loops": [],
+    "Classical Mutual Receptions": [],
+    "Modern Mutual Receptions": []
+  },
+  "Balance": {
+    "Elements": {
+      "Fire": 1,
+      "Earth": 4,
+      "Air": 2,
+      "Water": 5
+    },
+    "Dominant Element": "Water",
+    "Modalities": {
+      "Cardinal": 4,
+      "Fixed": 6,
+      "Mutable": 2
+    },
+    "Dominant Modality": "Fixed",
+    "Polarities": {
+      "Positive": 3,
+      "Negative": 9
+    },
+    "Dominant Polarity": "Negative"
+  },
+  "Retrograde Bodies": [
+    {
+      "Object": "Pluto",
+      "Sign": "Scorpio",
+      "House": 4,
+      "Longitude": 227.612505
+    },
+    {
+      "Object": "Mean Node",
+      "Sign": "Aquarius",
+      "House": 6,
+      "Longitude": 314.550702
+    },
+    {
+      "Object": "True Node",
+      "Sign": "Aquarius",
+      "House": 6,
+      "Longitude": 315.720109
+    },
+    {
+      "Object": "Juno",
+      "Sign": "Scorpio",
+      "House": 4,
+      "Longitude": 235.078346
+    },
+    {
+      "Object": "South Node",
+      "Sign": "Leo",
+      "House": 12,
+      "Longitude": 134.550702
+    }
+  ],
+  "Geometry Audit": {
+    "Grand Trine": {
+      "expected_count": 0,
+      "detected_count": 0,
+      "status": "OK",
+      "missing": [],
+      "extra": []
+    },
+    "T-Square": {
+      "expected_count": 1,
+      "detected_count": 2,
+      "status": "EXTRA",
+      "missing": [],
+      "extra": [
+        [
+          "Pluto",
+          "South Node",
+          "Venus"
+        ]
+      ]
+    },
+    "Yod": {
+      "expected_count": 1,
+      "detected_count": 1,
+      "status": "OK",
+      "missing": [],
+      "extra": []
+    },
+    "Kite": {
+      "expected_count": 0,
+      "detected_count": 0,
+      "status": "OK",
+      "missing": [],
+      "extra": []
+    },
+    "Mystic Rectangle": {
+      "expected_count": 0,
+      "detected_count": 0,
+      "status": "OK",
+      "missing": [],
+      "extra": []
+    },
+    "Boomerang": {
+      "expected_count": 0,
+      "detected_count": 0,
+      "status": "OK",
+      "missing": [],
+      "extra": []
+    },
+    "Cradle": {
+      "expected_count": 0,
+      "detected_count": 0,
+      "status": "OK",
+      "missing": [],
+      "extra": []
+    },
+    "Star of David": {
+      "expected_count": 0,
+      "detected_count": 0,
+      "status": "OK",
+      "missing": [],
+      "extra": []
+    }
+  }
+}

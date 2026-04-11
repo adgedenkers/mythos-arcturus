@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDIP — Sovereign Document Intelligence Platform | Denkers Co.</title>
+  <meta name="description" content="SDIP ingests, chunks, classifies, and graph-maps your documents — entirely on your hardware. No cloud APIs, no data leakage, full operational sovereignty.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+3:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--dc-slate-950:#0C0F14;--dc-slate-900:#141820;--dc-slate-800:#1E2430;--dc-slate-700:#2A3242;--dc-slate-600:#3D4758;--dc-slate-500:#566275;--dc-slate-400:#768494;--dc-slate-300:#9CA6B4;--dc-slate-200:#C4CAD2;--dc-slate-100:#E3E6EA;--dc-slate-50:#F3F4F6;--dc-sg:#B8A88A;--dc-sg-light:#D4C8AD;--dc-sg-dark:#9A8B6E;--dc-sg-muted:#A89D87;--dc-white:#FAFAFA;--dc-success:#4A8B6E;--dc-warning:#B8923A;--dc-error:#C44B4B;--dc-font-display:'Cormorant Garamond',Georgia,serif;--dc-font-body:'Source Serif 4',Georgia,serif;--dc-font-ui:'Source Sans 3',system-ui,sans-serif;--dc-font-mono:'JetBrains Mono','Consolas',monospace;--dc-space-xs:4px;--dc-space-sm:8px;--dc-space-md:16px;--dc-space-lg:24px;--dc-space-xl:32px;--dc-space-2xl:48px;--dc-space-3xl:64px}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+    body{background:var(--dc-slate-950);color:var(--dc-slate-200);font-family:var(--dc-font-ui);font-size:15px;line-height:1.6;overflow-x:hidden}
+    ::selection{background:var(--dc-sg-dark);color:var(--dc-white)}
+    .container{max-width:960px;margin:0 auto;padding:0 40px}
+    section{padding:100px 0;position:relative}
+    h1,h2,h3{font-family:var(--dc-font-display);color:var(--dc-slate-100);font-weight:600}
+    h1{font-size:clamp(32px,5vw,48px);line-height:1.15;letter-spacing:.02em}
+    h2{font-size:28px;line-height:1.3;margin-bottom:var(--dc-space-lg)}
+    h3{font-family:var(--dc-font-display);font-size:20px;font-weight:600;margin-bottom:var(--dc-space-sm)}
+    p{margin-bottom:var(--dc-space-lg);max-width:640px}
+    .section-number{font-family:var(--dc-font-display);font-weight:500;font-size:13px;color:var(--dc-sg-dark);letter-spacing:3px;text-transform:uppercase;margin-bottom:var(--dc-space-xl);display:block}
+    .text-serif{font-family:var(--dc-font-body);font-size:16px;line-height:1.8}
+    .text-muted{color:var(--dc-slate-300)}
+    .rule{border:none;height:.5px;background:var(--dc-slate-700);margin:0}
+    .rule--accent{background:var(--dc-sg);width:60px;margin:0 auto}
+    .site-header{padding:var(--dc-space-lg) 0;border-bottom:.5px solid var(--dc-slate-700)}
+    .header-inner{display:flex;align-items:center;justify-content:space-between}
+    .wordmark{font-family:var(--dc-font-display);font-weight:600;font-size:18px;letter-spacing:5px;color:var(--dc-slate-100);text-decoration:none;text-transform:uppercase}
+    .header-back{font-family:var(--dc-font-ui);font-size:13px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--dc-slate-300);text-decoration:none;transition:color .3s}
+    .header-back:hover{color:var(--dc-sg)}
+    .hero{padding:120px 0 80px;position:relative}
+    .hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--dc-slate-800) 1px,transparent 1px),linear-gradient(90deg,var(--dc-slate-800) 1px,transparent 1px);background-size:80px 80px;opacity:.1;mask-image:radial-gradient(ellipse at 30% 50%,black 0%,transparent 70%)}
+    .hero-tag{font-family:var(--dc-font-ui);font-weight:300;font-size:14px;letter-spacing:3.5px;text-transform:uppercase;color:var(--dc-sg);margin-bottom:var(--dc-space-xl)}
+    .hero h1{margin-bottom:var(--dc-space-xl)}
+    .hero-desc{font-family:var(--dc-font-body);font-size:18px;line-height:1.8;color:var(--dc-slate-200);max-width:600px}
+    .sovereignty{margin:var(--dc-space-3xl) 0;border:.5px solid var(--dc-sg-dark);padding:var(--dc-space-xl) var(--dc-space-2xl);position:relative}
+    .sovereignty::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--dc-sg)}
+    .sovereignty h3{color:var(--dc-sg);font-size:18px;margin-bottom:var(--dc-space-sm)}
+    .sovereignty p{color:var(--dc-slate-300);font-size:14px;line-height:1.8;margin-bottom:0}
+    .pipeline-grid{display:grid;gap:1px;background:var(--dc-slate-700);margin-top:var(--dc-space-2xl)}
+    .pipeline-step{background:var(--dc-slate-950);padding:var(--dc-space-xl) var(--dc-space-2xl);display:grid;grid-template-columns:60px 1fr;gap:var(--dc-space-lg);align-items:start;transition:background .3s}
+    .pipeline-step:hover{background:var(--dc-slate-900)}
+    .step-num{font-family:var(--dc-font-display);font-size:36px;font-weight:600;color:var(--dc-sg);line-height:1;padding-top:4px}
+    .step-content h3{color:var(--dc-slate-100)}
+    .step-content p{color:var(--dc-slate-300);font-size:14px;line-height:1.8;margin-bottom:0}
+    .stack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--dc-slate-700);margin-top:var(--dc-space-2xl)}
+    .stack-item{background:var(--dc-slate-800);padding:var(--dc-space-lg);text-align:center}
+    .stack-label{font-family:var(--dc-font-mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dc-slate-400);margin-bottom:var(--dc-space-xs)}
+    .stack-value{font-weight:600;font-size:15px;color:var(--dc-slate-100)}
+    .cases-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--dc-space-xl);margin-top:var(--dc-space-2xl)}
+    .case-card{border:.5px solid var(--dc-slate-700);padding:var(--dc-space-xl);transition:border-color .3s,transform .3s}
+    .case-card:hover{border-color:var(--dc-sg-dark);transform:translateY(-2px)}
+    .case-glyph{font-size:24px;margin-bottom:var(--dc-space-md);display:block;color:var(--dc-sg)}
+    .case-card h3{color:var(--dc-slate-100)}
+    .case-card p{color:var(--dc-slate-300);font-size:14px;line-height:1.7;margin-bottom:0}
+    .comp-wrap{margin-top:var(--dc-space-2xl);overflow-x:auto}
+    .comp-table{width:100%;border-collapse:collapse}
+    .comp-table th,.comp-table td{padding:14px 20px;text-align:left;border-bottom:.5px solid var(--dc-slate-700)}
+    .comp-table th{background:var(--dc-slate-800);font-family:var(--dc-font-mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--dc-slate-400);font-weight:500}
+    .comp-table th:last-child{color:var(--dc-sg)}
+    .comp-table td{background:var(--dc-slate-900);font-size:14px;color:var(--dc-slate-300)}
+    .comp-table td:last-child{color:var(--dc-sg);font-weight:600}
+    .comp-table tr:hover td{background:var(--dc-slate-800)}
+    .yes{color:var(--dc-success)}.no{color:var(--dc-error);opacity:.6}.maybe{color:var(--dc-warning)}
+    .cta-section{text-align:center;padding:140px 0}
+    .cta-section h2{margin-bottom:var(--dc-space-md)}
+    .cta-section p{margin:0 auto var(--dc-space-2xl);color:var(--dc-slate-300)}
+    .btn{display:inline-block;font-family:var(--dc-font-ui);font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;padding:14px 36px;border:1px solid var(--dc-sg-dark);color:var(--dc-sg);background:transparent;transition:all .3s;cursor:pointer}
+    .btn:hover{background:var(--dc-sg);color:var(--dc-slate-950);border-color:var(--dc-sg)}
+    .site-footer{border-top:.5px solid var(--dc-slate-700);padding:var(--dc-space-xl) 0}
+    .footer-inner{display:flex;justify-content:space-between;align-items:center}
+    .footer-left{font-size:12px;color:var(--dc-slate-400)}
+    .footer-right{font-family:var(--dc-font-ui);font-size:11px;font-weight:300;letter-spacing:3px;text-transform:uppercase;color:var(--dc-sg-muted)}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    @media(max-width:768px){.container{padding:0 24px}section{padding:64px 0}.pipeline-step{grid-template-columns:40px 1fr;gap:var(--dc-space-md);padding:var(--dc-space-lg)}.step-num{font-size:28px}.cases-grid{grid-template-columns:1fr}.footer-inner{flex-direction:column;gap:var(--dc-space-md);text-align:center}.sovereignty{padding:var(--dc-space-lg)}}
+  </style>
+</head>
+<body>
+<header class="site-header"><div class="container"><div class="header-inner"><a href="/" class="wordmark">Denkers Co.</a><a href="/" class="header-back">← Home</a></div></div></header>
+
+<section class="hero"><div class="container">
+  <p class="hero-tag">Sovereign Document Intelligence Platform</p>
+  <h1>Your documents. Your servers.<br>Your intelligence.</h1>
+  <p class="hero-desc">SDIP ingests any document — PDFs, Word files, transcripts, code, configs, research — and transforms it into a searchable, graph-mapped knowledge base with automatic sensitivity classification. Every byte stays on your hardware.</p>
+</div></section>
+
+<section><div class="container">
+  <div class="sovereignty reveal">
+    <h3>Zero Data Leakage — By Architecture, Not Policy</h3>
+    <p>SDIP runs entirely on your infrastructure. Document chunking, sensitivity scanning, and LLM classification all happen locally — no API calls to OpenAI, Google, or any third party. Your competitive intelligence, client data, legal documents, and proprietary research never leave your building. This isn't a toggle in a settings menu. It's how the system is built.</p>
+  </div>
+</div></section>
+
+<hr class="rule rule--accent">
+
+<section><div class="container">
+  <span class="section-number reveal">01 — Pipeline</span>
+  <h2 class="reveal">Five layers, from raw file to actionable intelligence.</h2>
+  <p class="text-serif text-muted reveal">Each layer operates independently and can be run on its own schedule. The pipeline is idempotent — re-running any stage only processes what's changed.</p>
+  <div class="pipeline-grid">
+    <div class="pipeline-step reveal"><div class="step-num">1</div><div class="step-content"><h3>Ingest</h3><p>Walk any directory or vault. Detect file type, compute content hash, register in PostgreSQL with full metadata. Incremental mode skips unchanged files. Supports Markdown, JSON, HTML, Python, shell, SQL, YAML, DOCX, and 20+ formats.</p></div></div>
+    <div class="pipeline-step reveal"><div class="step-num">2</div><div class="step-content"><h3>Chunk</h3><p>Intelligent semantic chunking — not arbitrary character splits. Markdown splits on headers, then paragraphs, then sentences. Python splits on function and class definitions. JSON splits on top-level keys. Small files stay whole. Every chunk gets a parent heading, word count, and position index.</p></div></div>
+    <div class="pipeline-step reveal"><div class="step-num">3</div><div class="step-content"><h3>Classify</h3><p>Two-layer sensitivity scanning. Layer 1: regex patterns for SSNs, API keys, credentials, financial data, medical terms — with false-positive filtering. Layer 2: local LLM classification for context-dependent sensitivity. Every finding recorded with method, confidence score, and redacted sample.</p></div></div>
+    <div class="pipeline-step reveal"><div class="step-num">4</div><div class="step-content"><h3>Graph</h3><p>Neo4j knowledge graph. Documents become nodes. Topics are extracted and linked. Systems are identified and connected. Cross-references between documents become edges. Sensitivity propagates through the graph — if a restricted document references yours, that relationship is tracked.</p></div></div>
+    <div class="pipeline-step reveal"><div class="step-num">5</div><div class="step-content"><h3>Serve</h3><p>FastAPI membrane with clearance-based access control. Four tiers: PUBLIC, INTERNAL, SENSITIVE, RESTRICTED. Under-clearanced requests get automatic redaction. Natural language query endpoint. Full audit log on every content access — who, what, when, served or blocked.</p></div></div>
+  </div>
+</div></section>
+
+<hr class="rule rule--accent">
+
+<section><div class="container">
+  <span class="section-number reveal">02 — Technology</span>
+  <h2 class="reveal">What it runs on.</h2>
+  <p class="text-serif text-muted reveal">Production-grade open source. Every component self-hosted, every dependency auditable, every data path on your network.</p>
+  <div class="stack-grid reveal">
+    <div class="stack-item"><div class="stack-label">Storage</div><div class="stack-value">PostgreSQL</div></div>
+    <div class="stack-item"><div class="stack-label">Vectors</div><div class="stack-value">pgvector</div></div>
+    <div class="stack-item"><div class="stack-label">Graph</div><div class="stack-value">Neo4j</div></div>
+    <div class="stack-item"><div class="stack-label">LLM</div><div class="stack-value">Ollama (local)</div></div>
+    <div class="stack-item"><div class="stack-label">API</div><div class="stack-value">FastAPI</div></div>
+    <div class="stack-item"><div class="stack-label">Console</div><div class="stack-value">Textual TUI</div></div>
+    <div class="stack-item"><div class="stack-label">Embeddings</div><div class="stack-value">384-dim vectors</div></div>
+    <div class="stack-item"><div class="stack-label">Cloud calls</div><div class="stack-value">Zero</div></div>
+  </div>
+</div></section>
+
+<hr class="rule rule--accent">
+
+<section><div class="container">
+  <span class="section-number reveal">03 — Applications</span>
+  <h2 class="reveal">Who this is for.</h2>
+  <div class="cases-grid">
+    <div class="case-card reveal"><span class="case-glyph">🜃</span><h3>Law Firms & Compliance</h3><p>Client documents, contracts, and case files searchable without leaving your network. Automatic PII detection. Audit trail on every access. Sensitivity propagation catches indirect exposure.</p></div>
+    <div class="case-card reveal"><span class="case-glyph">🜂</span><h3>Media & Content Companies</h3><p>Research archives, interview transcripts, source documents — indexed, cross-referenced, and queryable in natural language. Know what you have before you duplicate the work.</p></div>
+    <div class="case-card reveal"><span class="case-glyph">🜁</span><h3>Engineering Teams</h3><p>Codebases, architecture docs, runbooks, post-mortems — chunked and graph-mapped so tribal knowledge becomes searchable institutional knowledge. New hires find answers instead of asking.</p></div>
+    <div class="case-card reveal"><span class="case-glyph">🜀</span><h3>Research Organizations</h3><p>Papers, datasets, field notes, grant applications — topic extraction surfaces connections across projects. The graph sees relationships that keyword search misses.</p></div>
+  </div>
+</div></section>
+
+<hr class="rule rule--accent">
+
+<section><div class="container">
+  <span class="section-number reveal">04 — Comparison</span>
+  <h2 class="reveal">SDIP vs. the alternatives.</h2>
+  <div class="comp-wrap reveal">
+    <table class="comp-table">
+      <thead><tr><th>Capability</th><th>Notion AI / ChatGPT</th><th>Enterprise RAG (cloud)</th><th>SDIP</th></tr></thead>
+      <tbody>
+        <tr><td>Data stays on your hardware</td><td class="no">No</td><td class="no">No</td><td class="yes">Always</td></tr>
+        <tr><td>Zero cloud API calls</td><td class="no">No</td><td class="no">No</td><td class="yes">By design</td></tr>
+        <tr><td>Automatic sensitivity detection</td><td class="no">No</td><td class="maybe">Partial</td><td class="yes">Regex + LLM</td></tr>
+        <tr><td>Knowledge graph mapping</td><td class="no">No</td><td class="no">Rare</td><td class="yes">Neo4j topology</td></tr>
+        <tr><td>Clearance-based redaction</td><td class="no">No</td><td class="maybe">Some</td><td class="yes">4 tiers + audit</td></tr>
+        <tr><td>Sensitivity propagation</td><td class="no">No</td><td class="no">No</td><td class="yes">Graph-based</td></tr>
+        <tr><td>Cross-document references</td><td class="no">No</td><td class="maybe">Limited</td><td class="yes">Auto-detected</td></tr>
+        <tr><td>Runs on a single server</td><td class="no">No</td><td class="no">No</td><td class="yes">Full stack</td></tr>
+        <tr><td>Per-seat pricing</td><td class="no">$10–20/mo</td><td class="no">$$$</td><td class="yes">None — you own it</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div></section>
+
+<section class="cta-section"><div class="container">
+  <span class="section-number reveal">05 — Next Step</span>
+  <h2 class="reveal">Your documents deserve better than a cloud folder.</h2>
+  <p class="text-serif reveal">SDIP is deployed on your infrastructure, configured for your document ecosystem, and handed over with full documentation. No ongoing license. No per-seat fees. The system is yours.</p>
+  <a href="mailto:adge@denkers.co" class="btn reveal">Start a Conversation</a>
+</div></section>
+
+<footer class="site-footer"><div class="container"><div class="footer-inner"><div class="footer-left">&copy; 2026 Denkers Co., LLC</div><div class="footer-right">Think · Architect · Build · Endure</div></div></div></footer>
+
+<script>
+const reveals=document.querySelectorAll('.reveal');
+const observer=new IntersectionObserver(e=>{e.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target)}})},{threshold:.15,rootMargin:'0px 0px -40px 0px'});
+reveals.forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>

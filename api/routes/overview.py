@@ -1,0 +1,326 @@
+#!/usr/bin/env python3
+"""
+Mythos API - Finance Overview Endpoint
+/opt/mythos/api/routes/overview.py
+
+Single endpoint that assembles everything the Overview dashboard needs:
+- Checking account balances
+- Bills due in the next 7 days
+- 14-day forecast with danger alerts
+- Current month spending vs income
+- Top spending categories this month
+"""
+import os
+import json
+import logging
+from datetime import datetime, date, timedelta
+from decimal import Decimal
+from calendar import monthrange
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
+
+load_dotenv('/opt/mythos/.env')
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api/finance", tags=["finance"])
+
+
+def get_db():
+    return psycopg2.connect(
+        host=os.getenv('POSTGRES_HOST', 'localhost'),
+        database=os.getenv('POSTGRES_DB', 'mythos'),
+        user=os.getenv('POSTGRES_USER', 'postgres'),
+        password=os.getenv('POSTGRES_PASSWORD', ''),
+        port=os.getenv('POSTGRES_PORT', '5432'),
+        cursor_factory=RealDictCursor
+    )
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            return float(o)
+        if isinstance(o, (date, datetime)):
+            return o.isoformat()
+        return super().default(o)
+
+
+def json_response(data):
+    return JSONResponse(content=json.loads(json.dumps(data, cls=DecimalEncoder)))
+
+
+@router.get("/overview")
+async def finance_overview(request: Request):
+    """
+    Single endpoint for the Overview dashboard.
+    Returns everything needed in one call.
+    """
+    conn = get_db()
+    cur = conn.cursor()
+    today = date.today()
+    now = datetime.now()
+
+    # ── 1. Account balances ─────────────────────────────────
+    cur.execute("""
+        SELECT a.id, a.abbreviation, a.bank_name, a.account_type,
+               a.current_balance, a.balance_updated_at,
+               a.credit_limit, a.min_payment, a.payment_due_day,
+               a.include_in_overview
+        FROM accounts a
+        WHERE a.is_active = true
+        ORDER BY a.id
+    """)
+    all_accounts = [dict(r) for r in cur.fetchall()]
+
+    checking = [a for a in all_accounts if a['account_type'] in ('checking', 'savings')]
+    checking_overview = [a for a in checking if a.get('include_in_overview', True)]
+    credit = [a for a in all_accounts if a['account_type'] == 'credit']
+    loans = [a for a in all_accounts if a['account_type'] == 'loan']
+
+    checking_total = sum(Decimal(str(a['current_balance'] or 0)) for a in checking_overview)
+    credit_total = sum(Decimal(str(a['current_balance'] or 0)) for a in credit)
+    loan_total = sum(Decimal(str(a['current_balance'] or 0)) for a in loans)
+
+    # ── 2. Bills due in next 7 days ─────────────────────────
+    cur.execute("""
+        SELECT rb.id, rb.merchant_name, rb.expected_amount, rb.expected_day,
+               rb.category_primary, a.abbreviation as account
+        FROM recurring_bills rb
+        LEFT JOIN accounts a ON rb.account_id = a.id
+        WHERE rb.is_active = true AND rb.expected_day IS NOT NULL
+        ORDER BY rb.expected_day
+    """)
+    all_bills = cur.fetchall()
+
+    # Check overrides for current month
+    month_key = today.strftime('%Y-%m')
+    cur.execute("""
+        SELECT bill_id, is_paid FROM bill_overrides WHERE month = %s
+    """, (month_key,))
+    overrides = {r['bill_id']: r['is_paid'] for r in cur.fetchall()}
+
+    upcoming_bills = []
+    bills_due_total = Decimal('0')
+    days_in_month = monthrange(today.year, today.month)[1]
+
+    for bill in all_bills:
+        day = bill['expected_day']
+        if day > days_in_month:
+            day = days_in_month
+        try:
+            bill_date = date(today.year, today.month, day)
+        except ValueError:
+            continue
+
+        days_away = (bill_date - today).days
+
+        # If bill date is past this month but within -3 days, still show as overdue
+        # If bill date is in the future within 7 days, show as upcoming
+        if -3 <= days_away <= 7:
+            is_paid = overrides.get(bill['id'], False)
+
+            # Auto-match check: look for matching transaction
+            if not is_paid and bill['id'] not in overrides:
+                cur.execute("""
+                    SELECT COUNT(*) as cnt FROM transactions
+                    WHERE amount < 0
+                      AND transaction_date BETWEEN %s AND %s
+                      AND (
+                        LOWER(description) LIKE %s
+                        OR LOWER(original_description) LIKE %s
+                      )
+                      AND ABS(ABS(amount) - %s) <= %s
+                """, (
+                    date(today.year, today.month, 1),
+                    date(today.year, today.month, days_in_month),
+                    f"%{bill['merchant_name'].lower().split()[0]}%",
+                    f"%{bill['merchant_name'].lower().split()[0]}%",
+                    bill['expected_amount'],
+                    Decimal('5.00'),
+                ))
+                match = cur.fetchone()
+                if match and match['cnt'] > 0:
+                    is_paid = True
+
+            status = "paid" if is_paid else ("overdue" if days_away < 0 else "upcoming")
+            upcoming_bills.append({
+                "id": bill['id'],
+                "name": bill['merchant_name'],
+                "amount": float(bill['expected_amount']),
+                "due_day": bill['expected_day'],
+                "due_date": bill_date.isoformat(),
+                "days_away": days_away,
+                "category": bill['category_primary'],
+                "account": bill['account'],
+                "status": status,
+            })
+            if not is_paid:
+                bills_due_total += Decimal(str(bill['expected_amount']))
+
+    upcoming_bills.sort(key=lambda b: b['days_away'])
+
+    # ── 3. Forecast alert (14-day lookahead) ────────────────
+    # Get primary checking balances
+    primary_balance = Decimal('0')
+    for a in checking_overview:
+        if True:  # filtered by include_in_overview
+            primary_balance += Decimal(str(a['current_balance'] or 0))
+
+    # Get upcoming bills and income for next 14 days
+    forecast_running = primary_balance
+    forecast_lowest = primary_balance
+    forecast_lowest_date = today
+    forecast_negative = False
+    forecast_negative_date = None
+
+    for i in range(1, 15):
+        d = today + timedelta(days=i)
+        day_change = Decimal('0')
+
+        # Bills on this day
+        for bill in all_bills:
+            bday = bill['expected_day']
+            dim = monthrange(d.year, d.month)[1]
+            if bday > dim:
+                bday = dim
+            if d.day == bday and d.month == today.month:
+                day_change -= Decimal(str(bill['expected_amount']))
+            elif d.month != today.month and d.day == bday:
+                day_change -= Decimal(str(bill['expected_amount']))
+
+        # Income on this day
+        cur.execute("""
+            SELECT expected_amount, expected_day, frequency
+            FROM recurring_income WHERE is_active = true
+        """)
+        for inc in cur.fetchall():
+            inc_day = inc['expected_day']
+            freq = inc['frequency']
+            if freq == 'biweekly':
+                if d.day in (1, 15):
+                    day_change += Decimal(str(inc['expected_amount']))
+            elif inc_day and d.day == inc_day:
+                day_change += Decimal(str(inc['expected_amount']))
+
+        forecast_running += day_change
+        if forecast_running < forecast_lowest:
+            forecast_lowest = forecast_running
+            forecast_lowest_date = d
+        if forecast_running < 0 and not forecast_negative:
+            forecast_negative = True
+            forecast_negative_date = d
+
+    if forecast_negative:
+        forecast_status = "danger"
+        forecast_message = f"Overdraft risk — projected negative on {forecast_negative_date.strftime('%b %d')}"
+    elif forecast_lowest < Decimal('200'):
+        forecast_status = "warning"
+        forecast_message = f"Balance dips to {float(forecast_lowest):.2f} on {forecast_lowest_date.strftime('%b %d')}"
+    else:
+        forecast_status = "ok"
+        forecast_message = f"Healthy — lowest {float(forecast_lowest):.2f} on {forecast_lowest_date.strftime('%b %d')}"
+
+    # ── 4. Current month spending vs income ─────────────────
+    month_start = date(today.year, today.month, 1)
+    month_end = date(today.year, today.month, days_in_month)
+
+    cur.execute("""
+        SELECT SUM(ABS(amount))::numeric(12,2) as total
+        FROM transactions
+        WHERE transaction_date >= %s AND amount < 0
+          AND category_primary NOT IN ('Transfer', 'Credit Card Payment')
+          AND description != 'Balance checkpoint'
+    """, (month_start,))
+    month_spending = float(cur.fetchone()['total'] or 0)
+
+    cur.execute("""
+        SELECT SUM(amount)::numeric(12,2) as total
+        FROM transactions
+        WHERE transaction_date >= %s AND amount > 0
+          AND category_primary IN ('Income', 'Interest Income', 'Paycheck')
+          AND description != 'Balance checkpoint'
+    """, (month_start,))
+    month_income = float(cur.fetchone()['total'] or 0)
+
+    # Expected total income this month (from recurring_income)
+    cur.execute("""
+        SELECT SUM(expected_amount)::numeric(12,2) as total
+        FROM recurring_income WHERE is_active = true
+    """)
+    expected_income = float(cur.fetchone()['total'] or 0)
+
+    day_of_month = today.day
+    daily_burn = month_spending / max(day_of_month, 1)
+    projected_spending = daily_burn * days_in_month
+    budget_pct = (month_spending / expected_income * 100) if expected_income > 0 else 0
+
+    # ── 5. Top spending categories this month ───────────────
+    cur.execute("""
+        SELECT category_primary, SUM(ABS(amount))::numeric(12,2) as total,
+               COUNT(*) as txn_count
+        FROM transactions
+        WHERE transaction_date >= %s AND amount < 0
+          AND category_primary IS NOT NULL AND category_primary != ''
+          AND category_primary NOT IN ('Transfer', 'Credit Card Payment')
+          AND description != 'Balance checkpoint'
+        GROUP BY category_primary
+        ORDER BY total DESC
+        LIMIT 8
+    """, (month_start,))
+    top_categories = [dict(r) for r in cur.fetchall()]
+
+    # ── 6. Recent large transactions (for awareness) ────────
+    cur.execute("""
+        SELECT t.transaction_date, t.description, t.amount,
+               t.category_primary, a.abbreviation as account
+        FROM transactions t
+        LEFT JOIN accounts a ON t.account_id = a.id
+        WHERE t.transaction_date >= %s AND t.amount < 0
+          AND ABS(t.amount) >= 50
+          AND t.category_primary NOT IN ('Transfer', 'Credit Card Payment')
+          AND t.description != 'Balance checkpoint'
+        ORDER BY t.transaction_date DESC
+        LIMIT 8
+    """, (today - timedelta(days=7),))
+    recent_large = [dict(r) for r in cur.fetchall()]
+
+    conn.close()
+
+    return json_response({
+        "accounts": {
+            "checking": [{"abbr": a['abbreviation'], "bank": a['bank_name'],
+                          "balance": a['current_balance'],
+                          "updated": a['balance_updated_at']} for a in checking],
+            "checking_total": checking_total,
+            "credit_total": credit_total,
+            "loan_total": loan_total,
+            "net_position": checking_total + credit_total + loan_total,
+        },
+        "bills_upcoming": upcoming_bills,
+        "bills_due_total": bills_due_total,
+        "forecast": {
+            "status": forecast_status,
+            "message": forecast_message,
+            "current_balance": primary_balance,
+            "lowest": forecast_lowest,
+            "lowest_date": forecast_lowest_date,
+            "goes_negative": forecast_negative,
+            "negative_date": forecast_negative_date,
+        },
+        "month": {
+            "spending": month_spending,
+            "income_received": month_income,
+            "income_expected": expected_income,
+            "net": month_income - month_spending,
+            "daily_burn": round(daily_burn, 2),
+            "projected_spending": round(projected_spending, 2),
+            "budget_pct": round(budget_pct, 1),
+            "days_elapsed": day_of_month,
+            "days_in_month": days_in_month,
+            "days_left": days_in_month - day_of_month,
+        },
+        "top_categories": top_categories,
+        "recent_large": recent_large,
+    })

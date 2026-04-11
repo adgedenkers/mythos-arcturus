@@ -1,0 +1,24 @@
+TITLE 1: Title 38—Pensions, Bonuses, and Veterans' Relief--Volume 1
+CHAPTER I: CHAPTER I—DEPARTMENT OF VETERANS AFFAIRS
+PART 3: PART 3—ADJUDICATION
+SUBPART A: Subpart A—Pension, Compensation, and Dependency and Indemnity Compensation
+SECTION: § 3.452 Veteran's benefits apportionable.
+NODE: 38:1.0.1.1.4.1.70.186
+
+============================================================
+
+A veteran's benefits may be apportioned when the veteran is receiving hospital treatment, nursing home, or domiciliary care provided by the U.S. or a political subdivision, upon receipt by VA of an application:
+
+(a) Pending appointment of fiduciary. Pending the appointment of a guardian or other fiduciary.
+
+(b) Veteran receiving hospital, domiciliary, or nursing home care—(1) Incompetent veteran—(i) Spouse or child. Where an incompetent veteran without a fiduciary is receiving hospital treatment, nursing home, or domiciliary care provided by the U.S. or a political subdivision, his or her benefit may be apportioned for a spouse or child.
+
+(ii) Dependent parent. Where an incompetent veteran without a fiduciary is receiving hospital treatment, nursing home, or domiciliary care provided by the U.S. or a political subdivision, his or her disability compensation may be apportioned for a dependent parent.
+
+(2) Competent veteran—(i) Section 306 pension. Where the amount of section 306 pension payable to a married veteran is reduced to $50 monthly under § 3.551 while a veteran is receiving hospital, domiciliary, or nursing home care, an apportionment may be made to such veteran's spouse. The amount of the apportionment generally will be the difference between $50 and the total amount of pension payable on December 31, 1978.
+
+(ii) Improved pension. Where the amount of improved pension payable to a married veteran under 38 U.S.C. 1521(b) is reduced to $90 monthly under § 3.551 an apportionment may be made to such veteran's spouse. The amount of the apportionment generally will be the difference between $90 and the rate payable if pension were being paid under 38 U.S.C. 1521(c), including the additional amount payable under 38 U.S.C. 1521(e) if the veteran is so entitled.
+
+[Section Authority: (Authority: 38 U.S.C. 501(a), 5307, 5502, 5503(a); Pub. L. 95-588, section 306, 92 Stat. 2497, 2508-2510)]
+
+[Citation: [91 FR 905, Jan. 9, 2026]]

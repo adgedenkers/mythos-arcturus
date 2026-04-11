@@ -1,0 +1,194 @@
+{
+  "plan_id": "query_transactions",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_090947",
+  "total_passes": 6,
+  "total_ollama_calls": 10,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": false,
+    "errors": [
+      "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+      "summary missing 'transaction': ",
+      "data missing 'matches': []",
+      "summary empty",
+      "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+      "data missing 'matches': []",
+      "summary empty",
+      "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+      "data missing 'matches': []",
+      "summary empty"
+    ],
+    "passed": 0,
+    "failed": 10,
+    "total": 10
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton: #!/usr/bin/env python3, docstring, imports (os, logging, psycopg2, RealDictCursor, dotenv, engine.base). Write _get_conn() EXACTLY as shown in mandatory_patterns. Write class with all attributes. All methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.51,
+      "final_code_lines": 63
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _extract_search_terms() and _detect_account(). For extract: lowercase, remove triggers LONGEST FIRST: 'where did i spend', 'recent purchases', 'how much did', 'transactions', 'transaction', 'spending', 'purchase', 'payment', 'bought', 'spent', 'charge', 'paid', 'search for', 'search about', 'search', 'find', 'about', 'what', 'when', 'any', 'the'. Normalize whitespace between each. Strip punctuation, single-char words. Return if >= 2 chars. For _detect_account: check message for abbreviations (case-insensitive): {'sun': 1, 'usaa': 2, 'sid': 3, 'nbt': 5, 'llbean': 6, 'tsc': 7, 'oldnavy': 8, 'tjx': 9, 'amex': 10, 'usaaloan': 11}. Return id or None.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.14,
+      "final_code_lines": 121
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _query(). Use _get_conn(). Build: SELECT t.id, t.transaction_date, t.description, t.merchant_name, t.amount, t.category_primary, a.abbreviation as account_abbr, a.account_name FROM transactions t JOIN accounts a ON a.id = t.account_id WHERE 1=1. If search_terms: AND (t.description ILIKE %s OR t.merchant_name ILIKE %s) with f'%{search_terms}%' twice. If account_id: AND t.account_id = %s. ORDER BY t.transaction_date DESC LIMIT %s. try/finally close.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 5.0,
+      "final_code_lines": 145
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). Format: dict with id, date (ISO string), description, merchant_name, amount (float), category, account_abbr, account_name. Summary: if no results 'No transactions found matching X.' If results: 'Found N transaction(s) matching X, totaling $TOTAL.' Then top 3: '$AMOUNT at DESCRIPTION (ACCOUNT, DATE)'. Calculate total as sum of amounts.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 6.71,
+      "final_code_lines": 188
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Extract terms, detect account. If no terms AND no account: query recent 10 (pass empty search_terms). Format, summarize with 'Here are your 10 most recent transactions, totaling $X.' Otherwise: query with terms/account, format, summarize. Return SkillResponse(skill_name=self.name, data={'matches': formatted, 'search_terms': terms, 'count': len, 'total': sum of amounts}, summary=summary, confidence=0.95, sources=['mythos.transactions']). try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 7.73,
+      "final_code_lines": 210
+    },
+    {
+      "pass": 6,
+      "instruction": "Review. _get_conn uses POSTGRES_HOST. Connections close in finally. Summary never empty. Amounts formatted as $X.XX. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+            "summary missing 'transaction': ",
+            "data missing 'matches': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+            "data missing 'matches': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+            "data missing 'matches': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'ok')",
+            "summary missing 'transaction': ",
+            "data missing 'matches': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'ok')",
+            "data missing 'matches': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'ok')",
+            "data missing 'matches': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+            "summary missing 'transaction': ",
+            "data missing 'matches': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+            "data missing 'matches': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+            "data missing 'matches': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 4,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'ok')",
+            "summary missing 'transaction': ",
+            "data missing 'matches': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'ok')",
+            "data missing 'matches': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'ok')",
+            "data missing 'matches': []",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 5,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+            "summary missing 'transaction': ",
+            "data missing 'matches': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+            "data missing 'matches': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'success')",
+            "data missing 'matches': []",
+            "summary empty"
+          ]
+        }
+      ],
+      "elapsed_seconds": 52.07,
+      "final_code_lines": 210
+    }
+  ]
+}

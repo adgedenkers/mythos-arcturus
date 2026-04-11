@@ -1,0 +1,61 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ECHO | Layer: INTUITION | ID: ECHO_INTUITION
+# Domain: Memory and pattern recognition
+# Depth: 2 (Intuition)
+# Generated: 2026-03-02 21:50 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ECHO_INTUITION
+node: ECHO
+node_name: Echo
+node_domain: Memory and pattern recognition
+layer: INTUITION
+layer_name: Intuition
+depth: 2
+model_tier: small
+runtime_models:
+- mistral:7b
+- qwen2.5:7b
+- nous-hermes2:latest
+processing: unconscious
+critical_path: false
+generated_at: '2026-03-02T21:50:50.035312'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze {user_message} and {assistant_response} through Echo node (memory patterns) and Intuition layer (depth 2).
+  Identify recurring themes, behavioral echoes, or cyclical patterns. Capture the felt-sense: subtext, unspoken energy, sensory
+  undertones. Output ONLY JSON with ''impression'' key. Style: impressionistic, subtle, sensory.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    matched_patterns:
+      type: array
+      items:
+        type: string
+    recurring_themes:
+      type: array
+      items:
+        type: string
+    cycle_indicators:
+      type: array
+      items:
+        type: string
+    echo_strength:
+      type: number
+      minimum: 0
+      maximum: 1
+  required:
+  - summary
+  - confidence
+  - flags

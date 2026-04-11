@@ -1,0 +1,35 @@
+{
+  "plan_id": "add_idea",
+  "version": "1.0",
+  "description": "Capture a new idea into the idea inbox",
+  "pattern": "action_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "table_schema": "Table: idea_inbox\nColumns:\n  - id (uuid, PK, default gen_random_uuid())\n  - created_at (timestamptz, default now())\n  - conversation_context (text) -- context of where the idea came from\n  - items (jsonb, NOT NULL) -- the idea items as JSON array of strings\n  - item_count (integer)\n  - disposition (varchar(20), default 'pending')\n  - domain (varchar(50)) -- 'technical', 'spiritual', 'personal', etc.\n  - tags (jsonb) -- array of tag strings",
+    "scaffold": "class AddIdeaSkill(SkillBase):\n    name = 'add_idea'\n    version = '1.0'\n    category = 'action'\n    description = 'Capture a new idea into the inbox'\n    triggers = ['idea', 'i have an idea', 'new idea', 'add idea', 'capture idea', 'thought about', 'what if we', 'we should', 'we could']\n    cache_ttl = 0\n\n    async def execute(self, request) -> SkillResponse:\n        # 1. Extract the idea text\n        # 2. Detect domain\n        # 3. INSERT into idea_inbox\n        # 4. Return confirmation\n        pass\n\n    def _extract_idea(self, message) -> str:\n        pass\n\n    def _detect_domain(self, message) -> str:\n        pass\n\n    def _insert_idea(self, idea_text, domain, source_message) -> str:\n        # INSERT and return the new uuid as string\n        pass",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "connection_cleanup": "Always try/except/finally. Close cursor and connection in finally. COMMIT after INSERT.",
+      "no_unicode": "ASCII only in comments.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name (str), data (dict), summary (str), confidence (float), sources (list), error (str|None). NEVER use 'success', 'message', 'text', 'ok', 'result'.",
+      "json_import": "import json -- needed for jsonb columns. Use json.dumps() for items and tags."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: os, logging, json, psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _extract_idea() and _detect_domain(). For extract: lowercase, remove triggers LONGEST FIRST: 'i have an idea', 'capture idea', 'thought about', 'what if we', 'we should', 'we could', 'new idea', 'add idea', 'idea', 'capture'. Normalize whitespace between each. Strip punctuation except basic ones. Return cleaned text. For domain: check for 'technical', 'spiritual', 'personal', 'financial', 'mythos'. Default None.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement _insert_idea(). Use _get_conn(). Build items as json.dumps([idea_text]). Build tags as json.dumps([domain]) if domain else json.dumps([]). INSERT INTO idea_inbox (conversation_context, items, item_count, disposition, domain, tags) VALUES (%s, %s, 1, 'pending', %s, %s) RETURNING id. Params: (source_message, items_json, domain, tags_json). conn.commit(). Return str(row['id']). try/finally close.", "test": "parse_check"},
+    {"pass": 4, "instruction": "Implement execute(). Extract idea text. If empty or < 3 chars: return SkillResponse(skill_name=self.name, data={}, summary='Could not capture an idea. Please describe your thought.', confidence=0.3, sources=[]). Detect domain. Call _insert_idea(idea_text, domain, request.message). Return SkillResponse(skill_name=self.name, data={'idea_id': new_id, 'idea': idea_text, 'domain': domain}, summary=f'Captured idea: \"{idea_text}\"' + (f' (domain: {domain})' if domain else ''), confidence=0.95, sources=['mythos.idea_inbox']). try/except/finally.", "test": "import_check"},
+    {"pass": 5, "instruction": "Review. _get_conn uses POSTGRES_HOST. conn.commit() after INSERT. SkillResponse uses ONLY valid kwargs. json.dumps for jsonb columns. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "i have an idea about building a dashboard for routines", "expect_ok": true, "expect_data_has": ["idea_id", "idea"], "expect_summary_contains": ["Captured"]},
+    {"message": "what if we added voice search to iris", "expect_ok": true, "expect_data_has": ["idea_id"]},
+    {"message": "idea", "expect_ok": true, "note": "Too short - should return guidance"}
+  ]
+}

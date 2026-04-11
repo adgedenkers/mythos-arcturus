@@ -1,0 +1,13 @@
+TITLE 1: Title 38—Pensions, Bonuses, and Veterans' Relief--Volume 1
+CHAPTER I: CHAPTER I—DEPARTMENT OF VETERANS AFFAIRS
+PART 16: PART 16—PROTECTION OF HUMAN SUBJECTS
+SECTION: § 16.119 Research undertaken without the intention of involving human subjects.
+NODE: 38:1.0.1.1.18.0.169.18
+
+============================================================
+
+Except for research waived under § 16.101(i) or exempted under § 16.104, in the event research is undertaken without the intention of involving human subjects, but it is later proposed to involve human subjects in the research, the research shall first be reviewed and approved by an IRB, as provided in this policy, a certification submitted by the institution to the Federal department or agency component supporting the research, and final approval given to the proposed change by the Federal department or agency component.
+
+[Part Authority: Authority:5 U.S.C. 301; 38 U.S.C. 501, 7331, 7334; 42 U.S.C. 300v-1(b).]
+
+[Part Source: Source:82 FR 7272, Jan. 19, 2017, unless otherwise noted.]

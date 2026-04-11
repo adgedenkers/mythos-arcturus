@@ -1,0 +1,29 @@
+{
+  "plan_id": "extract_date_range",
+  "version": "1.0",
+  "description": "Parse natural language date references into SQL-ready date ranges",
+  "pattern": "date_filter",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "scaffold": "class ExtractDateRangeSkill(SkillBase):\n    name = 'extract_date_range'\n    version = '1.0'\n    category = 'meta'\n    description = 'Parse natural language dates into start/end date pairs'\n    triggers = ['yesterday', 'last week', 'last month', 'this week', 'this month', 'today', 'past', 'recent', 'ago', 'since', 'between', 'in january', 'in february', 'in march']\n    cache_ttl = 0\n\n    async def execute(self, request) -> SkillResponse:\n        # Parse the message for date references\n        # Return start_date, end_date, and a human description\n        pass\n\n    def _parse_dates(self, message) -> tuple:\n        # Return (start_date, end_date, description)\n        # Handle: today, yesterday, this week, last week, this month, last month,\n        #         past N days, N days ago, specific months like 'in march'\n        pass",
+    "mandatory_patterns": {
+      "no_database": "This skill does NOT query any database. No _get_conn, no psycopg2. Pure date logic only. Import datetime (date, timedelta) and calendar.",
+      "no_unicode": "ASCII only in comments.",
+      "skillresponse_signature": "SkillResponse ONLY accepts: skill_name (str), data (dict), summary (str), confidence (float), sources (list), error (str|None). NEVER use 'success', 'message', 'text', 'ok', 'result'."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: logging, re, datetime (date, timedelta), calendar, engine.base (SkillBase, SkillRequest, SkillResponse). NO psycopg2, NO os, NO dotenv. Class with all attributes. Methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _parse_dates(). Lowercase the message. Check patterns in this order (first match wins): 'today' -> (today, today, 'today'). 'yesterday' -> (today-1, today-1, 'yesterday'). 'this week' -> (monday of this week, today, 'this week'). 'last week' -> (monday of last week, sunday of last week, 'last week'). 'this month' -> (1st of this month, today, 'this month'). 'last month' -> (1st of last month, last day of last month, 'last month'). Use re.search(r'past (\\d+) days?', msg) or r'last (\\d+) days?' -> (today - N, today, f'past N days'). Use re.search(r'(\\d+) days? ago', msg) -> (today - N, today - N, f'N days ago'). Check month names: re.search(r'in (january|february|march|april|may|june|july|august|september|october|november|december)', msg) -> (1st of that month this year, last day of that month, f'in Month'). If nothing matches, return (None, None, 'no date detected').", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement execute(). Call _parse_dates(request.message). If start_date is None: return SkillResponse(skill_name=self.name, data={'start_date': None, 'end_date': None, 'detected': False}, summary='No date reference detected in message.', confidence=0.3, sources=['extract_date_range']). Otherwise: return SkillResponse(skill_name=self.name, data={'start_date': str(start), 'end_date': str(end), 'description': desc, 'detected': True}, summary=f'Date range: {desc} ({start} to {end})', confidence=0.9, sources=['extract_date_range']). try/except.", "test": "import_check"},
+    {"pass": 4, "instruction": "Review. No database imports. All date math correct — especially week boundaries (Monday=0 in weekday()). Month names handled. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "what happened yesterday", "expect_ok": true, "expect_data_has": ["start_date", "end_date", "detected"], "expect_summary_contains": ["yesterday"]},
+    {"message": "show me last week", "expect_ok": true, "expect_data_has": ["start_date"], "expect_summary_contains": ["last week"]},
+    {"message": "hello there", "expect_ok": true, "note": "No date reference"}
+  ]
+}

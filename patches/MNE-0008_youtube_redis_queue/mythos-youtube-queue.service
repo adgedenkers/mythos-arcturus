@@ -1,0 +1,18 @@
+[Unit]
+Description=Mythos YouTube Queue Consumer
+After=network.target postgresql.service redis.service
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos
+Environment="PATH=/opt/mythos/.venv/bin:/usr/local/bin:/usr/bin"
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/workers/youtube_queue_consumer.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

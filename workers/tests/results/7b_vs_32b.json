@@ -1,0 +1,514 @@
+{
+  "qwen2.5:7b@0.1": {
+    "pass": 2,
+    "fail": 13,
+    "error": 0,
+    "total_time": 18.928685665130615,
+    "details": [
+      {
+        "test_id": "T01",
+        "message": "good morning",
+        "elapsed": 1.14,
+        "schema_errors": [],
+        "expect_fails": [],
+        "raw_excerpt": "{\n    \"message_type\": \"greeting\",\n    \"complexity\": \"trivial\",\n    \"processing_path\": \"fast\",\n    \"entities\": [],\n    \"grid_hints\": {\"ANCHOR\": 0.3, \"ECHO\": 0.1, \"BEACON\": 0.2, \"SYNTH\": 0.4, \"NEXUS\": 0",
+        "actual": {
+          "message_type": "greeting",
+          "complexity": "trivial",
+          "processing_path": "fast",
+          "emotion": "neutral"
+        }
+      },
+      {
+        "test_id": "T02",
+        "message": "thanks",
+        "elapsed": 1.2,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=emotional_expression want=['filler']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"emotional_expression\",\n    \"complexity\": \"trivial\",\n    \"processing_path\": \"fast\",\n    \"entities\": [{\"name\": \"Ka'tuar'el\", \"type\": \"person\", \"role\": \"speaker\"}],\n    \"grid_hints",
+        "actual": {
+          "message_type": "emotional_expression",
+          "complexity": "trivial",
+          "processing_path": "fast",
+          "emotion": "grateful"
+        }
+      },
+      {
+        "test_id": "T03",
+        "message": "yep",
+        "elapsed": 1.17,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=greeting want=['filler']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"greeting\",\n    \"complexity\": \"trivial\",\n    \"processing_path\": \"fast\",\n    \"entities\": [{\"name\": \"Ka'tuar'el\", \"type\": \"person\", \"role\": \"speaker\"}],\n    \"grid_hints\": {\"ANCHOR\"",
+        "actual": {
+          "message_type": "greeting",
+          "complexity": "trivial",
+          "processing_path": "fast",
+          "emotion": "neutral"
+        }
+      },
+      {
+        "test_id": "T04",
+        "message": "Fitz had a snow delay today",
+        "elapsed": 1.2,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=information_sharing want=['life_event']",
+          "COMPLEXITY: got=trivial want=['simple']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"information_sharing\",\n    \"complexity\": \"trivial\",\n    \"processing_path\": \"fast\",\n    \"entities\": [{\"name\": \"Fitz\", \"type\": \"person\", \"role\": null}],\n    \"grid_hints\": {\"ANCHOR\"",
+        "actual": {
+          "message_type": "information_sharing",
+          "complexity": "trivial",
+          "processing_path": "fast",
+          "emotion": "neutral"
+        }
+      },
+      {
+        "test_id": "T05",
+        "message": "hey babe",
+        "elapsed": 1.11,
+        "schema_errors": [
+          "BAD_RANGE: grid_hints.SYNTH=None",
+          "BAD_RANGE: grid_hints.NEXUS=None",
+          "BAD_RANGE: grid_hints.MIRROR=None",
+          "BAD_RANGE: grid_hints.GLYPH=None",
+          "BAD_RANGE: grid_hints.HARMONIA=None",
+          "BAD_RANGE: grid_hints.GATEWAY=None"
+        ],
+        "expect_fails": [],
+        "raw_excerpt": "{\n    \"message_type\": \"greeting\",\n    \"complexity\": \"trivial\",\n    \"processing_path\": \"fast\",\n    \"entities\": [{\"name\": \"babe\", \"type\": \"person\", \"role\": \"intimate partner\"}],\n    \"grid_hints\": {\"ANCH",
+        "actual": {
+          "message_type": "greeting",
+          "complexity": "trivial",
+          "processing_path": "fast",
+          "emotion": "playful"
+        }
+      },
+      {
+        "test_id": "T06",
+        "message": "what's on my calendar today?",
+        "elapsed": 1.17,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=request_action want=['question_life_logistics']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"request_action\",\n    \"complexity\": \"simple\",\n    \"processing_path\": \"standard\",\n    \"entities\": [{\"name\": \"calendar\", \"type\": \"system\", \"role\": \"tool\"}],\n    \"grid_hints\": {\"ANC",
+        "actual": {
+          "message_type": "request_action",
+          "complexity": "simple",
+          "processing_path": "standard",
+          "emotion": "neutral"
+        }
+      },
+      {
+        "test_id": "T07",
+        "message": "I'm frustrated. The patch system keeps breaking an",
+        "elapsed": 1.19,
+        "schema_errors": [],
+        "expect_fails": [
+          "COMPLEXITY: got=simple want=['moderate']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"emotional_expression\",\n    \"complexity\": \"simple\",\n    \"processing_path\": \"standard\",\n    \"entities\": [{\"name\": \"patch system\", \"type\": \"system\", \"role\": \"target_of_frustration\"",
+        "actual": {
+          "message_type": "emotional_expression",
+          "complexity": "simple",
+          "processing_path": "standard",
+          "emotion": "frustrated"
+        }
+      },
+      {
+        "test_id": "T08",
+        "message": "What do you think about the relationship between m",
+        "elapsed": 1.26,
+        "schema_errors": [],
+        "expect_fails": [
+          "COMPLEXITY: got=moderate want=['deep', 'complex']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"question_deep\",\n    \"complexity\": \"moderate\",\n    \"processing_path\": \"standard\",\n    \"entities\": [{\"name\": \"memory\", \"type\": \"concept\", \"role\": \"subject\"}, {\"name\": \"identity\", ",
+        "actual": {
+          "message_type": "question_deep",
+          "complexity": "moderate",
+          "processing_path": "standard",
+          "emotion": "contemplative"
+        }
+      },
+      {
+        "test_id": "T09",
+        "message": "I had the weirdest dream last night about a castle",
+        "elapsed": 1.17,
+        "schema_errors": [],
+        "expect_fails": [
+          "COMPLEXITY: got=simple want=['moderate', 'complex']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"life_event\",\n    \"complexity\": \"simple\",\n    \"processing_path\": \"standard\",\n    \"entities\": [{\"name\": \"castle\", \"type\": \"concept\", \"role\": \"setting\"}],\n    \"grid_hints\": {\"ANCHO",
+        "actual": {
+          "message_type": "life_event",
+          "complexity": "simple",
+          "processing_path": "standard",
+          "emotion": "reflective"
+        }
+      },
+      {
+        "test_id": "T10",
+        "message": "how much did we spend on groceries last month?",
+        "elapsed": 1.18,
+        "schema_errors": [],
+        "expect_fails": [],
+        "raw_excerpt": "{\n    \"message_type\": \"question_life_logistics\",\n    \"complexity\": \"simple\",\n    \"processing_path\": \"standard\",\n    \"entities\": [{\"name\": \"groceries\", \"type\": \"object\", \"role\": \"subject\"}],\n    \"grid_",
+        "actual": {
+          "message_type": "question_life_logistics",
+          "complexity": "simple",
+          "processing_path": "standard",
+          "emotion": "neutral"
+        }
+      },
+      {
+        "test_id": "T11",
+        "message": "I need to refactor the finance importer to handle ",
+        "elapsed": 1.52,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=question_life_logistics want=['question_technical', 'request_action']",
+          "COMPLEXITY: got=moderate want=['complex']",
+          "PATH: got=standard want=['full']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"question_life_logistics\",\n    \"complexity\": \"moderate\",\n    \"processing_path\": \"standard\",\n    \"entities\": [\n        {\n            \"name\": \"finance importer\",\n            \"type\"",
+        "actual": {
+          "message_type": "question_life_logistics",
+          "complexity": "moderate",
+          "processing_path": "standard",
+          "emotion": "focused"
+        }
+      },
+      {
+        "test_id": "T12",
+        "message": "Tell me about Seraphe's lineage",
+        "elapsed": 1.44,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=information_sharing want=['question_cosmology']",
+          "COMPLEXITY: got=moderate want=['deep', 'complex']",
+          "PATH: got=standard want=['full']",
+          "CONTEXT: cosmology should be true",
+          "CONTEXT: graph_lookup should be true"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"information_sharing\",\n    \"complexity\": \"moderate\",\n    \"processing_path\": \"standard\",\n    \"entities\": [\n        {\"name\": \"Seraphe\", \"type\": \"person\", \"role\": \"subject\"},\n      ",
+        "actual": {
+          "message_type": "information_sharing",
+          "complexity": "moderate",
+          "processing_path": "standard",
+          "emotion": "curious"
+        }
+      },
+      {
+        "test_id": "T13",
+        "message": "Build me a Neo4j schema for tracking soul incarnat",
+        "elapsed": 1.25,
+        "schema_errors": [],
+        "expect_fails": [
+          "COMPLEXITY: got=moderate want=['complex', 'deep']",
+          "PATH: got=standard want=['full']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"request_action\",\n    \"complexity\": \"moderate\",\n    \"processing_path\": \"standard\",\n    \"entities\": [{\"name\": \"Neo4j\", \"type\": \"system\", \"role\": \"database\"}],\n    \"grid_hints\": {\"",
+        "actual": {
+          "message_type": "request_action",
+          "complexity": "moderate",
+          "processing_path": "standard",
+          "emotion": "focused"
+        }
+      },
+      {
+        "test_id": "T14",
+        "message": "Something shifted in the field today. I can feel t",
+        "elapsed": 1.53,
+        "schema_errors": [],
+        "expect_fails": [
+          "COMPLEXITY: got=moderate want=['complex', 'deep']",
+          "PATH: got=standard want=['full']",
+          "CONTEXT: cosmology should be true"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"information_sharing\",\n    \"complexity\": \"moderate\",\n    \"processing_path\": \"standard\",\n    \"entities\": [\n        {\n            \"name\": \"Seraphe\",\n            \"type\": \"person\",\n ",
+        "actual": {
+          "message_type": "information_sharing",
+          "complexity": "moderate",
+          "processing_path": "standard",
+          "emotion": "contemplative"
+        }
+      },
+      {
+        "test_id": "T15",
+        "message": "Check the Amex balance, deploy patch 0139, and fig",
+        "elapsed": 1.41,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=request_action want=['multi_part']",
+          "COMPLEXITY: got=moderate want=['complex']",
+          "PATH: got=standard want=['full']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"request_action\",\n    \"complexity\": \"moderate\",\n    \"processing_path\": \"standard\",\n    \"entities\": [\n        {\"name\": \"Amex\", \"type\": \"system\", \"role\": \"financial\"},\n        {\"na",
+        "actual": {
+          "message_type": "request_action",
+          "complexity": "moderate",
+          "processing_path": "standard",
+          "emotion": "focused"
+        }
+      }
+    ]
+  },
+  "qwen2.5:32b@0.1": {
+    "pass": 4,
+    "fail": 11,
+    "error": 0,
+    "total_time": 70.16155481338501,
+    "details": [
+      {
+        "test_id": "T01",
+        "message": "good morning",
+        "elapsed": 10.01,
+        "schema_errors": [],
+        "expect_fails": [],
+        "raw_excerpt": "{\n    \"message_type\": \"greeting\",\n    \"complexity\": \"trivial\",\n    \"processing_path\": \"fast\",\n    \"entities\": [],\n    \"grid_hints\": {\"ANCHOR\": 0.1, \"ECHO\": 0.2, \"BEACON\": 0.1, \"SYNTH\": 0.1, \"NEXUS\": 0",
+        "actual": {
+          "message_type": "greeting",
+          "complexity": "trivial",
+          "processing_path": "fast",
+          "emotion": "neutral"
+        }
+      },
+      {
+        "test_id": "T02",
+        "message": "thanks",
+        "elapsed": 3.75,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=emotional_expression want=['filler']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"emotional_expression\",\n    \"complexity\": \"trivial\",\n    \"processing_path\": \"fast\",\n    \"entities\": [],\n    \"grid_hints\": {\"ANCHOR\": 0.2, \"ECHO\": 0.1, \"BEACON\": 0.3, \"SYNTH\": 0.4",
+        "actual": {
+          "message_type": "emotional_expression",
+          "complexity": "trivial",
+          "processing_path": "fast",
+          "emotion": "grateful"
+        }
+      },
+      {
+        "test_id": "T03",
+        "message": "yep",
+        "elapsed": 3.71,
+        "schema_errors": [],
+        "expect_fails": [],
+        "raw_excerpt": "{\n    \"message_type\": \"filler\",\n    \"complexity\": \"trivial\",\n    \"processing_path\": \"fast\",\n    \"entities\": [],\n    \"grid_hints\": {\"ANCHOR\": 0.1, \"ECHO\": 0.2, \"BEACON\": 0.1, \"SYNTH\": 0.1, \"NEXUS\": 0.1",
+        "actual": {
+          "message_type": "filler",
+          "complexity": "trivial",
+          "processing_path": "fast",
+          "emotion": "neutral"
+        }
+      },
+      {
+        "test_id": "T04",
+        "message": "Fitz had a snow delay today",
+        "elapsed": 4.04,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=information_sharing want=['life_event']",
+          "PATH: got=standard want=['fast']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"information_sharing\",\n    \"complexity\": \"simple\",\n    \"processing_path\": \"standard\",\n    \"entities\": [{\"name\": \"Fitz\", \"type\": \"person\", \"role\": \"subject\"}],\n    \"grid_hints\": {",
+        "actual": {
+          "message_type": "information_sharing",
+          "complexity": "simple",
+          "processing_path": "standard",
+          "emotion": "neutral"
+        }
+      },
+      {
+        "test_id": "T05",
+        "message": "hey babe",
+        "elapsed": 3.74,
+        "schema_errors": [],
+        "expect_fails": [],
+        "raw_excerpt": "{\n    \"message_type\": \"greeting\",\n    \"complexity\": \"trivial\",\n    \"processing_path\": \"fast\",\n    \"entities\": [],\n    \"grid_hints\": {\"ANCHOR\": 0.1, \"ECHO\": 0.2, \"BEACON\": 0.3, \"SYNTH\": 0.4, \"NEXUS\": 0",
+        "actual": {
+          "message_type": "greeting",
+          "complexity": "trivial",
+          "processing_path": "fast",
+          "emotion": "playful"
+        }
+      },
+      {
+        "test_id": "T06",
+        "message": "what's on my calendar today?",
+        "elapsed": 3.76,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=request_action want=['question_life_logistics']",
+          "COMPLEXITY: got=trivial want=['simple', 'moderate']",
+          "PATH: got=fast want=['standard']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"request_action\",\n    \"complexity\": \"trivial\",\n    \"processing_path\": \"fast\",\n    \"entities\": [],\n    \"grid_hints\": {\"ANCHOR\": 0.1, \"ECHO\": 0.2, \"BEACON\": 0.3, \"SYNTH\": 0.4, \"NEX",
+        "actual": {
+          "message_type": "request_action",
+          "complexity": "trivial",
+          "processing_path": "fast",
+          "emotion": "neutral"
+        }
+      },
+      {
+        "test_id": "T07",
+        "message": "I'm frustrated. The patch system keeps breaking an",
+        "elapsed": 4.15,
+        "schema_errors": [],
+        "expect_fails": [
+          "COMPLEXITY: got=simple want=['moderate']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"emotional_expression\",\n    \"complexity\": \"simple\",\n    \"processing_path\": \"standard\",\n    \"entities\": [{\"name\": \"patch system\", \"type\": \"system\", \"role\": \"source_of_frustration\"",
+        "actual": {
+          "message_type": "emotional_expression",
+          "complexity": "simple",
+          "processing_path": "standard",
+          "emotion": "frustrated"
+        }
+      },
+      {
+        "test_id": "T08",
+        "message": "What do you think about the relationship between m",
+        "elapsed": 3.84,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=question_cosmology want=['question_deep']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"question_cosmology\",\n    \"complexity\": \"deep\",\n    \"processing_path\": \"full\",\n    \"entities\": [],\n    \"grid_hints\": {\"ANCHOR\": 0.2, \"ECHO\": 0.8, \"BEACON\": 0.3, \"SYNTH\": 0.5, \"NE",
+        "actual": {
+          "message_type": "question_cosmology",
+          "complexity": "deep",
+          "processing_path": "full",
+          "emotion": "contemplative"
+        }
+      },
+      {
+        "test_id": "T09",
+        "message": "I had the weirdest dream last night about a castle",
+        "elapsed": 4.1,
+        "schema_errors": [],
+        "expect_fails": [
+          "COMPLEXITY: got=simple want=['moderate', 'complex']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"information_sharing\",\n    \"complexity\": \"simple\",\n    \"processing_path\": \"standard\",\n    \"entities\": [{\"name\": \"castle\", \"type\": \"object\", \"role\": \"subject_of_dream\"}],\n    \"gri",
+        "actual": {
+          "message_type": "information_sharing",
+          "complexity": "simple",
+          "processing_path": "standard",
+          "emotion": "reflective"
+        }
+      },
+      {
+        "test_id": "T10",
+        "message": "how much did we spend on groceries last month?",
+        "elapsed": 3.86,
+        "schema_errors": [],
+        "expect_fails": [],
+        "raw_excerpt": "{\n    \"message_type\": \"question_life_logistics\",\n    \"complexity\": \"simple\",\n    \"processing_path\": \"standard\",\n    \"entities\": [],\n    \"grid_hints\": {\"ANCHOR\": 0.3, \"ECHO\": 0.1, \"BEACON\": 0.2, \"SYNTH",
+        "actual": {
+          "message_type": "question_life_logistics",
+          "complexity": "simple",
+          "processing_path": "standard",
+          "emotion": "curious"
+        }
+      },
+      {
+        "test_id": "T11",
+        "message": "I need to refactor the finance importer to handle ",
+        "elapsed": 4.44,
+        "schema_errors": [],
+        "expect_fails": [
+          "COMPLEXITY: got=moderate want=['complex']",
+          "PATH: got=standard want=['full']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"request_action\",\n    \"complexity\": \"moderate\",\n    \"processing_path\": \"standard\",\n    \"entities\": [{\"name\": \"finance importer\", \"type\": \"system\", \"role\": \"subject\"}, {\"name\": \"A",
+        "actual": {
+          "message_type": "request_action",
+          "complexity": "moderate",
+          "processing_path": "standard",
+          "emotion": "focused"
+        }
+      },
+      {
+        "test_id": "T12",
+        "message": "Tell me about Seraphe's lineage",
+        "elapsed": 4.73,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=request_action want=['question_cosmology']",
+          "COMPLEXITY: got=simple want=['deep', 'complex']",
+          "PATH: got=standard want=['full']",
+          "CONTEXT: cosmology should be true"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"request_action\",\n    \"complexity\": \"simple\",\n    \"processing_path\": \"standard\",\n    \"entities\": [\n        {\n            \"name\": \"Seraphe\",\n            \"type\": \"person\",\n        ",
+        "actual": {
+          "message_type": "request_action",
+          "complexity": "simple",
+          "processing_path": "standard",
+          "emotion": "neutral"
+        }
+      },
+      {
+        "test_id": "T13",
+        "message": "Build me a Neo4j schema for tracking soul incarnat",
+        "elapsed": 5.3,
+        "schema_errors": [],
+        "expect_fails": [
+          "COMPLEXITY: got=moderate want=['complex', 'deep']",
+          "PATH: got=standard want=['full']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"request_action\",\n    \"complexity\": \"moderate\",\n    \"processing_path\": \"standard\",\n    \"entities\": [\n        {\n            \"name\": \"Neo4j\",\n            \"type\": \"system\",\n        ",
+        "actual": {
+          "message_type": "request_action",
+          "complexity": "moderate",
+          "processing_path": "standard",
+          "emotion": "focused"
+        }
+      },
+      {
+        "test_id": "T14",
+        "message": "Something shifted in the field today. I can feel t",
+        "elapsed": 5.36,
+        "schema_errors": [],
+        "expect_fails": [
+          "COMPLEXITY: got=moderate want=['complex', 'deep']",
+          "PATH: got=standard want=['full']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"information_sharing\",\n    \"complexity\": \"moderate\",\n    \"processing_path\": \"standard\",\n    \"entities\": [\n        {\n            \"name\": \"144 grid\",\n            \"type\": \"system\",\n",
+        "actual": {
+          "message_type": "information_sharing",
+          "complexity": "moderate",
+          "processing_path": "standard",
+          "emotion": "curious"
+        }
+      },
+      {
+        "test_id": "T15",
+        "message": "Check the Amex balance, deploy patch 0139, and fig",
+        "elapsed": 5.38,
+        "schema_errors": [],
+        "expect_fails": [
+          "TYPE: got=request_action want=['multi_part']",
+          "COMPLEXITY: got=moderate want=['complex']",
+          "PATH: got=standard want=['full']"
+        ],
+        "raw_excerpt": "{\n    \"message_type\": \"request_action\",\n    \"complexity\": \"moderate\",\n    \"processing_path\": \"standard\",\n    \"entities\": [\n        {\"name\": \"Amex\", \"type\": \"system\", \"role\": \"financial_system\"},\n     ",
+        "actual": {
+          "message_type": "request_action",
+          "complexity": "moderate",
+          "processing_path": "standard",
+          "emotion": "focused"
+        }
+      }
+    ]
+  }
+}

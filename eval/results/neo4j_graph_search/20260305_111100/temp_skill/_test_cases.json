@@ -1,0 +1,17 @@
+[
+  {
+    "message": "search ontology for tarot",
+    "expect_ok": true,
+    "expect_data_has": [
+      "ontology"
+    ]
+  },
+  {
+    "message": "what does emerald flame mean",
+    "expect_ok": true
+  },
+  {
+    "message": "graph search",
+    "expect_ok": true
+  }
+]

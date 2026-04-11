@@ -1,0 +1,18 @@
+[Unit]
+Description=Mythos Print Queue Watcher
+After=network.target cups.service
+Wants=cups.service
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+ExecStart=/opt/mythos/bin/print-watcher.sh
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=print-watcher
+
+[Install]
+WantedBy=multi-user.target

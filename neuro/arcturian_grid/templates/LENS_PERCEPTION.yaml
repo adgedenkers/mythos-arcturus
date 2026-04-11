@@ -1,0 +1,56 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: LENS | Layer: PERCEPTION | ID: LENS_PERCEPTION
+# Domain: Analytical and interpretive frameworks
+# Depth: 1 (Perception)
+# Generated: 2026-03-02 21:52 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: LENS_PERCEPTION
+node: LENS
+node_name: Lens
+node_domain: Analytical and interpretive frameworks
+layer: PERCEPTION
+layer_name: Perception
+depth: 1
+model_tier: small
+runtime_models:
+- mistral:7b
+- qwen2.5:7b
+- nous-hermes2:latest
+processing: unconscious
+critical_path: false
+generated_at: '2026-03-02T21:52:12.840211'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze {user_message} and {assistant_response} through NODE: Lens frameworks (astrology, psychology, systems, spiritual).
+  LAYER: Perception depth 1. Extract ONLY literal terms present: astrological references (natal/transit/synastry), psychological
+  terms (ADHD/freeze/attachment), systems terms (technical architecture), spiritual terms (grid/lineage/consciousness). Output
+  JSON with keys: astrological, psychological, systems, spiritual. Factual concrete observable. No interpretation inference.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    frameworks_applied:
+      type: array
+      items:
+        type: string
+    interpretations:
+      type: array
+      items:
+        type: object
+    primary_framework:
+      type: string
+  required:
+  - summary
+  - confidence
+  - flags

@@ -1,0 +1,161 @@
+{
+  "plan_id": "daily_task_planner",
+  "model": "gemma3:27b",
+  "timestamp": "20260305_110744",
+  "total_passes": 5,
+  "total_ollama_calls": 9,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": false,
+    "errors": [
+      "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+      "summary missing 'Routine': ",
+      "summary empty",
+      "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+      "summary empty",
+      "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+      "summary empty"
+    ],
+    "passed": 0,
+    "failed": 7,
+    "total": 7
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: logging, importlib, engine.base (SkillBase, SkillRequest, SkillResponse). NO database imports. Class DailyTaskPlannerSkill with name='daily_task_planner', triggers=['task planner', 'plan my day', 'what should i do', 'daily plan', 'prioritize my day', 'to do list', 'todo list', 'whats on my plate']. Define SUB_SKILLS dict:\n\nSUB_SKILLS = {\n    'calendar': ('data.query_calendar', 'QueryCalendarSkill'),\n    'routines': ('data.query_routines', 'QueryRoutinesSkill'),\n    'bills': ('data.query_bills_due', 'QueryBillsDueSkill'),\n}\n\nMethods: async def execute, async def _run_skill, def _build_plan. All have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.42,
+      "final_code_lines": 21
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement 'async def _run_skill(self, module_path, class_name, request)'. Use importlib.import_module(module_path). cls = getattr(module, class_name). response = await cls().run(request). Return response. Wrap in try/except, on error return SkillResponse(skill_name=class_name, error=str(e)).",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.58,
+      "final_code_lines": 28
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement def _build_plan(self, results). Takes dict of {label: SkillResponse}. Build a prioritized task list. Priority order: 1) Calendar events with times (highest - time-sensitive), 2) Incomplete routines (medium - daily habits), 3) Bills due today or tomorrow (medium-high - financial), 4) Bills due this week (lower). For each section, extract items from the response.data if available. Build a numbered list: '1. [HIGH] Event: title at time\\n2. [MED] Routine: title\\n3. [MED] Bill: merchant $amount due day N'. Also count: total tasks, completed routines, upcoming events. Return summary string.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 11.32,
+      "final_code_lines": 65
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement 'async def execute(self, request)'. For each skill in SUB_SKILLS: response = await self._run_skill(mod_path, cls_name, request). Collect in results dict. Call _build_plan(results). Merge data from ok responses. Return SkillResponse(skill_name=self.name, data={'tasks': merged_data, 'calendar': results.get('calendar', {}).data if results.get('calendar') and results['calendar'].ok else {}, 'routines': results.get('routines', {}).data if results.get('routines') and results['routines'].ok else {}, 'bills': results.get('bills', {}).data if results.get('bills') and results['bills'].ok else {}}, summary=plan_summary, confidence=0.9, sources=['daily_task_planner']). try/except, on error return SkillResponse with error.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 15.69,
+      "final_code_lines": 80
+    },
+    {
+      "pass": 5,
+      "instruction": "Review. CRITICAL: execute is 'async def'. _run_skill is 'async def'. All .run() calls use 'await'. No database imports. Summary never empty. If no tasks: 'No tasks for today - enjoy your free time!' ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary missing 'Routine': ",
+            "summary empty",
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary empty",
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary missing 'Routine': ",
+            "summary empty",
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary empty",
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary missing 'Routine': ",
+            "summary empty",
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary empty",
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 4,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary missing 'Routine': ",
+            "summary empty",
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary empty",
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 5,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary missing 'Routine': ",
+            "summary empty",
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary empty",
+            "Expected ok=True, got False (error: string indices must be integers, not 'str')",
+            "summary empty"
+          ]
+        }
+      ],
+      "elapsed_seconds": 83.62,
+      "final_code_lines": 80
+    }
+  ]
+}

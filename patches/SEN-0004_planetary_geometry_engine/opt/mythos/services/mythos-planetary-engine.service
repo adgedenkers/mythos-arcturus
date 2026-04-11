@@ -1,0 +1,19 @@
+[Unit]
+Description=Mythos Planetary Geometry Engine
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/observatory/geometry/planetary_engine.py
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+Environment=PYTHONPATH=/opt/mythos
+
+[Install]
+WantedBy=multi-user.target

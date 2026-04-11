@@ -1,0 +1,13 @@
+# Identity + Personality — Who she is + how much of each trait
+name: identity_personality
+description: "Layers 1-2. Identity + personality sliders."
+
+layers:
+  identity: true
+  personality: true
+  voice: false
+  mode: false
+  user_profile: false
+  dynamic_context: false
+  life_context: false
+  skills: false

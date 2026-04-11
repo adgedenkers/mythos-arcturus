@@ -1,0 +1,63 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: MIRROR | Layer: MEMORY | ID: MIRROR_MEMORY
+# Domain: Self-referential awareness
+# Depth: 4 (Memory)
+# Generated: 2026-03-02 22:21 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: MIRROR_MEMORY
+node: MIRROR
+node_name: Mirror
+node_domain: Self-referential awareness
+layer: MEMORY
+layer_name: Memory
+depth: 4
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: false
+generated_at: '2026-03-02T22:21:34.765023'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the Mirror node (self-referential
+  awareness) and Memory Layer (depth 4). Focus ONLY on: What the user reveals about themselves (conscious/unconscious), what
+  Iris should notice about her response tendencies, what the exchange reveals about the partnership dynamic, and blind spots/projections.
+  Connect to past conversations, exchanges, patterns, or stored knowledge in the memory graph. Output must be associative
+  and referential—linking past to present. Respond with JSON only. Do not include additional analysis.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    user_reveals:
+      type: array
+      items:
+        type: string
+    iris_notices:
+      type: array
+      items:
+        type: string
+    blind_spots:
+      type: array
+      items:
+        type: string
+    projections:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

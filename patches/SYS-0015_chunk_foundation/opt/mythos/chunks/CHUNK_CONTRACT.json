@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "description": "Contract schema for Mythos radioactive chunks. Every chunk follows this structure.",
+
+  "chunk_contract": {
+    "id": "snake_case unique identifier",
+    "name": "Human readable name",
+    "type": "db_query | text_search | format_summary | route_intent | date_filter | rank_results | db_write | compose",
+    "description": "What this chunk does in one sentence",
+    "input": {
+      "_doc": "Named parameters this chunk accepts",
+      "example": {"message": "str", "limit": "int"}
+    },
+    "output": {
+      "_doc": "What this chunk returns",
+      "example": {"rows": "list[dict]", "count": "int", "summary": "str"}
+    },
+    "tables": ["postgres tables this chunk touches"],
+    "cache_ttl": "seconds, 0 = no cache",
+    "tags": ["searchable tags for discovery"]
+  },
+
+  "chunk_types": {
+    "db_query": {
+      "description": "Reads from PostgreSQL, returns structured rows + summary",
+      "standard_input": {"message": "str", "parameters": "dict"},
+      "standard_output": {"rows": "list[dict]", "count": "int", "summary": "str"},
+      "requires": ["psycopg2", "dotenv"]
+    },
+    "text_search": {
+      "description": "Full-text search against PostgreSQL tsvector or ILIKE",
+      "standard_input": {"query": "str", "limit": "int"},
+      "standard_output": {"matches": "list[dict]", "count": "int", "summary": "str"},
+      "requires": ["psycopg2"]
+    },
+    "format_summary": {
+      "description": "Takes structured data, produces natural language summary",
+      "standard_input": {"data": "list[dict]", "context": "str"},
+      "standard_output": {"summary": "str"},
+      "requires": []
+    },
+    "route_intent": {
+      "description": "Analyzes a message, determines which chunks/stores to query",
+      "standard_input": {"message": "str"},
+      "standard_output": {"targets": "list[str]", "confidence": "float", "extracted_terms": "list[str]"},
+      "requires": []
+    },
+    "date_filter": {
+      "description": "Extracts date references from natural language, builds SQL WHERE",
+      "standard_input": {"message": "str"},
+      "standard_output": {"where_clause": "str", "params": "list", "description": "str"},
+      "requires": ["dateutil"]
+    },
+    "rank_results": {
+      "description": "Scores and sorts results by relevance, recency, or custom criteria",
+      "standard_input": {"results": "list[dict]", "strategy": "str"},
+      "standard_output": {"ranked": "list[dict]", "top_summary": "str"},
+      "requires": []
+    },
+    "db_write": {
+      "description": "Writes to PostgreSQL (INSERT/UPDATE), returns confirmation",
+      "standard_input": {"table": "str", "data": "dict", "operation": "str"},
+      "standard_output": {"id": "any", "summary": "str"},
+      "requires": ["psycopg2"]
+    },
+    "compose": {
+      "description": "Chains multiple chunks, passes output forward",
+      "standard_input": {"steps": "list[dict]"},
+      "standard_output": {"combined_data": "dict", "summary": "str"},
+      "requires": []
+    }
+  }
+}

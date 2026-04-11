@@ -1,0 +1,61 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: WEAVE | Layer: NARRATIVE | ID: WEAVE_NARRATIVE
+# Domain: Relational and connective tissue
+# Depth: 7 (Narrative)
+# Generated: 2026-03-02 22:21 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: WEAVE_NARRATIVE
+node: WEAVE
+node_name: Weave
+node_domain: Relational and connective tissue
+layer: NARRATIVE
+layer_name: Narrative
+depth: 7
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T22:21:00.838627'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange between {user_message} and {assistant_response} through the Weave node (relational/connective
+  tissue) and Narrative layer (depth 7). Focus ONLY on: 1) Relationships between people mentioned, 2) Connections to active
+  threads/projects, 3) Social dynamics/partnership patterns. Output ONLY valid JSON with keys ''connections'' (array of strings
+  listing threads/people) and ''narrative_arc'' (string describing chapter/arc/trajectory fit). Style: Contextual, arc-aware,
+  story-placing. Example: ''Connects to: Seraphe''s car request (active thread), freeze protocol (behavioral pattern), consulting
+  transition (financial context). Relationship dynamic: avoidance is creating distance.'' Do not include analysis of emotions,
+  tone, or other nodes/layers.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    connections:
+      type: array
+      items:
+        type: object
+    active_threads:
+      type: array
+      items:
+        type: string
+    relationship_dynamics:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags

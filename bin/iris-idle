@@ -1,0 +1,186 @@
+#!/opt/mythos/.venv/bin/python3
+"""
+iris-idle — Run one idle task from Iris's background queue.
+
+Usage:
+    iris-idle                  # Pick and run the top-priority ready task
+    iris-idle --list           # Show all registered tasks and their status
+    iris-idle --run <type>     # Force-run a specific task type
+    iris-idle --history        # Show recent task history
+    iris-idle --mode reflection # Override mode (default: background)
+
+Exit codes:
+    0 = task ran successfully (or --list/--history)
+    1 = task failed
+    2 = no tasks ready to run
+"""
+
+import argparse
+import json
+import os
+import sys
+
+sys.path.insert(0, "/opt/mythos")
+sys.path.insert(0, "/opt/mythos/iris/core/src")
+
+from dotenv import load_dotenv
+load_dotenv("/opt/mythos/.env")
+
+from task_registry import TaskRegistry, run_idle_task, BUILTIN_TASKS
+
+
+def get_db_config():
+    return {
+        "host": os.getenv("POSTGRES_HOST", "localhost"),
+        "port": int(os.getenv("POSTGRES_PORT", 5432)),
+        "database": os.getenv("POSTGRES_DB", "mythos"),
+        "user": os.getenv("POSTGRES_USER", "adge"),
+        "password": os.getenv("POSTGRES_PASSWORD", ""),
+    }
+
+
+def cmd_list():
+    """Show all registered tasks and status."""
+    db_config = get_db_config()
+    registry = TaskRegistry(db_config)
+    registry.initialize()
+
+    print(f"{'Task Type':<25} {'Priority':<10} {'Cooldown':<12} {'Last Run':<22} {'Status':<10} {'Ready'}")
+    print("-" * 95)
+
+    for task in sorted(registry.tasks, key=lambda t: t.priority.value):
+        last = task._last_run.strftime("%Y-%m-%d %H:%M") if task._last_run else "never"
+        status = task._last_status or "—"
+        try:
+            ready = "YES" if task.should_run() else "no"
+        except Exception:
+            ready = "error"
+
+        cooldown_h = task.cooldown.total_seconds() / 3600
+        print(
+            f"{task.task_type:<25} "
+            f"{task.priority.name:<10} "
+            f"{cooldown_h:.0f}h{'':<9} "
+            f"{last:<22} "
+            f"{status:<10} "
+            f"{ready}"
+        )
+
+
+def cmd_history(limit=20):
+    """Show recent task execution history."""
+    import psycopg2
+    db_config = get_db_config()
+    conn = psycopg2.connect(**db_config)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT task_type, started_at, status, duration_ms, items_processed,
+               result_summary
+        FROM iris_task_log
+        ORDER BY started_at DESC
+        LIMIT %s
+    """, (limit,))
+
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if not rows:
+        print("No task history yet.")
+        return
+
+    print(f"{'Task Type':<25} {'Started':<20} {'Status':<10} {'Duration':<10} {'Items':<6} {'Summary'}")
+    print("-" * 110)
+
+    for row in rows:
+        task_type, started, status, duration_ms, items, summary = row
+        dur = f"{duration_ms}ms" if duration_ms else "—"
+        summ = (summary[:40] + "...") if summary and len(summary) > 40 else (summary or "—")
+        print(
+            f"{task_type:<25} "
+            f"{started.strftime('%Y-%m-%d %H:%M'):<20} "
+            f"{status:<10} "
+            f"{dur:<10} "
+            f"{str(items or 0):<6} "
+            f"{summ}"
+        )
+
+
+def cmd_run(task_type, mode="background"):
+    """Force-run a specific task."""
+    db_config = get_db_config()
+    registry = TaskRegistry(db_config)
+    registry.initialize()
+
+    target = None
+    for task in registry.tasks:
+        if task.task_type == task_type:
+            target = task
+            break
+
+    if not target:
+        print(f"Unknown task type: {task_type}")
+        print(f"Available: {', '.join(t.task_type for t in registry.tasks)}")
+        sys.exit(1)
+
+    import time
+    print(f"Running {task_type}...")
+    start = time.time()
+
+    try:
+        result = target.execute()
+    except Exception as e:
+        result = type('R', (), {
+            'success': False, 'error': str(e), 'summary': '',
+            'items_processed': 0, 'metadata': {}
+        })()
+
+    elapsed_ms = int((time.time() - start) * 1000)
+    result.metadata["_duration_ms"] = elapsed_ms
+
+    registry.record_result(target, result)
+
+    status = "✓" if result.success else "✗"
+    print(f"{status} {task_type}: {result.summary}")
+    if result.error:
+        print(f"  Error: {result.error}")
+    print(f"  Duration: {elapsed_ms}ms | Items: {result.items_processed}")
+
+    sys.exit(0 if result.success else 1)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Iris idle task runner")
+    parser.add_argument("--list", action="store_true", help="List all tasks and status")
+    parser.add_argument("--history", action="store_true", help="Show recent task history")
+    parser.add_argument("--run", type=str, metavar="TYPE", help="Force-run a specific task")
+    parser.add_argument("--mode", type=str, default="background",
+                        choices=["presence", "available", "background", "reflection"],
+                        help="Operating mode (default: background)")
+    args = parser.parse_args()
+
+    if args.list:
+        cmd_list()
+    elif args.history:
+        cmd_history()
+    elif args.run:
+        cmd_run(args.run, args.mode)
+    else:
+        # Default: pick and run one task
+        db_config = get_db_config()
+        result = run_idle_task(db_config, mode=args.mode)
+        if result is None:
+            print("No idle tasks ready to run.")
+            sys.exit(2)
+        else:
+            status = "✓" if result["success"] else "✗"
+            print(f"{status} {result['task_type']}: {result['summary']}")
+            if result["error"]:
+                print(f"  Error: {result['error']}")
+            print(f"  Duration: {result['duration_ms']}ms | Items: {result['items_processed']}")
+            sys.exit(0 if result["success"] else 1)
+
+
+if __name__ == "__main__":
+    main()

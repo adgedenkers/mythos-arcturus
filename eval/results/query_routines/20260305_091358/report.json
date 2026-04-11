@@ -1,0 +1,173 @@
+{
+  "plan_id": "query_routines",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_091358",
+  "total_passes": 5,
+  "total_ollama_calls": 9,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": false,
+    "errors": [
+      "Expected ok=True, got False (error: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: fe_sendauth: no password supplied\n)",
+      "data missing 'routines': []",
+      "summary empty",
+      "Expected ok=True, got False (error: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: fe_sendauth: no password supplied\n)",
+      "summary missing 'Routine': ",
+      "data missing 'routines': []",
+      "summary empty",
+      "Expected ok=True, got False (error: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: fe_sendauth: no password supplied\n)",
+      "summary empty"
+    ],
+    "passed": 0,
+    "failed": 9,
+    "total": 9
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: os, logging, datetime (date, datetime), psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 2.97,
+      "final_code_lines": 47
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _query_routines_today(). Use _get_conn(). Get today = date.today(). Get day_of_week = today.weekday() (0=Monday). Get day_of_month = today.day. Query:\n\nSELECT r.id, r.title, r.description, r.frequency, r.time_due, r.domain, r.priority, r.sort_order,\n       rc.status as completion_status, rc.completed_at\nFROM routines r\nLEFT JOIN routine_completions rc ON rc.routine_id = r.id AND rc.due_date = %s\nWHERE r.is_active = true\n  AND (\n    r.frequency = 'daily'\n    OR (r.frequency = 'weekly' AND r.day_of_week = %s)\n    OR (r.frequency = 'monthly' AND r.day_of_month = %s)\n  )\nORDER BY r.sort_order, r.title\n\nParams: (today, day_of_week, day_of_month). CRITICAL: use r.title NOT r.name. try/finally close.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.52,
+      "final_code_lines": 71
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _format_results() and _build_summary(). Format: dict with id, title, frequency, time_due (str or None), domain, priority, is_complete (boolean: true if completion_status == 'completed'), completed_at (ISO str or None). Summary: count completed vs total. 'Routines: N of M complete.' If any done: 'Done: title1, title2.' If any remaining: 'Still to do: title3, title4.' If all done: 'All routines complete for today!'",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 6.56,
+      "final_code_lines": 101
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement execute(). Call _query_routines_today(). Format and summarize. Return SkillResponse(skill_name=self.name, data={'routines': formatted, 'total': len, 'completed': count of complete, 'remaining': count of incomplete}, summary=summary, confidence=0.95, sources=['mythos.routines', 'mythos.routine_completions']). try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 7.53,
+      "final_code_lines": 123
+    },
+    {
+      "pass": 5,
+      "instruction": "Review. CRITICAL: uses r.title NOT r.name. _get_conn uses POSTGRES_HOST. Connections close. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "data missing 'routines': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "summary missing 'Routine': ",
+            "data missing 'routines': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "data missing 'routines': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "summary missing 'Routine': ",
+            "data missing 'routines': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "data missing 'routines': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "summary missing 'Routine': ",
+            "data missing 'routines': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 4,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "data missing 'routines': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "summary missing 'Routine': ",
+            "data missing 'routines': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 5,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "data missing 'routines': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "summary missing 'Routine': ",
+            "data missing 'routines': []",
+            "summary empty",
+            "Expected ok=True, got False (error: SkillResponse.__init__() got an unexpected keyword argument 'text')",
+            "summary empty"
+          ]
+        }
+      ],
+      "elapsed_seconds": 37.65,
+      "final_code_lines": 123
+    }
+  ]
+}

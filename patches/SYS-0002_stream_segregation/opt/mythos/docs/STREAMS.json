@@ -1,0 +1,577 @@
+{
+  "meta": {
+    "description": "Mythos Development Stream Coordinator",
+    "updated": "2026-03-04T00:00:00-05:00",
+    "updated_by": "SYS-0002_stream_segregation"
+  },
+  "streams": {
+    "NEU": {
+      "name": "NEURO",
+      "description": "Consciousness processing, emotional modeling, awareness loops, Arcturian Grid, Iris core intelligence",
+      "next_patch": 1,
+      "last_patch": null,
+      "owned_paths": [
+        "/opt/mythos/neuro/",
+        "/opt/mythos/neuro/arcturian_grid/",
+        "/opt/mythos/iris/",
+        "/opt/mythos/iris/core/",
+        "/opt/mythos/iris/apps/",
+        "/opt/mythos/iris/introspection/",
+        "/opt/mythos/iris/journal/",
+        "/opt/mythos/iris/proposals/",
+        "/opt/mythos/iris/sandbox/",
+        "/opt/mythos/iris/self_model/",
+        "/opt/mythos/iris/workshop/",
+        "/opt/mythos/iris/docs/",
+        "/opt/mythos/core/",
+        "/opt/mythos/assistants/",
+        "/opt/mythos/event_simulator/",
+        "/opt/mythos/modelfiles/",
+        "/opt/mythos/models/"
+      ],
+      "owned_tables_pg": [
+        "emotional_state_timeseries",
+        "grid_activation_timeseries",
+        "introspection_runs",
+        "perception_log",
+        "entity_mention_timeseries",
+        "backlog_analysis",
+        "pending_intake"
+      ],
+      "owned_neo4j_labels": [
+        "Activation",
+        "AnchorOutput",
+        "Archetype",
+        "BeaconOutput",
+        "CapacityAssessment",
+        "Concept",
+        "ConvergencePoint",
+        "DecisionGate",
+        "Defense",
+        "Direction",
+        "Dream",
+        "EchoOutput",
+        "Emotion",
+        "EmotionalNeed",
+        "GatewayOutput",
+        "GatewaySafetyCheck",
+        "GlyphOutput",
+        "GridMasterOutput",
+        "GridNode",
+        "HarmoniaOutput",
+        "IdentityThread",
+        "Integration",
+        "IntegrationGap",
+        "IntrospectionRun",
+        "MagicalAct",
+        "Manifestation",
+        "MirrorOutput",
+        "NexusOutput",
+        "Pattern",
+        "Portal",
+        "PotentialTrigger",
+        "RitualElement",
+        "RitualGap",
+        "Rupture",
+        "SacredObject",
+        "Shadow",
+        "Soul",
+        "SpiritualConcept",
+        "SupportGap",
+        "Symbol",
+        "SynthOutput",
+        "Threshold",
+        "Transmission",
+        "ValueTension",
+        "Wound"
+      ],
+      "owned_handlers": [
+        "iris_handler.py",
+        "layer_handler.py",
+        "reflect_handler.py",
+        "checkin_handler.py"
+      ],
+      "owned_api_routes": [
+        "iris_systems.py"
+      ],
+      "owned_web_templates": [
+        "iris_systems.html"
+      ],
+      "owned_services": [
+        "mythos-worker-grid.service",
+        "mythos-worker-vision.service",
+        "mythos-worker-embedding.service",
+        "mythos-worker-entity.service"
+      ],
+      "active_work": null,
+      "blocked_by": null
+    },
+
+    "LOG": {
+      "name": "LOGOS",
+      "description": "Language, reasoning, knowledge graphs, ontology, skills, research, prompts",
+      "next_patch": 1,
+      "last_patch": null,
+      "owned_paths": [
+        "/opt/mythos/skills/",
+        "/opt/mythos/skills/analytical/",
+        "/opt/mythos/skills/builder/",
+        "/opt/mythos/skills/data/",
+        "/opt/mythos/skills/engine/",
+        "/opt/mythos/skills/meta/",
+        "/opt/mythos/skills/templates/",
+        "/opt/mythos/harmonics/",
+        "/opt/mythos/soul_stratigraphy/",
+        "/opt/mythos/soul_stratigraphy/reports/",
+        "/opt/mythos/triad/",
+        "/opt/mythos/triad/prompts/",
+        "/opt/mythos/prompts/",
+        "/opt/mythos/prompts/archive/",
+        "/opt/mythos/prompts/modes/",
+        "/opt/mythos/prompts/users/",
+        "/opt/mythos/prompts/voices/",
+        "/opt/mythos/tools/",
+        "/opt/mythos/tools/prompt_lab/",
+        "/opt/mythos/graph_logging/",
+        "/opt/mythos/graph_logging/src/",
+        "/opt/mythos/graph_logging/scripts/",
+        "/opt/mythos/orchestrator/",
+        "/opt/mythos/orchestrator/src/",
+        "/opt/mythos/orchestrator/prompts/",
+        "/opt/mythos/orchestrator/schema/",
+        "/opt/mythos/orchestrator/test_suites/",
+        "/opt/mythos/orchestration/",
+        "/opt/mythos/orchestration/patterns/"
+      ],
+      "owned_tables_pg": [
+        "harmonic_resonance",
+        "harmonic_values",
+        "orch_config_snapshots",
+        "orch_model_benchmarks",
+        "orch_model_capabilities",
+        "orch_models",
+        "orch_role_assignments",
+        "orch_test_questions",
+        "orch_test_results",
+        "orch_test_runs",
+        "orch_test_suites",
+        "pipeline_llm_calls",
+        "pipeline_queries",
+        "pipeline_runs",
+        "thread_groups"
+      ],
+      "owned_neo4j_labels": [
+        "AppRegistry",
+        "Commitment",
+        "CommunicationGap",
+        "Concern",
+        "Epoch",
+        "Exchange",
+        "Fact",
+        "Function",
+        "GitRepo",
+        "Hellenistic",
+        "Incarnation",
+        "Lineage",
+        "Lifetime",
+        "Metric",
+        "Numerology",
+        "OntologyTerm",
+        "Process",
+        "Quote",
+        "Relationship",
+        "Repair",
+        "Role",
+        "SoulStratigraphy",
+        "SynthOutput",
+        "System",
+        "SystemComponent",
+        "SystemDependency",
+        "SystemFile",
+        "TestMachine",
+        "TestRun",
+        "Theme",
+        "Topic",
+        "Value",
+        "VedicSidereal",
+        "WesternTropical"
+      ],
+      "owned_handlers": [
+        "ontology_handler.py",
+        "analyst_handler.py",
+        "inspect_handler.py",
+        "integrity_handler.py",
+        "registry_handler.py",
+        "prompt_debug_handler.py",
+        "diag_handler.py"
+      ],
+      "owned_api_routes": [
+        "ontology.py",
+        "system.py"
+      ],
+      "owned_web_templates": [
+        "ontology.html",
+        "system.html",
+        "registry.html"
+      ],
+      "owned_services": [
+        "mythos-worker-summary.service",
+        "mythos-knowledge-map.service"
+      ],
+      "active_work": null,
+      "blocked_by": null
+    },
+
+    "MNE": {
+      "name": "MNEMOS",
+      "description": "Memory, conversation history, recall, experience storage, life logging, voice memos, media",
+      "next_patch": 1,
+      "last_patch": null,
+      "owned_paths": [
+        "/opt/mythos/voice_memos/",
+        "/opt/mythos/voice_memos/archive/",
+        "/opt/mythos/voice_memos/incoming/",
+        "/opt/mythos/voice_memos/processing/",
+        "/opt/mythos/voice_memos/wav_cache/",
+        "/opt/mythos/media/",
+        "/opt/mythos/photos/",
+        "/opt/mythos/photos/imports/",
+        "/opt/mythos/intake/",
+        "/opt/mythos/intake/failed/",
+        "/opt/mythos/intake/pending/",
+        "/opt/mythos/intake/processed/",
+        "/opt/mythos/workers/",
+        "/opt/mythos/workers/orchestrator/",
+        "/opt/mythos/workers/schema/",
+        "/opt/mythos/workers/templates/",
+        "/opt/mythos/workers/tests/",
+        "/opt/mythos/sms/",
+        "/opt/mythos/sms/logs/",
+        "/opt/mythos/llm_diagnostics/"
+      ],
+      "owned_tables_pg": [
+        "chat_messages",
+        "conversation_participants",
+        "conversation_segments",
+        "conversation_subject_points",
+        "conversation_turns",
+        "conversations",
+        "doc_worker_runs",
+        "document_registry",
+        "document_versions",
+        "file_catalog",
+        "idea_backlog",
+        "idea_inbox",
+        "life_events",
+        "media_assets",
+        "media_files",
+        "spiral_epochs",
+        "voice_memo_segments",
+        "voice_memos"
+      ],
+      "owned_neo4j_labels": [
+        "AnchorOutput",
+        "BoundaryNeeded",
+        "Boundary",
+        "Conversation",
+        "Directory",
+        "File",
+        "Object",
+        "PersonOwner",
+        "ThreadGroup"
+      ],
+      "owned_handlers": [
+        "voice_handler.py",
+        "voice_memo_handler.py",
+        "voice_profile_handler.py",
+        "media_handler.py",
+        "export_handler.py",
+        "export_fb.py",
+        "snapshot_handler.py"
+      ],
+      "owned_api_routes": [
+        "voice.py",
+        "doc_registry.py"
+      ],
+      "owned_web_templates": [
+        "sessions.html",
+        "report_live.html"
+      ],
+      "owned_services": [
+        "mythos-transcription-worker.service",
+        "mythos-voice-watcher.service",
+        "mythos-segment-manager.service",
+        "mythos-worker-temporal.service",
+        "mythos-doc-watcher.service"
+      ],
+      "active_work": null,
+      "blocked_by": null
+    },
+
+    "SEN": {
+      "name": "SENSUS",
+      "description": "Sensory input, lunar cycles, astrology, weather, calendar, environmental awareness, routines",
+      "next_patch": 1,
+      "last_patch": null,
+      "owned_paths": [
+        "/opt/mythos/astrology/",
+        "/opt/mythos/astrology/charts/",
+        "/opt/mythos/astrology/ephe/",
+        "/opt/mythos/astrology/reports/",
+        "/opt/mythos/astrology/user_input/",
+        "/opt/mythos/ephemeris/",
+        "/opt/mythos/data/lunar/",
+        "/opt/mythos/vision/",
+        "/opt/mythos/vision/prompts/"
+      ],
+      "owned_tables_pg": [
+        "astro_arabic_parts",
+        "astro_balance",
+        "astro_chart_objects",
+        "astro_chart_points",
+        "astro_chart_ruler",
+        "astro_dignities",
+        "astro_dispositors",
+        "astro_events",
+        "astro_fixed_star_conjunctions",
+        "astro_geometric_patterns",
+        "astro_geometry_audit",
+        "astro_natal_aspects",
+        "astro_natal_charts",
+        "astro_natal_house_cusps",
+        "astro_retrogrades",
+        "astro_sect",
+        "astrological_events",
+        "calendar_events",
+        "checkin_log",
+        "daily_tasks",
+        "known_locations",
+        "known_routes",
+        "message_astrological_context",
+        "routine_completions",
+        "routines",
+        "recurring_schedules"
+      ],
+      "owned_neo4j_labels": [
+        "Activation",
+        "Chart",
+        "Event",
+        "Location"
+      ],
+      "owned_handlers": [
+        "astrology_handler.py",
+        "calendar_handler.py",
+        "weather_handler.py",
+        "checkin_handler.py",
+        "route_handler.py",
+        "review_handler.py"
+      ],
+      "owned_api_routes": [
+        "overview.py",
+        "smart_overview.py",
+        "spending_analytics.py"
+      ],
+      "owned_web_templates": [],
+      "owned_services": [],
+      "active_work": null,
+      "blocked_by": null
+    },
+
+    "SYS": {
+      "name": "SYSTEM",
+      "description": "Cross-cutting infrastructure, patch system, bot core, API framework, web framework, auth, finance, file management, people/rolodex, document management, sales, shopping",
+      "next_patch": 2,
+      "last_patch": 1,
+      "owned_paths": [
+        "/opt/mythos/patches/",
+        "/opt/mythos/docs/",
+        "/opt/mythos/config/",
+        "/opt/mythos/scripts/",
+        "/opt/mythos/services/",
+        "/opt/mythos/utils/",
+        "/opt/mythos/bin/",
+        "/opt/mythos/assets/",
+        "/opt/mythos/migrations/",
+        "/opt/mythos/sql/",
+        "/opt/mythos/public/",
+        "/opt/mythos/web/",
+        "/opt/mythos/api/",
+        "/opt/mythos/api/auth/",
+        "/opt/mythos/api/routes/",
+        "/opt/mythos/telegram_bot/bot.py",
+        "/opt/mythos/telegram_bot/handlers/__init__.py",
+        "/opt/mythos/finance/",
+        "/opt/mythos/finance/accounts/",
+        "/opt/mythos/finance/csv/",
+        "/opt/mythos/finance/reports/",
+        "/opt/mythos/finance/scripts/",
+        "/opt/mythos/rolodex/",
+        "/opt/mythos/sales_ingestion/",
+        "/opt/mythos/shoe_ingestion/",
+        "/opt/mythos/integrity/",
+        "/opt/mythos/data/redis/",
+        "/opt/mythos/data/qdrant/",
+        "/opt/mythos/docker/"
+      ],
+      "owned_tables_pg": [
+        "accounts",
+        "bill_overrides",
+        "bill_payments",
+        "bundles",
+        "categories",
+        "category_mappings",
+        "category_rules",
+        "import_logs",
+        "item_images",
+        "item_stores",
+        "items_for_sale",
+        "people",
+        "person_dates",
+        "purchase_history",
+        "recurring_bills",
+        "recurring_income",
+        "sales",
+        "sales_ingestion_log",
+        "shopping_items",
+        "shopping_list_items",
+        "shopping_lists",
+        "stores",
+        "system_manifest",
+        "transactions",
+        "users",
+        "web_users",
+        "IntegrityColumn",
+        "IntegrityDatabase",
+        "IntegrityDirectory",
+        "IntegrityFile",
+        "IntegrityFunction",
+        "IntegrityService",
+        "IntegrityTable"
+      ],
+      "owned_neo4j_labels": [
+        "Alias",
+        "BoundaryNeeded",
+        "Entity",
+        "FinancialCondition",
+        "GenFamily",
+        "GenPerson",
+        "GenPlace",
+        "GenSurname",
+        "IntegrityColumn",
+        "IntegrityDatabase",
+        "IntegrityDirectory",
+        "IntegrityFile",
+        "IntegrityFunction",
+        "IntegrityService",
+        "IntegrityTable",
+        "Person",
+        "PlannedExpense",
+        "Service",
+        "Tool"
+      ],
+      "owned_handlers": [
+        "finance_handler.py",
+        "forecast_handler.py",
+        "patch_handlers.py",
+        "people_handler.py",
+        "help_handler.py",
+        "ollama_models.py",
+        "sell_mode.py",
+        "shopping_handler.py",
+        "quote_handler.py",
+        "task_handler.py",
+        "pulse_handler.py"
+      ],
+      "owned_api_routes": [
+        "finance.py",
+        "frontend.py",
+        "people.py",
+        "public_files.py",
+        "quotes.py",
+        "rolodex.py",
+        "sales.py",
+        "shopping.py",
+        "web.py"
+      ],
+      "owned_web_templates": [
+        "dashboard.html",
+        "home.html",
+        "login.html",
+        "ontology.html",
+        "people.html",
+        "quotes.html",
+        "registry.html",
+        "sessions.html",
+        "shopping.html",
+        "system.html"
+      ],
+      "owned_services": [
+        "mythos-api.service",
+        "mythos-bot.service",
+        "mythos-patch-monitor.service"
+      ],
+      "active_work": null,
+      "blocked_by": null
+    }
+  },
+
+  "conflict_rules": {
+    "shared_files": "If a patch needs to touch a path owned by another stream, it MUST declare it in 'touches' and the owning stream's active_work must be null or compatible",
+    "shared_tables": "Migrations to shared tables (people, transactions, etc.) go through SYS only",
+    "bot_registration": "New /commands register through SYS patches; handler code lives in the originating stream"
+  },
+
+  "ambiguous_items": [
+    {
+      "item": "checkin_handler.py",
+      "candidates": ["NEU", "SEN"],
+      "reason": "Check-ins are both a sensory/environmental log (SEN) and feed into consciousness state (NEU). Currently assigned to SEN as primary owner since it's environmental input, but NEU reads its output."
+    },
+    {
+      "item": "overview.py / smart_overview.py (API routes)",
+      "candidates": ["SEN", "SYS"],
+      "reason": "Overview pulls calendar, weather, financial pulse — cross-stream aggregation. Assigned to SEN because it primarily surfaces environmental/temporal awareness, but touches SYS finance data."
+    },
+    {
+      "item": "perception_log table",
+      "candidates": ["NEU", "SEN"],
+      "reason": "Perception is the boundary between sensory input (SEN) and conscious processing (NEU). Assigned to NEU as it's the output of the perception pipeline, not the raw input."
+    },
+    {
+      "item": "orchestrator/ and orchestration/ directories",
+      "candidates": ["LOG", "SYS"],
+      "reason": "The orchestrator is reasoning/model-routing infrastructure (LOG territory) but it's also foundational plumbing. Assigned to LOG since it governs LLM reasoning pipelines."
+    },
+    {
+      "item": "workers/ directory",
+      "candidates": ["MNE", "SYS"],
+      "reason": "Workers process conversations and memory pipelines — core MNE work — but the worker framework itself is infrastructure. Assigned to MNE since the workers are primarily memory/conversation processors."
+    },
+    {
+      "item": "triad/ directory",
+      "candidates": ["LOG", "NEU"],
+      "reason": "The Triad (Ka'tuar'el / Seraphe / Iris relational prompts) is identity/language (LOG) but also feeds NEU consciousness state. Assigned to LOG as it's prompt/language infrastructure."
+    },
+    {
+      "item": "integrity/ directory + Integrity* Neo4j labels",
+      "candidates": ["SYS", "LOG"],
+      "reason": "Integrity scanning is system health (SYS) but produces knowledge graph output (LOG labels). Assigned to SYS since it's operational infrastructure."
+    },
+    {
+      "item": "spend analytics (spending_analytics.py)",
+      "candidates": ["SYS", "SEN"],
+      "reason": "Spending analytics is financial data (SYS owns finance) but surfaces as an awareness layer. Assigned to SEN as a temporal/environmental awareness report."
+    }
+  ],
+
+  "legacy_bridge": {
+    "note": "Patches 0001-0199+ used old sequential numbering. Stream patches start fresh per stream at 0001. Old patches are not renumbered.",
+    "old_format": "patch_NNNN_description.zip",
+    "new_format": "{STREAM}-{NNNN}_{description}.zip",
+    "examples": [
+      "NEU-0001_awareness_loop_v1.zip",
+      "LOG-0012_ontology_expansion.zip",
+      "SYS-0003_shared_schema_migration.zip"
+    ]
+  }
+}

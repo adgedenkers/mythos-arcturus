@@ -1,0 +1,188 @@
+{
+  "plan_id": "query_natal_chart",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_103408",
+  "total_passes": 6,
+  "total_ollama_calls": 12,
+  "final_parse": true,
+  "final_import": false,
+  "final_behavioral": {},
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: os, logging, psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class QueryNatalChartSkill with name='query_natal_chart', triggers=['natal chart', 'birth chart', 'placements', 'what sign', 'rising sign', 'moon sign', 'sun sign', 'chart for', 'astrology chart', 'where is my'], cache_ttl=3600. Define NAME_MAP as class-level dict: {'adge': 'Adge', 'adriaan': 'Adge', 'rebecca': 'Becky', 'becky': 'Becky', 'seraphe': 'Becky', 'fitz': 'Fitz', 'brandi': 'Brandi Carlile', 'riley': 'Riley Green'}. Methods: execute, _resolve_name, _query_chart, _query_placements, _format, _build_summary. All 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 2.04,
+      "final_code_lines": 62
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _resolve_name() and _query_chart(). _resolve_name(message): lowercase, check each key in NAME_MAP, return mapped value or default 'Adge'. _query_chart(name): SELECT chart_id, name, birth_date, birth_time, birth_place, house_system, zodiac_type FROM astro_natal_charts WHERE name = %s. Return the row dict or None. try/finally close.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.19,
+      "final_code_lines": 106
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _query_placements(chart_id). SELECT object_name, sign, deg_min, full_position, is_retrograde, house FROM astro_chart_objects WHERE chart_id = %s ORDER BY CASE object_name WHEN 'Sun' THEN 1 WHEN 'Moon' THEN 2 WHEN 'Mercury' THEN 3 WHEN 'Venus' THEN 4 WHEN 'Mars' THEN 5 WHEN 'Jupiter' THEN 6 WHEN 'Saturn' THEN 7 ELSE 8 END. Return list of row dicts. try/finally close.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.62,
+      "final_code_lines": 106
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format() and _build_summary(). Format: dict with chart info + placements list. Each placement: object_name, sign, house, deg_min, is_retrograde. Summary: 'NAME chart (ZODIAC, HOUSE_SYSTEM): Sun in SIGN (HHOUSE) | Moon in SIGN (HHOUSE) | ...' with retrograde marked as R symbol. Show all major planets.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.84,
+      "final_code_lines": 112
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Resolve name from message. Query chart. If no chart found: return SkillResponse with summary 'No natal chart found for NAME. Available: Adge, Becky, Fitz.' Query placements. Format and summarize. Return SkillResponse(skill_name=self.name, data=formatted, summary=summary, confidence=0.95, sources=['mythos.astro_natal_charts', 'mythos.astro_chart_objects']). try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "No async def execute() method found"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "No async def execute() method found"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "No async def execute() method found"
+          ]
+        }
+      ],
+      "elapsed_seconds": 16.15,
+      "final_code_lines": 126
+    },
+    {
+      "pass": 6,
+      "instruction": "Review. _get_conn uses POSTGRES_HOST. NAME_MAP correct. chart_id not id. object_name not body_name. house not house_number. SkillResponse valid kwargs. Summary never empty. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Sun': ",
+            "data missing 'placements': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Moon': ",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Sun': ",
+            "data missing 'placements': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Moon': ",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Sun': ",
+            "data missing 'placements': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Moon': ",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 4,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Sun': ",
+            "data missing 'placements': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Moon': ",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 5,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Sun': ",
+            "data missing 'placements': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary missing 'Moon': ",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  database \"adge\" does not exist\n)",
+            "summary empty"
+          ]
+        }
+      ],
+      "elapsed_seconds": 28.31,
+      "final_code_lines": 126
+    }
+  ]
+}

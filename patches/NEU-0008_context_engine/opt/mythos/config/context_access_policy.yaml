@@ -1,0 +1,66 @@
+# Iris Context Engine — Access Policy
+# Controls what providers are allowed to read.
+# Loaded at startup by ContextEngine.
+#
+# Denied paths take precedence over allowed paths.
+# Postgres queries are read-only (SELECT only).
+
+file_access:
+  allowed_paths:
+    - /opt/mythos/
+    - /home/adge/
+    - /var/log/
+    - /etc/systemd/system/mythos-
+    - /tmp/
+
+  denied_paths:
+    - /opt/mythos/.env            # raw .env — use env_sanitized provider instead
+    - /opt/mythos/.git/           # git internals — use git_log/git_diff providers
+    - /home/adge/.ssh/
+    - /home/adge/.gnupg/
+    - /home/adge/.bash_history
+    - /etc/shadow
+    - /etc/passwd
+
+  # Max file size the file_content provider will read (bytes)
+  max_file_size_bytes: 1000000    # 1MB
+
+postgres_access:
+  # Queries must start with one of these (case-insensitive)
+  allowed_prefixes:
+    - SELECT
+    - WITH                        # CTEs that resolve to SELECT
+    - EXPLAIN                     # query plans (read-only)
+
+  # Queries containing these are always denied (case-insensitive)
+  denied_patterns:
+    - DROP
+    - DELETE
+    - UPDATE
+    - INSERT
+    - ALTER
+    - CREATE
+    - TRUNCATE
+    - GRANT
+    - REVOKE
+    - COPY
+    - pg_read_file                # prevent filesystem reads via SQL
+
+# Sanitization is always mandatory — these are additional rules
+sanitization:
+  # Key patterns that trigger value redaction
+  sensitive_key_patterns:
+    - PASSWORD
+    - TOKEN
+    - SECRET
+    - KEY
+    - CREDENTIAL
+    - AUTH
+    - API_KEY
+    - PRIVATE
+
+  # Max output chars per provider (overridable per-call)
+  default_max_output: 4000
+
+  # Max timeout seconds per provider (overridable per-call)
+  default_timeout: 5

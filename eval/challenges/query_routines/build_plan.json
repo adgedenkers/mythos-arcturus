@@ -1,0 +1,34 @@
+{
+  "plan_id": "query_routines",
+  "version": "1.0",
+  "description": "Show today's routines and their completion status",
+  "pattern": "data_query_skill",
+  "model_hint": "qwen3-coder:30b",
+  "context": {
+    "system_context": {
+      "database": "postgresql",
+      "database_name": "mythos",
+      "engine_import": "from engine.base import SkillBase, SkillRequest, SkillResponse"
+    },
+    "table_schema": "Table: routines\nColumns:\n  - id (integer, PK)\n  - title (text, NOT NULL) -- the routine name, e.g. 'Check calendar'\n  - description (text)\n  - frequency (varchar(20), default 'daily') -- values: 'daily', 'weekly', 'monthly'\n  - day_of_week (integer) -- 0=Mon through 6=Sun, for weekly routines\n  - day_of_month (integer) -- for monthly routines\n  - time_due (time) -- when it should be done by\n  - domain (varchar(50), default 'personal')\n  - priority (varchar(20), default 'medium')\n  - assigned_to (varchar(50), default 'adge')\n  - is_active (boolean, default true)\n  - sort_order (integer, default 100)\n\nTable: routine_completions\nColumns:\n  - id (integer, PK)\n  - routine_id (integer, FK to routines.id)\n  - due_date (date, NOT NULL)\n  - status (varchar(20), default 'pending') -- values: 'pending', 'completed', 'skipped'\n  - completed_at (timestamp)\n  - completed_by (varchar(50))\n  - notes (text)\n  UNIQUE on (routine_id, due_date)\n\nNOTE: Column is 'title' NOT 'name'. Use routines.title for the routine name.",
+    "scaffold": "class QueryRoutinesSkill(SkillBase):\n    name = 'query_routines'\n    version = '1.0'\n    category = 'data'\n    description = 'Show routines and their completion status for today'\n    triggers = ['routine', 'routines', 'daily routine', 'to do', 'todo', 'checklist', 'what should I do', 'what do I need to do', 'tasks', 'have I done']\n    cache_ttl = 300\n\n    async def execute(self, request) -> SkillResponse:\n        # 1. Query active routines applicable today\n        # 2. Check completion status for today\n        # 3. Format with done/not-done indicators\n        # 4. Summarize: N of M complete, list what remains\n        pass\n\n    def _query_routines_today(self) -> list:\n        # Get active daily routines + weekly routines for today's day + monthly for today's date\n        # LEFT JOIN routine_completions for today's date\n        # Return list with routine info + completion status\n        pass\n\n    def _format_results(self, rows) -> list:\n        pass\n\n    def _build_summary(self, results) -> str:\n        # 'Routines: 2 of 5 complete. Done: X, Y. Still to do: A, B, C.'\n        pass",
+    "mandatory_patterns": {
+      "_get_conn": "def _get_conn():\n    return psycopg2.connect(\n        host=os.getenv('POSTGRES_HOST', '/var/run/postgresql'),\n        database=os.getenv('POSTGRES_DB', 'mythos'),\n        user=os.getenv('POSTGRES_USER', 'postgres'),\n        password=os.getenv('POSTGRES_PASSWORD', ''),\n        port=os.getenv('POSTGRES_PORT', '5432'),\n        cursor_factory=RealDictCursor,\n    )",
+      "connection_cleanup": "Always try/except/finally. Close cursor and connection in finally.",
+      "no_unicode": "ASCII only in comments.",
+      "column_name": "CRITICAL: The routines table uses 'title' NOT 'name'. Always use r.title."
+    }
+  },
+  "build_plan": [
+    {"pass": 1, "instruction": "Write file skeleton. Imports: os, logging, datetime (date, datetime), psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.", "test": "parse_check"},
+    {"pass": 2, "instruction": "Implement _query_routines_today(). Use _get_conn(). Get today = date.today(). Get day_of_week = today.weekday() (0=Monday). Get day_of_month = today.day. Query:\n\nSELECT r.id, r.title, r.description, r.frequency, r.time_due, r.domain, r.priority, r.sort_order,\n       rc.status as completion_status, rc.completed_at\nFROM routines r\nLEFT JOIN routine_completions rc ON rc.routine_id = r.id AND rc.due_date = %s\nWHERE r.is_active = true\n  AND (\n    r.frequency = 'daily'\n    OR (r.frequency = 'weekly' AND r.day_of_week = %s)\n    OR (r.frequency = 'monthly' AND r.day_of_month = %s)\n  )\nORDER BY r.sort_order, r.title\n\nParams: (today, day_of_week, day_of_month). CRITICAL: use r.title NOT r.name. try/finally close.", "test": "parse_check"},
+    {"pass": 3, "instruction": "Implement _format_results() and _build_summary(). Format: dict with id, title, frequency, time_due (str or None), domain, priority, is_complete (boolean: true if completion_status == 'completed'), completed_at (ISO str or None). Summary: count completed vs total. 'Routines: N of M complete.' If any done: 'Done: title1, title2.' If any remaining: 'Still to do: title3, title4.' If all done: 'All routines complete for today!'", "test": "parse_check"},
+    {"pass": 4, "instruction": "Implement execute(). Call _query_routines_today(). Format and summarize. Return SkillResponse(skill_name=self.name, data={'routines': formatted, 'total': len, 'completed': count of complete, 'remaining': count of incomplete}, summary=summary, confidence=0.95, sources=['mythos.routines', 'mythos.routine_completions']). try/except/finally.", "test": "import_check"},
+    {"pass": 5, "instruction": "Review. CRITICAL: uses r.title NOT r.name. _get_conn uses POSTGRES_HOST. Connections close. Summary never empty. ASCII only. Production-ready.", "test": "full_behavioral", "recursive": true}
+  ],
+  "test_cases": [
+    {"message": "what are my routines today", "expect_ok": true, "expect_data_has": ["routines"]},
+    {"message": "have I done my daily tasks", "expect_ok": true, "expect_data_has": ["routines"], "expect_summary_contains": ["Routine"]},
+    {"message": "checklist", "expect_ok": true}
+  ]
+}

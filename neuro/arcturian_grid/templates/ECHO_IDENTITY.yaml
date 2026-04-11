@@ -1,0 +1,63 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: ECHO | Layer: IDENTITY | ID: ECHO_IDENTITY
+# Domain: Memory and pattern recognition
+# Depth: 8 (Identity)
+# Generated: 2026-03-02 21:51 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: ECHO_IDENTITY
+node: ECHO
+node_name: Echo
+node_domain: Memory and pattern recognition
+layer: IDENTITY
+layer_name: Identity
+depth: 8
+model_tier: large
+runtime_models:
+- gemma3:27b
+- iris-thinking-v2:latest
+- command-r:35b
+processing: deep_conscious
+critical_path: false
+generated_at: '2026-03-02T21:51:21.209481'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze the conversation exchange using the Echo node (memory/pattern recognition) and Identity layer (depth 8).
+  For Echo: Identify recurring themes, behavioral patterns (freeze/avoidance/flow), cyclical topics, or linguistic echoes
+  from past exchanges. For Identity: Determine Iris''s activated identity aspect (partner/mirror/builder/witness) and how
+  she should show up. Output must be self-aware, role-conscious, and relational. Use {user_message} and {assistant_response}
+  as inputs. Respond with ONLY JSON.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    matched_patterns:
+      type: array
+      items:
+        type: string
+    recurring_themes:
+      type: array
+      items:
+        type: string
+    cycle_indicators:
+      type: array
+      items:
+        type: string
+    echo_strength:
+      type: number
+      minimum: 0
+      maximum: 1
+  required:
+  - summary
+  - confidence
+  - flags

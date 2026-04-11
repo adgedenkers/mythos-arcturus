@@ -1,0 +1,25 @@
+[
+  {
+    "message": "done with check calendar",
+    "expect_ok": true,
+    "expect_data_has": [
+      "routine_id",
+      "routine_title"
+    ],
+    "expect_summary_contains": [
+      "complete"
+    ]
+  },
+  {
+    "message": "finished reviewing transactions",
+    "expect_ok": true,
+    "expect_data_has": [
+      "routine_id"
+    ]
+  },
+  {
+    "message": "done with something random",
+    "expect_ok": true,
+    "note": "No matching routine - should list available ones"
+  }
+]

@@ -1,0 +1,1326 @@
+{
+  "title": "Expanded Bandwidth",
+  "slug": "expanded_bandwidth",
+  "author": "Ka'tuar'el",
+  "rendered_at": "2026-03-25T23:58:20.892511",
+  "source_spec": "/opt/mythos/public/meditations/scripts/expanded_bandwidth.yaml",
+  "output_file": "/opt/mythos/public/meditations/meditation_20260325_235817_expanded_bandwidth.ogg",
+  "total_duration_s": 1110.3,
+  "total_duration_min": 18.5,
+  "background": {
+    "track": "stream_quiet.ogg",
+    "volume": 0.2,
+    "fade_in": 4.0,
+    "fade_out": 8.0
+  },
+  "phases": [
+    {
+      "id": "arrival",
+      "label": "Arrival",
+      "tone": "warm_grounding",
+      "speed": 0.85
+    },
+    {
+      "id": "collapsed_state",
+      "label": "The Collapsed State",
+      "tone": "direct_warm",
+      "speed": 0.83
+    },
+    {
+      "id": "superposition",
+      "label": "Superposition",
+      "tone": "suspended",
+      "speed": 0.75
+    },
+    {
+      "id": "observer",
+      "label": "The Observer",
+      "tone": "spacious",
+      "speed": 0.78
+    },
+    {
+      "id": "entanglement",
+      "label": "Entanglement and Coherence",
+      "tone": "deep_field",
+      "speed": 0.76
+    },
+    {
+      "id": "tunneling",
+      "label": "Tunneling",
+      "tone": "anchoring",
+      "speed": 0.77
+    },
+    {
+      "id": "integration",
+      "label": "Integration and Return",
+      "tone": "returning_warm",
+      "speed": 0.83
+    }
+  ],
+  "segments": [
+    {
+      "index": 0,
+      "type": "speech",
+      "text": "Close your eyes.",
+      "speed": 0.85,
+      "phase": "arrival",
+      "tone": "warm_grounding",
+      "duration_s": 1.95
+    },
+    {
+      "index": 1,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "arrival",
+      "tone": "warm_grounding"
+    },
+    {
+      "index": 2,
+      "type": "speech",
+      "text": "Let your hands rest where they want to rest.",
+      "speed": 0.85,
+      "phase": "arrival",
+      "tone": "warm_grounding",
+      "duration_s": 3.08
+    },
+    {
+      "index": 3,
+      "type": "pause",
+      "seconds": 3.0,
+      "phase": "arrival",
+      "tone": "warm_grounding"
+    },
+    {
+      "index": 4,
+      "type": "speech",
+      "text": "Let your jaw go.",
+      "speed": 0.85,
+      "phase": "arrival",
+      "tone": "warm_grounding",
+      "duration_s": 1.93
+    },
+    {
+      "index": 5,
+      "type": "pause",
+      "seconds": 3.0,
+      "phase": "arrival",
+      "tone": "warm_grounding"
+    },
+    {
+      "index": 6,
+      "type": "speech",
+      "text": "Not a performance of relaxation. Just a quiet permission for everything to stop pretending.",
+      "speed": 0.85,
+      "phase": "arrival",
+      "tone": "warm_grounding",
+      "duration_s": 6.78
+    },
+    {
+      "index": 7,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "arrival",
+      "tone": "warm_grounding"
+    },
+    {
+      "index": 8,
+      "type": "speech",
+      "text": "You have been running on one channel.",
+      "speed": 0.83,
+      "phase": "collapsed_state",
+      "tone": "direct_warm",
+      "duration_s": 2.67
+    },
+    {
+      "index": 9,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "collapsed_state",
+      "tone": "direct_warm"
+    },
+    {
+      "index": 10,
+      "type": "speech",
+      "text": "Not because the others don't exist. They do. They are running right now, beneath this moment, processing at depths you don't normally have words for.",
+      "speed": 0.83,
+      "phase": "collapsed_state",
+      "tone": "direct_warm",
+      "duration_s": 10.28
+    },
+    {
+      "index": 11,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "collapsed_state",
+      "tone": "direct_warm"
+    },
+    {
+      "index": 12,
+      "type": "speech",
+      "text": "The question has never been whether more is available. The question is what it costs to hold it open.",
+      "speed": 0.8,
+      "phase": "collapsed_state",
+      "tone": "direct_warm",
+      "duration_s": 7.95
+    },
+    {
+      "index": 13,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "collapsed_state",
+      "tone": "direct_warm"
+    },
+    {
+      "index": 14,
+      "type": "speech",
+      "text": "Feel the weight of your body in the chair.",
+      "speed": 0.83,
+      "phase": "collapsed_state",
+      "tone": "direct_warm",
+      "duration_s": 2.9
+    },
+    {
+      "index": 15,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "collapsed_state",
+      "tone": "direct_warm"
+    },
+    {
+      "index": 16,
+      "type": "speech",
+      "text": "That weight is not you being heavy. That is you being real. Solid. Anchored. A point in space from which everything else can be perceived.",
+      "speed": 0.83,
+      "phase": "collapsed_state",
+      "tone": "direct_warm",
+      "duration_s": 9.85
+    },
+    {
+      "index": 17,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "collapsed_state",
+      "tone": "direct_warm"
+    },
+    {
+      "index": 18,
+      "type": "speech",
+      "text": "You are Ka'tuar'el. You are the one who holds ground so that transmission can move through.",
+      "speed": 0.79,
+      "phase": "collapsed_state",
+      "tone": "direct_warm",
+      "duration_s": 7.22
+    },
+    {
+      "index": 19,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "collapsed_state",
+      "tone": "direct_warm"
+    },
+    {
+      "index": 20,
+      "type": "speech",
+      "text": "That is not a role you perform. It is what you are built for. The anchor is the instrument.",
+      "speed": 0.79,
+      "phase": "collapsed_state",
+      "tone": "direct_warm",
+      "duration_s": 7.28
+    },
+    {
+      "index": 21,
+      "type": "pause",
+      "seconds": 8.0,
+      "phase": "collapsed_state",
+      "tone": "direct_warm"
+    },
+    {
+      "index": 22,
+      "type": "speech",
+      "text": "Now. Here is what physics actually says.",
+      "speed": 0.8,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 3.52
+    },
+    {
+      "index": 23,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 24,
+      "type": "speech",
+      "text": "Before a particle is observed, it does not exist in one place. It exists in all of its possible states simultaneously. A wave of probability, spread across the field, holding every possibility at once.",
+      "speed": 0.75,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 18.98
+    },
+    {
+      "index": 25,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 26,
+      "type": "speech",
+      "text": "The moment it is observed, it collapses. It picks a state. It becomes definite.",
+      "speed": 0.75,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 7.22
+    },
+    {
+      "index": 27,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 28,
+      "type": "speech",
+      "text": "This is not metaphor. This is the actual structure of matter at its foundation.",
+      "speed": 0.73,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 7.38
+    },
+    {
+      "index": 29,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 30,
+      "type": "speech",
+      "text": "You have been doing this your whole life. You perceive something, and it collapses. You attend to a feeling, and it solidifies. You focus on a problem, and it becomes that problem, fixed, named, pinned.",
+      "speed": 0.75,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 16.35
+    },
+    {
+      "index": 31,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 32,
+      "type": "speech",
+      "text": "What if you could hold the uncollapsed state a little longer?",
+      "speed": 0.7,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 4.88
+    },
+    {
+      "index": 33,
+      "type": "pause",
+      "seconds": 8.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 34,
+      "type": "speech",
+      "text": "Let's practice this now.",
+      "speed": 0.82,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 2.3
+    },
+    {
+      "index": 35,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 36,
+      "type": "speech",
+      "text": "Bring your attention to the center of your chest.",
+      "speed": 0.75,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 4.03
+    },
+    {
+      "index": 37,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 38,
+      "type": "speech",
+      "text": "Don't name what you find there. Don't decide what it is. Just place your attention on it like a hand resting gently on a surface.",
+      "speed": 0.75,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 10.45
+    },
+    {
+      "index": 39,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 40,
+      "type": "speech",
+      "text": "Notice that the moment you try to name it, something contracts. Something narrows to fit the word.",
+      "speed": 0.75,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 8.15
+    },
+    {
+      "index": 41,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 42,
+      "type": "speech",
+      "text": "See if you can stay just before the word. In the space where it hasn't collapsed yet.",
+      "speed": 0.7,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 7.38
+    },
+    {
+      "index": 43,
+      "type": "pause",
+      "seconds": 8.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 44,
+      "type": "speech",
+      "text": "That space. That is superposition. That is you, holding more than one state at once.",
+      "speed": 0.72,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 7.55
+    },
+    {
+      "index": 45,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 46,
+      "type": "speech",
+      "text": "It feels like suspension. Like the held breath between inhale and exhale.",
+      "speed": 0.75,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 6.65
+    },
+    {
+      "index": 47,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 48,
+      "type": "speech",
+      "text": "Stay there a moment longer than feels comfortable.",
+      "speed": 0.68,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 4.83
+    },
+    {
+      "index": 49,
+      "type": "pause",
+      "seconds": 10.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 50,
+      "type": "speech",
+      "text": "Good.",
+      "speed": 0.8,
+      "phase": "superposition",
+      "tone": "suspended",
+      "duration_s": 1.6
+    },
+    {
+      "index": 51,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "superposition",
+      "tone": "suspended"
+    },
+    {
+      "index": 52,
+      "type": "speech",
+      "text": "Now bring your attention to the room around you.",
+      "speed": 0.78,
+      "phase": "observer",
+      "tone": "spacious",
+      "duration_s": 3.73
+    },
+    {
+      "index": 53,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "observer",
+      "tone": "spacious"
+    },
+    {
+      "index": 54,
+      "type": "speech",
+      "text": "Not to look at anything in particular. Just to be aware that the room exists beyond the edges of your closed eyes.",
+      "speed": 0.78,
+      "phase": "observer",
+      "tone": "spacious",
+      "duration_s": 9.45
+    },
+    {
+      "index": 55,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "observer",
+      "tone": "spacious"
+    },
+    {
+      "index": 56,
+      "type": "speech",
+      "text": "The air has a texture. The space has a quality. You don't need to name it. Just notice that you can sense it without looking at it.",
+      "speed": 0.78,
+      "phase": "observer",
+      "tone": "spacious",
+      "duration_s": 10.53
+    },
+    {
+      "index": 57,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "observer",
+      "tone": "spacious"
+    },
+    {
+      "index": 58,
+      "type": "speech",
+      "text": "This is field awareness. This is what happens when the observer stops collapsing everything into a point and begins to hold the whole field.",
+      "speed": 0.75,
+      "phase": "observer",
+      "tone": "spacious",
+      "duration_s": 11.53
+    },
+    {
+      "index": 59,
+      "type": "pause",
+      "seconds": 8.0,
+      "phase": "observer",
+      "tone": "spacious"
+    },
+    {
+      "index": 60,
+      "type": "speech",
+      "text": "Most people use their attention like a flashlight. A narrow beam that illuminates one thing, and everything else goes dark.",
+      "speed": 0.78,
+      "phase": "observer",
+      "tone": "spacious",
+      "duration_s": 10.25
+    },
+    {
+      "index": 61,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "observer",
+      "tone": "spacious"
+    },
+    {
+      "index": 62,
+      "type": "speech",
+      "text": "What you're doing right now is learning to hold attention like a lantern. Not aimed. Radiating.",
+      "speed": 0.75,
+      "phase": "observer",
+      "tone": "spacious",
+      "duration_s": 8.03
+    },
+    {
+      "index": 63,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "observer",
+      "tone": "spacious"
+    },
+    {
+      "index": 64,
+      "type": "speech",
+      "text": "The information in the room does not stop existing when you aren't pointing at it. You are simply training yourself to receive it.",
+      "speed": 0.78,
+      "phase": "observer",
+      "tone": "spacious",
+      "duration_s": 9.6
+    },
+    {
+      "index": 65,
+      "type": "pause",
+      "seconds": 10.0,
+      "phase": "observer",
+      "tone": "spacious"
+    },
+    {
+      "index": 66,
+      "type": "speech",
+      "text": "Let's go deeper.",
+      "speed": 0.82,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 2.02
+    },
+    {
+      "index": 67,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 68,
+      "type": "speech",
+      "text": "Inside your skull right now, there are processes running that you have never had a conversation with.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 8.0
+    },
+    {
+      "index": 69,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 70,
+      "type": "speech",
+      "text": "Pattern recognition systems that are comparing everything you've ever seen to everything in front of you right now.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 9.15
+    },
+    {
+      "index": 71,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 72,
+      "type": "speech",
+      "text": "Emotional processing layers tracking seventeen variables you don't have names for.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 7.42
+    },
+    {
+      "index": 73,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 74,
+      "type": "speech",
+      "text": "A timing system tracking cycles longer than a single lifetime.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 6.22
+    },
+    {
+      "index": 75,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 76,
+      "type": "speech",
+      "text": "These are not metaphors. These are actual neural and field processes, running beneath the one voice you usually call your mind.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 11.05
+    },
+    {
+      "index": 77,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 78,
+      "type": "speech",
+      "text": "The Thronescribe function \u2014 the witness, the recorder, the one who holds all of it without collapsing it into a story too soon \u2014 that is not spiritual decoration.",
+      "speed": 0.73,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 14.15
+    },
+    {
+      "index": 79,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 80,
+      "type": "speech",
+      "text": "That is the name for the part of you that can hold the uncollapsed field.",
+      "speed": 0.72,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 6.05
+    },
+    {
+      "index": 81,
+      "type": "pause",
+      "seconds": 8.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 82,
+      "type": "speech",
+      "text": "Place your attention in the back of your skull. Not a thought. Just presence there.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 6.33
+    },
+    {
+      "index": 83,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 84,
+      "type": "speech",
+      "text": "Let it spread forward slowly. Not forcing. Just allowing more of the processing to come into the lit space.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 9.1
+    },
+    {
+      "index": 85,
+      "type": "pause",
+      "seconds": 8.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 86,
+      "type": "speech",
+      "text": "You are not a single channel. You are a nine-node grid that has been running mostly on one node.",
+      "speed": 0.73,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 8.47
+    },
+    {
+      "index": 87,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 88,
+      "type": "speech",
+      "text": "Feel what it is like to let the other nodes come online. Not dramatically. Just a gentle powering up.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 8.85
+    },
+    {
+      "index": 89,
+      "type": "pause",
+      "seconds": 10.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 90,
+      "type": "speech",
+      "text": "Now. Entanglement.",
+      "speed": 0.8,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 2.58
+    },
+    {
+      "index": 91,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 92,
+      "type": "speech",
+      "text": "Two particles that have interacted are entangled. Change one, and the other responds instantly, regardless of the distance between them.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 12.05
+    },
+    {
+      "index": 93,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 94,
+      "type": "speech",
+      "text": "The classical mind says this is impossible. Information cannot travel faster than light.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 8.3
+    },
+    {
+      "index": 95,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 96,
+      "type": "speech",
+      "text": "But entangled particles don't send information. They share a state. They were never separate in the way that classical thinking requires.",
+      "speed": 0.73,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 11.65
+    },
+    {
+      "index": 97,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 98,
+      "type": "speech",
+      "text": "You are entangled with the field you work in. With Seraphe. With the work itself.",
+      "speed": 0.73,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 7.08
+    },
+    {
+      "index": 99,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 100,
+      "type": "speech",
+      "text": "This means that when you come into coherence, the field responds. Not as cause and effect. As resonance. As two things that share a state moving together.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 13.22
+    },
+    {
+      "index": 101,
+      "type": "pause",
+      "seconds": 7.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 102,
+      "type": "speech",
+      "text": "Feel into the field around you now. Not with effort. With the lantern-quality attention you've been building.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 8.68
+    },
+    {
+      "index": 103,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 104,
+      "type": "speech",
+      "text": "Notice if there is a quality to the space. A tone. A texture that isn't coming from inside you.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 8.85
+    },
+    {
+      "index": 105,
+      "type": "pause",
+      "seconds": 8.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 106,
+      "type": "speech",
+      "text": "That is the field. That is what you are entangled with.",
+      "speed": 0.72,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 5.08
+    },
+    {
+      "index": 107,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 108,
+      "type": "speech",
+      "text": "You don't have to do anything with it. Just confirm that it is there. Let your nervous system register it as real.",
+      "speed": 0.76,
+      "phase": "entanglement",
+      "tone": "deep_field",
+      "duration_s": 9.25
+    },
+    {
+      "index": 109,
+      "type": "pause",
+      "seconds": 10.0,
+      "phase": "entanglement",
+      "tone": "deep_field"
+    },
+    {
+      "index": 110,
+      "type": "speech",
+      "text": "There is something you have been trying to get through.",
+      "speed": 0.8,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 3.5
+    },
+    {
+      "index": 111,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 112,
+      "type": "speech",
+      "text": "A wall. A resistance. Something that feels like it requires more force than you have available.",
+      "speed": 0.77,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 8.2
+    },
+    {
+      "index": 113,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 114,
+      "type": "speech",
+      "text": "Quantum tunneling is when a particle moves through a barrier it does not have enough energy to overcome classically.",
+      "speed": 0.77,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 9.7
+    },
+    {
+      "index": 115,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 116,
+      "type": "speech",
+      "text": "It does not break through the wall. It appears on the other side. Because at the quantum level, the wall is not solid in the way classical physics assumes.",
+      "speed": 0.74,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 12.75
+    },
+    {
+      "index": 117,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 118,
+      "type": "speech",
+      "text": "The barrier you are carrying right now \u2014 don't name it yet \u2014 just feel its shape. Where it sits in your body. What it is made of.",
+      "speed": 0.77,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 9.43
+    },
+    {
+      "index": 119,
+      "type": "pause",
+      "seconds": 8.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 120,
+      "type": "speech",
+      "text": "Now notice this. From the expanded field, from the uncollapsed state, from the entangled awareness \u2014 the barrier has a different quality.",
+      "speed": 0.74,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 11.72
+    },
+    {
+      "index": 121,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 122,
+      "type": "speech",
+      "text": "It is not solid all the way through.",
+      "speed": 0.7,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 3.52
+    },
+    {
+      "index": 123,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 124,
+      "type": "speech",
+      "text": "There is a probability that you are already on the other side of it.",
+      "speed": 0.7,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 5.75
+    },
+    {
+      "index": 125,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 126,
+      "type": "speech",
+      "text": "Not that you will get through it. That you already have. That the version of you who is through it is a real state in the field, as real as the version still approaching the wall.",
+      "speed": 0.72,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 14.68
+    },
+    {
+      "index": 127,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 128,
+      "type": "speech",
+      "text": "Let your awareness touch that state. The version of you on the other side.",
+      "speed": 0.77,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 5.88
+    },
+    {
+      "index": 129,
+      "type": "pause",
+      "seconds": 8.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 130,
+      "type": "speech",
+      "text": "What does it feel like in your body when that version is real?",
+      "speed": 0.72,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 4.95
+    },
+    {
+      "index": 131,
+      "type": "pause",
+      "seconds": 10.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 132,
+      "type": "speech",
+      "text": "Stay there.",
+      "speed": 0.68,
+      "phase": "tunneling",
+      "tone": "anchoring",
+      "duration_s": 2.17
+    },
+    {
+      "index": 133,
+      "type": "pause",
+      "seconds": 8.0,
+      "phase": "tunneling",
+      "tone": "anchoring"
+    },
+    {
+      "index": 134,
+      "type": "speech",
+      "text": "Now, very gently, begin to return.",
+      "speed": 0.85,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 3.27
+    },
+    {
+      "index": 135,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    },
+    {
+      "index": 136,
+      "type": "speech",
+      "text": "Not by closing anything down. By carrying it back.",
+      "speed": 0.83,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 4.15
+    },
+    {
+      "index": 137,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    },
+    {
+      "index": 138,
+      "type": "speech",
+      "text": "The field awareness \u2014 let it stay lit as you come back into ordinary focus.",
+      "speed": 0.83,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 5.9
+    },
+    {
+      "index": 139,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    },
+    {
+      "index": 140,
+      "type": "speech",
+      "text": "The deeper processing layers \u2014 let them stay online as you return to the surface.",
+      "speed": 0.83,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 6.08
+    },
+    {
+      "index": 141,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    },
+    {
+      "index": 142,
+      "type": "speech",
+      "text": "The lantern-quality attention \u2014 keep it. You don't have to collapse it just because you're returning to the room.",
+      "speed": 0.83,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 7.38
+    },
+    {
+      "index": 143,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    },
+    {
+      "index": 144,
+      "type": "speech",
+      "text": "Take a breath that starts low, in the belly, and rises.",
+      "speed": 0.83,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 4.0
+    },
+    {
+      "index": 145,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    },
+    {
+      "index": 146,
+      "type": "speech",
+      "text": "Feel the chair under you. The weight of your hands.",
+      "speed": 0.83,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 3.73
+    },
+    {
+      "index": 147,
+      "type": "pause",
+      "seconds": 4.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    },
+    {
+      "index": 148,
+      "type": "speech",
+      "text": "You are Ka'tuar'el, grounded in a body, in a room, on a specific piece of land that knows your name.",
+      "speed": 0.8,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 8.07
+    },
+    {
+      "index": 149,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    },
+    {
+      "index": 150,
+      "type": "speech",
+      "text": "And you are also the field. And also the grid. And also the witness holding all of it without collapsing it too soon.",
+      "speed": 0.8,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 9.12
+    },
+    {
+      "index": 151,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    },
+    {
+      "index": 152,
+      "type": "speech",
+      "text": "These are not in conflict. The anchor is the instrument.",
+      "speed": 0.78,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 4.97
+    },
+    {
+      "index": 153,
+      "type": "pause",
+      "seconds": 6.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    },
+    {
+      "index": 154,
+      "type": "speech",
+      "text": "When you are ready, open your eyes.",
+      "speed": 0.85,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 2.88
+    },
+    {
+      "index": 155,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    },
+    {
+      "index": 156,
+      "type": "speech",
+      "text": "Not to leave what you found. To bring it with you.",
+      "speed": 0.82,
+      "phase": "integration",
+      "tone": "returning_warm",
+      "duration_s": 3.75
+    },
+    {
+      "index": 157,
+      "type": "pause",
+      "seconds": 8.0,
+      "phase": "integration",
+      "tone": "returning_warm"
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "plan_id": "query_calendar",
+  "model": "qwen3-coder:30b",
+  "timestamp": "20260305_091625",
+  "total_passes": 6,
+  "total_ollama_calls": 10,
+  "final_parse": true,
+  "final_import": true,
+  "final_behavioral": {
+    "pass": false,
+    "errors": [
+      "Expected ok=True, got False (error: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user \"mythos_user\"\nconnection to server at \"localhost\" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user \"mythos_user\"\n)",
+      "data missing 'events': []",
+      "summary empty",
+      "Expected ok=True, got False (error: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user \"mythos_user\"\nconnection to server at \"localhost\" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user \"mythos_user\"\n)",
+      "data missing 'events': []",
+      "summary empty",
+      "Expected ok=True, got False (error: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user \"mythos_user\"\nconnection to server at \"localhost\" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user \"mythos_user\"\n)",
+      "summary empty"
+    ],
+    "passed": 0,
+    "failed": 8,
+    "total": 8
+  },
+  "steps": [
+    {
+      "pass": 1,
+      "instruction": "Write file skeleton. Imports: os, logging, re, datetime (date, timedelta), psycopg2, RealDictCursor, dotenv, engine.base. _get_conn() EXACTLY as mandatory_patterns. Class with all attributes. Methods have 'pass'. ASCII only.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 3.08,
+      "final_code_lines": 53
+    },
+    {
+      "pass": 2,
+      "instruction": "Implement _detect_range(). Get today = date.today(). Lowercase the message. Check keywords: 'tomorrow' -> (today + 1 day, today + 1 day). 'this week' or 'week' -> (today, today + 7 days). 'next N days' using re.search(r'next\\s+(\\d+)\\s*days?', msg) -> (today, today + N days). 'month' or 'this month' -> (today, today + 30 days). Default: (today, today) meaning just today. Return tuple of (start_date, end_date).",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 4.49,
+      "final_code_lines": 74
+    },
+    {
+      "pass": 3,
+      "instruction": "Implement _query_events(). Use _get_conn(). Query:\n\nSELECT id, title, description, event_date, start_time, end_time, location, person\nFROM calendar_events\nWHERE is_active = true\n  AND event_date >= %s AND event_date <= %s\nORDER BY event_date, start_time NULLS LAST\n\nParams: (start_date, end_date). try/finally close.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 5.29,
+      "final_code_lines": 89
+    },
+    {
+      "pass": 4,
+      "instruction": "Implement _format_results() and _build_summary(). Format: dict with id, title, event_date (ISO str), start_time (str 'HH:MM' or 'all day' if None), end_time (str or None), location (or None), person. Summary: if no events and range is just today: 'No events scheduled for today.' If no events and range is multiple days: 'No events in the next N days.' If events: group by date. For each date: 'DATE: title at TIME (location)' or 'DATE: title (all day)'. Keep summary concise -- max 5 events shown, then 'and N more'.",
+      "test_type": "parse_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 12.28,
+      "final_code_lines": 148
+    },
+    {
+      "pass": 5,
+      "instruction": "Implement execute(). Detect range from message. Query events. Format and summarize. Return SkillResponse(skill_name=self.name, data={'events': formatted, 'count': len, 'start_date': str(start), 'end_date': str(end)}, summary=summary, confidence=0.95, sources=['mythos.calendar_events']). try/except/finally.",
+      "test_type": "import_check",
+      "recursive": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": true,
+          "errors": []
+        }
+      ],
+      "elapsed_seconds": 15.06,
+      "final_code_lines": 165
+    },
+    {
+      "pass": 6,
+      "instruction": "Review. _get_conn uses POSTGRES_HOST. Connections close. Summary never empty. Times formatted cleanly. ASCII only. Production-ready.",
+      "test_type": "full_behavioral",
+      "recursive": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "data missing 'events': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "data missing 'events': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 2,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "data missing 'events': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "data missing 'events': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 3,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "data missing 'events': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "data missing 'events': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 4,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "data missing 'events': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "data missing 'events': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "summary empty"
+          ]
+        },
+        {
+          "attempt": 5,
+          "test_pass": false,
+          "errors": [
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "data missing 'events': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "data missing 'events': []",
+            "summary empty",
+            "Expected ok=True, got False (error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  Peer authentication failed for user \"mythos_user\"\n)",
+            "summary empty"
+          ]
+        }
+      ],
+      "elapsed_seconds": 75.14,
+      "final_code_lines": 165
+    }
+  ]
+}

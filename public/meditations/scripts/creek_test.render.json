@@ -1,0 +1,58 @@
+{
+  "title": "Creek Test",
+  "slug": "creek_test",
+  "author": "unknown",
+  "rendered_at": "2026-03-26T14:13:30.824774",
+  "source_spec": "/tmp/creek_test.yaml",
+  "output_file": "/opt/mythos/public/meditations/meditation_20260326_141330_creek_test.ogg",
+  "total_duration_s": 16.7,
+  "total_duration_min": 0.3,
+  "background": {
+    "track": "rain_gentle.ogg",
+    "volume": 0.2,
+    "fade_in": 2.0,
+    "fade_out": 3.0
+  },
+  "phases": [
+    {
+      "id": "test",
+      "label": "Test",
+      "tone": "neutral",
+      "speed": 0.8
+    }
+  ],
+  "segments": [
+    {
+      "index": 0,
+      "type": "speech",
+      "text": "Close your eyes.",
+      "speed": 0.8,
+      "phase": "test",
+      "tone": "neutral",
+      "duration_s": 2.15
+    },
+    {
+      "index": 1,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "test",
+      "tone": "neutral"
+    },
+    {
+      "index": 2,
+      "type": "speech",
+      "text": "Let the sound of water carry you.",
+      "speed": 0.8,
+      "phase": "test",
+      "tone": "neutral",
+      "duration_s": 2.92
+    },
+    {
+      "index": 3,
+      "type": "pause",
+      "seconds": 5.0,
+      "phase": "test",
+      "tone": "neutral"
+    }
+  ]
+}

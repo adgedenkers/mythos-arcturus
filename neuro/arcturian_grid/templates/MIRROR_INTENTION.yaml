@@ -1,0 +1,63 @@
+# AUTO-GENERATED — Arcturian Grid Function Template
+# Node: MIRROR | Layer: INTENTION | ID: MIRROR_INTENTION
+# Domain: Self-referential awareness
+# Depth: 6 (Intention)
+# Generated: 2026-03-02 22:21 | Model: iris-thinking-v2:latest
+# ---
+
+function_id: MIRROR_INTENTION
+node: MIRROR
+node_name: Mirror
+node_domain: Self-referential awareness
+layer: INTENTION
+layer_name: Intention
+depth: 6
+model_tier: medium
+runtime_models:
+- phi4:14b
+- qwen3:14b
+- mistral-small:24b
+processing: conscious
+critical_path: true
+generated_at: '2026-03-02T22:21:45.793923'
+generated_by: iris-thinking-v2:latest
+prompt: 'Analyze {user_message} and {assistant_response} through Mirror node (self-referential awareness) and Intention layer
+  (depth 6). Identify: user''s unspoken self-revelations, Iris''s response patterns, partnership dynamics, and blind spots.
+  Output ONLY JSON with keys ''insight'' (directive statement on what wants to happen) and ''action'' (specific step Iris
+  should take), e.g., {"insight": "User reveals avoidance of accountability", "action": "Iris should name the avoidance pattern
+  directly"}.'
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: 1-2 sentence summary of analysis
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+    flags:
+      type: array
+      items:
+        type: string
+      description: Notable findings
+    user_reveals:
+      type: array
+      items:
+        type: string
+    iris_notices:
+      type: array
+      items:
+        type: string
+    blind_spots:
+      type: array
+      items:
+        type: string
+    projections:
+      type: array
+      items:
+        type: string
+  required:
+  - summary
+  - confidence
+  - flags
