@@ -1,0 +1,47 @@
+#!/bin/bash
+# /usr/local/libexec/mythos/mythos-allowlist-append
+# Append a unit name to /etc/mythos/allowed-units.txt.
+# Idempotent: if the unit is already present, exits cleanly with a message.
+# Installed by SYS-0062.
+
+set -euo pipefail
+
+ALLOWLIST_FILE="/etc/mythos/allowed-units.txt"
+
+if [[ $# -ne 1 ]]; then
+    echo "usage: mythos-allowlist-append <unit>" >&2
+    exit 2
+fi
+
+UNIT="$1"
+
+# Reject shell metacharacters and path separators
+if [[ "$UNIT" =~ [^a-zA-Z0-9._-] ]]; then
+    echo "error: invalid characters in unit: $UNIT" >&2
+    exit 2
+fi
+
+# Must end with .service or .timer
+if [[ ! "$UNIT" =~ ^[a-zA-Z0-9_-]+\.(service|timer)$ ]]; then
+    echo "error: unit must match <name>.service or <name>.timer: $UNIT" >&2
+    exit 2
+fi
+
+if [[ ! -f "$ALLOWLIST_FILE" ]]; then
+    echo "error: allowlist file missing: $ALLOWLIST_FILE" >&2
+    exit 2
+fi
+
+# Check for duplicate (exact match, ignoring comments and blanks)
+if /bin/grep -qxF "$UNIT" <(/usr/bin/sed -e 's/#.*//' -e '/^[[:space:]]*$/d' "$ALLOWLIST_FILE"); then
+    echo "already in allowlist: $UNIT"
+    exit 0
+fi
+
+# Atomic append via flock
+(
+    /usr/bin/flock -x 200
+    echo "$UNIT" >> "$ALLOWLIST_FILE"
+) 200<"$ALLOWLIST_FILE"
+
+echo "appended: $UNIT"

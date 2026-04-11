@@ -1,0 +1,27 @@
+#!/bin/bash
+# /usr/local/libexec/mythos/mythos-clean-tmp-pack
+# Remove stale tmp_pack_* files from /opt/mythos/.git/objects/pack/.
+# Safe no-op if there are none.
+# Installed by SYS-0062.
+
+set -euo pipefail
+
+if [[ $# -ne 0 ]]; then
+    echo "usage: mythos-clean-tmp-pack (no arguments)" >&2
+    exit 2
+fi
+
+PACK_DIR="/opt/mythos/.git/objects/pack"
+
+if [[ ! -d "$PACK_DIR" ]]; then
+    echo "error: $PACK_DIR does not exist" >&2
+    exit 2
+fi
+
+REMOVED=0
+while IFS= read -r -d '' f; do
+    /bin/rm -f "$f"
+    REMOVED=$((REMOVED + 1))
+done < <(/usr/bin/find "$PACK_DIR" -maxdepth 1 -type f -name "tmp_pack_*" -print0 2>/dev/null)
+
+echo "removed: $REMOVED file(s)"
