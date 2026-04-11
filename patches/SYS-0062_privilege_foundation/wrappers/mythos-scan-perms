@@ -1,0 +1,33 @@
+#!/bin/bash
+# /usr/local/libexec/mythos/mythos-scan-perms
+# Count files under /opt/mythos NOT owned by adge:adge.
+# Default behavior is quiet (count to stdout only).
+# Pass --verbose as an argument to dump up to 20 sample paths to stderr.
+# Installed by SYS-0062.
+
+set -euo pipefail
+
+VERBOSE=0
+if [[ $# -eq 1 && "$1" == "--verbose" ]]; then
+    VERBOSE=1
+elif [[ $# -ne 0 ]]; then
+    echo "usage: mythos-scan-perms [--verbose]" >&2
+    exit 2
+fi
+
+TARGET="/opt/mythos"
+
+if [[ ! -d "$TARGET" ]]; then
+    echo "error: $TARGET does not exist" >&2
+    exit 2
+fi
+
+COUNT=$(/usr/bin/find "$TARGET" \( -not -user adge -o -not -group adge \) -print 2>/dev/null | /usr/bin/wc -l)
+echo "$COUNT"
+
+if [[ "$VERBOSE" -eq 1 && "$COUNT" -gt 0 ]]; then
+    echo "---sample (first 20)---" >&2
+    /usr/bin/find "$TARGET" \( -not -user adge -o -not -group adge \) -print 2>/dev/null | /usr/bin/head -20 >&2
+fi
+
+exit 0
