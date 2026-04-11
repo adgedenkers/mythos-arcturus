@@ -97,6 +97,22 @@ class PatchBase:
         mode_tag = " [DRY RUN]" if self.dry_run else ""
         self.logger.log(f"[{self.patch_id}]{mode_tag} {self.description}")
         self.logger.log("=" * 55)
+        # SYS-0063: privilege foundation sanity check
+        wrapper_check = "/usr/local/libexec/mythos/mythos-servicectl"
+        if os.path.isfile(wrapper_check):
+            try:
+                subprocess.run(
+                    ["sudo", "-n", wrapper_check, "is-active", "mythos-bot.service"],
+                    check=False, capture_output=True, timeout=5,
+                )
+                self.logger.log("  ✓ privilege foundation (SYS-0062) installed")
+            except Exception as e:
+                self.logger.log(f"  ⚠ privilege foundation check failed: {e}")
+        else:
+            self.logger.log(
+                "  ⚠ privilege foundation (SYS-0062) not installed. "
+                "Patches using sudo may prompt for passwords."
+            )
 
     def finish(self):
         """Bump STREAMS.json, write PATCH_HISTORY, write logs, print summary."""
@@ -278,9 +294,8 @@ class PatchBase:
     # ── Services ──────────────────────────────────────────────────────────────
 
     def restart_service(self, service_name: str):
-        """Restart a systemd service. In dry-run, just validates the service exists."""
+        """Restart a systemd service via the SYS-0062 mythos-servicectl wrapper."""
         if self.dry_run:
-            # Check service exists
             try:
                 result = subprocess.run(
                     ['systemctl', 'cat', service_name],
@@ -297,21 +312,172 @@ class PatchBase:
                 self.logger.log(f"  ✗ [validate] service {service_name}: {e}")
             return
 
-        # Real restart (--no-block prevents hanging on slow services)
         try:
-            result = subprocess.run(
-                ['sudo', 'systemctl', 'restart', '--no-block', service_name],
-                capture_output=True, text=True, timeout=30
-            )
-            if result.returncode != 0:
-                self.errors.append(f"restart {service_name}: {result.stderr.strip()}")
-                self.logger.log(f"  ✗ restart {service_name}: {result.stderr.strip()}")
-            else:
-                self.services_restarted.append(service_name)
-                self.logger.log(f"  ✓ restarted {service_name}")
+            self.sudo_wrapper('mythos-servicectl', 'restart', service_name, timeout=30)
+            self.services_restarted.append(service_name)
+            self.logger.log(f"  ✓ restarted {service_name}")
+        except subprocess.CalledProcessError as e:
+            stderr = (e.stderr or '').strip()
+            self.errors.append(f"restart {service_name}: {stderr}")
+            self.logger.log(f"  ✗ restart {service_name}: {stderr}")
         except Exception as e:
             self.errors.append(f"restart {service_name}: {e}")
             self.logger.log(f"  ✗ restart {service_name}: {e}")
+
+    # ── Privilege wrappers (SYS-0062 / SYS-0063) ──────────────────────────────
+
+    def sudo_wrapper(self, wrapper_name: str, *args, timeout: int = 120, check: bool = True):
+        """Invoke a /usr/local/libexec/mythos/ wrapper via passwordless sudo.
+
+        Wrappers are installed by SYS-0062. They are root-owned, validated,
+        and whitelisted in /etc/sudoers.d/mythos-patches for adge.
+        """
+        wrapper_path = f"/usr/local/libexec/mythos/{wrapper_name}"
+        if not os.path.isfile(wrapper_path):
+            raise RuntimeError(
+                f"Mythos privilege wrapper not found: {wrapper_path}. "
+                f"Install SYS-0062 first."
+            )
+        cmd = ["sudo", "-n", wrapper_path] + [str(a) for a in args]
+        return subprocess.run(
+            cmd,
+            check=check,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+
+    def start_service(self, service_name: str):
+        """Start a systemd service via mythos-servicectl."""
+        try:
+            self.sudo_wrapper('mythos-servicectl', 'start', service_name, timeout=30)
+            self.logger.log(f"  ✓ started {service_name}")
+        except subprocess.CalledProcessError as e:
+            stderr = (e.stderr or '').strip()
+            self.errors.append(f"start {service_name}: {stderr}")
+            self.logger.log(f"  ✗ start {service_name}: {stderr}")
+        except Exception as e:
+            self.errors.append(f"start {service_name}: {e}")
+            self.logger.log(f"  ✗ start {service_name}: {e}")
+
+    def stop_service(self, service_name: str):
+        """Stop a systemd service via mythos-servicectl."""
+        try:
+            self.sudo_wrapper('mythos-servicectl', 'stop', service_name, timeout=30)
+            self.logger.log(f"  ✓ stopped {service_name}")
+        except subprocess.CalledProcessError as e:
+            stderr = (e.stderr or '').strip()
+            self.errors.append(f"stop {service_name}: {stderr}")
+            self.logger.log(f"  ✗ stop {service_name}: {stderr}")
+        except Exception as e:
+            self.errors.append(f"stop {service_name}: {e}")
+            self.logger.log(f"  ✗ stop {service_name}: {e}")
+
+    def is_service_active(self, service_name: str) -> bool:
+        """Return True if the service is currently active. Never raises."""
+        try:
+            result = self.sudo_wrapper(
+                'mythos-servicectl', 'is-active', service_name,
+                timeout=10, check=False,
+            )
+            return result.stdout.strip() == 'active'
+        except Exception:
+            return False
+
+    def install_systemd_unit(self, basename: str):
+        """Deploy a systemd unit from /opt/mythos/systemd/<basename> to /etc/systemd/system/."""
+        try:
+            self.sudo_wrapper('mythos-install-unit', basename, timeout=30)
+            self.logger.log(f"  ✓ installed unit {basename}")
+        except subprocess.CalledProcessError as e:
+            stderr = (e.stderr or '').strip()
+            self.errors.append(f"install_systemd_unit {basename}: {stderr}")
+            self.logger.log(f"  ✗ install unit {basename}: {stderr}")
+        except Exception as e:
+            self.errors.append(f"install_systemd_unit {basename}: {e}")
+            self.logger.log(f"  ✗ install unit {basename}: {e}")
+
+    def install_cloudflared_config(self):
+        """Deploy /opt/mythos/cloudflared/config.yml to /etc/cloudflared/config.yml."""
+        try:
+            self.sudo_wrapper('mythos-install-cloudflared-config', timeout=30)
+            self.logger.log(f"  ✓ installed cloudflared config")
+        except subprocess.CalledProcessError as e:
+            stderr = (e.stderr or '').strip()
+            self.errors.append(f"install_cloudflared_config: {stderr}")
+            self.logger.log(f"  ✗ install cloudflared config: {stderr}")
+        except Exception as e:
+            self.errors.append(f"install_cloudflared_config: {e}")
+            self.logger.log(f"  ✗ install cloudflared config: {e}")
+
+    def scan_perms(self) -> int:
+        """Count files under /opt/mythos/ not owned by adge. Returns -1 on failure."""
+        try:
+            result = self.sudo_wrapper('mythos-scan-perms', timeout=60, check=False)
+            out = result.stdout.strip()
+            # wrapper output format: "count=N" or just "N"
+            if '=' in out:
+                out = out.split('=', 1)[1].strip()
+            return int(out)
+        except Exception as e:
+            self.logger.log(f"  ⚠ scan_perms failed: {e}")
+            return -1
+
+    def fix_ownership(self):
+        """Recursive chown /opt/mythos/ to adge:adge."""
+        try:
+            self.sudo_wrapper('mythos-fix-ownership', timeout=120)
+            self.logger.log(f"  ✓ fixed ownership of /opt/mythos/")
+        except subprocess.CalledProcessError as e:
+            stderr = (e.stderr or '').strip()
+            self.errors.append(f"fix_ownership: {stderr}")
+            self.logger.log(f"  ✗ fix_ownership: {stderr}")
+        except Exception as e:
+            self.errors.append(f"fix_ownership: {e}")
+            self.logger.log(f"  ✗ fix_ownership: {e}")
+
+    def backup_git(self) -> str:
+        """Create a timestamped tar.gz of /opt/mythos/.git in /tmp/. Returns path or empty string."""
+        try:
+            result = self.sudo_wrapper('mythos-backup-git', timeout=300)
+            path = result.stdout.strip()
+            self.logger.log(f"  ✓ git backup: {path}")
+            return path
+        except subprocess.CalledProcessError as e:
+            stderr = (e.stderr or '').strip()
+            self.errors.append(f"backup_git: {stderr}")
+            self.logger.log(f"  ✗ backup_git: {stderr}")
+            return ''
+        except Exception as e:
+            self.errors.append(f"backup_git: {e}")
+            self.logger.log(f"  ✗ backup_git: {e}")
+            return ''
+
+    def clean_tmp_pack(self):
+        """Remove stale tmp_pack_* files from /opt/mythos/.git/."""
+        try:
+            self.sudo_wrapper('mythos-clean-tmp-pack', timeout=30)
+            self.logger.log(f"  ✓ cleaned tmp_pack files")
+        except subprocess.CalledProcessError as e:
+            stderr = (e.stderr or '').strip()
+            self.errors.append(f"clean_tmp_pack: {stderr}")
+            self.logger.log(f"  ✗ clean_tmp_pack: {stderr}")
+        except Exception as e:
+            self.errors.append(f"clean_tmp_pack: {e}")
+            self.logger.log(f"  ✗ clean_tmp_pack: {e}")
+
+    def allowlist_append_unit(self, unit: str):
+        """Atomically add a unit to /etc/mythos/allowed-units.txt."""
+        try:
+            self.sudo_wrapper('mythos-allowlist-append', unit, timeout=10)
+            self.logger.log(f"  ✓ allowlisted {unit}")
+        except subprocess.CalledProcessError as e:
+            stderr = (e.stderr or '').strip()
+            self.errors.append(f"allowlist_append_unit {unit}: {stderr}")
+            self.logger.log(f"  ✗ allowlist {unit}: {stderr}")
+        except Exception as e:
+            self.errors.append(f"allowlist_append_unit {unit}: {e}")
+            self.logger.log(f"  ✗ allowlist {unit}: {e}")
 
     # ── STREAMS.json ──────────────────────────────────────────────────────────
 
