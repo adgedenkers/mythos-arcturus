@@ -2095,3 +2095,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Date:** 2026-04-12
 - **Type:** PATCH
 - **Stream:** SYS
+
+### SYS-0075: finance v2 schema infra (entities, accounts, triggers, seeds)
+- **Date:** 2026-04-12
+- **Type:** MINOR
+- **Stream:** SYS
+- **SQL:** SYS-0075_finance_v2_schema_infra.sql
