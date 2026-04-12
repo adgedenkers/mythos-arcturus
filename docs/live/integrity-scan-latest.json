@@ -3,34 +3,34 @@
     "files_scanned": 5213,
     "dirs_scanned": 555,
     "files_new": 0,
-    "files_updated": 6,
-    "files_unchanged": 5207,
+    "files_updated": 5,
+    "files_unchanged": 5208,
     "files_missing": 0,
-    "scan_start": "2026-04-11T23:08:56.091155",
+    "scan_start": "2026-04-12T08:29:53.153588",
     "errors": [],
-    "scan_end": "2026-04-11T23:09:07.347962"
+    "scan_end": "2026-04-12T08:30:04.242487"
   },
   "functions": {
     "files_parsed": 415,
     "functions_found": 3319,
     "imports_found": 3461,
     "parse_errors": 1,
-    "scan_start": "2026-04-11T23:09:07.348485",
-    "scan_end": "2026-04-11T23:09:14.472939"
+    "scan_start": "2026-04-12T08:30:04.242861",
+    "scan_end": "2026-04-12T08:30:12.044549"
   },
   "tables": {
-    "tables_found": 137,
-    "columns_found": 1673,
-    "fk_relationships": 84,
-    "scan_start": "2026-04-11T23:09:14.477504",
-    "scan_end": "2026-04-11T23:09:17.391667"
+    "tables_found": 139,
+    "columns_found": 1705,
+    "fk_relationships": 85,
+    "scan_start": "2026-04-12T08:30:12.048978",
+    "scan_end": "2026-04-12T08:30:15.057306"
   },
   "services": {
     "services_found": 26,
-    "healthy": 24,
-    "unhealthy": 2,
+    "healthy": 23,
+    "unhealthy": 3,
     "linked_to_files": 21,
-    "scan_start": "2026-04-11T23:09:17.391946",
-    "scan_end": "2026-04-11T23:09:17.675322"
+    "scan_start": "2026-04-12T08:30:15.057592",
+    "scan_end": "2026-04-12T08:30:15.324006"
   }
 }

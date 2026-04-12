@@ -2033,3 +2033,22 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Date:** 2026-04-11
 - **Type:** MINOR
 - **Stream:** SYS
+
+### SYS-0064: security cleanup — remove cp * rule from mythos-monitor
+- **Date:** 2026-04-12
+- **Type:** MAJOR
+- **Stream:** SYS
+- **Files:** mythos-monitor
+
+### SYS-0066: monitor passive mode + patch-install git integration
+- **Date:** 2026-04-12
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** mythos_patch_monitor.py
+- **Services restarted:** mythos-patch-monitor.service
+
+### SYS-0067: finish SYS-0066 patch-install.sh git integration
+- **Date:** 2026-04-12
+- **Type:** PATCH
+- **Stream:** SYS
+- **Files:** patch-install.sh

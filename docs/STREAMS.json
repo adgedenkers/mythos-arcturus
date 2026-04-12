@@ -381,7 +381,7 @@
     "SYS": {
       "name": "SYSTEM",
       "description": "Cross-cutting infrastructure, patch system, bot core, API framework, web framework, auth, finance, people/rolodex, sales, shopping, workers framework, integrity",
-      "next_patch": 64,
+      "next_patch": 68,
       "last_patch": 8,
       "owned_paths": [
         "/opt/mythos/patches/",

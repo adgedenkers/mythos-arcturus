@@ -1,15 +1,15 @@
 # Mythos System Context
-> Auto-generated: 2026-04-11 03:00:24
-> Current Patch: 0000 / v0.0.0
+> Auto-generated: 2026-04-12 03:00:23
+> Current Patch: 0000 / sys_0063
 
 ## System Health
 - Services: 22/25 active — ⚠️ DOWN: mythos-jupyter, mythos-obs-graph, mythos-photos
 - PostgreSQL Tables: 126
-- Disk: 1.1T / 1.8T (61%), 695G available
-- Mythos Size: 282G
+- Disk: 1.1T / 1.8T (61%), 687G available
+- Mythos Size: 289G
 
 ## Current Patch/Version
-- Current: 0000 / v0.0.0
+- Current: 0000 / sys_0063
 - Next available: 0001
 - Total patches deployed: 0
 
@@ -58,7 +58,11 @@
 
 ## Recent Patches (last 5 commits)
 ```
-8a513c16 Fresh repo initialization after history reset
+f5f61b6d SYS-0063: framework migration to SYS-0062 wrappers
+87b10bef Applied patch: SYS-0063_framework_migration.zip
+439d1651 SYS-0063: framework migration to SYS-0062 wrappers
+a0817dc7 Applied patch: SYS-0063_framework_migration.zip
+928e7aee SYS-0062: privilege foundation (wrappers + sudoers)
 ```
 
 ## Services

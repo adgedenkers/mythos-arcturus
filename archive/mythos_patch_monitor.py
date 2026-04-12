@@ -74,7 +74,7 @@ ARTIFACT_PATTERNS = {
 GIT_ENABLED = True
 GITHUB_PUSH_ENABLED = True
 # Auto-execute install.sh after extraction
-AUTO_EXECUTE_INSTALL = True
+AUTO_EXECUTE_INSTALL = False  # SYS-0066: monitor is passive; patch-install does the work
 # Telegram notifications for finance imports
 TELEGRAM_NOTIFY_FINANCE = True
 # ------------------------------------------------------------
@@ -564,112 +564,50 @@ class DownloadsHandler(FileSystemEventHandler):
     # Patch handling (with git versioning)
     # --------------------------------------------------------
     def process_patch(self, zip_path):
+        """SYS-0066: PASSIVE MODE.
+
+        The monitor no longer extracts, installs, or touches the zip.
+        It only detects the patch and sends a Telegram notification.
+        The user runs 'patch-install <ID>' manually when ready.
+        patch-install.sh handles: copy-to-archive, extract, git snapshot,
+        install.sh execution, commit, tag, push.
+        """
         name = zip_path.name
         if name in self.processing:
             return
         try:
             self.processing.add(name)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            
+
+            # Validate the zip is readable before notifying
             if not self._is_valid_zip(zip_path):
                 logger.error(f"Invalid patch zip: {name}")
+                send_telegram_notification(
+                    f"⚠️ Patch zip is invalid or corrupted\n\n{name}\n\n"
+                    f"File left in Downloads — please re-upload."
+                )
                 return
-            PATCH_DIR.mkdir(parents=True, exist_ok=True)
-            PATCH_ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
-            PATCH_LOG_DIR.mkdir(parents=True, exist_ok=True)
-            # ---- GIT: Create pre-patch snapshot ----
-            if git_manager and git_manager.is_repo():
-                pre_tag = f"pre-patch-{name.replace('.zip', '')}-{timestamp}"
-                git_manager.create_snapshot(pre_tag, f"State before {name}")
-                logger.info(f"✓ Git snapshot: {pre_tag}")
-            # Copy zip to patches directory
-            dest = PATCH_DIR / name
-            shutil.copy2(zip_path, dest)
-            # Extract
-            extract_dir = None
-            with zipfile.ZipFile(dest, "r") as z:
-                # Get list of extracted files
-                files_in_zip = z.namelist()
-                z.extractall(PATCH_DIR)
-                
-                # Determine extract directory (usually the first directory in zip)
-                for f in files_in_zip:
-                    if '/' in f:
-                        extract_dir = PATCH_DIR / f.split('/')[0]
-                        break
-            # Archive the zip
-            shutil.move(dest, PATCH_ARCHIVE_DIR / name)
-            
-            # Remove original from Downloads
-            zip_path.unlink()
-            logger.info(f"✓ Patch extracted: {name}")
-            if extract_dir:
-                logger.info(f"  Extract location: {extract_dir}")
-            # ---- GIT: Commit patch and tag new version ----
-            if git_manager and git_manager.is_repo():
-                current_version = git_manager.get_current_version()
-                
-                # Try manifest version first, fall back to auto-increment
-                new_version = None
-                if extract_dir:
-                    new_version = git_manager.get_manifest_version(extract_dir)
-                if not new_version:
-                    new_version = git_manager.increment_version(current_version)
-                    logger.warning(f"No manifest version found, auto-incremented to {new_version}")
-                
-                git_manager.commit_patch(name, files_in_zip)
-                git_manager.tag_version(new_version, f"After applying {name}")
-                
-                # Update .version file
-                git_manager.update_version_file(new_version)
-                
-                # Push to GitHub if enabled
-                if GITHUB_PUSH_ENABLED:
-                    git_manager.push()
-                
-                logger.info(f"✓ Git versioned: {current_version} → {new_version}")
-            # Log the patch application
-            log_entry = {
-                "timestamp": timestamp,
-                "patch": name,
-                "files": files_in_zip if 'files_in_zip' in dir() else [],
-                "status": "success"
-            }
-            self._write_patch_log(log_entry)
-            # ---- AUTO-EXECUTE install.sh if present ----
-            if AUTO_EXECUTE_INSTALL and extract_dir:
-                install_script = extract_dir / "install.sh"
-                if install_script.exists():
-                    logger.info(f"Running install.sh from {extract_dir}")
-                    try:
-                        # Make executable
-                        install_script.chmod(0o755)
-                        # Run with sudo so patches can write root-owned files,
-                        # restart services, and compile __pycache__
-                        result = subprocess.run(
-                            ["sudo", "bash", str(install_script)],
-                            cwd=str(extract_dir),
-                            capture_output=True,
-                            text=True,
-                            timeout=300
-                        )
-                        if result.returncode == 0:
-                            logger.info(f"✓ install.sh completed successfully")
-                        else:
-                            logger.error(f"install.sh failed: {result.stderr}")
-                    except subprocess.TimeoutExpired:
-                        logger.error("install.sh timed out (5 min limit)")
-                    except Exception as e:
-                        logger.error(f"install.sh error: {e}")
-            logger.info(f"✓ Patch processed: {name}")
+
+            # Derive the patch ID from the filename — STREAM-NNNN_desc.zip or patch_NNNN_desc.zip
+            m = re.match(r"^([A-Z]{3}-\d{4})_", name)
+            if m:
+                patch_id = m.group(1)
+            else:
+                legacy = re.match(r"^patch_(\d{4})_", name)
+                patch_id = legacy.group(1) if legacy else name.replace(".zip", "")
+
+            logger.info(f"✓ Patch detected (passive mode): {name}")
+            logger.info(f"  Patch ID: {patch_id}")
+            logger.info(f"  Run: patch-install {patch_id}")
+
+            send_telegram_notification(
+                f"📦 *Patch Detected*\n\n"
+                f"`{name}`\n\n"
+                f"Run to install:\n"
+                f"`patch-install {patch_id}`\n\n"
+                f"_Zip remains in Downloads until installed._"
+            )
         except Exception as e:
-            logger.error(f"Patch error {name}: {e}", exc_info=True)
-            self._write_patch_log({
-                "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S"),
-                "patch": name,
-                "status": "error",
-                "error": str(e)
-            })
+            logger.error(f"Patch detect error {name}: {e}", exc_info=True)
         finally:
             self.processing.discard(name)
     def _write_patch_log(self, entry: dict):

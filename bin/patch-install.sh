@@ -107,6 +107,20 @@ _patch_install_inner() {
 
     # Make install.sh executable
     chmod +x "$patch_dir/install.sh" 2>/dev/null
+    # ── SYS-0066: Pre-patch git snapshot ──────────────────────────────────
+    local ts=$(date +%Y%m%d_%H%M%S)
+    local pre_tag="pre-patch-${base_name}-${ts}"
+    if cd "$mythos_root" 2>/dev/null; then
+        if [ -d .git ]; then
+            if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+                git add -A >/dev/null 2>&1
+                git commit -m "Auto-commit before ${pre_tag}" >/dev/null 2>&1
+            fi
+            git tag -a "$pre_tag" -m "State before $base_name" >/dev/null 2>&1 && \
+                echo "  📌 Git snapshot: $pre_tag"
+        fi
+        cd - >/dev/null 2>&1
+    fi
 
     # ── Dry-run phase ─────────────────────────────────────────────────────
     if [ "$dry_run" = "true" ]; then
@@ -154,6 +168,57 @@ _patch_install_inner() {
 
     if [ $exit_code -eq 0 ]; then
         echo "✅ $patch_id installed"
+        # ── SYS-0066: Post-install git commit + tag + push ───────────────
+        if cd "$mythos_root" 2>/dev/null; then
+            if [ -d .git ]; then
+                git add -A >/dev/null 2>&1
+                if [ -n "$(git status --porcelain --cached 2>/dev/null)" ]; then
+                    git commit -m "Applied patch: ${base_name}.zip" >/dev/null 2>&1 && \
+                        echo "  📌 Git: committed patch changes"
+                fi
+                local new_version=""
+                if [ -f "$patch_dir/manifest.json" ]; then
+                    new_version=$(python3 -c "
+import json, sys
+try:
+    m = json.load(open('$patch_dir/manifest.json'))
+    v = (m.get('versioning', {}).get('new_system_version')
+         or m.get('patch', {}).get('semantic_version'))
+    if v and not v.startswith('v'):
+        v = 'v' + v
+    print(v or '')
+except Exception:
+    print('')
+" 2>/dev/null)
+                fi
+                if [ -z "$new_version" ]; then
+                    local current=$(git tag -l 'v*' --sort=-v:refname 2>/dev/null | head -1)
+                    [ -z "$current" ] && current="v0.0.0"
+                    new_version=$(python3 -c "
+import re
+m = re.match(r'v(\d+)\.(\d+)\.(\d+)', '$current')
+if m:
+    a, b, c = map(int, m.groups())
+    print(f'v{a}.{b}.{c+1}')
+else:
+    print('v1.0.0')
+" 2>/dev/null)
+                fi
+                if [ -n "$new_version" ]; then
+                    git tag -a "$new_version" -m "After applying ${base_name}.zip" >/dev/null 2>&1 && \
+                        echo "  📌 Git: tagged $new_version"
+                    echo "${new_version#v}" > "$mythos_root/.version"
+                fi
+                if git remote get-url origin >/dev/null 2>&1; then
+                    if git push origin main --tags >/dev/null 2>&1; then
+                        echo "  📌 Git: pushed to origin/main"
+                    else
+                        echo "  ⚠ Git push failed (check SSH / network)"
+                    fi
+                fi
+            fi
+            cd - >/dev/null 2>&1
+        fi
     else
         echo "❌ $patch_id failed (exit code $exit_code)"
         echo ""
