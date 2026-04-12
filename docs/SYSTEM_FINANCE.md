@@ -126,66 +126,17 @@ to land cleanly.
 
 ---
 
-## Next Up: Patch D — Merchants + merchant_patterns
+## Next Up
 
-### Why
-Patch B left `transactions.merchant_id` as an unconstrained `BIGINT` on
-purpose — the merchants table didn't exist yet. Patch D creates the
-merchants registry and the pattern-matching table, then adds the FK.
-This unlocks Patch E (the importer), which needs to resolve raw CSV
-descriptions to canonical merchants before entries can be categorized.
+<!-- SYS-0078: next-up collapsed to pointer -->
+The full spec for the next patch lives in
+[`docs/finance/NEXT_PATCH_SPEC.md`](finance/NEXT_PATCH_SPEC.md).
+That file is rewritten wholesale at the end of every feature
+patch, so it always describes exactly one patch ahead.
 
-Merchants and categorization are **separate concerns** (per Jeff Pro's
-review). Patch D only handles merchant *resolution* (raw description →
-canonical merchant). Categorization rules (merchant → category, with
-context overrides) come in Patch F.
-
-### What
-- **Table: `finance.merchants`** — canonical merchant registry with
-  `canonical_name`, `display_name`, `default_category_account_id`
-  (nullable FK to accounts), `default_tax_treatment`,
-  `normalized_name_key`, `metadata`
-- **Table: `finance.merchant_patterns`** — raw description → merchant
-  mapping with `pattern`, `pattern_type` enum (exact/contains/regex),
-  `merchant_id` FK, `priority`, `confidence`, `match_count`,
-  `last_matched_at`, `is_active`
-- **Enum: `finance.pattern_type`** (exact, contains, regex)
-- **FK constraint added:** `transactions.merchant_id` → `merchants.id`
-  (nullable; existing rows are zero so no data migration needed)
-- **Indexes:** `merchants(normalized_name_key)`,
-  `merchant_patterns(pattern_type, priority DESC)`,
-  `merchant_patterns(merchant_id)`, `merchant_patterns(is_active) WHERE is_active`
-
-### How
-Follows the SYS-0075/0076 pattern exactly:
-- One SQL migration file wrapped in a transaction
-- `apply_patch.py` using `PatchBase`, runs SQL then verifies
-- Verification checks: tables exist, enum exists, FK exists, negative
-  test that inserting a `transactions.merchant_id` pointing to a
-  non-existent merchant is rejected
-
-No seeds in Patch D. Seeding merchants from archived v1 patterns
-happens in Patch E or F, once the importer exists to actually use
-them.
-
-### Success criteria
-- Both tables created, indexes in place
-- FK on `transactions.merchant_id` exists and rejects orphaned values
-- Positive test: insert merchant row, insert merchant_patterns row
-  referencing it, insert transaction referencing the merchant — all
-  succeed and commit cleanly
-- Negative test: transaction with nonexistent merchant_id rejected
-- Patch C workflow docs reflect Patch D as "shipped"
-
-### Depends on
-- Patch A (finance schema, accounts table for FK target)
-- Patch B (transactions table for FK source)
-
-### Does NOT include
-- Any merchant/pattern rows (deferred to E or F)
-- Categorization rules (Patch F)
-- Importer logic (Patch E)
-- FK re-verification of pre-existing transactions (there are none yet)
+Run `mythos-handoff finance` to assemble the full handoff payload
+(this doc + WORKFLOW + NEXT_PATCH_SPEC + live DB state + validations)
+into your clipboard, ready to paste into a new conversation.
 
 ---
 

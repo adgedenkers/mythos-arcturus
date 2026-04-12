@@ -2113,3 +2113,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** PATCH
 - **Stream:** SYS
 - **Files:** WORKFLOW.md, SYSTEM_FINANCE.md, ARCHITECTURE.md
+
+### SYS-0078: handoff system bootstrap — tool, manifest, spec
+- **Date:** 2026-04-12
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** mythos-handoff, MANIFEST.yaml, NEXT_PATCH_SPEC.md, README.md, WORKFLOW.md, SYSTEM_FINANCE.md

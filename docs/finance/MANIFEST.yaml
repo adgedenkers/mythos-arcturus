@@ -1,0 +1,65 @@
+subsystem: finance
+display_name: Finance v2
+stream: SYS
+design_doc: docs/FINANCE_V2.md
+system_doc: docs/SYSTEM_FINANCE.md
+next_patch_spec: docs/finance/NEXT_PATCH_SPEC.md
+
+task: |
+  Active build of Finance v2 — double-entry ledger on Postgres.
+  Current sequence is at Patch B landed (SYS-0076), C landed (SYS-0077),
+  C.1 landed (SYS-0078, this handoff tool). Next feature patch is D.
+  See NEXT_PATCH_SPEC.md for full detail.
+
+include_docs:
+  - docs/WORKFLOW.md
+  - docs/SYSTEM_FINANCE.md
+  - docs/finance/NEXT_PATCH_SPEC.md
+  - docs/FINANCE_V2.md
+
+sql_queries:
+  - name: finance schema objects
+    sql: "\\dn finance"
+  - name: finance tables
+    sql: "\\dt finance.*"
+  - name: finance enums
+    sql: "SELECT n.nspname AS schema, t.typname AS name, string_agg(e.enumlabel, ', ' ORDER BY e.enumsortorder) AS values FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace JOIN pg_enum e ON e.enumtypid = t.oid WHERE n.nspname = 'finance' GROUP BY n.nspname, t.typname ORDER BY t.typname;"
+  - name: finance triggers
+    sql: "SELECT t.tgname, c.relname AS table, t.tgdeferrable AS deferrable, CASE t.tgtype::int & 66 WHEN 2 THEN 'BEFORE' WHEN 64 THEN 'INSTEAD OF' ELSE 'AFTER' END AS timing FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'finance' AND NOT t.tgisinternal ORDER BY c.relname, t.tgname;"
+  - name: entities (contents)
+    sql: "SELECT id, name, kind, is_active FROM finance.entities ORDER BY id;"
+  - name: accounts (system + count)
+    sql: "SELECT id, account_path, account_kind, is_system FROM finance.accounts ORDER BY id;"
+  - name: row counts per finance table
+    sql: "SELECT 'entities' AS tbl, count(*) FROM finance.entities UNION ALL SELECT 'accounts', count(*) FROM finance.accounts UNION ALL SELECT 'import_sources', count(*) FROM finance.import_sources UNION ALL SELECT 'imports', count(*) FROM finance.imports UNION ALL SELECT 'transactions', count(*) FROM finance.transactions UNION ALL SELECT 'entries', count(*) FROM finance.entries UNION ALL SELECT 'source_observations', count(*) FROM finance.source_observations;"
+  - name: latest finance patches from PATCH_HISTORY
+    sql: "\\! tail -40 /opt/mythos/docs/PATCH_HISTORY.md"
+
+validations:
+  - name: "finance schema exists"
+    sql: "SELECT 1 FROM pg_namespace WHERE nspname = 'finance'"
+    expect: "1"
+  - name: "entities has 2 rows"
+    sql: "SELECT count(*)::text FROM finance.entities"
+    expect: "2"
+  - name: "5 system accounts seeded"
+    sql: "SELECT count(*)::text FROM finance.accounts WHERE is_system = true"
+    expect: "5"
+  - name: "Personal entity id=1 exists"
+    sql: "SELECT count(*)::text FROM finance.entities WHERE id=1 AND name='Personal' AND is_active=true"
+    expect: "1"
+  - name: "deferred balance trigger is DEFERRABLE"
+    sql: "SELECT tgdeferrable::text FROM pg_trigger WHERE tgname='entries_enforce_balance'"
+    expect: "t"
+  - name: "entries.entity_id defaults to 1"
+    sql: "SELECT column_default FROM information_schema.columns WHERE table_schema='finance' AND table_name='entries' AND column_name='entity_id'"
+    expect: "1"
+  - name: "all 5 ledger tables exist"
+    sql: "SELECT count(*)::text FROM pg_tables WHERE schemaname='finance' AND tablename IN ('import_sources','imports','transactions','entries','source_observations')"
+    expect: "5"
+
+integrity:
+  filter_schema: finance
+
+streams:
+  - SYS

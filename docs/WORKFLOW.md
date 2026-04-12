@@ -164,11 +164,48 @@ Every `SYSTEM_<name>.md` follows the same template:
 
 ---
 
-## Handoff diag script
+## Handoff System (three-artifact pattern)
 
-*(Location and structure of the handoff diagnostic script is pending
-external review. Will be specified in a follow-up doc patch once
-settled.)*
+<!-- SYS-0078: handoff system documented -->
+
+After Gemini review, the handoff is implemented as **three artifacts**
+with different lifecycles, not a single monolithic script:
+
+| Artifact | Path | Lifecycle |
+|---|---|---|
+| **Generic tool** | `/opt/mythos/bin/mythos-handoff` | Permanent, subsystem-agnostic. Updated rarely, when new capabilities are needed (e.g., "also pull Neo4j integrity state"). |
+| **Feature manifest** | `docs/<n>/MANIFEST.yaml` | Versioned per feature. Updated when dependencies change (new tables, new validations). |
+| **Next patch spec** | `docs/<n>/NEXT_PATCH_SPEC.md` | Rewritten wholesale each turn. Ephemeral content; history lives in `SYSTEM_<n>.md`. |
+
+### Usage
+
+```bash
+mythos-handoff finance           # assemble payload, copy to clipboard
+mythos-handoff finance --stdout  # write to stdout
+mythos-handoff finance --file F  # write to file
+mythos-handoff --list            # list available subsystems
+```
+
+The tool reads `docs/<subsystem>/MANIFEST.yaml`, then walks its
+sections: docs to include, SQL queries to run, validations to assert,
+integrity state to pull, and stream counters to report. The
+assembled payload goes to the clipboard via `xclip`.
+
+### Validation policy (soft warning)
+
+If any manifest validation fails, the payload still gets assembled
+and copied — but a bright `⚠⚠⚠ VALIDATION FAILURES ⚠⚠⚠` banner
+appears at the top. Rationale: failures are information, and
+sometimes you hand off *precisely because* something is broken and
+you need Claude to fix it. Hard-blocking would prevent that.
+
+### Adding a new subsystem
+
+1. Create `docs/<n>/MANIFEST.yaml` (schema: see `docs/finance/MANIFEST.yaml` as reference)
+2. Create `docs/<n>/NEXT_PATCH_SPEC.md`
+3. `mythos-handoff <n>` auto-discovers it
+
+The tool does not hardcode any subsystem names. `docs/<n>/` is the convention.
 
 ---
 
