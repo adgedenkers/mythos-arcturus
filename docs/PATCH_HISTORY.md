@@ -2052,3 +2052,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** PATCH
 - **Stream:** SYS
 - **Files:** patch-install.sh
+
+### SYS-0068: security cleanup retry — remove cp * rule (SYS-0064 had buggy verify)
+- **Date:** 2026-04-12
+- **Type:** MAJOR
+- **Stream:** SYS
+- **Files:** mythos-monitor
