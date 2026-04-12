@@ -2101,3 +2101,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **SQL:** SYS-0075_finance_v2_schema_infra.sql
+
+### SYS-0076: finance v2 ledger core (imports, observations, transactions, entries)
+- **Date:** 2026-04-12
+- **Type:** MINOR
+- **Stream:** SYS
+- **SQL:** SYS-0076_finance_v2_ledger.sql
