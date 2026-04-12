@@ -2058,3 +2058,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MAJOR
 - **Stream:** SYS
 - **Files:** mythos-monitor
+
+### SYS-0069: session note for 2026-04-12 cleanup work
+- **Date:** 2026-04-12
+- **Type:** PATCH
+- **Stream:** SYS
+- **Files:** 2026-04-12-cleanup.md

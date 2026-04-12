@@ -1,0 +1,44 @@
+{
+  "adge": {
+    "name": "Adge",
+    "year": 1977,
+    "month": 11,
+    "day": 22,
+    "hour": 8,
+    "minute": 30,
+    "city": "Albany",
+    "nation": "US",
+    "lat": 42.6563,
+    "lng": -73.8037,
+    "tz_str": "America/New_York",
+    "role": "self"
+  },
+  "seraphe": {
+    "name": "Seraphe",
+    "year": 1978,
+    "month": 8,
+    "day": 19,
+    "hour": 14,
+    "minute": 2,
+    "city": "Norwich",
+    "nation": "US",
+    "lat": 42.5416,
+    "lng": -75.5262,
+    "tz_str": "America/New_York",
+    "role": "partner"
+  },
+  "fitz": {
+    "name": "Fitz",
+    "year": 2010,
+    "month": 9,
+    "day": 8,
+    "hour": 14,
+    "minute": 39,
+    "city": "Schenectady",
+    "nation": "US",
+    "lat": 42.8142,
+    "lng": -73.9396,
+    "tz_str": "America/New_York",
+    "role": "son"
+  }
+}
