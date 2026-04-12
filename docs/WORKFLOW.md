@@ -69,6 +69,12 @@ For each letter:
    doc, for the very first patch of the feature)
 2. **Claude builds the feature patch** using the letter's spec
 3. **Claude delivers** zip + install command
+3.5. **[HIGH-BLAST-RADIUS ONLY] Claude writes a Gemini review
+   request** using `docs/GEMINI_REVIEW_TEMPLATE.md`, delivers it
+   in a single triple-backtick code block. Adge pastes into
+   Gemini, brings back the response, Claude revises if needed,
+   may require another review round. Only then is the zip
+   finalized. See Phase 2.5 below for full rules.
 4. **Adge installs on Arcturus** via `patch-install SYS-NNNN`
 5. **Adge confirms** the install worked and the verification passed
 6. **Claude builds a doc patch** that updates:
@@ -206,6 +212,86 @@ you need Claude to fix it. Hard-blocking would prevent that.
 3. `mythos-handoff <n>` auto-discovers it
 
 The tool does not hardcode any subsystem names. `docs/<n>/` is the convention.
+
+---
+
+
+
+---
+
+<!-- SYS-0081: Phase 2.5 Second Opinion -->
+
+## Phase 2.5 — Second Opinion (required for high-blast-radius patches)
+
+A patch is **high-blast-radius** — and therefore requires a Gemini
+review before shipping — if it changes any of:
+
+1. **Database schema.** New tables, altered columns, new triggers,
+   changed constraints, new enums, new indexes that enforce invariants.
+2. **Security boundaries.** Wrappers under `/usr/local/libexec/mythos/`,
+   sudoers rules, file permissions, systemd unit installations.
+3. **Core financial invariants.** The deferred balance trigger,
+   entity/account protection triggers, dedup logic, opening-balance
+   derivation, or any file under `/opt/mythos/finance/`.
+4. **The patch system itself.** `PatchBase`, `patch-install`,
+   privilege wrappers, `mythos-handoff`, manifest schema.
+5. **Multi-file code refactors across subsystems.** Anything that
+   touches more than one non-doc file in more than one subsystem.
+6. **Prompt engineering & consciousness frameworks.** Any file under:
+   - `/opt/mythos/prompts/Modelfile` and `/opt/mythos/prompts/Modelfile.deep`
+   - `/opt/mythos/prompts/prompt_layers.yaml`
+   - `/opt/mythos/prompts/iris_identity.md`
+   - `/opt/mythos/prompts/personality.yaml`
+   - `/opt/mythos/prompts/voice.yaml`
+   - `/opt/mythos/triad/*`
+   - `/opt/mythos/neuro/arcturian_grid/*`
+   - `/opt/mythos/iris/*`
+   - `/opt/mythos/core/prompt_assembler.py`
+
+   A one-character change to a baked Modelfile or prompt layer alters
+   how Iris perceives every subsequent interaction and can silently
+   degrade capability across the whole system.
+
+### The review loop
+
+For high-blast-radius patches:
+
+1. Claude writes a review request using `docs/GEMINI_REVIEW_TEMPLATE.md`
+2. Claude delivers the request wrapped in a single triple-backtick
+   code block — no context payload mixed in, no surrounding prose
+   the reviewer could mistake for part of the request
+3. Adge pastes into Gemini, brings back the response
+4. Claude revises as needed (may require another review round for
+   significant changes — use an incorporation check, not a fresh
+   critique)
+5. Only then is the zip shipped
+6. The review URL goes into the patch's `review_link` parameter on
+   `PatchBase.__init__()` so it lands in `PATCH_HISTORY.md`
+
+### Sovereignty Rule — Do not automate the review loop
+
+The manual copy-paste cycle between Claude, Adge, and Gemini is a
+feature, not a bug. It forces Adge to read every proposal before the
+reviewer does, which means Adge is the first line of defense — not
+the last. Automating this loop with a Gemini API call removes the
+human from the loop and the loop loses its primary value: shared
+mental context. This rule is non-negotiable. No `mythos-review`
+script. No pipeline that shuttles prompts to APIs. **Copy. Paste.
+Read. Think. Ship.**
+
+### Trivial-patch exception (narrow)
+
+Trivial patches skip Phase 2.5. A trivial patch is: a single-file
+edit, no schema touched, no code logic changed, applied to one of
+these targets: a typo or wording fix in documentation; a log message
+string tweak; a comment update; a manifest version bump; a
+whitespace normalization.
+
+**A patch is never trivial if it modifies any file within a
+high-blast-radius category, regardless of line count or apparent
+simplicity. A one-character change to a SQL trigger, a security
+wrapper, a baked Modelfile, or a financial invariant is not trivial.
+No exceptions. When in doubt, review.**
 
 ---
 

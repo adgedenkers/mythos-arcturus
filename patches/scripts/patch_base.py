@@ -68,11 +68,13 @@ class PatchLogger:
 
 
 class PatchBase:
-    def __init__(self, stream: str, number: int, description: str, patch_type: str = "PATCH"):
+    def __init__(self, stream: str, number: int, description: str,
+                 patch_type: str = "PATCH", review_link: str = None):
         self.stream = stream.upper()
         self.number = number
         self.description = description
         self.patch_type = patch_type.upper()
+        self.review_link = review_link  # SYS-0081: Gemini review URL or None
         self.patch_id = f"{self.stream}-{self.number:04d}"
         self.patch_dir = Path(os.path.dirname(os.path.abspath(sys.argv[0])))
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -597,6 +599,9 @@ class PatchBase:
                 entry += f"- **SQL:** {', '.join(Path(f).name for f in self.sql_run)}\n"
             if self.services_restarted:
                 entry += f"- **Services restarted:** {', '.join(self.services_restarted)}\n"
+            # SYS-0081: conditional Review: line — absent = trivial, present = reviewed
+            if self.review_link:
+                entry += f"- **Review:** {self.review_link}\n"
 
             with open(PATCH_HISTORY, 'a') as f:
                 f.write(entry)

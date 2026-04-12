@@ -2131,3 +2131,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** mythos-handoff, mythos-handoff, patch_base.py
+
+### SYS-0081: Gemini review workflow — template, Phase 2.5, review_link field (reviewed by Castor 2-round, 2026-04-12)
+- **Date:** 2026-04-12
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** GEMINI_REVIEW_TEMPLATE.md, WORKFLOW.md, WORKFLOW.md, patch_base.py, patch_base.py, SYSTEM_FINANCE.md, MANIFEST.yaml

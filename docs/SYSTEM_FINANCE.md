@@ -178,6 +178,28 @@ section for full context on each.)*
 > or resolve inline. Never lose a note.
 
 <!-- Add new notes below this line -->
+<!-- SYS-0081: incoming notes appended -->
+
+**2026-04-12** (SYS-0081): Review fatigue 3-month revisit. Check
+whether the blast-radius cutoff in WORKFLOW.md Phase 2.5 is actually
+being honored. If patches are shipping that should have been reviewed,
+tighten the rule or add a PatchBase warning per Castor's round-1
+architectural oversight note. Revisit target: 2026-07-12.
+
+**2026-04-12** (SYS-0081): `edit_file()` double-backup nit — when the
+same file is edited twice in one patch (e.g., SYS-0080's two edits to
+mythos-handoff), the second backup overwrites the first with a
+post-first-edit version. Harmless today (set -e rollback still works
+because the second edit's failure triggers the first's backup via
+the overall patch-install failure path), but the pristine pre-patch
+state is lost. Low priority refinement.
+
+**2026-04-12** (SYS-0081): Link rot 3-month revisit. If any `Review:`
+links in PATCH_HISTORY have gone stale by this date, adopt the
+commit-review-text pattern — store full review request text in
+`patches/SYS-NNNN/review_request.md` as part of the patch zip. Per
+Castor's round-1 architectural oversight. Revisit target: 2026-07-12.
+
 
 ---
 

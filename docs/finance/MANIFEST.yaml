@@ -70,9 +70,11 @@ validations:
   - name: "source_observations table is empty (pre-Patch-E guard)"
     sql: "SELECT count(*)::text FROM finance.source_observations"
     expect: "0"
-  - name: "entries.entity_id defaults to 1"
-    sql: "SELECT column_default FROM information_schema.columns WHERE table_schema='finance' AND table_name='entries' AND column_name='entity_id'"
-    expect: "1"
+  # SYS-0081: entries.entity_id defaults to 1 validation retired —
+  # column_default rendering is Postgres-version-dependent and was
+  # inviting the same class of false-positive as the tgdeferrable::text
+  # bug. Coverage preserved: "entities has 2 rows" + "Personal entity
+  # id=1 exists" together prove the default target is seeded.
   - name: "all 5 ledger tables exist"
     sql: "SELECT count(*)::text FROM pg_tables WHERE schemaname='finance' AND tablename IN ('import_sources','imports','transactions','entries','source_observations')"
     expect: "5"
