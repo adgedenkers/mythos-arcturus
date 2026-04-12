@@ -17,6 +17,43 @@ This document consolidates design decisions from five review rounds. Every signi
 
 ---
 
+<!-- SYS-0074-RENUMBER-NOTE -->
+> ## ⚠️ Patch numbering note (added SYS-0074)
+>
+> **The patch numbers in §15 (SYS-0063 through SYS-0071) are obsolete.**
+> Those numbers were assigned when the plan was first written; the SYS
+> stream counter has since moved past them on unrelated work. The logical
+> sequence in §15 is still correct — only the numbers are wrong.
+>
+> **Rule going forward:**
+>
+> 1. When starting a new step from §15, run `mythos-diag streams` to get
+>    the live next SYS patch number. That's the number for this step.
+> 2. **Do not pre-assign numbers for future steps.** Each logical step
+>    (schema, importer, merchants, api, recurring, forecast, reliability)
+>    may take more than one patch to land successfully — and that's fine.
+>    Only assign the next number when the previous step is verified
+>    working on Arcturus.
+> 3. Record the actual patch number used for each step in this file as
+>    the work completes, so future readers can map logical step →
+>    real patch history.
+>
+> **Actual numbers used (fill in as we go):**
+>
+> - Preflight (v1 teardown): **SYS-0071** (already done — v1 code archived,
+>   tables renamed)
+> - Renumber note (this patch): **SYS-0074**
+> - Schema (§15 step 2, was planned 0064): _TBD — next patch_
+> - Importer (§15 step 3, was planned 0065): _TBD_
+> - Merchants & rules (§15 step 4, was planned 0066): _TBD_
+> - API (§15 step 5, was planned 0067): _TBD_
+> - Recurring detector (§15 step 6, was planned 0068): _TBD_
+> - Forecasting (§15 step 7, was planned 0069): _TBD_
+> - v1 archive cleanup (§15 step 8, was planned 0070): _TBD_
+> - Reliability (§15 step 9, was planned 0071): _TBD_
+
+---
+
 ## 1. Context and constraints
 
 ### 1.1 What this system is

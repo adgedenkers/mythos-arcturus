@@ -2090,3 +2090,8 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** FINANCE_V2.md
+
+### SYS-0074: finance_v2_plan_renumber_note
+- **Date:** 2026-04-12
+- **Type:** PATCH
+- **Stream:** SYS
