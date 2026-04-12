@@ -2077,3 +2077,10 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MAJOR
 - **Stream:** SYS
 - **SQL:** SYS-0071_rename_v1_finance_tables.sql
+
+### SYS-0072: finance_v2_plan
+- **Date:** 2026-04-12
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** FINANCE_V2.md, FINANCE_V2_ARCHITECTURE.md
+- **SQL:** drop_v1.sql
