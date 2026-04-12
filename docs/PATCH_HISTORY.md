@@ -2084,3 +2084,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Stream:** SYS
 - **Files:** FINANCE_V2.md, FINANCE_V2_ARCHITECTURE.md
 - **SQL:** drop_v1.sql
+
+### SYS-0073: finance_v2_real_plan
+- **Date:** 2026-04-12
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** FINANCE_V2.md
