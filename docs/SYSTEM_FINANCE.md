@@ -21,16 +21,18 @@ author: Adge Denkers
 
 ## Status
 
-- **Last shipped patch:** B (SYS-0076) — 2026-04-12
-- **Next patch:** D — Merchants + merchant_patterns + FK on `transactions.merchant_id`
-- **Build phase:** active (A→L sequence, currently at B→C→D)
+- **Last shipped patch:** C.1 hardening (SYS-0081) — 2026-04-12
+- **Next patch:** D — Merchants + merchant_patterns + FK on `transactions.merchant_id` (will be SYS-0083)
+- **Build phase:** active (A→L sequence, C.1 infrastructure complete, D next)
 - **Design plan:** `docs/FINANCE_V2.md`
 
-> Note: Patch C (this one, SYS-0077) is the workflow/documentation
-> bootstrap. It ships no schema or code — only `WORKFLOW.md`,
-> `SYSTEM_FINANCE.md`, and an `ARCHITECTURE.md` edit. The
-> handoff-diag script itself is deferred pending external review
-> and will land in a follow-up doc patch.
+> Note: Patch C (SYS-0077) shipped the workflow/documentation bootstrap.
+> Patch C.1 (SYS-0078) shipped the `mythos-handoff` tool, manifest schema,
+> and `NEXT_PATCH_SPEC.md` pattern. Three follow-up hardening patches
+> (SYS-0079 tgdeferrable cast + guards, SYS-0080 `--strict` +
+> `verify_handoff()`, SYS-0081 Gemini review workflow + Phase 2.5) shipped
+> infrastructure under the C.1 umbrella — none of them map to a locked
+> feature letter, and the letter sequence is unchanged.
 
 ---
 
@@ -70,8 +72,13 @@ balance assertions, and reliability infrastructure are all still ahead.
 |--------|-------|---------|---------|-------|
 | A | Schema infra — `finance` schema, entities, accounts, triggers, system seeds | SYS-0075 | 2026-04-12 | Foundation. 5 system accounts seeded, protection trigger verified. |
 | B | Ledger core — imports, import_sources (schema only), transactions, entries, source_observations, deferred balance trigger | SYS-0076 | 2026-04-12 | Balance trigger verified via negative + positive tests. |
-| C | Workflow bootstrap — WORKFLOW.md, SYSTEM_FINANCE.md, ARCHITECTURE.md edit | SYS-0077 | 2026-04-12 | This patch. No schema or code changes. |
-| D | Merchants + merchant_patterns + FK on `transactions.merchant_id` | — | — | **Next up** |
+| C | Workflow bootstrap — WORKFLOW.md, SYSTEM_FINANCE.md, ARCHITECTURE.md edit | SYS-0077 | 2026-04-12 | Shipped. Doc-only. |
+| C.1 | Handoff system — `mythos-handoff` tool, `MANIFEST.yaml` schema, `NEXT_PATCH_SPEC.md` pattern | SYS-0078 | 2026-04-12 | Shipped. Replaces per-subsystem handoff scripts. |
+| C.1a | Handoff hardening — tgdeferrable cast fix + empty-ledger guards | SYS-0079 | 2026-04-12 | Manifest validation fixes. |
+| C.1b | Handoff hardening — `mythos-handoff --strict` flag + `PatchBase.verify_handoff()` helper | SYS-0080 | 2026-04-12 | Enforcement option for CI-style use. |
+| C.1c | Gemini review workflow — template, Phase 2.5 blast-radius rules, `review_link` field | SYS-0081 | 2026-04-12 | Castor-reviewed 2 rounds. |
+| C.2 | SYSTEM_FINANCE doc reconciliation (this patch) | SYS-0082 | 2026-04-12 | Trivial doc-only patch. No schema, no code. |
+| D | Merchants + merchant_patterns + FK on `transactions.merchant_id` | — | — | **Next up — will be SYS-0083, Phase 2.5 required** |
 | E | Importer — CSV parsers, 3-phase dedup, observation→transaction flow, opening balances, historical re-import, import_sources seeds | — | — | |
 | F | Categorization — rules, categorization_log, learning loop, historical categorization pass | — | — | |
 | G | API + dashboard rewrite, split UI, entity selection, correction routing, audit view | — | — | |

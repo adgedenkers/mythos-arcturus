@@ -1,38 +1,38 @@
 {
   "files": {
-    "files_scanned": 5239,
+    "files_scanned": 5241,
     "dirs_scanned": 563,
-    "files_new": 4,
-    "files_updated": 8,
-    "files_unchanged": 5227,
+    "files_new": 2,
+    "files_updated": 6,
+    "files_unchanged": 5233,
     "files_missing": 0,
-    "scan_start": "2026-04-12T18:25:46.697241",
+    "scan_start": "2026-04-12T18:42:32.480693",
     "errors": [
       "[Errno 2] No such file or directory: '/opt/mythos/bin/finance-import'"
     ],
-    "scan_end": "2026-04-12T18:25:57.677969"
+    "scan_end": "2026-04-12T18:42:43.457295"
   },
   "functions": {
     "files_parsed": 416,
     "functions_found": 3328,
     "imports_found": 3472,
     "parse_errors": 1,
-    "scan_start": "2026-04-12T18:25:57.678350",
-    "scan_end": "2026-04-12T18:26:04.672031"
+    "scan_start": "2026-04-12T18:42:43.457640",
+    "scan_end": "2026-04-12T18:42:50.574419"
   },
   "tables": {
     "tables_found": 129,
     "columns_found": 1585,
     "fk_relationships": 78,
-    "scan_start": "2026-04-12T18:26:04.676481",
-    "scan_end": "2026-04-12T18:26:07.338442"
+    "scan_start": "2026-04-12T18:42:50.578903",
+    "scan_end": "2026-04-12T18:42:53.247750"
   },
   "services": {
     "services_found": 26,
-    "healthy": 24,
-    "unhealthy": 2,
+    "healthy": 23,
+    "unhealthy": 3,
     "linked_to_files": 21,
-    "scan_start": "2026-04-12T18:26:07.338703",
-    "scan_end": "2026-04-12T18:26:07.609706"
+    "scan_start": "2026-04-12T18:42:53.247990",
+    "scan_end": "2026-04-12T18:42:53.511572"
   }
 }

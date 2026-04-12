@@ -2137,3 +2137,8 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** GEMINI_REVIEW_TEMPLATE.md, WORKFLOW.md, WORKFLOW.md, patch_base.py, patch_base.py, SYSTEM_FINANCE.md, MANIFEST.yaml
+
+### SYS-0082: finance v2 doc reconciliation (SYSTEM_FINANCE status + ledger)
+- **Date:** 2026-04-12
+- **Type:** PATCH
+- **Stream:** SYS
