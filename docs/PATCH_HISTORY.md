@@ -2119,3 +2119,15 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** mythos-handoff, MANIFEST.yaml, NEXT_PATCH_SPEC.md, README.md, WORKFLOW.md, SYSTEM_FINANCE.md
+
+### SYS-0079: fix tgdeferrable validation cast + add empty-ledger guards
+- **Date:** 2026-04-12
+- **Type:** PATCH
+- **Stream:** SYS
+- **Files:** MANIFEST.yaml
+
+### SYS-0080: handoff --strict flag + PatchBase.verify_handoff() helper
+- **Date:** 2026-04-12
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** mythos-handoff, mythos-handoff, patch_base.py

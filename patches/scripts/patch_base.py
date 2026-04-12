@@ -324,6 +324,79 @@ class PatchBase:
             self.errors.append(f"restart {service_name}: {e}")
             self.logger.log(f"  ✗ restart {service_name}: {e}")
 
+    # ── Handoff verification (SYS-0080) ────────────────────────────────────────
+
+    def verify_handoff(self, subsystem: str) -> bool:
+        """Verify a subsystem handoff is clean by running mythos-handoff --strict.
+
+        Shells out to `mythos-handoff <subsystem> --strict`. Exit 0 means all
+        validations passed; exit 1 means at least one failed. Captures stderr
+        for the failed-validation names and appends to patch.validations or
+        patch.errors as appropriate.
+
+        Returns True if handoff is clean, False otherwise.
+
+        Dry-run mode: validates the tool and manifest exist, but does not
+        actually run the handoff (since DB state may not reflect the
+        in-progress patch's changes yet).
+
+        This is the canonical self-verification path for any patch that
+        touches a handoff manifest. Use it instead of substring-matching
+        against mythos-handoff stdout — substring matches are structurally
+        fragile because the payload includes docs that may themselves
+        contain strings like 'VALIDATION FAILURES'.
+        """
+        import subprocess as _sp
+        tool = '/opt/mythos/bin/mythos-handoff'
+        manifest = f'/opt/mythos/docs/{subsystem}/MANIFEST.yaml'
+
+        if self.dry_run:
+            if not os.path.isfile(tool):
+                self.errors.append(f"verify_handoff: {tool} not found")
+                return False
+            if not os.path.isfile(manifest):
+                self.errors.append(f"verify_handoff: {manifest} not found")
+                return False
+            self.validations.append(f"verify_handoff({subsystem}) — tool+manifest exist")
+            self.logger.log(f"  ✓ [validate] verify_handoff({subsystem}) — tool+manifest exist")
+            return True
+
+        if not os.path.isfile(tool):
+            self.errors.append(f"verify_handoff({subsystem}): tool missing: {tool}")
+            self.logger.log(f"  ✗ verify_handoff: tool missing")
+            return False
+        if not os.path.isfile(manifest):
+            self.errors.append(f"verify_handoff({subsystem}): manifest missing: {manifest}")
+            self.logger.log(f"  ✗ verify_handoff: manifest missing")
+            return False
+
+        try:
+            result = _sp.run(
+                ['/opt/mythos/.venv/bin/python3', tool, subsystem, '--strict', '--stdout'],
+                capture_output=True, text=True, timeout=120,
+            )
+        except Exception as e:
+            self.errors.append(f"verify_handoff({subsystem}): subprocess failed: {e}")
+            self.logger.log(f"  ✗ verify_handoff({subsystem}): {e}")
+            return False
+
+        if result.returncode == 0:
+            self.validations.append(f"verify_handoff({subsystem}) — all validations passed")
+            self.logger.log(f"  ✓ verify_handoff({subsystem}) — clean")
+            return True
+
+        # Failure — parse stderr for the failed validation names
+        failed_names = []
+        for line in (result.stderr or '').splitlines():
+            line = line.strip()
+            if line.startswith('✗ '):
+                failed_names.append(line[2:].strip())
+
+        detail = ', '.join(failed_names) if failed_names else 'see tool stderr'
+        self.errors.append(f"verify_handoff({subsystem}) FAILED: {detail}")
+        self.logger.log(f"  ✗ verify_handoff({subsystem}): {detail}")
+        return False
+
     # ── Privilege wrappers (SYS-0062 / SYS-0063) ──────────────────────────────
 
     def sudo_wrapper(self, wrapper_name: str, *args, timeout: int = 120, check: bool = True):

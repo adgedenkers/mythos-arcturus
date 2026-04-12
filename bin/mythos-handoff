@@ -218,6 +218,8 @@ def main():
     ap.add_argument('--list', action='store_true', help='list available subsystems')
     ap.add_argument('--stdout', action='store_true', help='write to stdout instead of clipboard')
     ap.add_argument('--file', help='write to file instead of clipboard')
+    ap.add_argument('--strict', action='store_true',
+                    help='exit 1 on validation failure (default: soft warning, exit 0)')
     args = ap.parse_args()
 
     if args.list:
@@ -260,7 +262,10 @@ def main():
               file=sys.stderr)
         for f in failed:
             print(f"  ✗ {f}", file=sys.stderr)
-        # Soft warning — exit 0 anyway so scripts don't break
+        if args.strict:
+            # SYS-0080: strict mode for programmatic callers
+            sys.exit(1)
+        # Default: soft warning, exit 0 so interactive use isn't broken
     sys.exit(0)
 
 

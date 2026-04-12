@@ -49,8 +49,27 @@ validations:
     sql: "SELECT count(*)::text FROM finance.entities WHERE id=1 AND name='Personal' AND is_active=true"
     expect: "1"
   - name: "deferred balance trigger is DEFERRABLE"
-    sql: "SELECT tgdeferrable::text FROM pg_trigger WHERE tgname='entries_enforce_balance'"
+    sql: "SELECT tgdeferrable FROM pg_trigger WHERE tgname='entries_enforce_balance'"
     expect: "t"
+  - name: "deferred balance trigger is INITIALLY DEFERRED"
+    sql: "SELECT tginitdeferred FROM pg_trigger WHERE tgname='entries_enforce_balance'"
+    expect: "t"
+  # ── Empty-ledger guards (SYS-0079): the transactional core
+  # should be empty until Patch E (importer) runs. If any of
+  # these trip, someone has been inserting rows outside the
+  # patch flow and the foundation is no longer clean.
+  - name: "imports table is empty (pre-Patch-E guard)"
+    sql: "SELECT count(*)::text FROM finance.imports"
+    expect: "0"
+  - name: "transactions table is empty (pre-Patch-E guard)"
+    sql: "SELECT count(*)::text FROM finance.transactions"
+    expect: "0"
+  - name: "entries table is empty (pre-Patch-E guard)"
+    sql: "SELECT count(*)::text FROM finance.entries"
+    expect: "0"
+  - name: "source_observations table is empty (pre-Patch-E guard)"
+    sql: "SELECT count(*)::text FROM finance.source_observations"
+    expect: "0"
   - name: "entries.entity_id defaults to 1"
     sql: "SELECT column_default FROM information_schema.columns WHERE table_schema='finance' AND table_name='entries' AND column_name='entity_id'"
     expect: "1"
