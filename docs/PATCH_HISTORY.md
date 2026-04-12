@@ -2028,3 +2028,8 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** patch_base.py
+
+### SYS-0063: framework migration to SYS-0062 wrappers
+- **Date:** 2026-04-11
+- **Type:** MINOR
+- **Stream:** SYS
