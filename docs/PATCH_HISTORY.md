@@ -2070,3 +2070,10 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** TODO.md, ARCHITECTURE.md
+
+
+### SYS-0071: finance v1 preflight - archive code and rename tables
+- **Date:** 2026-04-12
+- **Type:** MAJOR
+- **Stream:** SYS
+- **SQL:** SYS-0071_rename_v1_finance_tables.sql
