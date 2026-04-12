@@ -11,6 +11,17 @@ author: Adge Denkers
 ---
 
 # Mythos System Architecture
+
+<!-- SYS-0077: SYSTEM docs pointer -->
+> **Subsystem docs:** Multi-patch features now have per-system
+> canonical state docs living alongside this one. When working on
+> a subsystem, read its `SYSTEM_<name>.md` first — it holds the
+> current patch letter, architecture summary, next-up spec, and
+> incoming notes. See `docs/WORKFLOW.md` for the full loop.
+>
+> Current system docs:
+> - `docs/SYSTEM_FINANCE.md` — Finance v2 (active build, Patch B shipped)
+
 > **Version:** 6.3.0
 > **Last Updated:** 2026-04-12
 > **Host:** arcturus (Ubuntu 24.04)

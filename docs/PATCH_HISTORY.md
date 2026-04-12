@@ -2107,3 +2107,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **SQL:** SYS-0076_finance_v2_ledger.sql
+
+### SYS-0077: finance v2 workflow & documentation bootstrap (Patch C)
+- **Date:** 2026-04-12
+- **Type:** PATCH
+- **Stream:** SYS
+- **Files:** WORKFLOW.md, SYSTEM_FINANCE.md, ARCHITECTURE.md
