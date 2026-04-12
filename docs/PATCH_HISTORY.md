@@ -2064,3 +2064,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** PATCH
 - **Stream:** SYS
 - **Files:** 2026-04-12-cleanup.md
+
+### SYS-0070: docs update — patch system overhaul reflected in TODO.md + ARCHITECTURE.md
+- **Date:** 2026-04-12
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** TODO.md, ARCHITECTURE.md

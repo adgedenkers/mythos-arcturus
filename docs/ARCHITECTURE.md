@@ -11,11 +11,11 @@ author: Adge Denkers
 ---
 
 # Mythos System Architecture
-> **Version:** 6.2.0
-> **Last Updated:** 2026-03-31
+> **Version:** 6.3.0
+> **Last Updated:** 2026-04-12
 > **Host:** arcturus (Ubuntu 24.04)
-> **Current Patch:** NEU-0013 (Iris Modelfile — baked identity)
-> **Legacy Patch:** 0133 (last fully documented prior version)
+> **Current Patch:** SYS-0069 (patch system stabilized — monitor passive, privilege foundation live)
+> **Legacy Patch:** NEU-0013 (Iris Modelfile — baked identity, last 6.2.0 state)
 
 ---
 
@@ -319,50 +319,137 @@ For each active bill, scans month's debit transactions: name match (bill words v
 
 ## 🔧 Patch System
 
-### Monitor (auto-deploy path)
-Watches `~/Downloads/` for patch zips. On detection: git snapshot → extract to `/opt/mythos/patches/` → `sudo bash install.sh` → git commit + tag → GitHub push.
+Stabilized 2026-04-12 after the SYS-0060 through SYS-0069 overhaul.
+The current pipeline is: manually drop zip into `~/Downloads/` →
+passive monitor sends Telegram notification → user runs
+`patch-install STREAM-NNNN` from an adge shell → patch-install handles
+all git work → apply_patch.py runs the actual install as adge.
 
-**Service:** `mythos-patch-monitor.service`
+### The five streams
 
-### Patch Standard v2 (patch 0106+)
+Every patch belongs to exactly one stream. Counter lookup: `mythos-diag streams`.
+
+| Stream | Prefix | Owns |
+|--------|--------|------|
+| NEURO | NEU | Iris consciousness, Arcturian Grid, `/opt/mythos/neuro/`, `/opt/mythos/iris/` |
+| LOGOS | LOG | Skills, orchestration, prompts, model routing |
+| MNEMOS | MNE | Memory, conversations, voice, voice memos |
+| SENSUS | SEN | Astrology, calendar, transits, sensory routines |
+| SYSTEM | SYS | Cross-cutting infra — finance, workers, integrity, bot core, patch system, shared tables |
+
+Registry: `/opt/mythos/docs/STREAMS.json` (machine-readable) and `STREAMS.md` (human-readable). Never hardcode patch numbers — always read from live `mythos-diag streams`.
+
+### Privilege foundation (SYS-0062)
+
+Eight root-owned wrappers at `/usr/local/libexec/mythos/` handle privileged operations. Each wrapper validates its own arguments; the wrapper is the security boundary, not sudoers.
+
+| Wrapper | Purpose |
+|---------|---------|
+| `mythos-servicectl <action> <unit>` | systemctl on allowlisted units (reads `/etc/mythos/allowed-units.txt`) |
+| `mythos-install-unit <basename>` | Deploy systemd unit from `/opt/mythos/systemd/` to `/etc/systemd/system/` |
+| `mythos-install-cloudflared-config` | Deploy `/opt/mythos/cloudflared/config.yml` |
+| `mythos-fix-ownership` | Recursive chown `/opt/mythos/` to adge:adge |
+| `mythos-scan-perms` | Count non-adge-owned files under `/opt/mythos/` |
+| `mythos-backup-git` | Timestamped `.git/` tar.gz in `/tmp/` |
+| `mythos-clean-tmp-pack` | Remove stale `tmp_pack_*` files |
+| `mythos-allowlist-append <unit>` | Atomically add unit to allowed-units.txt |
+
+Sudoers allowlist at `/etc/sudoers.d/mythos-patches` grants passwordless invocation. SYS-0063 migrated `PatchBase` to expose all wrappers via convenience methods (`restart_service`, `install_systemd_unit`, `fix_ownership`, etc.).
+
+### Passive monitor (SYS-0066)
+
+`mythos-patch-monitor.service` (runs as `User=adge`) watches `~/Downloads/` but NEVER auto-installs. Behavior:
+
+1. Detects patch zip by regex `^([A-Z]{3}-\d{4}|patch_\d{4})_.*\.zip$`
+2. Validates the zip is readable
+3. Sends Telegram notification: `📦 Patch Detected — run: patch-install SYS-NNNN`
+4. Returns. Does NOT copy, extract, git, or install. Zip stays in Downloads until the user acts.
+
+The monitor also still handles bank CSVs, sales/shoe ingestion zips, and file cataloging (unchanged by SYS-0066).
+
+### patch-install workflow
+
+`/opt/mythos/bin/patch-install.sh` (sourced in `~/.bashrc`) is the one-and-only path to install a patch. Invocation: `patch-install SYS-NNNN [--clip] [--dry-run]`.
+
+Phases:
+1. Find zip in `~/Downloads/` matching `STREAM-NNNN*.zip`
+2. Copy (not move) to `/opt/mythos/patches/archive/`
+3. Extract to `/opt/mythos/patches/STREAM-NNNN_description/`
+4. Pre-patch git snapshot: commit working tree if dirty, tag `pre-patch-<basename>-<timestamp>`
+5. `chmod +x install.sh` and run it (plain `bash` — no sudo)
+6. On success: `git add -A`, commit `Applied patch: ...`, read version from `manifest.json` or auto-increment, tag, `git push origin main --tags`
+7. On failure: auto-rollback via `_patch_auto_rollback` reads `/tmp/STREAM-NNNN_result.json` and reverts files/STREAMS/PATCH_HISTORY/services
+
+### Patch directory layout
+
 ```
-patch_NNNN_description/
-├── install.sh          # 4-line bash wrapper
-└── apply_patch.py      # All logic in pure Python
+{STREAM}-{NNNN}_{description}/
+├── install.sh              # exactly 4 lines, calls apply_patch.py
+├── apply_patch.py          # all logic via PatchBase
+└── opt/mythos/...          # files to deploy, mirroring target paths
 ```
 
-**install.sh (always exactly this):**
+**install.sh (always this):**
 ```bash
 #!/bin/bash
 set -e
 PATCH_DIR="$(cd "$(dirname "$0")" && pwd)"
-sudo /opt/mythos/.venv/bin/python3 "$PATCH_DIR/apply_patch.py"
+/opt/mythos/.venv/bin/python3 "$PATCH_DIR/apply_patch.py"
 ```
 
-**apply_patch.py rules:**
-- `str.replace()` for all edits — NEVER sed or bash heredocs
-- Fail-fast if old string not found
-- `py_compile` syntax check before service restart
-- Auto-rollback if service fails to start
-- Backup all files before modifying
+**apply_patch.py template:**
+```python
+import sys
+sys.path.insert(0, '/opt/mythos/patches/scripts')
+from patch_base import PatchBase
 
-### Stream Patch Naming (SYS-0003+)
-```
-{STREAM}-{NNNN}_{description}.zip
-
-Examples:
-  NEU-0001_awareness_loop.zip
-  MNE-0001_backlog_schema.zip
-  SYS-0004_architecture_update.zip
+patch = PatchBase(stream='SYS', number=NN, description='...', patch_type='MINOR')
+patch.begin()
+patch.deploy_file('opt/mythos/some/file.py', '/opt/mythos/some/file.py')
+patch.run_sql('opt/mythos/migrations/migration.sql')
+patch.restart_service('mythos-bot.service')
+patch.finish()
 ```
 
-Legacy `patch_NNNN_*.zip` still works. See `docs/STREAMS.md` for ownership and counters.
+`patch.finish()` bumps `STREAMS.json` and writes `PATCH_HISTORY.md` automatically.
+
+### Patches that need root
+
+Some patches must write to `/etc/`, `/usr/`, or otherwise escalate beyond adge. Options, in order of preference:
+1. **Use an existing SYS-0062 wrapper.** `install_systemd_unit`, `install_cloudflared_config`, etc.
+2. **Self-escalate `install.sh` via the existing sudoers rule.** Add `if [ "$EUID" -ne 0 ]; then exec sudo -n bash "$0" "$@"; fi` after `set -e`. The `/etc/sudoers.d/mythos-monitor` rule `adge ALL=(ALL) NOPASSWD: /bin/bash /opt/mythos/patches/*/install.sh` grants passwordless root. In this case `apply_patch.py` MUST `chown -R adge:adge /opt/mythos` as its final step (in a `try/finally`) to avoid leaving root-owned git objects, docs, logs, or backups that break future adge-run operations.
+3. **Do git ops from `patch-install`, not from root.** Root processes do not have adge's SSH agent — `git push` will fail silently from within a root-escalated `apply_patch.py`. Keep the privileged work narrow (just the file write), let `patch-install`'s post-phase handle git.
+
+### Post-install pipeline
+
+After `install.sh` exits successfully, `patch-install.sh` invokes `patch_base.post_install.run_pipeline()` which runs four steps:
+1. **Integrity scan** — `python3 -m integrity scan` updates Neo4j file/function/table/service nodes
+2. **Git commit + tag + push** — commits anything modified by the patch, tags `stream_NNNN`, pushes to `origin main --tags`
+3. **Graph update** — optional, skipped if `integrity.graph` module not available
+4. **Telegram notification** — sends patch summary to the bot
+
+### PatchBase rules
+
+- `str.replace()` for ALL in-place file edits — never `sed`, never heredocs, never `awk`
+- Fail-fast if the anchor isn't found exactly once — `PatchBase.str_replace` raises on miss
+- `py_compile` syntax check happens automatically before any service restart; rollback on failure
+- Every modified file is backed up before the edit; auto-rollback restores backups on service failure
+- Idempotency markers must come from content unique to the NEW version — first-80-chars doesn't count if NEW appends to OLD (see SYS-0067 lesson)
+- In-memory edits using `tempfile.mkdtemp()` + explicit `py_compile.compile(src, cfile=...)` avoids `/tmp/__pycache__/` permission collisions
+- `shutil.move()` preserves tempfile perms (usually 0600) — call `shutil.copystat(target, tmp)` first when target perms must be retained
+- Never write to another stream's tables without declaring it in the patch; shared table migrations (people, transactions, system_manifest) go through SYS only
+- All Telegram `/command` handler registrations go through SYS regardless of which stream owns the handler code
+- CLI symlinks go to `/opt/mythos/bin/` only, never `/usr/local/bin/`
+- Postgres connections use the Unix socket, never `host=localhost`
 
 ### Tools
+
 ```bash
-/opt/mythos/patches/scripts/get_next_patch_info.sh   # Next version
-/opt/mythos/patches/scripts/validate_manifest.sh      # Validate manifest.json
-/opt/mythos/docs/patch_system/AI_PATCH_GENERATION_GUIDE.md  # AI handoff guide
+mythos-diag streams                            # Live stream counters
+patch-install SYS-NNNN                         # Install a patch from ~/Downloads/
+patch-install SYS-NNNN --dry-run               # Validate without applying
+patch-install SYS-NNNN --clip                  # Copy install output to clipboard
+/opt/mythos/patches/scripts/patch_base.py      # PatchBase class + wrappers
 ```
 
 ---

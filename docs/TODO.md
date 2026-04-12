@@ -11,9 +11,9 @@ author: Adge Denkers
 ---
 # Mythos Project TODO & Roadmap
 
-> **Last Updated:** 2026-04-02 15:30 EST
-> **Current Focus:** Iris voice quality — LoRA fine-tuning exploration
-> **Latest Patches:** NEU-0019 (anti-confab v4), SYS-0048 (alias consolidation + docs)
+> **Last Updated:** 2026-04-12 EST
+> **Current Focus:** Patch system stabilized (privilege foundation + passive monitor + git integration)
+> **Latest Patches:** SYS-0069 (session note), SYS-0068 (cp * cleanup), SYS-0067 (patch-install git), SYS-0066 (monitor passive mode), SYS-0063 (PatchBase wrapper migration), SYS-0062 (privilege foundation)
 > **Default Model:** iris-deep:latest (FROM qwen3:32b, v4 Modelfile)
 
 ---
@@ -155,6 +155,32 @@ Priority order. Work flows top to bottom.
 ---
 
 ## ✅ Recently Completed
+
+### 2026-04-11 → 2026-04-12: Patch System Overhaul
+
+The patch pipeline underwent a full rework after discovering that the
+auto-install monitor was silently running every patch as root, dropping
+root-owned artifacts across `/opt/mythos/` and `/tmp/` and breaking
+subsequent adge-run operations.
+
+- [x] **SYS-0060:** Git permissions + sync recovery (pre-existing root-owned file cleanup)
+- [x] **SYS-0062:** Privilege foundation — 8 root-owned wrappers at `/usr/local/libexec/mythos/`, narrow sudoers allowlist, unit allowlist file
+- [x] **SYS-0063:** PatchBase framework migration — `sudo_wrapper()` + 11 convenience methods, `restart_service` migrated to wrapper, privilege-foundation sanity check in `begin()`
+- [x] **SYS-0064:** Security cleanup attempt — shipped but rolled back due to buggy post-install verify (substring match false-positive on own comment lines). Replaced by SYS-0068.
+- [x] **SYS-0066:** Monitor passive mode — `process_patch()` rewritten to only detect + notify via Telegram; never extract, install, git, or touch the zip. `patch-install.sh` absorbed the git snapshot/commit/tag/push work.
+- [x] **SYS-0067:** Completed SYS-0066's `patch-install.sh` edits that were skipped by a buggy idempotency check (first-80-chars of `NEW` was identical to `OLD`). Fixed by matching a unique marker from the middle of new content.
+- [x] **SYS-0068:** Security cleanup retry — `cp *` rule removed from `/etc/sudoers.d/mythos-monitor` with regex-based verify (active directives only, comments ignored). Includes self-escalation via existing sudoers rule and chown-back to adge for post-install cleanup.
+- [x] **SYS-0069:** Session note smoke test — simplest possible patch (one `deploy_file` call), confirmed the entire pipeline is healthy end-to-end including git push
+- [x] **.git/ cleanup:** 38 root-owned files in `/opt/mythos/.git/objects/` and `refs/heads/main` chowned back to adge (left behind by monitor-as-root runs of SYS-0063 and SYS-0064)
+- [x] **/tmp/last_patch_* cleanup:** root-owned log files that were crashing every patch via `PatchLogger.write_logs()` chowned back to adge
+
+**Key lessons locked in:**
+- The monitor ran as `User=adge` but its `process_patch()` internally `sudo bash`ed the install script, making every auto-installed patch run as root. Passive-mode monitor eliminates this class of bug.
+- Patches that escalate to root via `sudo bash install.sh` must either avoid touching `/opt/mythos/` git history from root, or `chown -R adge:adge /opt/mythos` as their final step. Root processes don't have adge's SSH agent, so `git push` fails silently from root.
+- `py_compile` writes `.pyc` to `__pycache__/` next to the source; using `/tmp/` collides with pre-existing root-owned `/tmp/__pycache__/`. Use `tempfile.mkdtemp()` + `py_compile.compile(src, cfile=<path inside owned dir>)` to bypass cache resolution entirely.
+- `shutil.move()` preserves the tempfile's restrictive default perms (0600). Call `shutil.copystat(target, tmp)` before the move when the target's existing perms must be retained.
+- Idempotency markers must be drawn from content that appears ONLY in the NEW version, not from content shared with OLD. The first 80 characters of a `NEW` that just appends is identical to `OLD`.
+- Post-install verifies against active-directive sudoers rules need regex (`^\s*[^#].*NOPASSWD`), not substring matching. Comments referencing removed rules will otherwise false-positive.
 
 ### 2026-04-02: Iris Voice Quality + Alias Consolidation
 - [x] NEU-0019: Anti-confab v4 (capability fabrication + closing question fix)
