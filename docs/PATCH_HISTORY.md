@@ -2142,3 +2142,18 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Date:** 2026-04-12
 - **Type:** PATCH
 - **Stream:** SYS
+
+### SYS-0083: finance v2 patch D — merchants & patterns [FAILED — ROLLED BACK]
+- **Date:** 2026-04-12
+- **Type:** MINOR
+- **Stream:** SYS
+- **SQL:** SYS-0083_finance_v2_merchants.sql (syntax error at line 114)
+- **Failure:** `ROLLBACK TO SAVEPOINT` inside PL/pgSQL `DO` block is not permitted. Postgres rolled back the migration transaction cleanly; database state is pristine pre-Patch-D. STREAMS.json and this entry were written by a `PatchBase.finish()` bug where `self.errors` was not checked before side effects. Fixed in SYS-0084 (Path 2 Bootstrap Meta-Patch). Patch D re-landed as SYS-0085 with the verification block restructured to use PL/pgSQL sub-blocks with `BEGIN ... EXCEPTION` and explicit `DELETE` cleanup instead of `ROLLBACK TO SAVEPOINT`.
+- **Lesson:** PL/pgSQL `DO` blocks are anonymous code blocks, not transactions — they cannot use `ROLLBACK TO SAVEPOINT`. Use sub-block exception handling with explicit cleanup, or move schema verification into named `PROCEDURE`s.
+
+### SYS-0084: PatchBase.finish() error-gate + PatchFinishError (Path 2 Bootstrap)
+- **Date:** 2026-04-13
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** patch_base.py
+- **Note:** Path 2 Bootstrap Meta-Patch. apply_patch.py does not import PatchBase (fixes the framework from outside). Adds PatchFinishError and moves STREAMS.json/PATCH_HISTORY writes behind an error-gate in finish(). Post-install pipeline now runs before the ledger update so pipeline failures also block it.

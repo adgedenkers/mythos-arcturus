@@ -1,9 +1,9 @@
 # Mythos System State
-# Generated: 2026-04-12 03:00:23
+# Generated: 2026-04-14 03:00:24
 
 ## Patch & Version
 Current Patch:   0000
-Current Version: sys_0063
+Current Version: sys_0082
 Next Patch:      0001
 Total Patches:   0
 
@@ -40,9 +40,9 @@ Total Patches:   0
   ⚠️  mythos-photos: active/exited
 
 ## Database
-PostgreSQL Tables: 126
+PostgreSQL Tables: 118
 
 ## Disk
-Mythos Size:  289G
+Mythos Size:  297G
 Root Disk:    1.1T / 1.8T (61%)
-Available:    687G
+Available:    679G

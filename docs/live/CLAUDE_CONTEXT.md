@@ -1,15 +1,15 @@
 # Mythos System Context
-> Auto-generated: 2026-04-12 03:00:23
-> Current Patch: 0000 / sys_0063
+> Auto-generated: 2026-04-14 03:00:24
+> Current Patch: 0000 / sys_0082
 
 ## System Health
 - Services: 22/25 active — ⚠️ DOWN: mythos-jupyter, mythos-obs-graph, mythos-photos
-- PostgreSQL Tables: 126
-- Disk: 1.1T / 1.8T (61%), 687G available
-- Mythos Size: 289G
+- PostgreSQL Tables: 118
+- Disk: 1.1T / 1.8T (61%), 679G available
+- Mythos Size: 297G
 
 ## Current Patch/Version
-- Current: 0000 / sys_0063
+- Current: 0000 / sys_0082
 - Next available: 0001
 - Total patches deployed: 0
 
@@ -58,11 +58,11 @@
 
 ## Recent Patches (last 5 commits)
 ```
-f5f61b6d SYS-0063: framework migration to SYS-0062 wrappers
-87b10bef Applied patch: SYS-0063_framework_migration.zip
-439d1651 SYS-0063: framework migration to SYS-0062 wrappers
-a0817dc7 Applied patch: SYS-0063_framework_migration.zip
-928e7aee SYS-0062: privilege foundation (wrappers + sudoers)
+b912f11d SYS-0082: finance v2 doc reconciliation (SYSTEM_FINANCE status + ledger)
+5f98d55c docs: add SYSTEM_Astrology.md - astrology pipeline reference
+02e84d3e SYS-0081: Gemini review workflow — template, Phase 2.5, review_link field (reviewed by Castor 2-round, 2026-04-12)
+3cb80466 SYS-0080: handoff --strict flag + PatchBase.verify_handoff() helper
+5d253fca SYS-0078: handoff system bootstrap — tool, manifest, spec
 ```
 
 ## Services
