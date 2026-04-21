@@ -1,0 +1,19 @@
+stream: SEN
+number: 4
+letter: A
+subsystem: astrology
+description: "astrology v2 anchor — docs + golden fixture harness"
+patch_type: MINOR
+services_restarted: []
+tables_touched: []
+blast_radius: low
+review_link: null
+notes: >
+  First letter of Astrology v2 sub-system. Docs-only + validation harness.
+  Establishes the three-doc pattern (SYSTEM_ASTROLOGY, ASTROLOGY_V2,
+  NEXT_PATCH_SPEC), the universal sub-system template (SUB-SYSTEMS.md in
+  draft status), and the golden fixture regression harness with 5
+  verified aspect tests.
+
+  Castor (Gemini) reviewed plan round 1; all six critiques incorporated
+  into ASTROLOGY_V2.md §16. Review preserved verbatim.

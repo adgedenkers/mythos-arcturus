@@ -2157,3 +2157,10 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Stream:** SYS
 - **Files:** patch_base.py
 - **Note:** Path 2 Bootstrap Meta-Patch. apply_patch.py does not import PatchBase (fixes the framework from outside). Adds PatchFinishError and moves STREAMS.json/PATCH_HISTORY writes behind an error-gate in finish(). Post-install pipeline now runs before the ledger update so pipeline failures also block it.
+
+### SYS-0085: finance v2 patch D re-land — merchants & patterns
+- **Date:** 2026-04-14
+- **Type:** MINOR
+- **Stream:** SYS
+- **SQL:** SYS-0085_finance_v2_merchants.sql
+- **Review:** Castor round 1 (finance review), round 2 (3-question pre-build), round 3 (inline DO block clearance). Re-land of SYS-0083 with SAVEPOINT/ROLLBACK removed from DO block (not permitted in PL/pgSQL anonymous blocks).

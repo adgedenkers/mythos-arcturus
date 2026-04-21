@@ -1,0 +1,81 @@
+{
+  "_comment": "Golden fixture aspects for astrology v2 regression testing. Ship: SEN-0004 (Letter A). Source: verified values from daily_transits.py upload (see DAILY_TRANSIT_SYSTEM_HANDOFF.md). All aspects computed with noon local time (EDT = UT-4) unless otherwise noted. Tolerance: ±0.1 degrees orb.",
+  "_schema_version": 1,
+  "_tolerance_degrees": 0.1,
+  "people": {
+    "adge": {
+      "name": "Ka'tuar'el (Adge)",
+      "birth_date": "1977-11-22",
+      "birth_time": "08:30",
+      "tz_offset_hours": -5,
+      "latitude": 42.65630912614472,
+      "longitude": -73.803737090229,
+      "location": "Albany, NY, USA",
+      "house_system": "Placidus",
+      "zodiac_type": "tropical"
+    },
+    "seraphe": {
+      "name": "Seraphe (Rebecca)",
+      "birth_date": "1978-08-19",
+      "birth_time": "12:00",
+      "tz_offset_hours": -4,
+      "latitude": 42.4423,
+      "longitude": -75.5977,
+      "location": "Oxford, NY, USA",
+      "house_system": "Placidus",
+      "zodiac_type": "tropical"
+    }
+  },
+  "fixtures": [
+    {
+      "id": "adge_2026-04-28_uranus_opp_sun",
+      "person": "adge",
+      "transit_date": "2026-04-28",
+      "transit_time_ut": "16:00",
+      "transit_planet": "Uranus",
+      "aspect": "opposition",
+      "natal_target": "Sun",
+      "expected_orb_degrees": 0.00
+    },
+    {
+      "id": "adge_2026-04-29_jupiter_qnx_mercury",
+      "person": "adge",
+      "transit_date": "2026-04-29",
+      "transit_time_ut": "16:00",
+      "transit_planet": "Jupiter",
+      "aspect": "quincunx",
+      "natal_target": "Mercury",
+      "expected_orb_degrees": 0.01
+    },
+    {
+      "id": "adge_2026-04-29_uranus_sq_saturn",
+      "person": "adge",
+      "transit_date": "2026-04-29",
+      "transit_time_ut": "16:00",
+      "transit_planet": "Uranus",
+      "aspect": "square",
+      "natal_target": "Saturn",
+      "expected_orb_degrees": 0.02
+    },
+    {
+      "id": "seraphe_2026-04-21_venus_tri_nnode",
+      "person": "seraphe",
+      "transit_date": "2026-04-21",
+      "transit_time_ut": "16:00",
+      "transit_planet": "Venus",
+      "aspect": "trine",
+      "natal_target": "North Node",
+      "expected_orb_degrees": 0.01
+    },
+    {
+      "id": "seraphe_2026-04-24_mercury_opp_pluto",
+      "person": "seraphe",
+      "transit_date": "2026-04-24",
+      "transit_time_ut": "16:00",
+      "transit_planet": "Mercury",
+      "aspect": "opposition",
+      "natal_target": "Pluto",
+      "expected_orb_degrees": 0.02
+    }
+  ]
+}

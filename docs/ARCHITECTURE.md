@@ -21,6 +21,8 @@ author: Adge Denkers
 >
 > Current system docs:
 > - `docs/SYSTEM_FINANCE.md` — Finance v2 (active build, Patch B shipped)
+> - `docs/SYSTEM_ASTROLOGY.md` — Astrology v2 (active build, Letter A shipped)  <!-- SEN-0004 -->
+> - `docs/SUB-SYSTEMS.md` — Universal sub-system pattern (DRAFT, N=1)  <!-- SEN-0004 -->
 
 > **Version:** 6.3.0
 > **Last Updated:** 2026-04-12
