@@ -1,5 +1,5 @@
 ---
-title: "Astrology Next Patch Spec — Letter D"
+title: "Astrology Next Patch Spec — Letter E"
 category: spec
 status: active
 stream: SEN
@@ -10,60 +10,51 @@ updated: 2026-04-21
 author: Adge Denkers
 ---
 
-# Astrology Next Patch Spec — Letter D (Natal State — Postgres-first)
+# Astrology Next Patch Spec — Letter E (Daily Transits Refactor)
 
 > **This file is rewritten wholesale at the end of every feature patch.**
 > It describes exactly one patch ahead of the current state.
 >
-> **Current state:** Letter C.1 Cleanup (SEN-0007) shipped —
-> `adriaan_harold_denkers/` chart dir archived and removed, stale YAML
-> archived and removed, astro_position.py candidate-list fallback
-> simplified, PATCH_HISTORY legacy SEN-0004 renamed to SEN-0004-LEGACY.
-> Constant alignment was deliberately deferred to the
-> "Comprehensive astrology tool audit + dedup" REQUESTS.md entry —
-> per-file PLANETS/SIGNS/ASPECT_DEFS shape differences need dedicated
-> migration work that doesn't belong in a cleanup patch.
+> **Current state:** Letter D (SEN-0008) shipped — natal_generator.py
+> deployed, charts/ka.json and charts/seraphe.json generated from
+> Postgres, Adge (chart_id=9) and Seraphe (chart_id=11) both confirmed
+> present with correct birth data.
 >
-> **This spec covers:** Letter D — Natal State (Postgres-first).
-> **Expected patch number:** SEN-0008 (verify via `mythos-diag streams`).
+> **This spec covers:** Letter E — Daily Transits Refactor.
+> **Expected patch number:** SEN-0009 (verify via `mythos-diag streams`).
 
 ---
 
 ## Scope
 
-Per Castor round 1 review: Postgres-first, with JSON as rendering
-artifact. Matches the Finance v2 pattern — the database is the source
-of truth, and JSON outputs are generated on demand from the database.
+Refactor the existing daily_transits.py to use:
+- `astrology.ephemeris` for all calculations (replacing inline swisseph calls)
+- `astrology.natal_generator.load_natal()` for natal chart data
+  (no birth data re-entry, reads from Postgres)
+- Proper applying/separating detection (was broken in original due to
+  the flags=0 footgun fixed in SEN-0005)
 
-1. **Schema: `astro_natal_charts` canonical shape**
-   - Verify/extend the existing `astro_natal_charts` table (18 astro_*
-     tables already exist per SEN-0006 integrity scan)
-   - Explicit top-level keys: `house_system` (default 'Placidus'),
-     `zodiac_type` (default 'tropical')
-   - snake_case columns throughout
-   - Foreign key to `people` table for person_id
+The existing `daily_transits.py` (uploaded 2026-04-21, 357 lines)
+serves as the reference for feature parity. It computes:
+  - All transiting planet positions for a given date
+  - Aspects between transiting planets and natal positions
+  - Orb values, applying/separating, transit quality
 
-2. **Generate canonical charts for Adge and Seraphe**
-   - From `user_input/adge.yaml` (verified correct)
-   - From `user_input/becky.yaml` (Seraphe's canonical YAML)
-   - Write rows to `astro_natal_charts` with full planet positions,
-     house cusps, angles, dispositors, dignities, fixed star conjunctions
-   - Produce `charts/ka.json` and `charts/seraphe.json` as rendering
-     artifacts from the DB rows (not the other way around)
+### Target interface
 
-3. **`natal_generator.py` module**
-   - New file: `/opt/mythos/astrology/natal_generator.py`
-   - `generate_natal(person_id: int) -> dict` — reads YAML, calculates
-     via `astrology.ephemeris`, writes to `astro_natal_charts`,
-     writes JSON artifact
-   - `load_natal(person_id: int) -> dict` — reads from Postgres,
-     optionally regenerates JSON if stale
-   - Both use the canonical `astrology.ephemeris` module exclusively
+```python
+from astrology.transit_engine import compute_transits, format_transit_report
 
-4. **Golden fixture extension**
-   - Add regression fixtures for natal-chart-level data (sun sign,
-     moon sign, ASC, specific aspects)
-   - Must match pre-v2 chart data to within existing tolerances
+# Compute transits for Adge on a date
+transits = compute_transits(
+    natal_name='Adge',       # loads from natal_generator
+    transit_date='2026-04-28',
+    tz_str='America/New_York',
+)
+
+# Format for Telegram or console
+report = format_transit_report(transits, style='telegram')
+```
 
 ---
 
@@ -71,80 +62,52 @@ of truth, and JSON outputs are generated on demand from the database.
 
 | File | Purpose |
 |---|---|
-| `/opt/mythos/astrology/natal_generator.py` | Natal state engine (Postgres-first) |
-| `/opt/mythos/migrations/sen_0008_natal_charts_schema.sql` | Schema extensions if needed |
+| `/opt/mythos/astrology/transit_engine.py` | Daily transits computation module |
 
 ---
 
 ## Files modified
 
-None. This is a pure addition patch (like Letter B was).
-
----
-
-## Files created as DB-sourced artifacts
-
-| File | Source |
-|---|---|
-| `/opt/mythos/astrology/charts/ka.json` | Generated from `astro_natal_charts` row for Adge |
-| `/opt/mythos/astrology/charts/seraphe.json` | Generated from `astro_natal_charts` row for Seraphe |
-
-These are produced by `natal_generator.generate_natal()`. They are
-regeneratable at any time from the database.
+None. Pure addition patch.
 
 ---
 
 ## SQL
 
-| File | Action |
-|---|---|
-| `sen_0008_natal_charts_schema.sql` | Add top-level `house_system`/`zodiac_type` columns if missing, verify FK to people |
+None.
 
 ---
 
 ## Services restarted
 
-None (new module, not yet imported by any live service).
+None.
 
 ---
 
 ## Verification
 
-1. **Import smoke test** on `natal_generator.py`
-2. **py_compile** (automatic via SYS-0077 pattern if edits needed)
-3. **Generate Adge's natal chart** — row must appear in `astro_natal_charts`,
-   JSON artifact must write to `charts/ka.json`
-4. **Generate Seraphe's natal chart** — same for `charts/seraphe.json`
-5. **Diff-check against preserved `full_chart_adge.json`** — new generation
-   must match the preserved April 2 chart to within 0.01° on all positions
-6. **All 5 existing golden fixtures must still pass** (regression gate)
-
----
-
-## Rollback
-
-PatchBase auto-rollback handles:
-- New files removed on failure
-- SQL migration reversed via per-migration DOWN script (if needed)
-- JSON artifacts are regeneratable — not protected specifically
-
-Can reverse: true.
+1. **Import smoke test** on transit_engine.py
+2. **Compute Adge transits for 2026-04-28** — must match the golden
+   fixtures (Uranus opp Sun at 0.0017° orb, etc.) to within 0.005°
+3. **Applying/separating is non-null** — all aspects must have
+   applying field set (True or False), not None
+4. **All 5 existing golden fixtures still pass**
 
 ---
 
 ## Blast radius
 
-**Medium.** New module, new SQL, new artifacts. No services restarted,
-no existing code modified. Risk is contained to new surface area.
+**Low.** New module, no existing code touched, no services restarted,
+no schema changes.
 
 ---
 
-## After Letter D ships
+## After Letter E ships
 
-- Update `SYSTEM_ASTROLOGY.md` — mark D shipped, natal state Postgres-first
-- Rewrite this file to describe Letter E (Daily Transits refactor)
-- Verify `natal_generator.load_natal()` is ready for Letter E to consume
+- Rewrite this file to describe Letter F (Integration — CLI + Telegram)
+- Update SYSTEM_ASTROLOGY.md to mark E shipped
+- Letter F will wire transit_engine into the Telegram /transits command
 
 ---
 
-*End of Letter D spec.*
+*End of Letter E spec.*

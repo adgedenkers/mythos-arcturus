@@ -1,0 +1,38 @@
+stream: SEN
+number: 8
+letter: D
+subsystem: astrology
+description: "astrology v2 letter D — natal state postgres-first"
+patch_type: MINOR
+services_restarted: []
+tables_touched: []
+blast_radius: low
+review_link: null
+notes: >
+  Letter D of Astrology v2. Slim scope after preflight diag revealed
+  the schema and data are already in place.
+
+  Preflight diag findings:
+  - astro_natal_charts already has house_system + zodiac_type columns
+    with correct defaults ('Placidus', 'Tropical'). No SQL migration needed.
+  - 7 charts already in Postgres including Adge (chart_id=9, DOB 1977-11-22,
+    correct) and Seraphe/Becky Denkers (chart_id=11, DOB 1978-08-19, 14:02).
+  - 109 astro_chart_objects rows and 749 astro_natal_aspects rows already
+    populated by the existing astrochart_cli_engine + astro_loader pipeline.
+  - charts/ka.json and charts/seraphe.json did not exist — needed.
+
+  What this patch does:
+  1. Deploy natal_generator.py — clean Postgres read/write interface:
+       load_natal(name) -> dict   (reads from astro_natal_charts + children)
+       write_chart_artifact(chart, path) -> None
+       generate_natal(...) -> dict  (computes via astrology.ephemeris)
+       self_check() -> dict
+  2. Generate charts/ka.json via load_natal('Adge') — from existing DB data
+  3. Generate charts/seraphe.json via load_natal('Becky Denkers') — same
+
+  Both artifact files are derived from Postgres — they're rendering
+  artifacts, not sources of truth. They can be regenerated at any time.
+
+  Existing pipeline (astrochart_cli_engine → astro_loader) is NOT
+  replaced. natal_generator.py is a clean read layer on top of it,
+  ready for Letter E (Daily Transits) to consume.
