@@ -2164,3 +2164,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Stream:** SYS
 - **SQL:** SYS-0085_finance_v2_merchants.sql
 - **Review:** Castor round 1 (finance review), round 2 (3-question pre-build), round 3 (inline DO block clearance). Re-land of SYS-0083 with SAVEPOINT/ROLLBACK removed from DO block (not permitted in PL/pgSQL anonymous blocks).
+
+### SEN-0004: astrology v2 anchor
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SEN
+- **Files:** SUB-SYSTEMS.md, SYSTEM_ASTROLOGY.md, ASTROLOGY_V2.md, NEXT_PATCH_SPEC.md, __init__.py, check_accuracy.py, expected_aspects.json, ARCHITECTURE.md

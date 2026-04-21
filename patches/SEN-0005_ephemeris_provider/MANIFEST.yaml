@@ -1,0 +1,24 @@
+stream: SEN
+number: 5
+letter: B
+subsystem: astrology
+description: "ephemeris provider — master pyswisseph wrapper + SE_EPHE_PATH env"
+patch_type: MINOR
+services_restarted: []
+tables_touched: []
+blast_radius: low
+review_link: null
+notes: >
+  Second letter of Astrology v2. Pure-addition patch: ships
+  ephemeris.py (~495 lines) as the Master Ephemeris Provider, plus
+  __init__.py to make /opt/mythos/astrology/ a proper Python package,
+  plus SE_EPHE_PATH=/opt/mythos/astrology/ephe appended to .env
+  idempotently.
+
+  Gates on ALL 5 golden fixtures passing (unlike Letter A which ran
+  them informationally). Module verified importable as both a direct
+  module (legacy-style) and as astrology.ephemeris (package-style)
+  before gating proceeds.
+
+  No legacy code touched. Letter C (SEN-0006) handles the 5 hardcoded
+  ephemeris paths in live code and file consolidation.
