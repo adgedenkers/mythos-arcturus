@@ -72,7 +72,7 @@ PLANET_CODES = {
     "Pluto":   9,
 }
 
-EPHE_PATH = "/opt/mythos/astrology/ephe"
+EPHE_PATH = os.environ.get("SE_EPHE_PATH", "/opt/mythos/astrology/ephe")
 
 
 # ── DB Connection ─────────────────────────────────────────────────────────────

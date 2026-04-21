@@ -35,7 +35,7 @@ DB_USER = os.getenv("POSTGRES_USER", "postgres")
 DB_HOST = os.getenv("POSTGRES_HOST", "/var/run/postgresql")
 DB_PORT = os.getenv("MYTHOS_DB_PORT", "5432")
 
-EPHE_PATH = "/opt/mythos/ephemeris"
+EPHE_PATH = os.environ.get("SE_EPHE_PATH", "/opt/mythos/astrology/ephe")
 
 # Computation interval
 COMPUTE_INTERVAL = 3600  # 1 hour

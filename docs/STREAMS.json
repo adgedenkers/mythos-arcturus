@@ -302,7 +302,7 @@
     "SEN": {
       "name": "SENSUS",
       "description": "Sensory input, lunar cycles, astrology, weather, calendar, environmental awareness, routines",
-      "next_patch": 5,
+      "next_patch": 6,
       "last_patch": null,
       "owned_paths": [
         "/opt/mythos/astrology/",

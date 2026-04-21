@@ -1,0 +1,41 @@
+stream: SEN
+number: 6
+letter: C
+subsystem: astrology
+description: "astrology v2 letter C engine — ephemeris consolidation + path alignment"
+patch_type: MINOR
+services_restarted:
+  - mythos-worker-grid.service
+  - mythos-planetary-engine.service
+  - mythos-worker-lunar.service
+tables_touched: []
+blast_radius: high
+review_link: "Castor (Gemini) round 1 — SHIP WITH REVISIONS, 4 incorporated: split C from C.1, stop services, 0.01° parity across 2 epochs, shadow copy not move. Review preserved in ASTROLOGY_V2.md §6 and CASTOR_REVIEW_SEN-0006_letter_c.md."
+notes: >
+  Letter C of Astrology v2. HIGH blast radius — touches live services
+  and live code. Per Castor round 1 review, this is the "Engine" patch
+  (file-system + path-logic); the "Cleanup" work (chart archives, YAML
+  delete, constant alignment, PATCH_HISTORY fix) was split to SEN-0007
+  Letter C.1.
+
+  9-phase structure: allowlist register → stop services → shadow copy
+  → edit paths → restart → parity test → golden fixtures → archive →
+  rewrite next spec.
+
+  Shadow-copy pattern (copy-verify-keep-newer) means rollback is
+  non-destructive — old /opt/mythos/ephemeris/ remains until Phase 7,
+  only archived after ALL gating checks pass.
+
+  BEHAVIOR CHANGE: two scripts (lunar_calendar_worker, seraphe_lunar_generator)
+  silently upgrading from Moshier approximation to full Swiss Ephemeris
+  precision. isdir() guards on /opt/mythos/ephemeris/ephe (which doesn't
+  exist) were silently failing, causing swisseph to use Moshier fallback.
+  Post-patch they use full precision. Expected position shifts:
+  sub-arcsecond on inner planets, up to ~0.1° on outer planets.
+  Disclosed in patch notes and SYSTEM_ASTROLOGY.md incoming notes.
+
+  v2: Adds Phase 0 (SYS-0062 allowlist registration) after v1 failed
+      because services weren't in /etc/mythos/allowed-units.txt.
+      Learning: PatchBase.stop_service requires the unit to be
+      allowlisted. mythos-allowlist-append is idempotent, safe to
+      call on every install.

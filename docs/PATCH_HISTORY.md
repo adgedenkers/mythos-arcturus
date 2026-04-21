@@ -1448,27 +1448,11 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Files:** youtube_intake.py, youtube_queue_consumer.py, youtube_channel_monitor.py
 - **Services restarted:** mythos-bot.service
 
-### SEN-0006: spiral_time_walker
-- **Date:** 2026-03-25
-- **Type:** MINOR
-- **Stream:** SEN
-- **Files:** __init__.py, spiral_engine.py, transit_pressure.py, morning_brief.py, spiral_walker.py, spiral_handler.py
-- **SQL:** sen_0006_spiral_transit.sql
-- **Services restarted:** mythos-api.service, mythos-bot.service
-
 ### SEN-0007: transit_interpreter
 - **Date:** 2026-03-25
 - **Type:** MINOR
 - **Stream:** SEN
 - **Files:** transit_interpreter.py, __init__.py, morning_brief.py
-- **Services restarted:** mythos-api.service, mythos-bot.service
-
-### SEN-0006: spiral_time_walker
-- **Date:** 2026-03-25
-- **Type:** MINOR
-- **Stream:** SEN
-- **Files:** __init__.py, spiral_engine.py, transit_pressure.py, morning_brief.py, spiral_walker.py, spiral_handler.py
-- **SQL:** sen_0006_spiral_transit.sql
 - **Services restarted:** mythos-api.service, mythos-bot.service
 
 ### SEN-0007: transit_interpreter
@@ -2170,3 +2154,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SEN
 - **Files:** SUB-SYSTEMS.md, SYSTEM_ASTROLOGY.md, ASTROLOGY_V2.md, NEXT_PATCH_SPEC.md, __init__.py, check_accuracy.py, expected_aspects.json, ARCHITECTURE.md
+
+### SEN-0005: ephemeris provider (letter B)
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SEN
+- **Files:** __init__.py, ephemeris.py, .env

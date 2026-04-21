@@ -38,7 +38,7 @@ except ImportError:
     sys.exit(1)
 
 # ── Ephemeris path ─────────────────────────────────────────────────────────────
-EPHE_PATH = "/opt/mythos/ephemeris/ephe"
+EPHE_PATH = os.environ.get("SE_EPHE_PATH", "/opt/mythos/astrology/ephe")
 if os.path.isdir(EPHE_PATH):
     swe.set_ephe_path(EPHE_PATH)
 
