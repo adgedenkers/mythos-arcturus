@@ -1,5 +1,5 @@
 ---
-title: "Astrology Next Patch Spec — Letter C.1"
+title: "Astrology Next Patch Spec — Letter D"
 category: spec
 status: active
 stream: SEN
@@ -10,143 +10,141 @@ updated: 2026-04-21
 author: Adge Denkers
 ---
 
-# Astrology Next Patch Spec — Letter C.1 (Cleanup)
+# Astrology Next Patch Spec — Letter D (Natal State — Postgres-first)
 
 > **This file is rewritten wholesale at the end of every feature patch.**
 > It describes exactly one patch ahead of the current state.
 >
-> **Current state:** Letter C Engine (SEN-0006) shipped — ephemeris files
-> consolidated, 5 hardcoded paths fixed, services restarted cleanly,
-> parity test passed, golden fixtures passed, old `/opt/mythos/ephemeris/`
-> archived.
-> **This spec covers:** Letter C.1 — Cleanup.
-> **Expected patch number:** SEN-0007 (verify via `mythos-diag streams`).
+> **Current state:** Letter C.1 Cleanup (SEN-0007) shipped —
+> `adriaan_harold_denkers/` chart dir archived and removed, stale YAML
+> archived and removed, astro_position.py candidate-list fallback
+> simplified, PATCH_HISTORY legacy SEN-0004 renamed to SEN-0004-LEGACY.
+> Constant alignment was deliberately deferred to the
+> "Comprehensive astrology tool audit + dedup" REQUESTS.md entry —
+> per-file PLANETS/SIGNS/ASPECT_DEFS shape differences need dedicated
+> migration work that doesn't belong in a cleanup patch.
+>
+> **This spec covers:** Letter D — Natal State (Postgres-first).
+> **Expected patch number:** SEN-0008 (verify via `mythos-diag streams`).
 
 ---
 
 ## Scope
 
-The "social" and "housekeeping" tasks that Castor split out from Letter C
-so Letter C could focus purely on file-system and path-logic. All lower
-blast-radius than C itself.
+Per Castor round 1 review: Postgres-first, with JSON as rendering
+artifact. Matches the Finance v2 pattern — the database is the source
+of truth, and JSON outputs are generated on demand from the database.
 
-1. **Align scripts with duplicate constants** — identify scripts in
-   `/opt/mythos/astrology/` that have their own copies of `PLANETS` /
-   `SIGNS` / `ASPECT_DEFS` / `ELEMENTS` / `MODALITIES` and update them
-   to import from `astrology.ephemeris` instead. Known candidates:
-   `astrochart_cli_engine.py` (1,500 LOC monolith), `astrochart_cli_geometry.py`,
-   `astro_position.py`, `astro_loader.py`. Preflight diagnostic will
-   produce exhaustive list.
+1. **Schema: `astro_natal_charts` canonical shape**
+   - Verify/extend the existing `astro_natal_charts` table (18 astro_*
+     tables already exist per SEN-0006 integrity scan)
+   - Explicit top-level keys: `house_system` (default 'Placidus'),
+     `zodiac_type` (default 'tropical')
+   - snake_case columns throughout
+   - Foreign key to `people` table for person_id
 
-2. **Archive duplicate chart directories** —
-   `charts/adge/`, `charts/adriaan_harold_denkers/`, `charts/becky/`
-   all move to `/opt/mythos/astrology/archive/charts_pre_astro_v2/`.
-   Preserves `full_chart_adge.json` per Adge's explicit instruction.
-   New canonical charts (`ka.json`, `seraphe.json`) are produced in
-   Letter D, not this patch.
+2. **Generate canonical charts for Adge and Seraphe**
+   - From `user_input/adge.yaml` (verified correct)
+   - From `user_input/becky.yaml` (Seraphe's canonical YAML)
+   - Write rows to `astro_natal_charts` with full planet positions,
+     house cusps, angles, dispositors, dignities, fixed star conjunctions
+   - Produce `charts/ka.json` and `charts/seraphe.json` as rendering
+     artifacts from the DB rows (not the other way around)
 
-3. **Delete stale YAML** — `user_input/adriaan_harold_denkers.yaml`
-   has wrong birth year (1978 vs correct 1977) and is redundant with
-   `user_input/adge.yaml`. Backed up to archive before delete.
+3. **`natal_generator.py` module**
+   - New file: `/opt/mythos/astrology/natal_generator.py`
+   - `generate_natal(person_id: int) -> dict` — reads YAML, calculates
+     via `astrology.ephemeris`, writes to `astro_natal_charts`,
+     writes JSON artifact
+   - `load_natal(person_id: int) -> dict` — reads from Postgres,
+     optionally regenerates JSON if stale
+   - Both use the canonical `astrology.ephemeris` module exclusively
 
-4. **Fix PATCH_HISTORY.md duplicate SEN-0004 entry** — rename the
-   legacy "Planetary geometry engine" entry to `SEN-0004-LEGACY` so
-   the current "astrology v2 anchor" entry stands clean.
-
-5. **Simplify `astro_position.py` candidate-list fallback** — it
-   currently has a 6-entry candidate list with `SWISSEPH_PATH` env,
-   relative paths, `/dev/...` paths, etc. Replace with a single line
-   matching the pattern of the 4 files updated in Letter C.
+4. **Golden fixture extension**
+   - Add regression fixtures for natal-chart-level data (sun sign,
+     moon sign, ASC, specific aspects)
+   - Must match pre-v2 chart data to within existing tolerances
 
 ---
 
 ## Files created
 
-None.
+| File | Purpose |
+|---|---|
+| `/opt/mythos/astrology/natal_generator.py` | Natal state engine (Postgres-first) |
+| `/opt/mythos/migrations/sen_0008_natal_charts_schema.sql` | Schema extensions if needed |
 
 ---
 
 ## Files modified
 
-| File | Change |
-|---|---|
-| `/opt/mythos/astrology/astrochart_cli_engine.py` | Remove local constants, `from astrology.ephemeris import *` |
-| `/opt/mythos/astrology/astrochart_cli_geometry.py` | Same |
-| `/opt/mythos/astrology/astro_position.py` | Replace candidate list, import constants |
-| `/opt/mythos/astrology/astro_loader.py` | Same |
-| `/opt/mythos/docs/PATCH_HISTORY.md` | Rename legacy SEN-0004 entry |
-
-(Full list pending preflight diagnostic.)
+None. This is a pure addition patch (like Letter B was).
 
 ---
 
-## Files deleted
+## Files created as DB-sourced artifacts
 
-| File | Reason |
+| File | Source |
 |---|---|
-| `/opt/mythos/astrology/user_input/adriaan_harold_denkers.yaml` | Wrong birth year, redundant with `adge.yaml`. Backed up to archive first. |
+| `/opt/mythos/astrology/charts/ka.json` | Generated from `astro_natal_charts` row for Adge |
+| `/opt/mythos/astrology/charts/seraphe.json` | Generated from `astro_natal_charts` row for Seraphe |
 
----
-
-## Files archived
-
-| Source | Destination |
-|---|---|
-| `/opt/mythos/astrology/charts/adge/` | `/opt/mythos/astrology/archive/charts_pre_astro_v2/charts_adge_original/` |
-| `/opt/mythos/astrology/charts/adriaan_harold_denkers/` | `/opt/mythos/astrology/archive/charts_pre_astro_v2/charts_adriaan_harold_denkers/` |
-| `/opt/mythos/astrology/charts/becky/` | `/opt/mythos/astrology/archive/charts_pre_astro_v2/charts_becky_original/` |
-| `/opt/mythos/astrology/user_input/adriaan_harold_denkers.yaml` | `/opt/mythos/astrology/archive/charts_pre_astro_v2/` |
-
-Note: `full_chart_adge.json` is preserved intact via the `charts_adge_original/`
-archive per Adge's explicit instruction.
+These are produced by `natal_generator.generate_natal()`. They are
+regeneratable at any time from the database.
 
 ---
 
 ## SQL
 
-None.
+| File | Action |
+|---|---|
+| `sen_0008_natal_charts_schema.sql` | Add top-level `house_system`/`zodiac_type` columns if missing, verify FK to people |
 
 ---
 
 ## Services restarted
 
-None (pure code + file organization changes).
+None (new module, not yet imported by any live service).
 
 ---
 
 ## Verification
 
-1. **Import smoke test** on each modified script — must import without error
-2. **py_compile** on each modified script (automatic via PatchBase)
-3. **Golden fixture harness** must pass all 5 (same as C)
-4. **`grep -r "^PLANETS\s*=" /opt/mythos/astrology/`** should return only
-   `ephemeris.py` (no duplicate definitions remain)
+1. **Import smoke test** on `natal_generator.py`
+2. **py_compile** (automatic via SYS-0077 pattern if edits needed)
+3. **Generate Adge's natal chart** — row must appear in `astro_natal_charts`,
+   JSON artifact must write to `charts/ka.json`
+4. **Generate Seraphe's natal chart** — same for `charts/seraphe.json`
+5. **Diff-check against preserved `full_chart_adge.json`** — new generation
+   must match the preserved April 2 chart to within 0.01° on all positions
+6. **All 5 existing golden fixtures must still pass** (regression gate)
 
 ---
 
 ## Rollback
 
-PatchBase auto-rollback handles file restorations via backup system.
-Archive directories can be moved back manually if needed. Patch will
-declare `can_reverse=true`.
+PatchBase auto-rollback handles:
+- New files removed on failure
+- SQL migration reversed via per-migration DOWN script (if needed)
+- JSON artifacts are regeneratable — not protected specifically
+
+Can reverse: true.
 
 ---
 
 ## Blast radius
 
-**Low-Medium.** Many files touched but each change is mechanical
-(replace local constant with import). No service restarts, no schema
-changes. Lower risk than C.
+**Medium.** New module, new SQL, new artifacts. No services restarted,
+no existing code modified. Risk is contained to new surface area.
 
 ---
 
-## After Letter C.1 ships
+## After Letter D ships
 
-- Update `SYSTEM_ASTROLOGY.md` — mark C.1 shipped, C audit summary
-- Rewrite this file to describe Letter D (Natal State Postgres-first)
-- Run follow-up diagnostic for the comprehensive astrology audit
-  request in `REQUESTS.md` — use the Letter C.1 post-state as baseline
+- Update `SYSTEM_ASTROLOGY.md` — mark D shipped, natal state Postgres-first
+- Rewrite this file to describe Letter E (Daily Transits refactor)
+- Verify `natal_generator.load_natal()` is ready for Letter E to consume
 
 ---
 
-*End of Letter C.1 spec.*
+*End of Letter D spec.*

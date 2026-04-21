@@ -1312,7 +1312,7 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **SQL:** sen_0003_earthquake_tables.sql
 - **Services restarted:** mythos-bot.service
 
-### SEN-0004: Planetary geometry engine — positions, aspects, alignments, forcing vectors
+### SEN-0004-LEGACY: Planetary geometry engine — positions, aspects, alignments, forcing vectors (pre-stream-tracking, number collision resolved 2026-04-21 by SEN-0007)
 - **Date:** 2026-03-13
 - **Type:** MAJOR
 - **Stream:** SEN
@@ -2160,3 +2160,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SEN
 - **Files:** __init__.py, ephemeris.py, .env
+
+### SEN-0006: astrology v2 letter C engine — ephemeris consolidation
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SEN
+- **Files:** se07066s.se1, se90377s.se1, se05145s.se1, s136108s.se1, s136472s.se1, se50000s.se1, se10199s.se1, lunar_calendar_worker.py, planetary_engine.py, seraphe_lunar_generator.py, transit_pressure.py, NEXT_PATCH_SPEC.md

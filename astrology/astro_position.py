@@ -40,22 +40,13 @@ except ImportError:
 
 # ── Ephemeris path ─────────────────────────────────────────────────────────────
 import os as _os
-_EPHE_CANDIDATES = [
-    _os.environ.get("SWISSEPH_PATH", ""),
-    "/opt/mythos/astrology/ephe",
-    _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "ephe"),
-    "/dev/astrology/swisseph/ephe",
-    "/home/adge/dev/astrology/swisseph/ephe",
-    "/opt/swisseph/ephe",
-    "/usr/share/swisseph/ephe",
-    "/usr/share/ephe",
-]
-_EPHE_PATH_SET = None
-for _p in _EPHE_CANDIDATES:
-    if _p and _os.path.isdir(_p):
-        swe.set_ephe_path(_p)
-        _EPHE_PATH_SET = _p
-        break
+# SEN-0007: simplified from 8-entry candidate list to SE_EPHE_PATH env read
+# matching the pattern of the 4 files updated in SEN-0006 (Letter C).
+_EPHE_PATH_SET = _os.environ.get("SE_EPHE_PATH", "/opt/mythos/astrology/ephe")
+if _os.path.isdir(_EPHE_PATH_SET):
+    swe.set_ephe_path(_EPHE_PATH_SET)
+else:
+    _EPHE_PATH_SET = None
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 

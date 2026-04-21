@@ -1,0 +1,37 @@
+stream: SEN
+number: 7
+letter: C.1
+subsystem: astrology
+description: "astrology v2 letter C.1 — cleanup (narrowed scope)"
+patch_type: MINOR
+services_restarted: []
+tables_touched: []
+blast_radius: low
+review_link: null
+notes: >
+  Letter C.1 cleanup, narrowed scope per preflight diag 2026-04-21.
+
+  Original spec included archiving 3 chart directories and aligning
+  scripts with local PLANETS/SIGNS/ASPECTS constants. Diag revealed:
+  (1) 7 chart directories exist, only 1 is genuinely stale
+  (adriaan_harold_denkers with wrong 1978 birth year) — the others are
+  live charts (Brandi, Riley, Fitz, Carl Jung, test_person) that must
+  not be archived; (2) constant alignment is more complex than "import
+  from ephemeris" due to per-file shape differences (astro_position.py
+  uses dict[str, tuple[str, int|None]] where ephemeris.py uses
+  dict[str, int]), and is better handled via the already-filed
+  "astrology tool audit" REQUESTS.md entry.
+
+  This patch only does:
+    1. Archive charts/adriaan_harold_denkers/ (shadow-copy pattern)
+    2. Archive user_input/adriaan_harold_denkers.yaml
+    3. Simplify astro_position.py's 8-entry _EPHE_CANDIDATES fallback
+       to a single SE_EPHE_PATH env read (matches SEN-0006 pattern)
+    4. Rename legacy PATCH_HISTORY SEN-0004 entry to SEN-0004-LEGACY
+    5. Rewrite NEXT_PATCH_SPEC.md for Letter D (Natal State)
+
+  All 5 golden fixtures gate this patch. astro_position.py edit is
+  py_compile-verified before the patch proceeds.
+
+  Shadow-copy archive pattern: copies first, verifies, then removes
+  original. If anything fails before delete, original is intact.
