@@ -2172,3 +2172,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SEN
 - **Files:** charts_adriaan_harold_denkers, adriaan_harold_denkers.yaml, astro_position.py, PATCH_HISTORY.md, NEXT_PATCH_SPEC.md
+
+### SEN-0008: astrology v2 letter D — natal state postgres-first
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SEN
+- **Files:** natal_generator.py, ka.json, seraphe.json, NEXT_PATCH_SPEC.md

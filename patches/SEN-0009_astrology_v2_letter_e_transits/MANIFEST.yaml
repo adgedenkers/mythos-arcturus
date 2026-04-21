@@ -1,0 +1,37 @@
+stream: SEN
+number: 9
+letter: E
+subsystem: astrology
+description: "astrology v2 letter E — daily transits wiring"
+patch_type: MINOR
+services_restarted:
+  - mythos-bot.service
+tables_touched: []
+blast_radius: low-medium
+review_link: null
+notes: >
+  Letter E of Astrology v2. Wires the existing transit engine to Telegram
+  and natal_generator.
+
+  The existing transit_pressure.py + transit_interpreter.py pipeline
+  (deployed pre-v2) already computes aspects, tracks applying/separating,
+  calls Ollama for Iris-voiced interpretations, and persists to
+  spiral_transit_pressure. This patch does not replace that engine.
+
+  What this patch adds:
+  1. transit_handler.py — /transits Telegram command
+     /transits           — Adge full report with Ollama interpretations
+     /transits seraphe   — Seraphe full report
+     /transits brief     — Adge report, no Ollama (fast)
+     /transits date YYYY-MM-DD — specific date
+  2. Injects natal_generator integration into transit_pressure.py —
+     _load_natal_positions() now calls natal_generator.load_natal()
+     via a monkey-patch injected at module top, falling back to raw
+     Postgres if natal_generator is unavailable.
+  3. Registers transit_handler in mythos_bot.py alongside spiral_handler.
+  4. Restarts mythos-bot.service to pick up new handler.
+
+  Phase 4 (bot registration) uses anchor search for spiral_handler
+  import line. If bot's handler registration pattern doesn't match
+  any of the 5 candidate anchors, phase 4 fails with a manual-step
+  error rather than corrupting the file.

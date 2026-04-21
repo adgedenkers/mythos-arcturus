@@ -1,60 +1,37 @@
 ---
-title: "Astrology Next Patch Spec — Letter E"
+title: "Astrology Next Patch Spec — Letter F"
 category: spec
 status: active
 stream: SEN
 location: docs/astrology
-tags: [astrology, spec, next-patch]
-created: 2026-04-21
 updated: 2026-04-21
-author: Adge Denkers
 ---
 
-# Astrology Next Patch Spec — Letter E (Daily Transits Refactor)
+# Astrology Next Patch Spec — Letter F (Integration + Completion)
 
-> **This file is rewritten wholesale at the end of every feature patch.**
-> It describes exactly one patch ahead of the current state.
+> **Current state:** Letter E (SEN-0009) shipped — /transits Telegram
+> command live for Adge and Seraphe, transit_pressure.py wired to
+> natal_generator, bot restarted cleanly.
 >
-> **Current state:** Letter D (SEN-0008) shipped — natal_generator.py
-> deployed, charts/ka.json and charts/seraphe.json generated from
-> Postgres, Adge (chart_id=9) and Seraphe (chart_id=11) both confirmed
-> present with correct birth data.
->
-> **This spec covers:** Letter E — Daily Transits Refactor.
-> **Expected patch number:** SEN-0009 (verify via `mythos-diag streams`).
+> **Expected patch number:** SEN-0010 (verify via `mythos-diag streams`).
 
 ---
 
 ## Scope
 
-Refactor the existing daily_transits.py to use:
-- `astrology.ephemeris` for all calculations (replacing inline swisseph calls)
-- `astrology.natal_generator.load_natal()` for natal chart data
-  (no birth data re-entry, reads from Postgres)
-- Proper applying/separating detection (was broken in original due to
-  the flags=0 footgun fixed in SEN-0005)
+Final letter of Astrology v2. CLI tool + documentation completion.
 
-The existing `daily_transits.py` (uploaded 2026-04-21, 357 lines)
-serves as the reference for feature parity. It computes:
-  - All transiting planet positions for a given date
-  - Aspects between transiting planets and natal positions
-  - Orb values, applying/separating, transit quality
+1. **`/opt/mythos/bin/daily-transits` CLI** — shell-accessible transit
+   report: `daily-transits adge` or `daily-transits seraphe 2026-04-28`
 
-### Target interface
+2. **Update `SYSTEM_ASTROLOGY.md`** — mark A→F complete, document full
+   v2 architecture as stable.
 
-```python
-from astrology.transit_engine import compute_transits, format_transit_report
+3. **Update `SUB-SYSTEMS.md`** — increment from DRAFT (N=1) to N=2.
+   Refine the pattern based on Astrology v2 experience.
 
-# Compute transits for Adge on a date
-transits = compute_transits(
-    natal_name='Adge',       # loads from natal_generator
-    transit_date='2026-04-28',
-    tz_str='America/New_York',
-)
-
-# Format for Telegram or console
-report = format_transit_report(transits, style='telegram')
-```
+4. **File a note in REQUESTS.md** that the comprehensive astrology tool
+   audit can now be scheduled (pre-condition: A→F complete ✓).
 
 ---
 
@@ -62,52 +39,17 @@ report = format_transit_report(transits, style='telegram')
 
 | File | Purpose |
 |---|---|
-| `/opt/mythos/astrology/transit_engine.py` | Daily transits computation module |
-
----
+| `/opt/mythos/bin/daily-transits` | Shell CLI for transit reports |
 
 ## Files modified
 
-None. Pure addition patch.
+| File | Change |
+|---|---|
+| `/opt/mythos/docs/SYSTEM_ASTROLOGY.md` | Mark A→F complete |
+| `/opt/mythos/docs/SUB-SYSTEMS.md` | Increment to N=2 |
 
----
+## Services restarted: none (CLI addition only)
+## SQL: none
+## Blast radius: LOW
 
-## SQL
-
-None.
-
----
-
-## Services restarted
-
-None.
-
----
-
-## Verification
-
-1. **Import smoke test** on transit_engine.py
-2. **Compute Adge transits for 2026-04-28** — must match the golden
-   fixtures (Uranus opp Sun at 0.0017° orb, etc.) to within 0.005°
-3. **Applying/separating is non-null** — all aspects must have
-   applying field set (True or False), not None
-4. **All 5 existing golden fixtures still pass**
-
----
-
-## Blast radius
-
-**Low.** New module, no existing code touched, no services restarted,
-no schema changes.
-
----
-
-## After Letter E ships
-
-- Rewrite this file to describe Letter F (Integration — CLI + Telegram)
-- Update SYSTEM_ASTROLOGY.md to mark E shipped
-- Letter F will wire transit_engine into the Telegram /transits command
-
----
-
-*End of Letter E spec.*
+*End of Letter F spec.*

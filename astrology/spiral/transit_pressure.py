@@ -28,6 +28,44 @@ import psycopg2.extras
 
 log = logging.getLogger("iris.transit_pressure")
 
+# SEN-0009: natal_generator integration
+# Provides a load function that uses the canonical Letter D interface.
+# Falls back gracefully if natal_generator is unavailable.
+def _load_natal_positions_via_generator(chart_id: int) -> dict:
+    """
+    Load natal positions from natal_generator.load_natal() by chart_id.
+    Returns {planet_name: longitude_float} matching transit_pressure expectations.
+    Falls back to {} (caller will use raw Postgres fallback) if anything fails.
+    """
+    try:
+        import psycopg2
+        conn = psycopg2.connect(
+            host='/var/run/postgresql', port=5432,
+            database='mythos', user='adge',
+        )
+        cur = conn.cursor()
+        cur.execute('SELECT name FROM astro_natal_charts WHERE chart_id = %s', (chart_id,))
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+        if not row:
+            return {}
+        import sys as _sys
+        _sys.path.insert(0, '/opt/mythos')
+        from astrology.natal_generator import load_natal
+        chart = load_natal(row[0])
+        if not chart:
+            return {}
+        result = {}
+        for name, data in chart.get('chart_objects', {}).items():
+            result[name] = data.get('longitude', 0.0)
+        for pt_name, pt_data in chart.get('chart_points', {}).items():
+            result[pt_name] = pt_data.get('longitude', 0.0)
+        return result
+    except Exception as exc:
+        log.warning('natal_generator path failed for chart_id=%d: %s', chart_id, exc)
+        return {}
+
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 ASPECTS = {

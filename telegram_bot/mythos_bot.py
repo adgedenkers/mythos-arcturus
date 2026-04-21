@@ -1284,6 +1284,9 @@ def main():
     application.add_handler(CommandHandler("geometry", planets_command))
     from telegram_bot.handlers.spiral_handler import handle_spiral
     application.add_handler(CommandHandler("spiral", handle_spiral))
+    # SEN-0009: daily transit reports
+    from telegram_bot.handlers.transit_handler import handle_transits
+    application.add_handler(CommandHandler("transits", handle_transits))
 
     # Grid manifest (NEU-0011)
     application.add_handler(CommandHandler("grid", handle_grid))
