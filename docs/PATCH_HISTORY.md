@@ -2226,3 +2226,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** PATCH
 - **Stream:** SYS
 - **Files:** SYSTEM_AUTODOC2.md, AUTODOC2_V2.md, NEXT_PATCH_SPEC.md, ARCHITECTURE.md, SUB-SYSTEMS.md, SUB-SYSTEMS.md, _INDEX.md
+
+### SYS-0087: PatchBase microtool kit — str_replace + 7 helpers
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** patch_base.py
