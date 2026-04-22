@@ -95,7 +95,7 @@ Do not start with "This transit" or restate the aspect name. Just speak to what 
             response = client.chat(
                 model=OLLAMA_MODEL,
                 messages=[{"role": "user", "content": prompt}],
-                options={"temperature": 0.75, "num_predict": 512},
+                options={"temperature": 0.75, "num_predict": 2048},
             )
             asp["interpretation"] = response["message"]["content"].strip()
             log.info(f"Interpreted {asp['transiting_planet']} {asp['aspect_type']} {asp['natal_point']}")
