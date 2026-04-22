@@ -17,6 +17,12 @@ Examples:
 
   # Wipe an existing crawl and re-run
   autodoc2 /tmp/requests --env-file /opt/mythos/.env.demo-live --clean
+
+  # Full crawl with gemma4:26b structural analysis per file (SYS-0087)
+  autodoc2 --analyze
+
+  # Analysis only, no markdown output
+  autodoc2 --analyze --skip-llm
 """
 
 import argparse
@@ -74,6 +80,13 @@ def build_parser() -> argparse.ArgumentParser:
                    help='(reserved for future use)')
     p.add_argument('--skip-llm', action='store_true',
                    help='Do not generate markdown summaries via Ollama')
+    p.add_argument(
+        '--analyze', '-a',
+        action='store_true',
+        help='Run gemma4:26b structural analysis per file (SYS-0087). '
+             'Opt-in: adds ~1-3s per file. Results stored as analysis_* '
+             'properties on AutodocFile nodes in Neo4j.',
+    )
     p.add_argument('--verbose', '-v', action='store_true',
                    help='Print one line per file processed')
     p.add_argument('--status', action='store_true',
@@ -105,6 +118,7 @@ def main(argv=None) -> int:
         resume=args.resume,
         skip_llm=args.skip_llm,
         verbose=args.verbose,
+        analyze=args.analyze,
     )
 
     engine = AutodocEngine(cfg)

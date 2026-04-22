@@ -21,10 +21,13 @@ legacy autodoc1 so demo Cypher queries are portable between graphs:
     (AutodocClass)-[:DEFINED_IN]->(AutodocFile)
     (AutodocFile)-[:IMPORTS]->(AutodocModule)
     (AutodocFunction)-[:CALLS]->(AutodocFunction)         (best-effort by name)
-"""
 
+SYS-0087: AutodocFile nodes may also carry analysis_* properties written
+by write_analysis() when --analyze is active.
+"""
 from datetime import datetime
 from typing import Optional
+
 from .walker import ParsedFile
 
 
@@ -193,7 +196,6 @@ class Neo4jWriter:
 
             # Method -> class CONTAINS link
             if fn.is_method and fn.parent_class:
-                # parent class qualified name = same module prefix
                 module_prefix = fn.qualified_name.rsplit('.' + fn.name, 1)[0]
                 tx.run(
                     """
@@ -226,14 +228,51 @@ class Neo4jWriter:
                 names=imp.names,
             )
 
-    def link_calls(self):
-        """Second-pass: link CALLS relationships using simple name matching.
+    # ------------------------------------------------------------------
+    # SYS-0087: Analysis results
+    # ------------------------------------------------------------------
 
-        This is best-effort. tree-sitter gives us the call expression text;
-        we match against AutodocFunction names within the same crawl. Doesn't
-        do full type resolution, but it's enough for the demo: 'show me what
-        calls function X' returns useful answers.
+    def write_analysis(self, relative_path: str, result: 'AnalysisResult'):
+        """Write analysis_* properties onto an existing AutodocFile node.
+
+        Called after write_file() when --analyze is active. Non-fatal if
+        the file node doesn't exist yet (race condition is impossible in
+        sequential crawl, but guard anyway).
+
+        Args:
+            relative_path: matches AutodocFile.relative_path
+            result: AnalysisResult from analyzer.Analyzer.analyze()
         """
+        props = result.to_neo4j_props()
+        with self._driver.session() as s:
+            s.run(
+                """
+                MATCH (f:AutodocFile {crawl_id: $crawl_id, relative_path: $rel})
+                SET f.analysis_complexity      = $analysis_complexity,
+                    f.analysis_coupling_signals = $analysis_coupling_signals,
+                    f.analysis_patterns         = $analysis_patterns,
+                    f.analysis_drift_risk       = $analysis_drift_risk,
+                    f.analysis_notable          = $analysis_notable,
+                    f.analysis_model            = $analysis_model,
+                    f.analysis_timestamp        = $analysis_timestamp
+                """,
+                crawl_id=self.crawl_id,
+                rel=relative_path,
+                analysis_complexity=props.get("analysis_complexity"),
+                analysis_coupling_signals=props.get("analysis_coupling_signals", []),
+                analysis_patterns=props.get("analysis_patterns", []),
+                analysis_drift_risk=props.get("analysis_drift_risk"),
+                analysis_notable=props.get("analysis_notable", ""),
+                analysis_model=props.get("analysis_model", "gemma4:26b"),
+                analysis_timestamp=props.get("analysis_timestamp"),
+            )
+
+    # ------------------------------------------------------------------
+    # Call graph (post-processing, best-effort)
+    # ------------------------------------------------------------------
+
+    def link_calls(self):
+        """Second-pass: link CALLS relationships using simple name matching."""
         with self._driver.session() as s:
             s.run(
                 """
@@ -243,15 +282,9 @@ class Neo4jWriter:
                 """,
                 crawl_id=self.crawl_id,
             )
-            # Real implementation: walk parsed functions in memory and link.
-            # For Phase 1 we just leave the CALLS relationship empty in Neo4j
-            # and store the call list as a property on the function node so it
-            # can be queried/post-processed later. The engine handles this via
-            # write_call_property below.
 
     def write_call_property(self, fn_qualified_name: str, calls: list):
-        """Store the raw call list as a property so we can build the call graph
-        in a separate post-processing step without re-parsing."""
+        """Store the raw call list as a property for later call graph construction."""
         with self._driver.session() as s:
             s.run(
                 """

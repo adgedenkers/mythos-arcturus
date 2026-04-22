@@ -1,10 +1,8 @@
 """
 Configuration loading for AutoDoc2.
-
 Loads Neo4j credentials and Ollama settings from a .env file (default
 /opt/mythos/.env). CLI args override env file values.
 """
-
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -16,16 +14,13 @@ class Config:
     # Crawl target
     target: Path
     output_dir: Path
-
     # Neo4j
     neo4j_uri: str = "bolt://localhost:7687"
     neo4j_user: str = "neo4j"
     neo4j_password: str = ""
-
     # Ollama (for markdown summaries via LLM)
     ollama_url: str = "http://localhost:11434"
     ollama_model: str = "iris-deep:latest"
-
     # Crawl behavior
     include: List[str] = field(default_factory=list)
     exclude: List[str] = field(default_factory=list)
@@ -33,6 +28,7 @@ class Config:
     resume: bool = False
     skip_llm: bool = False  # if True, do not generate markdown summaries via LLM
     verbose: bool = False
+    analyze: bool = False   # SYS-0087: if True, run ollama-analyze (gemma4:26b) per file
 
 
 def _parse_env_file(path: Path) -> dict:
@@ -63,6 +59,7 @@ def load_config(
     resume: bool = False,
     skip_llm: bool = False,
     verbose: bool = False,
+    analyze: bool = False,
 ) -> Config:
     env = _parse_env_file(env_file)
 
@@ -89,5 +86,6 @@ def load_config(
         resume=resume,
         skip_llm=skip_llm,
         verbose=verbose,
+        analyze=analyze,
     )
     return cfg

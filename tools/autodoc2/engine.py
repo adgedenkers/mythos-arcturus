@@ -1,15 +1,18 @@
 """
 AutodocEngine — orchestrates the whole crawl.
+
 Flow:
   1. Validate target exists and contains at least one source file
   2. Set up Neo4j constraints, begin crawl record
   3. Iterate source files via filters.iter_source_files()
   4. For each file: dispatch to the right walker, get a ParsedFile
   5. Write ParsedFile to Neo4j
-  6. Optionally call LLM for markdown summary
-  7. Write per-file markdown
-  8. Write index.md
-  9. Mark crawl finished
+  6. Optionally run ollama-analyze (gemma4:26b) — SYS-0087
+  7. Optionally call LLM for markdown summary
+  8. Write per-file markdown
+  9. Write index.md
+ 10. Mark crawl finished
+
 Failure handling: any single file's parse/write failure is logged and the
 crawl continues. Crawl-level errors mark the crawl 'failed'.
 """
@@ -33,11 +36,18 @@ class AutodocEngine:
         self.neo4j: Neo4jWriter | None = None
         self.markdown = MarkdownWriter(cfg.output_dir)
         self.llm = LLMClient(cfg.ollama_url, cfg.ollama_model) if not cfg.skip_llm else None
+        # SYS-0087: analyzer is opt-in via --analyze flag
+        self.analyzer = None
+        if cfg.analyze:
+            from .analyzer import Analyzer
+            self.analyzer = Analyzer(ollama_url=cfg.ollama_url)
         self.stats = {
             'files_total': 0,
             'files_parsed': 0,
             'files_failed': 0,
             'files_skipped_no_walker': 0,
+            'files_analyzed': 0,
+            'files_analyze_failed': 0,
             'language_counts': Counter(),
         }
 
@@ -54,13 +64,12 @@ class AutodocEngine:
         print(f"[autodoc2] crawl_id:    {self.crawl_id}")
         print(f"[autodoc2] languages:   {', '.join(supported_languages())}")
         print(f"[autodoc2] llm:         {'disabled' if cfg.skip_llm else cfg.ollama_model}")
+        print(f"[autodoc2] analyze:     {'gemma4:26b' if cfg.analyze else 'disabled'}")
 
         if not cfg.target.exists():
             print(f"[autodoc2] ERROR: target does not exist: {cfg.target}")
             return 2
 
-        # Pre-flight: count source files. Refuse to start a crawl on an empty
-        # target — this prevents stub AutodocCrawl nodes from polluting the graph.
         preflight = list(iter_source_files(
             cfg.target, include=cfg.include, exclude=cfg.exclude
         ))
@@ -91,8 +100,8 @@ class AutodocEngine:
             self.neo4j.clean_crawl()
 
         self.neo4j.begin_crawl()
-
         t0 = time.time()
+
         try:
             for path, language in preflight:
                 self.stats['files_total'] += 1
@@ -116,7 +125,6 @@ class AutodocEngine:
         self.markdown.write_index(
             cfg.target, self.stats['files_parsed'], dict(self.stats['language_counts'])
         )
-
         self.neo4j.finish_crawl(self.stats['files_parsed'], status='completed')
         self.neo4j.close()
 
@@ -127,6 +135,9 @@ class AutodocEngine:
         print(f"[autodoc2] files parsed:   {self.stats['files_parsed']}")
         print(f"[autodoc2] files failed:   {self.stats['files_failed']}")
         print(f"[autodoc2] no walker:      {self.stats['files_skipped_no_walker']}")
+        if cfg.analyze:
+            print(f"[autodoc2] analyzed:       {self.stats['files_analyzed']}")
+            print(f"[autodoc2] analyze failed: {self.stats['files_analyze_failed']}")
         print(f"[autodoc2] languages:")
         for lang, n in self.stats['language_counts'].most_common():
             print(f"             {lang}: {n}")
@@ -140,29 +151,48 @@ class AutodocEngine:
         if walker is None:
             self.stats['files_skipped_no_walker'] += 1
             return
+
         try:
             source = path.read_bytes()
         except Exception as e:
             print(f"[autodoc2] read failed: {path}: {e}")
             self.stats['files_failed'] += 1
             return
+
         try:
             relative_path = str(path.relative_to(cfg.target))
         except ValueError:
             relative_path = str(path)
+
         try:
             pf = walker.parse_file(path, relative_path, source)
         except Exception as e:
             print(f"[autodoc2] parse failed: {relative_path}: {e}")
             self.stats['files_failed'] += 1
             return
+
         # Neo4j write
         try:
             self.neo4j.write_file(pf)
         except Exception as e:
             print(f"[autodoc2] neo4j write failed: {relative_path}: {e}")
-            # don't increment files_failed — we still got the parse, mark partial
-            # but the crawl continues
+
+        # SYS-0087: ollama-analyze (opt-in, gemma4:26b, non-fatal)
+        if self.analyzer is not None:
+            try:
+                result = self.analyzer.analyze(pf)
+                if result.ok():
+                    self.neo4j.write_analysis(pf.relative_path, result)
+                    self.stats['files_analyzed'] += 1
+                else:
+                    self.stats['files_analyze_failed'] += 1
+                    if cfg.verbose:
+                        print(f"[autodoc2] analyze failed: {relative_path}: {result.error}")
+            except Exception as e:
+                self.stats['files_analyze_failed'] += 1
+                if cfg.verbose:
+                    print(f"[autodoc2] analyze error: {relative_path}: {e}")
+
         # LLM summary (optional)
         summary = None
         if self.llm is not None:
@@ -171,11 +201,13 @@ class AutodocEngine:
                 summary = self.llm.summarize_file(relative_path, language, excerpt)
             except Exception as e:
                 print(f"[autodoc2] llm summary failed: {relative_path}: {e}")
+
         # Markdown write
         try:
             self.markdown.write_file(pf, llm_summary=summary)
         except Exception as e:
             print(f"[autodoc2] markdown write failed: {relative_path}: {e}")
+
         self.stats['files_parsed'] += 1
         if cfg.verbose:
             print(
