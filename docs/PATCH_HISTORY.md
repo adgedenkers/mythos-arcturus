@@ -2214,3 +2214,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** PATCH
 - **Stream:** SEN
 - **Files:** transit_interpreter.py
+
+### SEN-0015: docs update — astrology v2 complete + hotfix record
+- **Date:** 2026-04-21
+- **Type:** PATCH
+- **Stream:** SEN
+- **Files:** SYSTEM_ASTROLOGY.md, ARCHITECTURE.md, TODO.md
