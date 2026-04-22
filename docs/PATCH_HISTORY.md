@@ -2268,3 +2268,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** patchbase_register.py, patchbase-methods
+
+### SYS-0093: autodoc2 iris skill — natural language codebase queries
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** autodoc2_query.py

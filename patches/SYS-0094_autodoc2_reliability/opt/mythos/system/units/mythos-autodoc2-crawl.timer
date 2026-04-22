@@ -1,0 +1,12 @@
+[Unit]
+Description=AutoDoc2 Weekly Codebase Re-crawl Timer
+Documentation=https://github.com/adgedenkers/mythos
+
+[Timer]
+OnCalendar=Sun *-*-* 03:00:00
+RandomizedDelaySec=1800
+Persistent=true
+Unit=mythos-autodoc2-crawl.service
+
+[Install]
+WantedBy=timers.target
