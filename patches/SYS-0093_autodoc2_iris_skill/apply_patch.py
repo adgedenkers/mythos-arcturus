@@ -32,8 +32,9 @@ check = subprocess.run(
     ['/opt/mythos/.venv/bin/python3', '-c',
      'import sys; '
      'sys.path.insert(0, "/opt/mythos/skills"); '
+     'sys.path.insert(0, "/opt/mythos/skills/engine"); '
      'sys.path.insert(0, "/opt/mythos"); '
-     'from data.autodoc2_query import Autodoc2QuerySkill; '
+     'from autodoc2_query import Autodoc2QuerySkill; '
      'skill = Autodoc2QuerySkill(); '
      'assert skill.name == "autodoc2_query", f"wrong name: {skill.name}"; '
      'assert len(skill.triggers) > 5, "too few triggers"; '
@@ -42,7 +43,7 @@ check = subprocess.run(
      'assert score > 0, f"zero relevance for: {msg}"; '
      'print(f"autodoc2_query skill: OK — relevance={score:.2f} for test query")'],
     capture_output=True, text=True, timeout=15,
-    cwd='/opt/mythos',
+    cwd='/opt/mythos/skills/data',
 )
 if check.returncode != 0:
     patch.errors.append(f"skill smoke test failed: {check.stderr.strip()}")
@@ -50,21 +51,20 @@ if check.returncode != 0:
 else:
     patch.logger.log(f"  \u2713 {check.stdout.strip()}")
 
-# ── Verify auto-discovery by skill engine ────────────────────────────────────
+# ── Verify skill file exists and class is present ────────────────────────────
 
 check2 = subprocess.run(
     ['/opt/mythos/.venv/bin/python3', '-c',
-     'import sys; '
-     'sys.path.insert(0, "/opt/mythos/skills"); '
+     'import sys, importlib.util, pathlib; '
+     'sys.path.insert(0, "/opt/mythos/skills/engine"); '
      'sys.path.insert(0, "/opt/mythos"); '
-     'import importlib, pathlib; '
      'skill_path = pathlib.Path("/opt/mythos/skills/data/autodoc2_query.py"); '
      'assert skill_path.exists(), "skill file not found"; '
      'spec = importlib.util.spec_from_file_location("autodoc2_query", skill_path); '
      'mod = importlib.util.module_from_spec(spec); '
      'spec.loader.exec_module(mod); '
      'assert hasattr(mod, "Autodoc2QuerySkill"), "class not found in module"; '
-     'print("skill auto-discovery: OK")'],
+     'print("skill discovery: OK")'],
     capture_output=True, text=True, timeout=15,
     cwd='/opt/mythos',
 )
