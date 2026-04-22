@@ -2250,3 +2250,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** PATCH
 - **Stream:** SYS
 - **Files:** engine.py, cli.py
+
+### SYS-0091: autodoc2 graph coverage gate — post-patch Neo4j verification
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** post_install.py
