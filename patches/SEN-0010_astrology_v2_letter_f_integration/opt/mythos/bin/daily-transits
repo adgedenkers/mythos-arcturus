@@ -1,0 +1,102 @@
+#!/usr/bin/env /opt/mythos/.venv/bin/python3
+"""
+daily-transits — Mythos Astrology v2 CLI for transit reports
+
+Usage:
+    daily-transits                          # today, Adge, with Ollama interpretations
+    daily-transits seraphe                  # today, Seraphe
+    daily-transits adge 2026-04-28          # specific date, Adge
+    daily-transits brief                    # today, Adge, no LLM (fast)
+    daily-transits seraphe 2026-04-28 brief # specific date + fast
+
+Output is Markdown-formatted text, suitable for piping or reading directly.
+"""
+import sys
+import os
+from datetime import date, datetime
+from pathlib import Path
+
+sys.path.insert(0, '/opt/mythos')
+
+def usage():
+    print(__doc__)
+    sys.exit(0)
+
+def main():
+    args = sys.argv[1:]
+
+    if '--help' in args or '-h' in args:
+        usage()
+
+    person = 'adge'
+    target_date = date.today()
+    brief_mode = False
+
+    # Parse args: person name, optional date, optional 'brief'
+    for arg in args:
+        if arg.lower() in ('adge', 'ka', 'katuar', 'katuarel'):
+            person = 'adge'
+        elif arg.lower() in ('seraphe', 'becky', 'rebecca'):
+            person = 'seraphe'
+        elif arg.lower() == 'brief':
+            brief_mode = True
+        else:
+            # Try to parse as date
+            for fmt in ('%Y-%m-%d', '%m/%d/%Y', '%d-%m-%Y'):
+                try:
+                    target_date = datetime.strptime(arg, fmt).date()
+                    break
+                except ValueError:
+                    continue
+            else:
+                print(f"⚠  Unrecognised argument: {arg!r}", file=sys.stderr)
+                print("   Run `daily-transits --help` for usage.", file=sys.stderr)
+                sys.exit(1)
+
+    # Chart IDs from astro_natal_charts (confirmed SEN-0008)
+    CHART_IDS = {'adge': 9, 'seraphe': 11}
+    LABELS     = {'adge': "Ka'tuar'el (Adge)", 'seraphe': 'Seraphe'}
+
+    chart_id = CHART_IDS[person]
+    label    = LABELS[person]
+    date_str = target_date.strftime('%B %-d, %Y')
+
+    print(f"🔭  {label} — Daily Transits")
+    print(f"    {date_str}", end='')
+    print(' [brief]' if brief_mode else '')
+    print()
+
+    try:
+        from astrology.spiral.transit_pressure import (
+            get_todays_pressure,
+            format_pressure_brief,
+        )
+
+        aspects = get_todays_pressure(chart_id, target_date=target_date)
+
+        if not aspects:
+            print(f"No significant transits in orb for {label} on {date_str}.")
+            return
+
+        if brief_mode:
+            print(format_pressure_brief(aspects))
+        else:
+            from astrology.spiral.transit_interpreter import (
+                interpret_transits,
+                format_pressure_brief_with_interp,
+            )
+            enriched = interpret_transits(aspects)
+            print(format_pressure_brief_with_interp(enriched))
+
+    except ImportError as e:
+        print(f"⚠  Import error: {e}", file=sys.stderr)
+        print("   Is the Mythos venv active?  "
+              "Try: /opt/mythos/.venv/bin/python3 /opt/mythos/bin/daily-transits",
+              file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"⚠  Transit engine error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()

@@ -1,55 +1,43 @@
 ---
-title: "Astrology Next Patch Spec — Letter F"
+title: "Astrology Next Patch Spec — POST v2"
 category: spec
-status: active
+status: complete
 stream: SEN
 location: docs/astrology
 updated: 2026-04-21
 ---
 
-# Astrology Next Patch Spec — Letter F (Integration + Completion)
+# Astrology v2 — Complete
 
-> **Current state:** Letter E (SEN-0009) shipped — /transits Telegram
-> command live for Adge and Seraphe, transit_pressure.py wired to
-> natal_generator, bot restarted cleanly.
->
-> **Expected patch number:** SEN-0010 (verify via `mythos-diag streams`).
+Astrology v2 (A→F) shipped 2026-04-21 across 7 patches (SEN-0004
+through SEN-0010). There is no Letter G.
 
----
+## Post-v2 work
 
-## Scope
+Three items are filed in `/opt/mythos/docs/REQUESTS.md`:
 
-Final letter of Astrology v2. CLI tool + documentation completion.
+1. **SYS: Full graph coverage + post-patch verification gate**
+   — every deployed tool mapped in Neo4j, post-scan gate on patch-install
 
-1. **`/opt/mythos/bin/daily-transits` CLI** — shell-accessible transit
-   report: `daily-transits adge` or `daily-transits seraphe 2026-04-28`
+2. **SYS: PatchBase microtool kit with Ollama integration**
+   — `ollama-analyze` microtool callable from apply_patch.py
 
-2. **Update `SYSTEM_ASTROLOGY.md`** — mark A→F complete, document full
-   v2 architecture as stable.
+3. **SEN: Comprehensive astrology tool audit + dedup**
+   — inventory all 23+ astrology .py files, unify around ephemeris.py,
+     dedup one-offs, fold unique features into canonical modules
 
-3. **Update `SUB-SYSTEMS.md`** — increment from DRAFT (N=1) to N=2.
-   Refine the pattern based on Astrology v2 experience.
+## Starting the next astrology conversation
 
-4. **File a note in REQUESTS.md** that the comprehensive astrology tool
-   audit can now be scheduled (pre-condition: A→F complete ✓).
+Run the standard session-start diagnostic:
 
----
+```bash
+D=~/diag.txt; > "$D"
+echo "=== TODO ===" >> "$D"; cat /opt/mythos/docs/TODO.md >> "$D"
+echo "\n\n=== ARCHITECTURE ===" >> "$D"; cat /opt/mythos/docs/ARCHITECTURE.md >> "$D"
+echo "\n\n=== STREAMS ===" >> "$D"; cat /opt/mythos/docs/STREAMS.md >> "$D"
+cat "$D" | xclip -selection clipboard && echo "✓"
+```
 
-## Files created
+Then share `SYSTEM_ASTROLOGY.md` for astrology-specific context.
 
-| File | Purpose |
-|---|---|
-| `/opt/mythos/bin/daily-transits` | Shell CLI for transit reports |
-
-## Files modified
-
-| File | Change |
-|---|---|
-| `/opt/mythos/docs/SYSTEM_ASTROLOGY.md` | Mark A→F complete |
-| `/opt/mythos/docs/SUB-SYSTEMS.md` | Increment to N=2 |
-
-## Services restarted: none (CLI addition only)
-## SQL: none
-## Blast radius: LOW
-
-*End of Letter F spec.*
+*End — arc complete.*

@@ -1,0 +1,30 @@
+stream: SEN
+number: 10
+letter: F
+subsystem: astrology
+description: "astrology v2 letter F — integration + completion"
+patch_type: MINOR
+services_restarted: []
+tables_touched: []
+blast_radius: low
+review_link: null
+notes: >
+  Final letter of Astrology v2. Pure addition + documentation.
+
+  1. daily-transits CLI script at /opt/mythos/bin/daily-transits
+     Usage: daily-transits [person] [date] [brief]
+     Calls existing transit_pressure.py + transit_interpreter.py pipeline.
+     Marked executable on deploy.
+
+  2. SYSTEM_ASTROLOGY.md — full rewrite to reflect A→F complete.
+     Previous version was frozen at "A shipped, B is next" — the doc
+     was never updated during the build arc. Now reflects all 7 patches,
+     full disk state, DB state, how-to-use, known debt.
+
+  3. SUB-SYSTEMS.md — promoted from DRAFT (N=1) to ACTIVE (N=2).
+     Six learnings from Astrology v2 added: schema verification, the
+     swisseph flags footgun, bot registration variance, diag-before-build
+     rule, scope narrowing, existing-engines-first survey.
+     Remove "next revision: Letter E ships" note — that's now done.
+
+  4. NEXT_PATCH_SPEC.md — marked arc complete, points to REQUESTS.md.

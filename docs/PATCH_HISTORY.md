@@ -2178,3 +2178,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SEN
 - **Files:** natal_generator.py, ka.json, seraphe.json, NEXT_PATCH_SPEC.md
+
+### SEN-0009: astrology v2 letter E — daily transits wiring
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SEN
+- **Files:** transit_handler.py, transit_pressure.py, mythos_bot.py, NEXT_PATCH_SPEC.md
