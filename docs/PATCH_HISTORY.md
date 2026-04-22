@@ -2208,3 +2208,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** PATCH
 - **Stream:** SEN
 - **Files:** transit_interpreter.py, transit_interpreter.py
+
+### SEN-0014: transit_interpreter: revert to qwen3, keep num_predict=512
+- **Date:** 2026-04-21
+- **Type:** PATCH
+- **Stream:** SEN
+- **Files:** transit_interpreter.py
