@@ -958,6 +958,83 @@ class PatchBase:
 
     # ── Ledger internals ──────────────────────────────────────────────────────
 
+    def ollama_analyze(self, prompt: str, files: list = None,
+                       task: str = None, model: str = None,
+                       timeout: int = 120) -> dict | None:
+        """Run LLM analysis on a prompt + optional file contents.
+
+        SYS-0093: Wraps /opt/mythos/tools/ollama_analyze.py for use
+        inside apply_patch.py. Returns parsed JSON dict or None on failure.
+        Dry-run aware -- returns a stub dict without calling Ollama.
+
+        Args:
+            prompt:  Analysis prompt.
+            files:   List of absolute file paths to include as context.
+            task:    Preset task: sql-drift, py-signatures, review, sql-analyze.
+            model:   Ollama model override (default: qwen3:30b-a3b).
+            timeout: Seconds before giving up (default: 120).
+
+        Returns:
+            dict on success, None on failure.
+        """
+        import json as _json
+        tool = '/opt/mythos/tools/ollama_analyze.py'
+        if not os.path.isfile(tool):
+            msg = f"ollama_analyze: tool not found: {tool}"
+            self.errors.append(msg)
+            self.logger.log(f"  ✗ {msg}")
+            return None
+
+        if self.dry_run:
+            self.validations.append("ollama_analyze: skipped (dry run)")
+            self.logger.log("  ✓ [validate] ollama_analyze: skipped in dry run")
+            return {'dry_run': True, 'summary': 'Dry run -- no analysis performed',
+                    'safe': True, 'issues': [], 'warnings': []}
+
+        cmd = ['/opt/mythos/.venv/bin/python3', tool, '--json']
+        if task:
+            cmd += ['--task', task]
+        if prompt:
+            cmd += ['--prompt', prompt]
+        if files:
+            cmd += ['--files'] + [str(f) for f in files]
+        if model:
+            cmd += ['--model', model]
+        cmd += ['--timeout', str(timeout)]
+
+        try:
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=timeout + 10,
+            )
+        except subprocess.TimeoutExpired:
+            msg = f"ollama_analyze: timed out after {timeout}s"
+            self.errors.append(msg)
+            self.logger.log(f"  ✗ {msg}")
+            return None
+        except Exception as e:
+            msg = f"ollama_analyze: subprocess error: {e}"
+            self.errors.append(msg)
+            self.logger.log(f"  ✗ {msg}")
+            return None
+
+        if result.returncode != 0:
+            stderr = (result.stderr or '').strip()[:200]
+            msg = f"ollama_analyze: failed (exit {result.returncode}): {stderr}"
+            self.errors.append(msg)
+            self.logger.log(f"  ✗ ollama_analyze: FAILED")
+            return None
+
+        try:
+            parsed = _json.loads(result.stdout.strip())
+            summary = parsed.get('summary', parsed.get('raw', '')[:80])
+            self.logger.log(f"  ✓ ollama_analyze: {summary}")
+            return parsed
+        except _json.JSONDecodeError as e:
+            msg = f"ollama_analyze: JSON parse failed: {e}"
+            self.errors.append(msg)
+            self.logger.log(f"  ✗ {msg}")
+            return None
+
     def _bump_streams_json(self):
         try:
             with open(STREAMS_JSON, 'r') as f:
