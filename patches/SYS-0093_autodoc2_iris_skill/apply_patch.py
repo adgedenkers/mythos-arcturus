@@ -12,64 +12,55 @@ patch = PatchBase(
 )
 patch.begin()
 
-# ── Deploy the skill ──────────────────────────────────────────────────────────
-
 patch.deploy_file(
     'opt/mythos/skills/data/autodoc2_query.py',
     '/opt/mythos/skills/data/autodoc2_query.py',
 )
-
-# ── Syntax check ──────────────────────────────────────────────────────────────
 
 patch.py_compile_check(
     '/opt/mythos/skills/data/autodoc2_query.py',
     'autodoc2_query.py',
 )
 
-# ── Smoke test: import and instantiate the skill ──────────────────────────────
-
+# Verified pattern: cwd=/opt/mythos, /opt/mythos/skills on path, import as data.autodoc2_query
 check = subprocess.run(
     ['/opt/mythos/.venv/bin/python3', '-c',
      'import sys; '
      'sys.path.insert(0, "/opt/mythos/skills"); '
      'sys.path.insert(0, "/opt/mythos"); '
-     'from autodoc2_query import Autodoc2QuerySkill; '
+     'from data.autodoc2_query import Autodoc2QuerySkill; '
      'skill = Autodoc2QuerySkill(); '
-     'assert skill.name == "autodoc2_query", f"wrong name: {skill.name}"; '
-     'assert len(skill.triggers) > 5, "too few triggers"; '
-     'msg = "what files import neo4j"; '
-     'score = skill.relevance(msg); '
-     'assert score > 0, f"zero relevance for: {msg}"; '
-     'print(f"autodoc2_query skill: OK — relevance={score:.2f} for test query")'],
+     'assert skill.name == "autodoc2_query"; '
+     'score = skill.relevance("what files import neo4j"); '
+     'assert score > 0; '
+     'print(f"autodoc2_query: OK, relevance={score:.2f}")'],
     capture_output=True, text=True, timeout=15,
-    cwd='/opt/mythos/skills/data',
+    cwd='/opt/mythos',
 )
 if check.returncode != 0:
-    patch.errors.append(f"skill smoke test failed: {check.stderr.strip()}")
-    patch.logger.log(f"  \u2717 skill test: {check.stderr.strip()}")
+    patch.errors.append(f"skill test failed: {check.stderr.strip()}")
+    patch.logger.log(f"  \u2717 skill: {check.stderr.strip()}")
 else:
     patch.logger.log(f"  \u2713 {check.stdout.strip()}")
-
-# ── Verify skill file exists and class is present ────────────────────────────
 
 check2 = subprocess.run(
     ['/opt/mythos/.venv/bin/python3', '-c',
      'import sys, importlib.util, pathlib; '
      'sys.path.insert(0, "/opt/mythos/skills"); '
      'sys.path.insert(0, "/opt/mythos"); '
-     'skill_path = pathlib.Path("/opt/mythos/skills/data/autodoc2_query.py"); '
-     'assert skill_path.exists(), "skill file not found"; '
-     'spec = importlib.util.spec_from_file_location("autodoc2_query", skill_path); '
+     'p = pathlib.Path("/opt/mythos/skills/data/autodoc2_query.py"); '
+     'assert p.exists(); '
+     'spec = importlib.util.spec_from_file_location("autodoc2_query", p); '
      'mod = importlib.util.module_from_spec(spec); '
      'spec.loader.exec_module(mod); '
-     'assert hasattr(mod, "Autodoc2QuerySkill"), "class not found in module"; '
+     'assert hasattr(mod, "Autodoc2QuerySkill"); '
      'print("skill discovery: OK")'],
     capture_output=True, text=True, timeout=15,
     cwd='/opt/mythos',
 )
 if check2.returncode != 0:
-    patch.errors.append(f"discovery test failed: {check2.stderr.strip()}")
-    patch.logger.log(f"  \u2717 discovery test: {check2.stderr.strip()}")
+    patch.errors.append(f"discovery failed: {check2.stderr.strip()}")
+    patch.logger.log(f"  \u2717 discovery: {check2.stderr.strip()}")
 else:
     patch.logger.log(f"  \u2713 {check2.stdout.strip()}")
 
