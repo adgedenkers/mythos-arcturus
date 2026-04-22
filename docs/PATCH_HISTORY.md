@@ -2244,3 +2244,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** analyzer.py, config.py, cli.py, engine.py, neo4j_writer.py
+
+### SYS-0090: autodoc2 lock qwen3-coder:30b analysis model
+- **Date:** 2026-04-21
+- **Type:** PATCH
+- **Stream:** SYS
+- **Files:** engine.py, cli.py
