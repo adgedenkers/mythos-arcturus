@@ -52,17 +52,22 @@ patch = PatchBase(
 patch.begin()
 
 print('\n' + '=' * 70)
-print('SYS-0086 — PatchBase microtool kit')
+print('SYS-0087 — PatchBase microtool kit')
 print('=' * 70 + '\n')
 
-# ── PHASE 1: Assert the target exists ────────────────────────────
+# ── PHASE 1: Pre-flight (old API only — new methods not live yet) ─
 print('PHASE 1: Pre-flight')
 print('-' * 70)
-if not patch.assert_file_exists(PATCH_BASE_PATH, 'patch_base.py'):
+from pathlib import Path as _Path
+if not _Path(PATCH_BASE_PATH).exists():
+    patch.errors.append(f'patch_base.py not found: {PATCH_BASE_PATH}')
+    patch.logger.log('  ✗ patch_base.py: not found')
     patch.finish()
     sys.exit(1)
+patch.logger.log('  ✓ patch_base.py: exists')
 
 # ── PHASE 2: Deploy new patch_base.py ────────────────────────────
+# Must happen before any new methods are called — this IS the bootstrap.
 print('\nPHASE 2: Deploy patch_base.py')
 print('-' * 70)
 patch.deploy_file(
@@ -73,14 +78,21 @@ if patch.errors:
     patch.finish()
     sys.exit(1)
 
-# ── PHASE 3: py_compile gate ──────────────────────────────────────
+# ── PHASE 3: py_compile gate (manual — new methods not live yet) ──
 print('\nPHASE 3: Syntax check')
 print('-' * 70)
-if not patch.py_compile_check(PATCH_BASE_PATH, 'patch_base.py'):
+import py_compile as _pyc
+try:
+    _pyc.compile(PATCH_BASE_PATH, doraise=True)
+    patch.logger.log('  ✓ patch_base.py: py_compile clean')
+except _pyc.PyCompileError as e:
+    patch.errors.append(f'py_compile failed: {e}')
+    patch.logger.log(f'  ✗ patch_base.py: py_compile FAILED: {e}')
     patch.finish()
     sys.exit(1)
 
-# ── PHASE 4: Smoke-test each new method is importable + callable ──
+# ── PHASE 4: Smoke-test new methods via run_python_check ─────────
+# patch_base.py is now on disk — new methods ARE live for this check.
 print('\nPHASE 4: Smoke tests')
 print('-' * 70)
 
