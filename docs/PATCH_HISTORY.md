@@ -2220,3 +2220,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** PATCH
 - **Stream:** SEN
 - **Files:** SYSTEM_ASTROLOGY.md, ARCHITECTURE.md, TODO.md
+
+### SYS-0086: autodoc2 subsystem registration
+- **Date:** 2026-04-21
+- **Type:** PATCH
+- **Stream:** SYS
+- **Files:** SYSTEM_AUTODOC2.md, AUTODOC2_V2.md, NEXT_PATCH_SPEC.md, ARCHITECTURE.md, SUB-SYSTEMS.md, SUB-SYSTEMS.md, _INDEX.md
