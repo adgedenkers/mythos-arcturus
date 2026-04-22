@@ -16,10 +16,7 @@ from typing import Optional
 log = logging.getLogger("iris.transit_interpreter")
 
 OLLAMA_HOST  = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-# SEN-0013: gemma4:26b for transit interpretations
-# qwen3 leaks chain-of-thought into content field.
-# Override via TRANSIT_OLLAMA_MODEL env var if needed.
-OLLAMA_MODEL = os.getenv("TRANSIT_OLLAMA_MODEL", "gemma4:26b")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:30b-a3b")
 
 NATAL_CONTEXT = """
 Ka'tuar'el (Adge Denkers) natal chart:
