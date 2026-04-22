@@ -2238,3 +2238,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** patch_base.py
+
+### SYS-0088: autodoc2 ollama-analyze microtool (gemma4:26b)
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** analyzer.py, config.py, cli.py, engine.py, neo4j_writer.py

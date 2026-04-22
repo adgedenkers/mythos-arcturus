@@ -25,7 +25,7 @@ from typing import Optional, List
 
 from .walker import ParsedFile
 
-ANALYSIS_MODEL = "gemma4:26b"
+ANALYSIS_MODEL = "qwen3-coder:30b"
 ANALYSIS_TIMEOUT = 90  # seconds — gemma4:26b is fast but files vary
 
 ANALYSIS_PROMPT_TEMPLATE = """\
