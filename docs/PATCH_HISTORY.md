@@ -2262,3 +2262,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** patchbase_register.py, patchbase-methods
+
+### SYS-0092: autodoc2 patchbase microtool registration in Neo4j
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** patchbase_register.py, patchbase-methods
