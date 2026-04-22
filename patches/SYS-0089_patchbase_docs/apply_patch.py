@@ -48,11 +48,20 @@ if not patch.assert_file_exists(ARCHITECTURE_PATH, 'ARCHITECTURE.md'):
     patch.finish(); sys.exit(1)
 
 # 2a: Add SYSTEM_PATCH.md to subsystem docs pointer.
-# Exact anchor: AUTODOC2 line is immediately followed by a blank > line then **Version:**
+# Live file has em dash (U+2014) and a blank line between AUTODOC2 and Version.
 patch.str_replace(
     ARCHITECTURE_PATH,
-    old='> - `docs/SYSTEM_AUTODOC2.md` — AutoDoc2 codebase documentation engine (registered SYS-0086)  <!-- SYS-0086 -->\n> **Version:** 6.4.0',
-    new='> - `docs/SYSTEM_AUTODOC2.md` — AutoDoc2 codebase documentation engine (registered SYS-0086)  <!-- SYS-0086 -->\n> - `docs/SYSTEM_PATCH.md` — Patch system + PatchBase API reference (SYS-0087→0089)  <!-- SYS-0089 -->\n> **Version:** 6.5.0',
+    old=(
+        '> - `docs/SYSTEM_AUTODOC2.md` — AutoDoc2 codebase documentation engine (registered SYS-0086)  <!-- SYS-0086 -->\n'
+        '\n'
+        '> **Version:** 6.4.0'
+    ),
+    new=(
+        '> - `docs/SYSTEM_AUTODOC2.md` — AutoDoc2 codebase documentation engine (registered SYS-0086)  <!-- SYS-0086 -->\n'
+        '> - `docs/SYSTEM_PATCH.md` — Patch system + PatchBase API reference (SYS-0087→0089)  <!-- SYS-0089 -->\n'
+        '\n'
+        '> **Version:** 6.5.0'
+    ),
     label='subsystem docs pointer + version bump',
 )
 
