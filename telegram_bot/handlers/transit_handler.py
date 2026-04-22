@@ -74,6 +74,7 @@ async def handle_transits(update, context):
     try:
         sys.path.insert(0, '/opt/mythos')
         from astrology.spiral.transit_pressure import (
+            run_daily_pressure,
             get_todays_pressure,
             format_pressure_brief,
         )
@@ -82,8 +83,14 @@ async def handle_transits(update, context):
             format_pressure_brief_with_interp,
         )
 
-        # Get transit aspects (computes if not cached, persists to DB)
-        aspects = get_todays_pressure(chart_id, target_date=target_date)
+        # SEN-0012: run_daily_pressure computes + persists, then returns aspects.
+        # get_todays_pressure alone only reads the cache — if nothing has run
+        # the daily pipeline yet, it returns empty. run_daily_pressure is the
+        # correct entry point (idempotent via unique constraint on the table).
+        aspects = run_daily_pressure(chart_id, target_date=target_date)
+        if not aspects:
+            # Fallback: try reading existing cache (e.g. already computed today)
+            aspects = get_todays_pressure(chart_id, target_date=target_date)
 
         if not aspects:
             await update.message.reply_text(

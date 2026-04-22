@@ -2190,3 +2190,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SEN
 - **Files:** daily-transits, SYSTEM_ASTROLOGY.md, SUB-SYSTEMS.md, NEXT_PATCH_SPEC.md
+
+### SEN-0011: transit_pressure db connection + natal positions fix
+- **Date:** 2026-04-21
+- **Type:** PATCH
+- **Stream:** SEN
+- **Files:** transit_pressure.py, transit_pressure.py
