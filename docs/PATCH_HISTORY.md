@@ -2274,3 +2274,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** autodoc2_worker.py, mythos-autodoc2-crawl.service, mythos-autodoc2-crawl.timer, SYSTEM_AUTODOC2.md, SYSTEM_AUTODOC2.md
+
+### SYS-0095: autodoc2 documentation update — reflect completed A→G arc
+- **Date:** 2026-04-22
+- **Type:** PATCH
+- **Stream:** SYS
+- **Files:** SYSTEM_AUTODOC2.md, AUTODOC2_V2.md, NEXT_PATCH_SPEC.md
