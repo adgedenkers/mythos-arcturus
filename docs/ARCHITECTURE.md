@@ -21,13 +21,13 @@ author: Adge Denkers
 >
 > Current system docs:
 > - `docs/SYSTEM_FINANCE.md` — Finance v2 (active build, Patch B shipped)
-> - `docs/SYSTEM_ASTROLOGY.md` — Astrology v2 (active build, Letter A shipped)  <!-- SEN-0004 -->
-> - `docs/SUB-SYSTEMS.md` — Universal sub-system pattern (DRAFT, N=1)  <!-- SEN-0004 -->
+> - `docs/SYSTEM_ASTROLOGY.md` — Astrology v2 (complete + stable, SEN-0004→0015)  <!-- SEN-0015 -->
+> - `docs/SUB-SYSTEMS.md` — Universal sub-system pattern (ACTIVE, N=2)  <!-- SEN-0015 -->
 
-> **Version:** 6.3.0
-> **Last Updated:** 2026-04-12
+> **Version:** 6.4.0
+> **Last Updated:** 2026-04-21
 > **Host:** arcturus (Ubuntu 24.04)
-> **Current Patch:** SYS-0069 (patch system stabilized — monitor passive, privilege foundation live)
+> **Current Patch:** SEN-0015 (astrology v2 complete + stable — /transits live with Iris interpretations)
 > **Legacy Patch:** NEU-0013 (Iris Modelfile — baked identity, last 6.2.0 state)
 
 ---

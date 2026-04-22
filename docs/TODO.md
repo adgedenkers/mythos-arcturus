@@ -182,6 +182,17 @@ subsequent adge-run operations.
 - Idempotency markers must be drawn from content that appears ONLY in the NEW version, not from content shared with OLD. The first 80 characters of a `NEW` that just appends is identical to `OLD`.
 - Post-install verifies against active-directive sudoers rules need regex (`^\s*[^#].*NOPASSWD`), not substring matching. Comments referencing removed rules will otherwise false-positive.
 
+### 2026-04-21: Astrology v2 — Complete + Transit Engine Live
+
+- [x] **SEN-0004→0010:** Astrology v2 A→F — ephemeris provider, natal generator, transit engine, Telegram command, CLI
+- [x] **SEN-0011:** `transit_pressure.py` DB connection fix (TCP→socket) + natal positions name normalisation
+- [x] **SEN-0012:** `transit_handler.py` — use `run_daily_pressure()` not `get_todays_pressure()` (cache-only)
+- [x] **SEN-0013→0014:** gemma4 refuses astrology prompts; qwen3 is correct model; num_predict=512 marginal
+- [x] **SEN-0015:** num_predict 2048 — qwen3 thinking mode requires headroom; `/transits` fully operational
+- `/transits` command live: computes aspects, generates Iris-voiced interpretations grounded in Ka'tuar'el's lineage
+- `daily-transits` CLI live: same pipeline from shell
+- Golden fixture harness ran 15 times across arc — identical deltas every run
+
 ### 2026-04-02: Iris Voice Quality + Alias Consolidation
 - [x] NEU-0019: Anti-confab v4 (capability fabrication + closing question fix)
 - [x] SYS-0047: Model alias consolidation into `core/model_aliases.py`
@@ -229,6 +240,18 @@ See `docs/PATCH_HISTORY.md` for full history (patches 0068–0113, voice memos, 
 - Skill output contaminates voice — skills must return clean, voice-compatible output
 - Position #1 in SYSTEM block carries the most weight (anti-confab goes there)
 - Calibrate before deploying: `iris-calibrate` runs 60 tests across 6 message types
+
+### qwen3 num_predict / thinking mode (2026-04-21)
+qwen3:30b-a3b uses extended thinking mode by default. With short `num_predict` budgets it
+consumes all tokens on internal reasoning (`<think>...</think>`) and returns empty content.
+Rule: any prompt >200 tokens needs `num_predict` ≥ 2048. Verify with:
+`think=False` as a top-level `client.chat()` param suppresses thinking but gemma4 refuses
+astrology content entirely. qwen3 + sufficient token budget is the correct stack.
+
+### qwen3 `think=False` does not work in options dict (2026-04-21)
+`options={"think": False}` is silently ignored. `client.chat(..., think=False)` works
+syntactically but still leaks thinking into content on some prompts. The real fix is
+always `num_predict` headroom, not suppressing the thinking pass.
 
 ### Model Aliases (2026-04-02)
 - Single source of truth: `core/model_aliases.py`
