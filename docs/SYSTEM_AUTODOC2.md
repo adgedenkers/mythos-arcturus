@@ -81,7 +81,7 @@ numbers.
 | D | PatchBase microtool registration — `patchbase-methods` CLI dumps API from Neo4j; `ollama-analyze` callable during patch build, not just post-hoc | — | — |
 | E | Iris skill — `autodoc2_query` Iris skill enabling natural-language queries against the graph ("what files import postgres?", "show me the functions in transit_pressure.py") | — | — |
 | F | Telegram integration — `/autodoc` command, `/autodoc crawl <target>`, `/autodoc query <question>` via Iris skill | — | — |
-| G | Reliability — crawl diffing (detect deleted files, new files, changed signatures), scheduled re-crawl of /opt/mythos, result summary to Telegram | — | — |
+| G | Reliability — crawl diffing (detect deleted files, new files, changed signatures), scheduled re-crawl of /opt/mythos, result summary to Telegram | SYS-0094 | ✅ |
 
 ---
 
@@ -126,8 +126,9 @@ numbers.
 /opt/mythos/tools/autodoc.py   # 1,612-line monolith, Python-only. Not removed yet.
 ```
 
-Legacy autodoc.py should be archived or deleted in Letter G after AutoDoc2
-has proven stable with scheduled crawls.
+Legacy autodoc.py was archived in SYS-0094 (AutoDoc2 Letter G) to
+`tools/archive/autodoc_v1.py`. The `/opt/mythos/bin/autodoc` symlink
+has been removed. Use `autodoc2` instead.
 
 ### Output from last crawl (April 4, 2026)
 

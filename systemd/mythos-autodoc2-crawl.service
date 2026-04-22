@@ -1,0 +1,20 @@
+[Unit]
+Description=AutoDoc2 Scheduled Codebase Re-crawl
+After=network.target mythos-api.service
+Documentation=https://github.com/adgedenkers/mythos
+
+[Service]
+Type=oneshot
+User=adge
+Group=adge
+WorkingDirectory=/opt/mythos
+ExecStart=/opt/mythos/.venv/bin/python3 /opt/mythos/workers/autodoc2_worker.py --now
+Environment=PYTHONPATH=/opt/mythos
+EnvironmentFile=/opt/mythos/.env
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mythos-autodoc2-crawl
+TimeoutStartSec=3600
+
+[Install]
+WantedBy=multi-user.target
