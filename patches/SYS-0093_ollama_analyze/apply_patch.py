@@ -185,8 +185,15 @@ NEW_METHOD = '''
 # Anchor: the line that opens the private ledger section
 patch.str_replace(
     PATCHBASE,
-    old='    def _bump_streams_json(self):',
-    new=NEW_METHOD + '    def _bump_streams_json(self):',
+    old=(
+        '    def _bump_streams_json(self):\n'
+        '        try:'
+    ),
+    new=(
+        NEW_METHOD +
+        '    def _bump_streams_json(self):\n'
+        '        try:'
+    ),
     label='add ollama_analyze method',
 )
 if patch.errors:
