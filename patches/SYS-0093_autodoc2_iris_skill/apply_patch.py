@@ -32,7 +32,6 @@ check = subprocess.run(
     ['/opt/mythos/.venv/bin/python3', '-c',
      'import sys; '
      'sys.path.insert(0, "/opt/mythos/skills"); '
-     'sys.path.insert(0, "/opt/mythos/skills/engine"); '
      'sys.path.insert(0, "/opt/mythos"); '
      'from autodoc2_query import Autodoc2QuerySkill; '
      'skill = Autodoc2QuerySkill(); '
@@ -56,7 +55,7 @@ else:
 check2 = subprocess.run(
     ['/opt/mythos/.venv/bin/python3', '-c',
      'import sys, importlib.util, pathlib; '
-     'sys.path.insert(0, "/opt/mythos/skills/engine"); '
+     'sys.path.insert(0, "/opt/mythos/skills"); '
      'sys.path.insert(0, "/opt/mythos"); '
      'skill_path = pathlib.Path("/opt/mythos/skills/data/autodoc2_query.py"); '
      'assert skill_path.exists(), "skill file not found"; '
