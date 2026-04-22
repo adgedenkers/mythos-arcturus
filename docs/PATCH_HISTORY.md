@@ -2274,3 +2274,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** autodoc2_query.py
+
+### SYS-0094: autodoc2 reliability — scheduled re-crawl, legacy retirement
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** autodoc2_worker.py, mythos-autodoc2-crawl.service, mythos-autodoc2-crawl.timer, SYSTEM_AUTODOC2.md, SYSTEM_AUTODOC2.md

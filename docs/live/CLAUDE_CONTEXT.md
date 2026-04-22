@@ -1,6 +1,6 @@
 # Mythos System Context
-> Auto-generated: 2026-04-21 03:00:23
-> Current Patch: 0000 / sys_0085
+> Auto-generated: 2026-04-22 03:00:23
+> Current Patch: 0000 / v0.0.18
 
 ## System Health
 - Services: 22/25 active — ⚠️ DOWN: mythos-jupyter, mythos-obs-graph, mythos-photos
@@ -9,7 +9,7 @@
 - Mythos Size: 359G
 
 ## Current Patch/Version
-- Current: 0000 / sys_0085
+- Current: 0000 / v0.0.18
 - Next available: 0001
 - Total patches deployed: 0
 
@@ -17,33 +17,33 @@
 ### 2026-04-02: Iris Voice Quality + LoRA Fine-Tuning
 
 **Completed this session:**
-- [x] NEU-0019: Anti-confab v4 — capability fabrication rules + closing question fix
+- [x] NEU-0019: Anti-confab v4 -- capability fabrication rules + closing question fix
   - Iris no longer offers to check external databases, send emails, look up prices, etc.
   - Closing question prohibition strengthened (covers "How about you?" pattern)
   - Both Modelfiles updated (iris:latest + iris-deep:latest), ~1,050 tokens baked
-- [x] SYS-0047: Model alias consolidation — single source of truth at `core/model_aliases.py`
+- [x] SYS-0047: Model alias consolidation -- single source of truth at `core/model_aliases.py`
   - All handlers import from one file (ollama_models.py, chat_mode.py, chat_assistant.py, mythos_bot.py, help_handler.py)
-  - Aliases now point to baked models: fast→iris:latest, deep→iris-deep:latest
+  - Aliases now point to baked models: fast->iris:latest, deep->iris-deep:latest
 - [x] SYS-0048: Cleanup for SYS-0047 misses + ARCHITECTURE.md update
   - Fixed chat_mode.py and help_handler.py (whitespace/unicode matching issues)
   - ARCHITECTURE.md updated: anti-confab section, Modelfile table, 4 new lessons learned
-- [x] Git repo fix — removed stale index.lock, clean commit + push
+- [x] Git repo fix -- removed stale index.lock, clean commit + push
 
 **Next up:**
 - [ ] LoRA fine-tuning: draft 50-100 synthetic training pairs for Iris voice
   - Cover: casual, emotional, technical, spiritual, confab traps, skill data handling
   - Evaluate tools: unsloth, axolotl
-  - Hardware: RTX 5090, 64GB RAM — should handle qwen3:30b-a3b LoRA
+  - Hardware: RTX 5090, 64GB RAM -- should handle qwen3:30b-a3b LoRA
   - Goal: bake behavioral patterns into weights, not just prompts
-- [ ] Closing question habit — accepted as LoRA fix (prompt-only can't fully eliminate)
-- [ ] Grid worker model — `mythos-worker-grid.service` reads OLLAMA_MODEL from .env (now iris-deep:latest). May want to keep grid worker on iris:latest for speed
-- [ ] Thinking mode management — qwen3:32b think tokens consume time. Explore `think=False` or `/no_think` for simple messages
+- [ ] Closing question habit -- accepted as LoRA fix (prompt-only can't fully eliminate)
+- [ ] Grid worker model -- `mythos-worker-grid.service` reads OLLAMA_MODEL from .env (now iris-deep:latest). May want to keep grid worker on iris:latest for speed
+- [ ] Thinking mode management -- qwen3:32b think tokens consume time. Explore `think=False` or `/no_think` for simple messages
 
 ### Pending from previous sessions:
 - [ ] NEU-0013 follow-up: backfill worker + reprocessing queue for grid perception
 - [ ] Update `iris_identity.md` with intake awareness (tell Iris she passively captures knowledge)
-- [ ] Telegram notification loop for significance ≥ 4 extractions
-- [ ] Fix /planets command — `astrology_handler.handle_planets` queries `astro_charts` but table is `astro_natal_charts`
+- [ ] Telegram notification loop for significance >= 4 extractions
+- [ ] Fix /planets command -- `astrology_handler.handle_planets` queries `astro_charts` but table is `astro_natal_charts`
 
 ## Known Issues
 | Issue | Severity | Notes |
@@ -52,17 +52,17 @@
 | Extractor sometimes chooses "update" when should "create" | Medium | Stale event IDs in context window |
 | Calendar events created by extractor lack detail | Low | No doctor name, location, phone number |
 | No way to edit/delete routines via Telegram | Low | Can only `/routine_add` |
-| Iris closing questions | Low | Prompt reduces but doesn't eliminate — LoRA fix planned |
+| Iris closing questions | Low | Prompt reduces but doesn't eliminate -- LoRA fix planned |
 | Grid worker using iris-deep | Low | May be overkill/slow for background scoring |
-| Post-install git push may fail on large accumulations | Low | 59k objects caused GitHub disconnect — fixed with repack |
+| Post-install git push may fail on large accumulations | Low | 59k objects caused GitHub disconnect -- fixed with repack |
 
 ## Recent Patches (last 5 commits)
 ```
-a094e906 SYS-0085: finance v2 patch D re-land — merchants & patterns
-b912f11d SYS-0082: finance v2 doc reconciliation (SYSTEM_FINANCE status + ledger)
-5f98d55c docs: add SYSTEM_Astrology.md - astrology pipeline reference
-02e84d3e SYS-0081: Gemini review workflow — template, Phase 2.5, review_link field (reviewed by Castor 2-round, 2026-04-12)
-3cb80466 SYS-0080: handoff --strict flag + PatchBase.verify_handoff() helper
+5c194107 SYS-0094: autodoc2 reliability — scheduled re-crawl, legacy retirement
+47eab3a8 Auto-commit before pre-patch-SYS-0094_autodoc2_reliability-20260421_233109
+02e95745 Auto-commit before pre-patch-SYS-0094_autodoc2_reliability-20260421_232859
+21fd96f5 SYS-0093: autodoc2 iris skill — natural language codebase queries
+4cc1ef0b Auto-commit before pre-patch-SYS-0093_autodoc2_iris_skill-20260421_232217
 ```
 
 ## Services
