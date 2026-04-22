@@ -22,7 +22,8 @@ author: Adge Denkers
 > Current system docs:
 > - `docs/SYSTEM_FINANCE.md` — Finance v2 (active build, Patch B shipped)
 > - `docs/SYSTEM_ASTROLOGY.md` — Astrology v2 (complete + stable, SEN-0004→0015)  <!-- SEN-0015 -->
-> - `docs/SUB-SYSTEMS.md` — Universal sub-system pattern (ACTIVE, N=2)  <!-- SEN-0015 -->
+> - `docs/SUB-SYSTEMS.md` — Universal sub-system pattern (ACTIVE, N=3)  <!-- SYS-0086 -->
+> - `docs/SYSTEM_AUTODOC2.md` — AutoDoc2 codebase documentation engine (registered SYS-0086)  <!-- SYS-0086 -->
 
 > **Version:** 6.4.0
 > **Last Updated:** 2026-04-21

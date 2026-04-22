@@ -25,7 +25,9 @@
 | `IRIS_MEMORY_CONSOLIDATION_PIPELINE.md` | Iris Memory Consolidation Pipeline | active | NEU |
 | `KNOWLEDGE_MAP.md` | Financial Knowledge Map | active | SYS |
 | `MONTHLY_MOONS_REFERENCE.md` | Cultural Lunar Months Reference | active | SEN |
+| `AUTODOC2_V2.md` | AutoDoc2 Design Plan | active | SYS |
 | `PATCH_HISTORY.md` | Patch History Documentation | active | SYS |
+| `SYSTEM_AUTODOC2.md` | SYSTEM: AutoDoc2 | active | SYS |
 | `PROMPT_LAB.md` | Iris Prompt Lab Toolkit | active | LOG |
 | `PROMPT_SYSTEM.md` | Iris Prompt System Reference | active | LOG |
 | `README.md` | Mythos Documentation Index | active | null |

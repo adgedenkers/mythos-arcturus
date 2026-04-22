@@ -13,11 +13,11 @@ reviewed_at: 2026-04-21
 
 # Mythos Sub-Systems Pattern
 
-> **Status: ACTIVE.** This pattern is now validated against two
-> sub-systems: Finance v2 (original) and Astrology v2 (completed
-> 2026-04-21). The pattern held. Promoted from DRAFT.
+> **Status: ACTIVE.** This pattern is now validated against three
+> sub-systems: Finance v2, Astrology v2 (completed 2026-04-21), and
+> AutoDoc2 (registered 2026-04-21). The pattern held across all three.
 >
-> Next revision target: when a third sub-system ships Letter A.
+> Next revision target: when a fourth sub-system ships Letter A.
 
 ---
 
@@ -29,6 +29,7 @@ spanning many patches. Examples:
 
 - **Finance v2** — double-entry ledger on Postgres (A→L, 12 letters)
 - **Astrology v2** — chart calculation + transit engine on Swiss Ephemeris (A→F, 7 patches)
+- **AutoDoc2** — multi-language codebase documentation engine, Neo4j graph + gemma4:26b analysis (A→G, 7 letters)
 - Future candidates: **Voice Memos v2**, **Iris Memory v3**, **Calendar v2**
 
 A sub-system is bigger than a feature and smaller than a stream. A
