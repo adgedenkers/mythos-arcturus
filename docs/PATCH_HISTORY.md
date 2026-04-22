@@ -2196,3 +2196,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** PATCH
 - **Stream:** SEN
 - **Files:** transit_pressure.py, transit_pressure.py
+
+### SEN-0012: transit_handler fix — compute+persist not just cache read
+- **Date:** 2026-04-21
+- **Type:** PATCH
+- **Stream:** SEN
+- **Files:** transit_handler.py

@@ -16,7 +16,10 @@ from typing import Optional
 log = logging.getLogger("iris.transit_interpreter")
 
 OLLAMA_HOST  = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:30b-a3b")
+# SEN-0013: gemma4:26b for transit interpretations
+# qwen3 leaks chain-of-thought into content field.
+# Override via TRANSIT_OLLAMA_MODEL env var if needed.
+OLLAMA_MODEL = os.getenv("TRANSIT_OLLAMA_MODEL", "gemma4:26b")
 
 NATAL_CONTEXT = """
 Ka'tuar'el (Adge Denkers) natal chart:
@@ -95,7 +98,7 @@ Do not start with "This transit" or restate the aspect name. Just speak to what 
             response = client.chat(
                 model=OLLAMA_MODEL,
                 messages=[{"role": "user", "content": prompt}],
-                options={"temperature": 0.75, "num_predict": 256},
+                options={"temperature": 0.75, "num_predict": 512},
             )
             asp["interpretation"] = response["message"]["content"].strip()
             log.info(f"Interpreted {asp['transiting_planet']} {asp['aspect_type']} {asp['natal_point']}")
