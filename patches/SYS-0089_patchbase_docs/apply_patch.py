@@ -126,55 +126,51 @@ print('-' * 70)
 if not patch.assert_file_exists(TODO_PATH, 'TODO.md'):
     patch.finish(); sys.exit(1)
 
-# 3a: Add SYS-0087/0089 completion block before Astrology v2 entry (line 185)
+# 3a: Insert PatchBase completion block before Astrology v2 entry.
+# Anchor taken verbatim from live TODO.md — the heading line itself is unique.
 patch.str_replace(
     TODO_PATH,
-    old=(
-        '- Post-install verifies against active-directive sudoers rules need regex (`^\\s*[^#].*NOPASSWD`), not substring matching. Comments referencing removed rules will otherwise false-positive.\n'
-        '### 2026-04-21: Astrology v2 — Complete + Transit Engine Live'
-    ),
+    old='### 2026-04-21: Astrology v2 \u2014 Complete + Transit Engine Live',
     new=(
-        '- Post-install verifies against active-directive sudoers rules need regex (`^\\s*[^#].*NOPASSWD`), not substring matching. Comments referencing removed rules will otherwise false-positive.\n'
         '### 2026-04-21: PatchBase Microtool Kit + Patch System Docs\n'
-         '- [x] **SYS-0087:** PatchBase microtool kit — 8 new methods: `str_replace`, `append_to_file`,\n'
-         '  `prepend_to_file`, `ensure_line_in_file`, `read_file`, `assert_file_exists`,\n'
-         '  `run_python_check`, `py_compile_check`. Eliminates copy-paste `edit_file()` boilerplate.\n'
-         '- [x] **SYS-0089:** `SYSTEM_PATCH.md` created — canonical state doc for the patch system\n'
-         '  with full PatchBase API reference, bootstrapping rule, and non-negotiable rules.\n'
-         '- **Key lesson:** Self-patching patches cannot call new methods on the running `patch`\n'
-         '  object — it was instantiated from old code. Use fresh subprocesses after the deploy.\n'
-         '\n'
-         '### 2026-04-21: Astrology v2 — Complete + Transit Engine Live'),
+        '- [x] **SYS-0087:** PatchBase microtool kit \u2014 8 new methods: `str_replace`, `append_to_file`,\n'
+        '  `prepend_to_file`, `ensure_line_in_file`, `read_file`, `assert_file_exists`,\n'
+        '  `run_python_check`, `py_compile_check`. Eliminates copy-paste `edit_file()` boilerplate.\n'
+        '- [x] **SYS-0089:** `SYSTEM_PATCH.md` created \u2014 canonical state doc for the patch system\n'
+        '  with full PatchBase API reference, bootstrapping rule, and non-negotiable rules.\n'
+        '- **Key lesson:** Self-patching patches cannot call new methods on the running `patch`\n'
+        '  object \u2014 it was instantiated from old code. Use fresh subprocesses after the deploy.\n'
+        '\n'
+        '### 2026-04-21: Astrology v2 \u2014 Complete + Transit Engine Live'
+    ),
     label='SYS-0087/0089 completion block',
 )
 
-# 3b: Add self-patching insight before qwen3 section (line 244)
+# 3b: Insert self-patching insight before qwen3 section.
+# Anchor taken verbatim from live TODO.md — the heading line itself is unique.
 patch.str_replace(
     TODO_PATH,
-    old=(
-        '- Calibrate before deploying: `iris-calibrate` runs 60 tests across 6 message types\n'
+    old='### qwen3 num_predict / thinking mode (2026-04-21)',
+    new=(
+        '### Self-patching bootstrapping rule (2026-04-21)\n'
+        'Any patch that replaces `patch_base.py` must use ONLY the old API throughout the entire run.\n'
+        'The `patch` object is instantiated from the old code at import time \u2014 deploying a new file\n'
+        'to disk does not hot-swap the running object. New methods can only be exercised by spawning\n'
+        'a fresh subprocess after the deploy. Discovered during SYS-0087 (two failed installs).\n'
+        '\n'
         '### qwen3 num_predict / thinking mode (2026-04-21)'
     ),
-    new=(
-        '- Calibrate before deploying: `iris-calibrate` runs 60 tests across 6 message types\n'
-        '### Self-patching bootstrapping rule (2026-04-21)\n'
-         'Any patch that replaces `patch_base.py` must use ONLY the old API throughout the entire run.\n'
-         'The `patch` object is instantiated from the old code at import time — deploying a new file\n'
-         'to disk does not hot-swap the running object. New methods can only be exercised by spawning\n'
-         'a fresh subprocess after the deploy. Discovered during SYS-0087 (two failed installs).\n'
-         '\n'
-         '### qwen3 num_predict / thinking mode (2026-04-21)'),
     label='self-patching insight',
 )
 
 if patch.errors:
-    patch.logger.log(f'\n  ✗ TODO.md: {len(patch.errors)} error(s) — aborting')
+    patch.logger.log(f'\n  \u2717 TODO.md: {len(patch.errors)} error(s) \u2014 aborting')
     patch.finish(); sys.exit(1)
-patch.logger.log('  ✓ TODO.md: all edits applied')
+patch.logger.log('  \u2713 TODO.md: all edits applied')
 
 # ── Done ──────────────────────────────────────────────────────────
 print('\n' + '=' * 70)
-print('✓ SYS-0089 complete — patch system fully documented')
+print('\u2713 SYS-0089 complete \u2014 patch system fully documented')
 print('  SYSTEM_PATCH.md: full PatchBase API reference created')
 print('  ARCHITECTURE.md: microtool methods + bootstrapping rule added')
 print('  TODO.md: SYS-0087/0089 completion + bootstrapping insight added')
