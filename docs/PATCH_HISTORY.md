@@ -2184,3 +2184,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SEN
 - **Files:** transit_handler.py, transit_pressure.py, mythos_bot.py, NEXT_PATCH_SPEC.md
+
+### SEN-0010: astrology v2 letter F — integration + completion
+- **Date:** 2026-04-21
+- **Type:** MINOR
+- **Stream:** SEN
+- **Files:** daily-transits, SYSTEM_ASTROLOGY.md, SUB-SYSTEMS.md, NEXT_PATCH_SPEC.md

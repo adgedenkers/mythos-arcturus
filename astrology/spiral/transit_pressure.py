@@ -116,8 +116,14 @@ EPHE_PATH = os.environ.get("SE_EPHE_PATH", "/opt/mythos/astrology/ephe")
 # ── DB Connection ─────────────────────────────────────────────────────────────
 
 def _get_conn():
-    db_url = os.environ.get("DATABASE_URL", "postgresql://adge@localhost/mythos")
-    return psycopg2.connect(db_url)
+    # SEN-0011: use Unix socket (no password required), matching natal_generator.py
+    # DATABASE_URL TCP default was failing with "no password supplied"
+    return psycopg2.connect(
+        host="/var/run/postgresql",
+        port=5432,
+        database="mythos",
+        user="adge",
+    )
 
 
 # ── Ephemeris Helpers ─────────────────────────────────────────────────────────
@@ -161,41 +167,97 @@ def _get_transiting_positions_yesterday(target_date: date) -> dict:
 
 def _load_natal_positions(chart_id: int) -> dict:
     """
-    Load natal ecliptic longitudes from astro_chart_points table.
-    Returns dict: point_name -> longitude
+    Load natal ecliptic longitudes for transit pressure computation.
+    Returns dict: point_name -> longitude, filtered to NATAL_POINTS.
+
+    SEN-0011: now calls _load_natal_positions_via_generator() first
+    (injected by SEN-0009, uses natal_generator.load_natal() via socket).
+    Falls back to direct Postgres query via fixed _get_conn() if needed.
     """
+    # Try natal_generator path first (SEN-0009 injection)
+    try:
+        positions = _load_natal_positions_via_generator(chart_id)
+        if positions:
+            # Normalise point names: astro_chart_points stores 'Ascendant'/'Midheaven'
+            # but NATAL_POINTS uses 'ASC'/'MC'
+            NAME_MAP = {
+                'Ascendant': 'ASC',
+                'Midheaven': 'MC',
+                'Mean Node': 'North Node',
+                'True Node': 'North Node',
+            }
+            normalised = {}
+            for k, v in positions.items():
+                normalised[NAME_MAP.get(k, k)] = v
+            # Filter to NATAL_POINTS (generator returns all chart_objects)
+            filtered = {k: v for k, v in normalised.items() if k in NATAL_POINTS}
+            if filtered:
+                log.debug(
+                    "_load_natal_positions: %d points via natal_generator for chart_id=%d",
+                    len(filtered), chart_id
+                )
+                return filtered
+    except Exception as e:
+        log.warning("natal_generator path failed: %s", e)
+
+    # Fallback: direct Postgres query via socket connection
+    log.warning(
+        "_load_natal_positions: falling back to direct Postgres for chart_id=%d",
+        chart_id
+    )
     try:
         conn = _get_conn()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        # Chart points (planets)
-        cur.execute("""
-            SELECT name, longitude
-            FROM astro_chart_points
-            WHERE chart_id = %s
-        """, (chart_id,))
-        points = {row["name"]: row["longitude"] for row in cur.fetchall()}
+        # Chart objects (planets) from astro_chart_objects
+        cur.execute(
+            "SELECT object_name, longitude FROM astro_chart_objects WHERE chart_id = %s",
+            (chart_id,)
+        )
+        points = {row["object_name"]: row["longitude"] for row in cur.fetchall()}
 
-        # House cusps for ASC (house 1) and MC (house 10)
-        cur.execute("""
-            SELECT house_number, longitude
-            FROM astro_natal_house_cusps
-            WHERE chart_id = %s AND house_number IN (1, 10)
-        """, (chart_id,))
+        # ASC and MC from astro_chart_points (stored as 'Ascendant'/'Midheaven')
+        NAME_MAP = {'Ascendant': 'ASC', 'Midheaven': 'MC',
+                    'Mean Node': 'North Node', 'True Node': 'North Node'}
+        cur.execute(
+            "SELECT point_name, longitude FROM astro_chart_points WHERE chart_id = %s",
+            (chart_id,)
+        )
         for row in cur.fetchall():
-            if row["house_number"] == 1:
-                points["ASC"] = row["longitude"]
-            elif row["house_number"] == 10:
-                points["MC"] = row["longitude"]
+            mapped = NAME_MAP.get(row["point_name"], row["point_name"])
+            points[mapped] = row["longitude"]
+
+        # House 1 = ASC, house 10 = MC from cusps if not already set
+        if "ASC" not in points or "MC" not in points:
+            cur.execute(
+                "SELECT house_number, cusp_longitude FROM astro_natal_house_cusps "
+                "WHERE chart_id = %s AND house_number IN (1, 10)",
+                (chart_id,)
+            )
+            for row in cur.fetchall():
+                if row["house_number"] == 1:
+                    points.setdefault("ASC", row["cusp_longitude"])
+                elif row["house_number"] == 10:
+                    points.setdefault("MC", row["cusp_longitude"])
 
         cur.close()
         conn.close()
 
-        # Filter to only the natal points we care about
-        return {k: v for k, v in points.items() if k in NATAL_POINTS}
+        filtered = {k: v for k, v in points.items() if k in NATAL_POINTS}
+        if filtered:
+            log.info(
+                "_load_natal_positions: %d points via direct Postgres for chart_id=%d",
+                len(filtered), chart_id
+            )
+        else:
+            log.error(
+                "_load_natal_positions: no natal points found for chart_id=%d",
+                chart_id
+            )
+        return filtered
 
     except Exception as e:
-        log.error(f"transit_pressure._load_natal_positions error: {e}")
+        log.error("_load_natal_positions error (fallback also failed): %s", e)
         return {}
 
 
