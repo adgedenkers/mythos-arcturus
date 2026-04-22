@@ -64,7 +64,8 @@ class AutodocEngine:
         print(f"[autodoc2] crawl_id:    {self.crawl_id}")
         print(f"[autodoc2] languages:   {', '.join(supported_languages())}")
         print(f"[autodoc2] llm:         {'disabled' if cfg.skip_llm else cfg.ollama_model}")
-        print(f"[autodoc2] analyze:     {'gemma4:26b' if cfg.analyze else 'disabled'}")
+        from .analyzer import ANALYSIS_MODEL
+        print(f"[autodoc2] analyze:     {ANALYSIS_MODEL if cfg.analyze else 'disabled'}")
 
         if not cfg.target.exists():
             print(f"[autodoc2] ERROR: target does not exist: {cfg.target}")
