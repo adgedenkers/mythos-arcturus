@@ -246,13 +246,27 @@ for t in [tmp, tmp2, tmp3, tmp4, tmp5, tmp_py, tmp_bad_py]:
 print('\\n  All smoke tests passed.')
 """
 
-if not patch.run_python_check(smoke, 'microtool smoke tests', timeout=30):
+import subprocess as _sp
+smoke_result = _sp.run(
+    ['/opt/mythos/.venv/bin/python3', '-c',
+     'import sys; sys.path.insert(0, "/opt/mythos/patches/scripts")\n' + smoke],
+    capture_output=True, text=True, timeout=30,
+)
+for line in smoke_result.stdout.strip().splitlines():
+    patch.logger.log(f'  {line}')
+if smoke_result.returncode != 0:
+    snippet = (smoke_result.stderr or '').strip()[:300]
+    patch.errors.append(f'smoke tests failed: {snippet}')
+    patch.logger.log('  ✗ smoke tests FAILED')
+    if snippet:
+        patch.logger.log(f'    {snippet[:200]}')
     patch.finish()
     sys.exit(1)
+patch.validations.append('microtool smoke tests: all passed')
 
 # ── Done ──────────────────────────────────────────────────────────
 print('\n' + '=' * 70)
-print('✓ SYS-0086 complete — PatchBase microtool kit deployed')
+print('✓ SYS-0087 complete — PatchBase microtool kit deployed')
 print('  New methods: str_replace, append_to_file, prepend_to_file,')
 print('  ensure_line_in_file, read_file, assert_file_exists,')
 print('  run_python_check, py_compile_check')
