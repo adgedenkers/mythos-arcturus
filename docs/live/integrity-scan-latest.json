@@ -3,36 +3,37 @@
     "files_scanned": 5299,
     "dirs_scanned": 575,
     "files_new": 0,
-    "files_updated": 8,
-    "files_unchanged": 5291,
+    "files_updated": 14,
+    "files_unchanged": 5285,
     "files_missing": 0,
-    "scan_start": "2026-04-22T03:00:01.960879",
+    "scan_start": "2026-04-22T09:55:56.383394",
     "errors": [
+      "[Errno 2] No such file or directory: '/opt/mythos/bin/ollama-analyze'",
       "[Errno 2] No such file or directory: '/opt/mythos/bin/finance-import'"
     ],
-    "scan_end": "2026-04-22T03:00:13.312990"
+    "scan_end": "2026-04-22T09:56:07.876087"
   },
   "functions": {
     "files_parsed": 424,
     "functions_found": 3315,
     "imports_found": 3507,
     "parse_errors": 1,
-    "scan_start": "2026-04-22T03:00:13.313526",
-    "scan_end": "2026-04-22T03:00:20.507658"
+    "scan_start": "2026-04-22T09:56:07.876436",
+    "scan_end": "2026-04-22T09:56:15.184809"
   },
   "tables": {
     "tables_found": 129,
     "columns_found": 1585,
     "fk_relationships": 78,
-    "scan_start": "2026-04-22T03:00:20.512093",
-    "scan_end": "2026-04-22T03:00:23.277482"
+    "scan_start": "2026-04-22T09:56:15.189321",
+    "scan_end": "2026-04-22T09:56:17.943683"
   },
   "services": {
     "services_found": 27,
     "healthy": 23,
     "unhealthy": 4,
     "linked_to_files": 22,
-    "scan_start": "2026-04-22T03:00:23.277802",
-    "scan_end": "2026-04-22T03:00:23.444583"
+    "scan_start": "2026-04-22T09:56:17.943975",
+    "scan_end": "2026-04-22T09:56:18.116874"
   }
 }

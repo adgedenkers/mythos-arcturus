@@ -6,94 +6,112 @@
 
 ---
 
-## Patch: SYS-0086 — AutoDoc2 subsystem registration (doc-only)
+## Patch: SYS-next — AutoDoc2 Letter F — Telegram `/autodoc` commands
 
-**Letter:** A
+**Letter:** F
 **Stream:** SYS
-**Patch type:** PATCH (doc-only, no code, no schema, no service changes)
-**Blast radius:** Low
+**Patch type:** MINOR
+**Blast radius:** Low — new bot commands only, no schema, no services
+
+**Status:** DEFERRED — not blocking anything. The Iris skill (Letter E)
+handles natural-language codebase queries from Telegram already. Letter F
+adds convenience `/autodoc` slash commands.
 
 ---
 
 ## Scope
 
-This is a documentation-only patch. No code changes, no SQL, no service
-restarts.
+Wire three commands into `mythos_bot.py`:
 
-**Files deployed:**
+| Command | Handler | Action |
+|---------|---------|--------|
+| `/autodoc` | `autodoc_status` | Show last crawl date, file count, language breakdown from Neo4j |
+| `/autodoc crawl` | `autodoc_crawl` | Trigger `mythos-autodoc2-crawl.service` via systemctl |
+| `/autodoc query <question>` | `autodoc_query` | Run query through `Autodoc2QuerySkill` and return summary |
 
-| File | Action |
+**Files to modify:**
+
+| File | Change |
 |------|--------|
-| `/opt/mythos/docs/SYSTEM_AUTODOC2.md` | New — canonical current state doc |
-| `/opt/mythos/docs/AUTODOC2_V2.md` | New — locked design plan |
-| `/opt/mythos/docs/autodoc2/NEXT_PATCH_SPEC.md` | New — this file |
-| `/opt/mythos/docs/_INDEX.md` | Edit — add AutoDoc2 entries |
-| `/opt/mythos/docs/SUB-SYSTEMS.md` | Edit — increment N=2 to N=3, add AutoDoc2 to examples |
-| `/opt/mythos/docs/ARCHITECTURE.md` | Edit — add SYSTEM_AUTODOC2.md pointer in subsystem docs list |
+| `/opt/mythos/telegram_bot/handlers/autodoc_handler.py` | New — three command handlers |
+| `/opt/mythos/telegram_bot/mythos_bot.py` | Two edits: import + `add_handler` call |
+
+---
+
+## Pre-build diagnostic
+
+Before building this patch, read the live bot handler registration pattern:
+
+```bash
+D=~/diag.txt; > "$D"
+echo "=== STREAMS ===" >> "$D"
+mythos-diag streams >> "$D" 2>&1
+echo -e "\n\n=== BOT MAIN ===" >> "$D"
+cat /opt/mythos/telegram_bot/mythos_bot.py >> "$D" 2>&1
+echo -e "\n\n=== HANDLERS __INIT__ ===" >> "$D"
+cat /opt/mythos/telegram_bot/handlers/__init__.py >> "$D" 2>&1
+echo -e "\n\n=== SAMPLE HANDLER ===" >> "$D"
+head -60 /opt/mythos/telegram_bot/handlers/finance_handler.py >> "$D" 2>&1
+cat "$D" | xclip -selection clipboard && echo "✓ Copied"
+```
+
+---
+
+## Handler implementation notes
+
+`autodoc_status` — query Neo4j directly (same pattern as `step_verify_graph_coverage`):
+```python
+MATCH (c:AutodocCrawl) RETURN c.target, c.file_count, c.finished_at, c.status
+ORDER BY c.finished_at DESC LIMIT 3
+```
+
+`autodoc_crawl` — trigger the systemd service:
+```python
+subprocess.run(['sudo', '-n', '/usr/local/libexec/mythos/mythos-servicectl',
+                'start', 'mythos-autodoc2-crawl.service'], ...)
+```
+
+`autodoc_query` — instantiate `Autodoc2QuerySkill` and call `execute()`:
+```python
+import sys; sys.path.insert(0, '/opt/mythos/skills')
+from data.autodoc2_query import Autodoc2QuerySkill
+```
+
+---
+
+## Registration pattern (two edits to mythos_bot.py)
+
+Both use `patch.str_replace()`. Get exact anchors from the diagnostic dump
+before writing these — never guess.
+
+Edit 1 — import (at top of file, near other handler imports):
+```python
+from .handlers.autodoc_handler import autodoc_status, autodoc_crawl, autodoc_query
+```
+
+Edit 2 — add_handler (inside `main()`, near other command registrations):
+```python
+application.add_handler(CommandHandler("autodoc", autodoc_status))
+application.add_handler(MessageHandler(
+    filters.Regex(r'^/autodoc crawl'), autodoc_crawl))
+application.add_handler(MessageHandler(
+    filters.Regex(r'^/autodoc query'), autodoc_query))
+```
 
 ---
 
 ## Verification
 
-After `patch-install SYS-0086`:
-
+After install:
 ```bash
-# All three docs exist
-ls -la /opt/mythos/docs/SYSTEM_AUTODOC2.md
-ls -la /opt/mythos/docs/AUTODOC2_V2.md
-ls -la /opt/mythos/docs/autodoc2/NEXT_PATCH_SPEC.md
+# Check handler file exists
+ls -la /opt/mythos/telegram_bot/handlers/autodoc_handler.py
 
-# SUB-SYSTEMS.md reflects N=3
-grep "N=3" /opt/mythos/docs/SUB-SYSTEMS.md
+# Check bot picked it up (restart and check logs)
+sudo systemctl restart mythos-bot.service
+journalctl -u mythos-bot.service -n 20 --no-pager
 
-# ARCHITECTURE.md lists SYSTEM_AUTODOC2.md
-grep "SYSTEM_AUTODOC2" /opt/mythos/docs/ARCHITECTURE.md
-
-# _INDEX.md has AutoDoc2 entries
-grep -i "autodoc2" /opt/mythos/docs/_INDEX.md
-```
-
-All five checks should return output. No output = something didn't deploy.
-
----
-
-## Rollback
-
-Doc-only patch. To rollback: delete the three new files and restore
-the previous versions of `_INDEX.md`, `SUB-SYSTEMS.md`, and
-`ARCHITECTURE.md` from their `.bak` files created by PatchBase.
-
----
-
-## What comes next (Letter B)
-
-After SYS-0086 lands, the next patch is **SYS-0087 — `ollama-analyze`
-microtool**.
-
-Scope of SYS-0087:
-- New file: `/opt/mythos/tools/autodoc2/analyzer.py` — the gemma4:26b
-  analysis callable
-- Modified: `engine.py` — add `--analyze` flag handling, call
-  `analyzer.run(parsed_file)` after walker, store results as AutodocFile
-  properties
-- Modified: `cli.py` — add `--analyze` / `-a` flag
-- Modified: `neo4j_writer.py` — add `analysis_*` property writes to
-  `write_file()`
-- No new services, no SQL, no bot changes
-
-Run a live diagnostic before building SYS-0087:
-
-```bash
-D=~/diag.txt; > "$D"
-echo "=== ENGINE ===" >> "$D"
-cat /opt/mythos/tools/autodoc2/engine.py >> "$D" 2>&1
-echo -e "\n\n=== CLI ===" >> "$D"
-cat /opt/mythos/tools/autodoc2/cli.py >> "$D" 2>&1
-echo -e "\n\n=== NEO4J WRITER ===" >> "$D"
-cat /opt/mythos/tools/autodoc2/neo4j_writer.py >> "$D" 2>&1
-echo -e "\n\n=== LLM CLIENT ===" >> "$D"
-cat /opt/mythos/tools/autodoc2/llm_client.py >> "$D" 2>&1
-echo -e "\n\n=== STREAMS ===" >> "$D"
-mythos-diag streams >> "$D" 2>&1
-cat "$D" | xclip -selection clipboard && echo "✓ Copied"
+# Test in Telegram
+/autodoc
+/autodoc query what files import neo4j
 ```
