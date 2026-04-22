@@ -109,11 +109,11 @@ edit_file(
 
 edit_file(
     '/opt/mythos/docs/_INDEX.md',
-    old='| `SYSTEM_FINANCE.md` | SYSTEM: Finance v2 | active | SYS |',
+    old='| `PATCH_HISTORY.md` | Patch History Documentation | active | SYS |',
     new=(
         '| `AUTODOC2_V2.md` | AutoDoc2 Design Plan | active | SYS |\n'
-        '| `SYSTEM_AUTODOC2.md` | SYSTEM: AutoDoc2 | active | SYS |\n'
-        '| `SYSTEM_FINANCE.md` | SYSTEM: Finance v2 | active | SYS |'
+        '| `PATCH_HISTORY.md` | Patch History Documentation | active | SYS |\n'
+        '| `SYSTEM_AUTODOC2.md` | SYSTEM: AutoDoc2 | active | SYS |'
     ),
     description='_INDEX.md — add AutoDoc2 entries',
 )
