@@ -2292,3 +2292,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** PATCH
 - **Stream:** SYS
 - **Files:** TODO.md
+
+### SYS-0099: deploy SYSTEM_PATCH.md -- patch system canonical state doc
+- **Date:** 2026-04-23
+- **Type:** PATCH
+- **Stream:** SYS
+- **Files:** SYSTEM_PATCH.md

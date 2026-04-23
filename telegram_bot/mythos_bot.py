@@ -151,6 +151,7 @@ from handlers.task_handler import task_command, tasks_command
 from handlers.watchlist_handler import build_watch_handler
 # Help system
 from handlers.help_handler import help_command as help_command_handler
+from handlers.cosmos_handler import cosmos_command, standard_command
 from handlers.meditation_handler import meditate_command, meditations_command, handle_meditation_document, handle_pending_meditation_text
 from handlers.prompt_debug_handler import prompt_debug_command
 
@@ -1206,6 +1207,8 @@ def main():
     application.add_handler(CommandHandler('weather', cmd_weather))
 
     application.add_handler(CommandHandler("meditate", meditate_command))
+    application.add_handler(CommandHandler("cosmos", cosmos_command))
+    application.add_handler(CommandHandler("standard", standard_command))
     application.add_handler(CommandHandler("meditations", meditations_command))
 
     application.add_handler(CommandHandler("persona", voice_command))
