@@ -374,3 +374,14 @@ Single source of truth: `/opt/mythos/core/model_aliases.py`. All handlers import
 - [ ] Phase 2: Document Store -- /opt/mythos/documents/, Document nodes, CRUD API
 - [ ] Phase 3: Unified Search -- /api/search, dossier view, timeline view
 - [ ] Phase 4: Intelligence Layer -- Ollama auto-extraction, cross-domain correlation
+
+### 2026-04-22: ollama-analyze microtool + PatchBase.ollama_analyze()
+
+- [x] **SYS-0096:** `ollama_analyze.py` deployed -- 4 preset tasks:
+  `sql-drift`, `py-signatures`, `review`, `sql-analyze`. Default model
+  `qwen3:30b-a3b`. Dry-run aware. Strips qwen3 `<think>` blocks.
+  Symlinked at `/opt/mythos/bin/ollama-analyze`.
+- [x] **PatchBase.ollama_analyze()** -- added manually to `patch_base.py`
+  (bootstrapping constraint: patch_base.py cannot edit itself via str_replace).
+  Now registered: `patchbase-methods` shows 24 public methods.
+- CLI verified: `ollama-analyze --list-tasks` and dry-run stub both clean.

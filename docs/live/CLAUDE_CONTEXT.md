@@ -1,15 +1,15 @@
 # Mythos System Context
-> Auto-generated: 2026-04-22 03:00:23
-> Current Patch: 0000 / v0.0.18
+> Auto-generated: 2026-04-23 03:00:24
+> Current Patch: 0000 / v0.0.20
 
 ## System Health
-- Services: 22/25 active — ⚠️ DOWN: mythos-jupyter, mythos-obs-graph, mythos-photos
+- Services: 23/25 active — ⚠️ DOWN: mythos-obs-graph, mythos-photos
 - PostgreSQL Tables: 118
-- Disk: 1.2T / 1.8T (66%), 597G available
+- Disk: 1.2T / 1.8T (66%), 596G available
 - Mythos Size: 359G
 
 ## Current Patch/Version
-- Current: 0000 / v0.0.18
+- Current: 0000 / v0.0.20
 - Next available: 0001
 - Total patches deployed: 0
 
@@ -58,18 +58,18 @@
 
 ## Recent Patches (last 5 commits)
 ```
-5c194107 SYS-0094: autodoc2 reliability — scheduled re-crawl, legacy retirement
-47eab3a8 Auto-commit before pre-patch-SYS-0094_autodoc2_reliability-20260421_233109
-02e95745 Auto-commit before pre-patch-SYS-0094_autodoc2_reliability-20260421_232859
-21fd96f5 SYS-0093: autodoc2 iris skill — natural language codebase queries
-4cc1ef0b Auto-commit before pre-patch-SYS-0093_autodoc2_iris_skill-20260421_232217
+132197e7 SYS-0096: ollama-analyze microtool + Neo4j registration
+ff4d6a05 Auto-commit before pre-patch-SYS-0096_ollama_analyze-20260422_101554
+3d72c6be SYS-0093: add PatchBase.ollama_analyze() method
+9b39b58c Auto-commit before pre-patch-SYS-0093_ollama_analyze-20260422_100551
+120ad001 Auto-commit before pre-patch-SYS-0093_ollama_analyze-20260422_100103
 ```
 
 ## Services
 - ✅ `mythos-api`: active/running
 - ✅ `mythos-bot`: active/running
 - ✅ `mythos-doc-watcher`: active/running
-- ❌ `mythos-jupyter`: activating/auto-restart
+- ✅ `mythos-jupyter`: active/running
 - ✅ `mythos-knowledge-map`: active/running
 - ❌ `mythos-obs-graph`: activating/auto-restart
 - ✅ `mythos-patch-monitor`: active/running
