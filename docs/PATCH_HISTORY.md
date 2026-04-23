@@ -2286,3 +2286,9 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** MINOR
 - **Stream:** SYS
 - **Files:** ollama_analyze.py
+
+### SYS-0097: docs update -- SYS-0096 ollama-analyze completion record
+- **Date:** 2026-04-23
+- **Type:** PATCH
+- **Stream:** SYS
+- **Files:** TODO.md
