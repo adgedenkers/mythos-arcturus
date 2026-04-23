@@ -510,6 +510,19 @@ def assemble_system_prompt(
     baseline = _build_baseline(user_info, message_timestamp, last_message_timestamp)
     sections.append(baseline)
 
+    # ── BAKED MODEL EARLY RETURN ──────────────────────────────────────
+    # SYS-0100: Baked models (iris:*) have identity, personality, voice,
+    # and capability awareness in their Modelfile SYSTEM prompt.
+    # The assembler only provides the temporal/relational baseline.
+    # Dynamic data (skill results, research context) flows separately
+    # through chat_assistant.py into the [Context] preamble.
+    if _is_baked_model(model_name):
+        logger.info(
+            f"Baked model early return: {len(baseline)} chars baseline only, "
+            f"model={model_name}, user={user_info.get('soul_name', '?')}"
+        )
+        return baseline
+
     # ── ANTI-CONFABULATION (highest priority — before everything) ──
     _baked = _is_baked_model(model_name)
     if not _baked:

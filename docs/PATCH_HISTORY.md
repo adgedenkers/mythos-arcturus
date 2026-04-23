@@ -2298,3 +2298,10 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Type:** PATCH
 - **Stream:** SYS
 - **Files:** SYSTEM_PATCH.md
+
+### SYS-0098: iris convo model + cosmos/standard commands
+- **Date:** 2026-04-23
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** Modelfile.convo, cosmos_handler.py, model_aliases.py, .env, mythos_bot.py, mythos_bot.py, mythos_bot.py
+- **Services restarted:** mythos-bot.service
