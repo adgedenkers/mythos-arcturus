@@ -2305,3 +2305,10 @@ Every `install.sh` must end with verification checks. See `TODO.md` for template
 - **Stream:** SYS
 - **Files:** Modelfile.convo, cosmos_handler.py, model_aliases.py, .env, mythos_bot.py, mythos_bot.py, mythos_bot.py
 - **Services restarted:** mythos-bot.service
+
+### SYS-0100: prompt assembler early return for baked models
+- **Date:** 2026-04-23
+- **Type:** MINOR
+- **Stream:** SYS
+- **Files:** prompt_assembler.py
+- **Services restarted:** mythos-bot.service
