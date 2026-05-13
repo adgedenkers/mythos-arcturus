@@ -1,7 +1,9 @@
 name: Riley Green
+calendar: gregorian
 birth:
   date: "1988-10-18"
-  time: "14:45"
+  time: "01:15"
+  timezone: "America/Chicago"
   city: "Jacksonville"
   region: "AL"
   country: "USA"

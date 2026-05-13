@@ -1,9 +1,12 @@
 name: Adge
 calendar: gregorian
+
 birth:
   date: "1977-11-22"
-  time: "08:45"
+  time: "08:30"
   timezone: "America/New_York"
+
+location:
   city: Albany
   region: NY
   country: USA

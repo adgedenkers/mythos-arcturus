@@ -1,0 +1,11 @@
+name: Jennie
+calendar: gregorian
+birth:
+  date: "1950-12-19"
+  time: "22:48"
+  timezone: "America/Chicago"
+  city: Great Lakes
+  region: IL
+  country: USA
+  latitude: 42.31213505224454
+  longitude: -87.83543685020392

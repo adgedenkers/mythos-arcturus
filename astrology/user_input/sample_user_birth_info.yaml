@@ -1,0 +1,11 @@
+name: Dennis
+calendar: gregorian
+birth:
+  date: "1952-08-12"
+  time: "13:01"
+  timezone: "America/New_York"
+  city: Oxford
+  region: NY
+  country: USA
+  latitude: 42.40558
+  longitude: -75.56307

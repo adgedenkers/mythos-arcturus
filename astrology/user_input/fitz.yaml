@@ -1,8 +1,10 @@
 name: Fitz
+calendar: gregorian
 birth:
   date: "2010-09-08"
   time: "14:39"
-  city: "Schenectady"
+  timezone: "America/New_York"
+  city: "Niskyuna"
   region: "NY"
   country: "USA"
   latitude: 42.79284559591072

@@ -1,7 +1,9 @@
 name: Brandi Carlile
+calendar: gregorian
 birth:
   date: "1981-06-01"
   time: "15:45"
+  timezone: "America/Los_Angeles"
   city: "Ravensdale"
   region: "WA"
   country: "USA"
